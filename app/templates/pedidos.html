@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <div class='container'>
+        <h1> Pedidos</h1>
+        {% for i in pedidos %}
+        <div class="row">
+            <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
+                Pedido {{i['orden']}}
+            </div>  
+        {% endfor %}
+            <a href="{{ url_for('main.edit_profile') }}">
+                <button class="btn btn-default">Cambiar datos</button>
+        </a>
+        </div>
+    </div>
+{% endblock %}

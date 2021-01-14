@@ -1,0 +1,9 @@
+{
+    "python.pythonPath": "C:\\Users\\erezzonico\\AppData\\Local\\Continuum\\anaconda3\\python.exe",
+
+    "python.linting.pylintArgs": [
+        "--load-plugins pylintplugins",
+        "pylint_flask_sqlalchemy",
+        "pylint_flask",                 
+    ]
+}
