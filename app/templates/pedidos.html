@@ -19,7 +19,7 @@
                 <td>{{i['creation_date']}}</td>
                 <td>{{i['status']}}</td>
                 <td>{{i['sub_status']}}</td>
-                <td><a href="{{ url_for('main.orden', orden_id=i['id']) }}"></a>
+                <td><a href="{{ url_for('main.orden', orden_id = i['id']) }}">
                     <button class="btn btn-default"> Ver detalles </button></td>
             </tr>
             {% endfor %}

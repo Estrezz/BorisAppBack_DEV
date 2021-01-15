@@ -1,10 +1,8 @@
-2021-01-15 10:53:56,113 ERROR: Exception on /cargar_pedidos [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
+2021-01-15 10:59:59,684 ERROR: Exception on /orden/1 [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
 Traceback (most recent call last):
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\engine\base.py", line 1257, in _execute_context
-    cursor, statement, parameters, context
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\engine\default.py", line 606, in do_executemany
-    cursor.executemany(statement, parameters)
-sqlite3.IntegrityError: UNIQUE constraint failed: order_detail.Order_line_number
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\base.py", line 406, in _entity_descriptor
+    return getattr(entity, key)
+AttributeError: type object 'Order_detail' has no attribute 'order_number'
 
 The above exception was the direct cause of the following exception:
 
@@ -23,55 +21,25 @@ Traceback (most recent call last):
     return self.view_functions[rule.endpoint](**req.view_args)
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_login\utils.py", line 272, in decorated_view
     return func(*args, **kwargs)
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 81, in upload_pedidos
-    cargar_pedidos()
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\interfaces.py", line 19, in cargar_pedidos
-    crear_pedido(dict)
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\interfaces.py", line 76, in crear_pedido
-    db.session.commit()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\scoping.py", line 163, in do
-    return getattr(self.registry(), name)(*args, **kwargs)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\session.py", line 1046, in commit
-    self.transaction.commit()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\session.py", line 504, in commit
-    self._prepare_impl()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\session.py", line 483, in _prepare_impl
-    self.session.flush()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\session.py", line 2540, in flush
-    self._flush(objects)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\session.py", line 2682, in _flush
-    transaction.rollback(_capture_exception=True)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 70, in __exit__
-    with_traceback=exc_tb,
+  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 104, in orden
+    orden = Order_detail.query.filter_by(order_number=orden_nro).all()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\query.py", line 1923, in filter_by
+    for key, value in kwargs.items()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\query.py", line 1923, in <listcomp>
+    for key, value in kwargs.items()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\base.py", line 412, in _entity_descriptor
+    replace_context=err,
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\util\compat.py", line 182, in raise_
     raise exception
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\session.py", line 2642, in _flush
-    flush_context.execute()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\unitofwork.py", line 422, in execute
-    rec.execute(self)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\unitofwork.py", line 589, in execute
-    uow,
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\persistence.py", line 245, in save_obj
-    insert,
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\persistence.py", line 1083, in _emit_insert_statements
-    c = cached_connections[connection].execute(statement, multiparams)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\engine\base.py", line 1011, in execute
-    return meth(self, multiparams, params)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\sql\elements.py", line 298, in _execute_on_connection
-    return connection._execute_clauseelement(self, multiparams, params)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\engine\base.py", line 1130, in _execute_clauseelement
-    distilled_params,
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\engine\base.py", line 1317, in _execute_context
-    e, statement, parameters, cursor, context
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\engine\base.py", line 1511, in _handle_dbapi_exception
-    sqlalchemy_exception, with_traceback=exc_info[2], from_=e
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\util\compat.py", line 182, in raise_
-    raise exception
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\engine\base.py", line 1257, in _execute_context
-    cursor, statement, parameters, context
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\engine\default.py", line 606, in do_executemany
-    cursor.executemany(statement, parameters)
-sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: order_detail.Order_line_number
-[SQL: INSERT INTO order_detail ("Order_line_number", line_number, prod_id, name, accion, accion_cambiar_por, accion_cantidad, motivo, monto_a_devolver, "order") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
-[parameters: (('3379882371', 1, 70390472, 'Jean SKINNY ALFREDO 2 (Bordó, 02)', 'cambiar', 258846867, 1, 'Es grande', 0.0, 3), ('3379882372', 2, 70391381, 'REMERA GUARDIA (02, Gris)', 'devolver', None, 1, 'Es grande', 0.0, 3))]
-(Background on this error at: http://sqlalche.me/e/13/gkpj)
+sqlalchemy.exc.InvalidRequestError: Entity '<class 'app.models.Order_detail'>' has no property 'order_number'
+2021-01-15 11:01:29,106 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-15 11:10:25,316 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-15 11:10:46,718 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-15 11:47:24,444 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-15 11:48:43,904 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-15 11:53:35,218 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-15 11:55:12,069 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-15 11:56:13,542 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-15 11:57:48,599 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-15 12:00:01,229 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-15 13:16:09,194 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]

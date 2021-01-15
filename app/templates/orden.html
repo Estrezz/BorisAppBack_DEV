@@ -12,7 +12,6 @@
                 <th>Accion</th>
                 <th>Cantidad</th>
                 <th>Varios 1</th>
-                <th>Varios 2</th>
                 <th></th>
             </tr>
             {% for i in orden %}
@@ -23,11 +22,16 @@
                 <td>{{i['order']}}</td> 
                 <td>{{i['accion']}}</td>
                 <td>{{i['accion_cantidad']}}</td>
-                <td>{{i['accion_cambiar_por']}}</td>
-                <td>{{i['monto_a_devolver']}}</td>
+                <td>
+                {% if i['accion'] == 'cambiar' %} 
+                    {{i['accion_cambiar_por']}}
+                {% else %}
+                    {{i['monto_a_devolver']}}
+                {% endif %}
+                </td>
                 <td>{{i['motivo']}}</td>
 
-                <td><a href="{ url_for('main.ver_pedidos'}"></a>
+                <td><a href="{ url_for('main.ver_pedidos'}">
                     <button class="btn btn-default"> Accion </button></td>
             </tr>
             {% endfor %}
