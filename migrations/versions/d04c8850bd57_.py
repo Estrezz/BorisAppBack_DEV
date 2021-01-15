@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: d3b652f4cdef
+Revision ID: d04c8850bd57
 Revises: 
-Create Date: 2021-01-14 19:42:39.238196
+Create Date: 2021-01-15 15:23:26.560670
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'd3b652f4cdef'
+revision = 'd04c8850bd57'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -43,21 +43,13 @@ def upgrade():
     sa.PrimaryKeyConstraint('store_id')
     )
     op.create_index(op.f('ix_company_platform'), 'company', ['platform'], unique=False)
-    op.create_index(op.f('ix_company_store_id'), 'company', ['store_id'], unique=True)
+    op.create_index(op.f('ix_company_store_id'), 'company', ['store_id'], unique=False)
     op.create_table('customer',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('platform', sa.String(length=64), nullable=True),
     sa.Column('name', sa.String(length=64), nullable=True),
     sa.Column('email', sa.String(length=120), nullable=True),
     sa.Column('phone', sa.String(length=15), nullable=True),
-    sa.Column('address', sa.String(length=64), nullable=True),
-    sa.Column('number', sa.String(length=10), nullable=True),
-    sa.Column('floor', sa.String(length=10), nullable=True),
-    sa.Column('zipcode', sa.String(length=8), nullable=True),
-    sa.Column('locality', sa.String(length=64), nullable=True),
-    sa.Column('city', sa.String(length=64), nullable=True),
-    sa.Column('province', sa.String(length=64), nullable=True),
-    sa.Column('country', sa.String(length=64), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_customer_email'), 'customer', ['email'], unique=True)
@@ -73,12 +65,22 @@ def upgrade():
     sa.Column('courier', sa.String(length=64), nullable=True),
     sa.Column('status', sa.String(length=15), nullable=True),
     sa.Column('sub_status', sa.String(length=15), nullable=True),
+    sa.Column('customer_address', sa.String(length=64), nullable=True),
+    sa.Column('customer_number', sa.String(length=10), nullable=True),
+    sa.Column('customer_floor', sa.String(length=10), nullable=True),
+    sa.Column('customer_zipcode', sa.String(length=8), nullable=True),
+    sa.Column('customer_locality', sa.String(length=64), nullable=True),
+    sa.Column('customer_city', sa.String(length=64), nullable=True),
+    sa.Column('customer_province', sa.String(length=64), nullable=True),
+    sa.Column('customer_country', sa.String(length=64), nullable=True),
     sa.Column('customer_id', sa.Integer(), nullable=True),
     sa.Column('store', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['customer_id'], ['customer.id'], ),
     sa.ForeignKeyConstraint(['store'], ['company.store_id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_order_header_creation_date'), 'order_header', ['creation_date'], unique=False)
+    op.create_index(op.f('ix_order_header_order_number'), 'order_header', ['order_number'], unique=False)
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('username', sa.String(length=64), nullable=True),
@@ -92,7 +94,7 @@ def upgrade():
     op.create_index(op.f('ix_user_email'), 'user', ['email'], unique=True)
     op.create_index(op.f('ix_user_username'), 'user', ['username'], unique=True)
     op.create_table('order_detail',
-    sa.Column('Order_line_number', sa.String(), nullable=False),
+    sa.Column('order_line_number', sa.String(), nullable=False),
     sa.Column('line_number', sa.Integer(), nullable=True),
     sa.Column('prod_id', sa.Integer(), nullable=True),
     sa.Column('name', sa.String(length=120), nullable=True),
@@ -103,7 +105,7 @@ def upgrade():
     sa.Column('monto_a_devolver', sa.Float(), nullable=True),
     sa.Column('order', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['order'], ['order_header.id'], ),
-    sa.PrimaryKeyConstraint('Order_line_number')
+    sa.PrimaryKeyConstraint('order_line_number')
     )
     # ### end Alembic commands ###
 
@@ -114,6 +116,8 @@ def downgrade():
     op.drop_index(op.f('ix_user_username'), table_name='user')
     op.drop_index(op.f('ix_user_email'), table_name='user')
     op.drop_table('user')
+    op.drop_index(op.f('ix_order_header_order_number'), table_name='order_header')
+    op.drop_index(op.f('ix_order_header_creation_date'), table_name='order_header')
     op.drop_table('order_header')
     op.drop_index(op.f('ix_customer_platform'), table_name='customer')
     op.drop_index(op.f('ix_customer_name'), table_name='customer')

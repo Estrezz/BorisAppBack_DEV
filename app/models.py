@@ -84,6 +84,14 @@ class Order_header(db.Model):
     courier = db.Column(db.String(64))
     status = db.Column(db.String(15))
     sub_status = db.Column(db.String(15))
+    customer_address = db.Column(db.String(64))
+    customer_number = db.Column(db.String(10))
+    customer_floor = db.Column(db.String(10))
+    customer_zipcode = db.Column(db.String(8))
+    customer_locality = db.Column(db.String(64))
+    customer_city = db.Column(db.String(64))
+    customer_province = db.Column(db.String(64))
+    customer_country = db.Column(db.String(64))
     detalle = db.relationship('Order_detail', backref='productos', lazy='dynamic')
     customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'))
     store = db.Column(db.Integer, db.ForeignKey('company.store_id'))
@@ -98,14 +106,6 @@ class Customer(db.Model):
     name = db.Column(db.String(64), index=True)
     email = db.Column(db.String(120), index=True, unique=True)
     phone = db.Column(db.String(15))
-    address = db.Column(db.String(64))
-    number = db.Column(db.String(10))
-    floor = db.Column(db.String(10))
-    zipcode = db.Column(db.String(8))
-    locality = db.Column(db.String(64))
-    city = db.Column(db.String(64))
-    province = db.Column(db.String(64))
-    country = db.Column(db.String(64))
     orders = db.relationship('Order_header', backref='buyer', lazy='dynamic')
 
     def __repr__(self):
@@ -113,7 +113,7 @@ class Customer(db.Model):
 
 
 class Order_detail(db.Model):
-    Order_line_number = db.Column(db.String, primary_key=True)
+    order_line_number = db.Column(db.String, primary_key=True)
     line_number = db.Column(db.Integer)
     prod_id = db.Column(db.Integer)
     name = db.Column(db.String(120))
@@ -125,5 +125,5 @@ class Order_detail(db.Model):
     order = db.Column(db.Integer, db.ForeignKey('order_header.id'))
 
     def __repr__(self):
-        return '<Order_Detail {} {} {}>'.format(self.Order_line_number, self.line_number, self.prod_id, self.name)
+        return '<Order_Detail {} {} {}>'.format(self.order_line_number, self.line_number, self.prod_id, self.name)
 

@@ -32,14 +32,7 @@ def crear_pedido(pedido):
         name = pedido['cliente']['name'],
         email = pedido['cliente']['email'],
         phone = pedido['cliente']['phone'],
-        address = pedido['cliente']['address']['street'],
-        number = pedido['cliente']['address']['number'],
-        floor = pedido['cliente']['address']['floor'],
-        zipcode = pedido['cliente']['address']['zipcode'],
-        locality = pedido['cliente']['address']['locality'],
-        city = pedido['cliente']['address']['city'],
-        province = pedido['cliente']['address']['province'],
-        country = pedido['cliente']['address']['country'],
+        platform=unaEmpresa.platform
         )
 
 
@@ -52,6 +45,14 @@ def crear_pedido(pedido):
         courier = pedido['correo']['correo_id'],
         status = 'Shipping',
         sub_status = pedido['correo']['correo_status'],
+        customer_address = pedido['cliente']['address']['street'],
+        customer_number = pedido['cliente']['address']['number'],
+        customer_floor = pedido['cliente']['address']['floor'],
+        customer_zipcode = pedido['cliente']['address']['zipcode'],
+        customer_locality = pedido['cliente']['address']['locality'],
+        customer_city = pedido['cliente']['address']['city'],
+        customer_province = pedido['cliente']['address']['province'],
+        customer_country = pedido['cliente']['address']['country'],
         buyer = unCliente,
         pertenece = unaEmpresa
     )   
@@ -60,7 +61,7 @@ def crear_pedido(pedido):
     for x in pedido['producto']: 
         flash('monto {} tipo {}'.format(x['monto_a_devolver'], type(x['monto_a_devolver'])))
         unProducto = Order_detail(
-            Order_line_number = str(pedido['orden']) + str(indice),
+            order_line_number = str(pedido['orden']) + str(indice),
             line_number = indice,
             prod_id =  x['id'],
             name = x['name'],
