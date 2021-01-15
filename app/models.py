@@ -9,7 +9,7 @@ from app import db, login
 
 
 class Company(db.Model):
-    store_id = db.Column(db.String(64), primary_key=True, index=True, unique=True)
+    store_id = db.Column(db.String(64), primary_key=True, index=True)
     platform = db.Column(db.String(64), index=True)
     store_name = db.Column(db.String(64))
     admin_email = db.Column(db.String(120))
@@ -31,7 +31,7 @@ class Company(db.Model):
     shipping_country = db.Column(db.String(64))
     shipping_info = db.Column(db.String(120))
     users = db.relationship('User', backref='empleado', lazy='dynamic')
-    orders = db.relationship('Order', backref='pertenece', lazy='dynamic')
+    orders = db.relationship('Order_header', backref='pertenece', lazy='dynamic')
 
     def __repr__(self):
         return '<Company {} - {}>'.format(self.platform, self.store_name )
@@ -43,10 +43,10 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
-    company_id = db.Column(db.Integer, db.ForeignKey('company.store_id'))
+    store = db.Column(db.Integer, db.ForeignKey('company.store_id'))
     
     def __repr__(self):
-        return '<User {}>'.format(self.username)
+        return '<User {} {}>'.format(self.username, self.store)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -74,20 +74,22 @@ def load_user(id):
     return User.query.get(int(id))
 
 
-class Order(db.Model):
-    id =  db.Column(db.Integer, primary_key=True)
-    creation_date = db.Column(db.DateTime, index=True)
+class Order_header(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    order_number = db.Column(db.Integer, index=True)
+    order_id_anterior = db.Column(db.Integer)
+    creation_date = db.Column(db.String(35), index=True)
     payment_method = db.Column(db.String(10))
     payment_card = db.Column(db.String(10))
     courier = db.Column(db.String(64))
     status = db.Column(db.String(15))
     sub_status = db.Column(db.String(15))
+    detalle = db.relationship('Order_detail', backref='productos', lazy='dynamic')
     customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'))
-    products = db.relationship('Product', backref='articulos', lazy='dynamic')
-    company_id = db.Column(db.Integer, db.ForeignKey('company.store_id'))
+    store = db.Column(db.Integer, db.ForeignKey('company.store_id'))
 
     def __repr__(self):
-        return '<Order {} - {} - {}>'.format(self.id, self.creation_date, self.status)
+        return '<Order {} - {} - {}>'.format(self.order_number, self.creation_date, self.status)
 
 
 class Customer(db.Model):
@@ -104,21 +106,24 @@ class Customer(db.Model):
     city = db.Column(db.String(64))
     province = db.Column(db.String(64))
     country = db.Column(db.String(64))
-    orders = db.relationship('Order', backref='buyer', lazy='dynamic')
+    orders = db.relationship('Order_header', backref='buyer', lazy='dynamic')
 
     def __repr__(self):
         return '<Cliente {}>'.format(self.name) 
 
 
-class Product(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+class Order_detail(db.Model):
+    Order_line_number = db.Column(db.String, primary_key=True)
+    line_number = db.Column(db.Integer)
+    prod_id = db.Column(db.Integer)
     name = db.Column(db.String(120))
     accion = db.Column(db.String(10))
     accion_cambiar_por = db.Column(db.Integer)
     accion_cantidad = db.Column(db.Integer)
     motivo = db.Column(db.String(50))
     monto_a_devolver = db.Column(db.Float)
-    order_id = db.Column(db.Integer, db.ForeignKey('order.id'))
+    order = db.Column(db.Integer, db.ForeignKey('order_header.id'))
 
     def __repr__(self):
-        return '<Product {}>'.format(self.name)
+        return '<Order_Detail {} {} {}>'.format(self.Order_line_number, self.line_number, self.prod_id, self.name)
+

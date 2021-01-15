@@ -1,7 +1,7 @@
 #import requests
 import json
 from app import db
-from app.models import User, Company, Customer, Order, Product
+from app.models import User, Company, Customer, Order_header, Order_detail
 from flask import session, flash, current_app
 import os
 
@@ -11,56 +11,68 @@ def cargar_pedidos():
     #flash('app {}'.format(current_app.config['FILES_PEDIDOS_URL']))
     url = "../Boris_common/logs/"
     for file in os.listdir(url):
+        files = []
         full_filename = "%s/%s" % (url, file)
-        flash('file {}'.format(full_filename))
         with open(full_filename,'r') as fi:
             dict = json.load(fi)
+            #flash('llama al archivo {}'.format(full_filename))
             crear_pedido(dict)
-            #Pedidos.append(dict)
-    
-    return Pedidos
+            files.append(full_filename)
+    return files
 
 
 def crear_pedido(pedido):
-    #unaEmpresa =  Company.query.filter(Company.store_id == pedido['store_id']).first()
-    unaEmpresa =  Company.query.get(pedido['company']['id'])
+    unaEmpresa = Company.query.get(pedido['company']['store_id'])
+    
+    if Customer.query.get(pedido['cliente']['id']):
+        unCliente = Customer.query.get(pedido['cliente']['id'])
+    else: 
+        unCliente = Customer(
+        id = pedido['cliente']['id'],
+        name = pedido['cliente']['name'],
+        email = pedido['cliente']['email'],
+        phone = pedido['cliente']['phone'],
+        address = pedido['cliente']['address']['street'],
+        number = pedido['cliente']['address']['number'],
+        floor = pedido['cliente']['address']['floor'],
+        zipcode = pedido['cliente']['address']['zipcode'],
+        locality = pedido['cliente']['address']['locality'],
+        city = pedido['cliente']['address']['city'],
+        province = pedido['cliente']['address']['province'],
+        country = pedido['cliente']['address']['country'],
+        )
 
-    unCliente = Customer(
-    id = pedido['cliente']['id'],
-    name = pedido['cliente']['name'],
-    email = pedido['cliente']['email'],
-    phone = pedido['cliente']['phone'],
-    address = pedido['cliente']['address']['street'],
-    number = pedido['cliente']['address']['number'],
-    floor = pedido['cliente']['address']['floor'],
-    zipcode = pedido['cliente']['address']['zipcode'],
-    locality = pedido['cliente']['address']['locality'],
-    city = pedido['cliente']['address']['city'],
-    province = pedido['cliente']['address']['province'],
-    country = pedido['cliente']['address']['country'],
-    )
 
-    unaOrden = Order(
-    id = pedido['orden'],
-    payment_method = pedido['orden_medio_de_pago'],
-    payment_card = pedido['orden_tarjeta_de_pago'],
-    courier = pedido['correo']['correo_id'],
-    status = 'Shipping',
-    sub_status = pedido['correo']['correo_status'],
-    buyer = unCliente,
-    pertenece = unaEmpresa
+    unaOrden = Order_header(
+        order_number = pedido['orden_nro'],
+        order_id_anterior = pedido['orden'],
+        creation_date = pedido['orden_fecha'],
+        payment_method = pedido['orden_medio_de_pago'],
+        payment_card = pedido['orden_tarjeta_de_pago'],
+        courier = pedido['correo']['correo_id'],
+        status = 'Shipping',
+        sub_status = pedido['correo']['correo_status'],
+        buyer = unCliente,
+        pertenece = unaEmpresa
     )   
 
-    #for x in range(len(pedido['producto'])): 
+    indice = 1
     for x in pedido['producto']: 
-        unProducto = Product(
-            id =  x['id'],
+        flash('monto {} tipo {}'.format(x['monto_a_devolver'], type(x['monto_a_devolver'])))
+        unProducto = Order_detail(
+            Order_line_number = str(pedido['orden']) + str(indice),
+            line_number = indice,
+            prod_id =  x['id'],
             name = x['name'],
             accion = x['accion'],
+            monto_a_devolver = x['monto_a_devolver'],
             accion_cantidad = x['accion_cantidad'],
             accion_cambiar_por = x['accion_cambiar_por'],
-            monto_a_devolver = x['monto_a_devolver'],
             motivo =  x['motivo'],
-            articulos = unaOrden
+            productos = unaOrden
             )
-   
+        flash('Producto {} - monto: {}'.format(unProducto, unProducto.monto_a_devolver))
+        db.session.add(unProducto)
+        indice += indice
+    #    flash(' unProducto {}'.format(unProducto))
+    db.session.commit()

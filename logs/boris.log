@@ -1,4 +1,11 @@
-2021-01-14 11:13:04,931 ERROR: Exception on /pedidos [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
+2021-01-15 10:59:59,684 ERROR: Exception on /orden/1 [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
+Traceback (most recent call last):
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\base.py", line 406, in _entity_descriptor
+    return getattr(entity, key)
+AttributeError: type object 'Order_detail' has no attribute 'order_number'
+
+The above exception was the direct cause of the following exception:
+
 Traceback (most recent call last):
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 2447, in wsgi_app
     response = self.full_dispatch_request()
@@ -14,11 +21,24 @@ Traceback (most recent call last):
     return self.view_functions[rule.endpoint](**req.view_args)
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_login\utils.py", line 272, in decorated_view
     return func(*args, **kwargs)
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 51, in ver_pedidos
-    pedidos = cargar_pedidos()
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\interfaces.py", line 18, in cargar_pedidos
-    crear_pedido(dict)
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\interfaces.py", line 45, in crear_pedido
-    payment_method = pedido['orden_medio_de_pago'],
-KeyError: 'orden_medio_de_pago'
-2021-01-14 11:14:47,934 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 104, in orden
+    orden = Order_detail.query.filter_by(order_number=orden_nro).all()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\query.py", line 1923, in filter_by
+    for key, value in kwargs.items()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\query.py", line 1923, in <listcomp>
+    for key, value in kwargs.items()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\base.py", line 412, in _entity_descriptor
+    replace_context=err,
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\util\compat.py", line 182, in raise_
+    raise exception
+sqlalchemy.exc.InvalidRequestError: Entity '<class 'app.models.Order_detail'>' has no property 'order_number'
+2021-01-15 11:01:29,106 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-15 11:10:25,316 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-15 11:10:46,718 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-15 11:47:24,444 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-15 11:48:43,904 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-15 11:53:35,218 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-15 11:55:12,069 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-15 11:56:13,542 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-15 11:57:48,599 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-15 12:00:01,229 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]

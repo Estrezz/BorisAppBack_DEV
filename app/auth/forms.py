@@ -15,9 +15,8 @@ class AltaForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
-    password2 = PasswordField('Repeat Password', validators=[DataRequired(),
-                                           EqualTo('password')])
-    company_id = StringField('Store_id', validators=[DataRequired()])
+    password2 = PasswordField('Repeat Password', validators=[DataRequired(),                                  EqualTo('password')])
+    store = StringField('Store_id', validators=[DataRequired()])
     submit = SubmitField('Register')
 
     def validate_username(self, username):

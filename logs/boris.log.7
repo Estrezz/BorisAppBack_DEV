@@ -1,10 +1,10 @@
-2021-01-13 18:12:44,379 ERROR: Exception on / [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
+2021-01-14 20:48:42,728 ERROR: Exception on /cargar_empresa [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
 Traceback (most recent call last):
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\engine\base.py", line 1277, in _execute_context
     cursor, statement, parameters, context
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\engine\default.py", line 609, in do_execute
     cursor.execute(statement, parameters)
-sqlite3.OperationalError: no such table: user
+sqlite3.IntegrityError: UNIQUE constraint failed: company.store_id
 
 The above exception was the direct cause of the following exception:
 
@@ -17,38 +17,40 @@ Traceback (most recent call last):
     reraise(exc_type, exc_value, tb)
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\_compat.py", line 39, in reraise
     raise value
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1948, in full_dispatch_request
-    rv = self.preprocess_request()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 2242, in preprocess_request
-    rv = func()
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 14, in before_request
-    if current_user.is_authenticated:
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\werkzeug\local.py", line 347, in __getattr__
-    return getattr(self._get_current_object(), name)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\werkzeug\local.py", line 306, in _get_current_object
-    return self.__local()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_login\utils.py", line 26, in <lambda>
-    current_user = LocalProxy(lambda: _get_user())
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_login\utils.py", line 346, in _get_user
-    current_app.login_manager._load_user()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_login\login_manager.py", line 318, in _load_user
-    user = self._user_callback(user_id)
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\models.py", line 74, in load_user
-    return User.query.get(int(id))
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\query.py", line 1018, in get
-    return self._get_impl(ident, loading.load_on_pk_identity)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\query.py", line 1135, in _get_impl
-    return db_load_fn(self, primary_key_identity)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\loading.py", line 286, in load_on_pk_identity
-    return q.one()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\query.py", line 3490, in one
-    ret = self.one_or_none()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\query.py", line 3459, in one_or_none
-    ret = list(self)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\query.py", line 3535, in __iter__
-    return self._execute_and_instances(context)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\query.py", line 3560, in _execute_and_instances
-    result = conn.execute(querycontext.statement, self._params)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_login\utils.py", line 272, in decorated_view
+    return func(*args, **kwargs)
+  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 99, in cargar_empresa
+    db.session.commit()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\scoping.py", line 163, in do
+    return getattr(self.registry(), name)(*args, **kwargs)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\session.py", line 1046, in commit
+    self.transaction.commit()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\session.py", line 504, in commit
+    self._prepare_impl()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\session.py", line 483, in _prepare_impl
+    self.session.flush()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\session.py", line 2540, in flush
+    self._flush(objects)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\session.py", line 2682, in _flush
+    transaction.rollback(_capture_exception=True)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 70, in __exit__
+    with_traceback=exc_tb,
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\util\compat.py", line 182, in raise_
+    raise exception
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\session.py", line 2642, in _flush
+    flush_context.execute()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\unitofwork.py", line 422, in execute
+    rec.execute(self)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\unitofwork.py", line 589, in execute
+    uow,
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\persistence.py", line 245, in save_obj
+    insert,
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\persistence.py", line 1083, in _emit_insert_statements
+    c = cached_connections[connection].execute(statement, multiparams)
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\engine\base.py", line 1011, in execute
     return meth(self, multiparams, params)
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\sql\elements.py", line 298, in _execute_on_connection
@@ -65,9 +67,50 @@ Traceback (most recent call last):
     cursor, statement, parameters, context
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\engine\default.py", line 609, in do_execute
     cursor.execute(statement, parameters)
-sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: user
-[SQL: SELECT user.id AS user_id, user.username AS user_username, user.email AS user_email, user.password_hash AS user_password_hash, user.last_seen AS user_last_seen, user.company_id AS user_company_id 
-FROM user 
-WHERE user.id = ?]
-[parameters: (1,)]
-(Background on this error at: http://sqlalche.me/e/13/e3q8)
+sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: company.store_id
+[SQL: INSERT INTO company (store_id, platform, store_name, admin_email, param_logo, param_fondo, param_config, contact_name, contact_phone, contact_email, correo_usado, correo_apikey, correo_id, shipping_address, shipping_number, shipping_floor, shipping_zipcode, shipping_city, shipping_province, shipping_country, shipping_info) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: ('1447373', 'TIendaNube', 'Demo Boris', None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None)]
+(Background on this error at: http://sqlalche.me/e/13/gkpj)
+2021-01-15 07:59:26,151 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-15 07:59:44,519 ERROR: Exception on /cargar_pedidos [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
+Traceback (most recent call last):
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 2447, in wsgi_app
+    response = self.full_dispatch_request()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1952, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1821, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\_compat.py", line 39, in reraise
+    raise value
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_login\utils.py", line 272, in decorated_view
+    return func(*args, **kwargs)
+  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 85, in upload_pedidos
+    flash('ordenes {} store {}'.format(i['order_number'], current_user.store))
+TypeError: 'Order_header' object is not subscriptable
+2021-01-15 08:01:18,903 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-15 08:01:55,217 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-15 08:01:57,470 ERROR: Exception on /cargar_pedidos [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
+Traceback (most recent call last):
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 2447, in wsgi_app
+    response = self.full_dispatch_request()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1952, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1821, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\_compat.py", line 39, in reraise
+    raise value
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_login\utils.py", line 272, in decorated_view
+    return func(*args, **kwargs)
+  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 82, in upload_pedidos
+    ordenes =  Order_header.query.get().all()
+TypeError: get() missing 1 required positional argument: 'ident'
+2021-01-15 08:02:50,708 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-15 08:06:08,330 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <div class='container'>
+        <h1> Ordenes</h1>
+        <table style="width:100%">
+            <tr>
+                <th>Linea</th>
+                <th>Producto</th>
+                <th>Código</th>
+                <th>Orden</th>
+                <th>Accion</th>
+                <th>Cantidad</th>
+                <th>Varios 1</th>
+                <th>Varios 2</th>
+                <th></th>
+            </tr>
+            {% for i in orden %}
+            <tr>
+                <td>{{i['line_number']}}</td> 
+                <td>{{i['name']}}</td> 
+                <td>{{i['prod_id']}}</td> 
+                <td>{{i['order']}}</td> 
+                <td>{{i['accion']}}</td>
+                <td>{{i['accion_cantidad']}}</td>
+                <td>{{i['accion_cambiar_por']}}</td>
+                <td>{{i['monto_a_devolver']}}</td>
+                <td>{{i['motivo']}}</td>
+
+                <td><a href="{ url_for('main.ver_pedidos'}"></a>
+                    <button class="btn btn-default"> Accion </button></td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}

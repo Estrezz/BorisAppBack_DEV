@@ -1,14 +1,10 @@
-2021-01-14 10:58:41,034 ERROR: Exception on / [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
+2021-01-15 10:53:56,113 ERROR: Exception on /cargar_pedidos [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
 Traceback (most recent call last):
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\relationships.py", line 2649, in _determine_joins
-    consider_as_foreign_keys=consider_as_foreign_keys,
-  File "<string>", line 2, in join_condition
-  File "<string>", line 2, in _join_condition
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\util\deprecations.py", line 139, in warned
-    return fn(*args, **kwargs)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\sql\selectable.py", line 979, in _join_condition
-    % (a.description, b.description, hint)
-sqlalchemy.exc.NoForeignKeysError: Can't find any foreign key relationships between 'company' and 'user'.
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\engine\base.py", line 1257, in _execute_context
+    cursor, statement, parameters, context
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\engine\default.py", line 606, in do_executemany
+    cursor.executemany(statement, parameters)
+sqlite3.IntegrityError: UNIQUE constraint failed: order_detail.Order_line_number
 
 The above exception was the direct cause of the following exception:
 
@@ -21,93 +17,61 @@ Traceback (most recent call last):
     reraise(exc_type, exc_value, tb)
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\_compat.py", line 39, in reraise
     raise value
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1948, in full_dispatch_request
-    rv = self.preprocess_request()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 2242, in preprocess_request
-    rv = func()
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 14, in before_request
-    if current_user.is_authenticated:
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\werkzeug\local.py", line 347, in __getattr__
-    return getattr(self._get_current_object(), name)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\werkzeug\local.py", line 306, in _get_current_object
-    return self.__local()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_login\utils.py", line 26, in <lambda>
-    current_user = LocalProxy(lambda: _get_user())
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_login\utils.py", line 346, in _get_user
-    current_app.login_manager._load_user()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_login\login_manager.py", line 318, in _load_user
-    user = self._user_callback(user_id)
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\models.py", line 74, in load_user
-    return User.query.get(int(id))
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_sqlalchemy\__init__.py", line 512, in __get__
-    mapper = orm.class_mapper(type)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\base.py", line 451, in class_mapper
-    mapper = _inspect_mapped_class(class_, configure=configure)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\base.py", line 430, in _inspect_mapped_class
-    mapper._configure_all()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\mapper.py", line 1352, in _configure_all
-    configure_mappers()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\mapper.py", line 3299, in configure_mappers
-    mapper._post_configure_properties()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\mapper.py", line 1965, in _post_configure_properties
-    prop.init()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\interfaces.py", line 197, in init
-    self.do_init()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\relationships.py", line 2078, in do_init
-    self._setup_join_conditions()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\relationships.py", line 2167, in _setup_join_conditions
-    can_be_synced_fn=self._columns_are_mapped,
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\relationships.py", line 2534, in __init__
-    self._determine_joins()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\relationships.py", line 2677, in _determine_joins
-    from_=nfe,
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_login\utils.py", line 272, in decorated_view
+    return func(*args, **kwargs)
+  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 81, in upload_pedidos
+    cargar_pedidos()
+  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\interfaces.py", line 19, in cargar_pedidos
+    crear_pedido(dict)
+  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\interfaces.py", line 76, in crear_pedido
+    db.session.commit()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\scoping.py", line 163, in do
+    return getattr(self.registry(), name)(*args, **kwargs)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\session.py", line 1046, in commit
+    self.transaction.commit()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\session.py", line 504, in commit
+    self._prepare_impl()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\session.py", line 483, in _prepare_impl
+    self.session.flush()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\session.py", line 2540, in flush
+    self._flush(objects)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\session.py", line 2682, in _flush
+    transaction.rollback(_capture_exception=True)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 70, in __exit__
+    with_traceback=exc_tb,
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\util\compat.py", line 182, in raise_
     raise exception
-sqlalchemy.exc.NoForeignKeysError: Could not determine join condition between parent/child tables on relationship Company.users - there are no foreign keys linking these tables.  Ensure that referencing columns are associated with a ForeignKey or ForeignKeyConstraint, or specify a 'primaryjoin' expression.
-2021-01-14 10:59:34,018 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
-2021-01-14 11:02:45,861 ERROR: Exception on /pedidos [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
-Traceback (most recent call last):
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 2447, in wsgi_app
-    response = self.full_dispatch_request()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1952, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1821, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\_compat.py", line 39, in reraise
-    raise value
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1950, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1936, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_login\utils.py", line 272, in decorated_view
-    return func(*args, **kwargs)
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 51, in ver_pedidos
-    pedidos = cargar_pedidos()
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\interfaces.py", line 18, in cargar_pedidos
-    crear_pedido(dict)
-NameError: name 'crear_pedido' is not defined
-2021-01-14 11:03:21,224 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
-2021-01-14 11:03:42,601 ERROR: Exception on /pedidos [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
-Traceback (most recent call last):
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 2447, in wsgi_app
-    response = self.full_dispatch_request()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1952, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1821, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\_compat.py", line 39, in reraise
-    raise value
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1950, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1936, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_login\utils.py", line 272, in decorated_view
-    return func(*args, **kwargs)
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 51, in ver_pedidos
-    pedidos = cargar_pedidos()
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\interfaces.py", line 18, in cargar_pedidos
-    crear_pedido(dict)
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\interfaces.py", line 25, in crear_pedido
-    unaEmpresa =  Company.query.filter(Company.store_id == pedido['store_id']).first()
-NameError: name 'Company' is not defined
-2021-01-14 11:04:17,712 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\session.py", line 2642, in _flush
+    flush_context.execute()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\unitofwork.py", line 422, in execute
+    rec.execute(self)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\unitofwork.py", line 589, in execute
+    uow,
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\persistence.py", line 245, in save_obj
+    insert,
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\persistence.py", line 1083, in _emit_insert_statements
+    c = cached_connections[connection].execute(statement, multiparams)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\engine\base.py", line 1011, in execute
+    return meth(self, multiparams, params)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\sql\elements.py", line 298, in _execute_on_connection
+    return connection._execute_clauseelement(self, multiparams, params)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\engine\base.py", line 1130, in _execute_clauseelement
+    distilled_params,
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\engine\base.py", line 1317, in _execute_context
+    e, statement, parameters, cursor, context
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\engine\base.py", line 1511, in _handle_dbapi_exception
+    sqlalchemy_exception, with_traceback=exc_info[2], from_=e
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\util\compat.py", line 182, in raise_
+    raise exception
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\engine\base.py", line 1257, in _execute_context
+    cursor, statement, parameters, context
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\engine\default.py", line 606, in do_executemany
+    cursor.executemany(statement, parameters)
+sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: order_detail.Order_line_number
+[SQL: INSERT INTO order_detail ("Order_line_number", line_number, prod_id, name, accion, accion_cambiar_por, accion_cantidad, motivo, monto_a_devolver, "order") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: (('3379882371', 1, 70390472, 'Jean SKINNY ALFREDO 2 (Bordó, 02)', 'cambiar', 258846867, 1, 'Es grande', 0.0, 3), ('3379882372', 2, 70391381, 'REMERA GUARDIA (02, Gris)', 'devolver', None, 1, 'Es grande', 0.0, 3))]
+(Background on this error at: http://sqlalche.me/e/13/gkpj)

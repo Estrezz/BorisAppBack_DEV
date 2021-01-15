@@ -3,7 +3,7 @@ from flask import render_template, flash, redirect, url_for, request, current_ap
 from flask_login import current_user, login_required
 from app import db
 from app.main.forms import EditProfileForm
-from app.models import User, Company, Order, Customer, Product
+from app.models import User, Company, Order_header, Customer, Order_detail
 from app.main.interfaces import cargar_pedidos
 
 from app.main import bp
@@ -44,14 +44,63 @@ def edit_profile():
                            form=form)
 
 
-
 @bp.route('/pedidos', methods=['GET', 'POST'])
 @login_required
 def ver_pedidos():
-    pedidos = cargar_pedidos()
-    return render_template('pedidos.html', title='Pedidos', pedidos=pedidos)
+   # pedidos = cargar_pedidos()
+    ordenes =  Order_header.query.filter_by(store=current_user.store).all()
+    return render_template('pedidos.html', title='Pedidos', ordenes=ordenes)
 
 
 
+@bp.route('/borrar_pedidos', methods=['GET', 'POST'])
+@login_required
+def borrar_pedidos():
+    orders = Order_header.query.all()
+    for u in orders:
+        flash('Borrando Order_header {} '.format(u))
+        db.session.delete(u)
+
+    orders = Order_detail.query.all()
+    for u in orders:
+        flash('Borrando Order_detail {} '.format(u))
+        db.session.delete(u)
+
+#    users = User.query.all()
+#    for u in users:
+#        flash('Users {} '.format(u))
+#        db.session.delete(u)
+    
+    db.session.commit()
+    return render_template('pedidos.html', title='Pedidos')
+
+@bp.route('/cargar_pedidos', methods=['GET', 'POST'])
+@login_required
+def upload_pedidos():
+    cargar_pedidos()
+    #ordenes =  Order_header.query.all()
+    ordenes =  Order_header.query.filter_by(store=current_user.store).all()
+    #for i in ordenes:
+    #    flash('ordenes id:{} nro:{} empresa: {} store {}'.format(i.id, i.order_number, i.store, current_user.store))
+    return render_template('pedidos.html', title='Pedidos', ordenes=ordenes)
 
 
+@bp.route('/cargar_empresa', methods=['GET', 'POST'])
+@login_required
+def cargar_empresa():
+    unaEmpresa = Company(
+        store_id = '1447373',
+        platform = 'TIendaNube',
+        store_name = 'Demo Boris'
+    )
+
+    db.session.add(unaEmpresa)
+    db.session.commit()
+    return redirect(url_for('main.user', username=current_user.username))
+
+@bp.route('/orden/<orden_id>')
+@login_required
+def orden(orden_id):
+    orden = Order_detail.query.filter_by(order=orden_id).all()
+    return render_template('orden.html', orden=orden)
+    

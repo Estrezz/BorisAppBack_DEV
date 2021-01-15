@@ -16,7 +16,6 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
-        flash('user {}'.format(user))
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password')
             return redirect(url_for('auth.login'))
@@ -37,7 +36,7 @@ def alta_usuario():
         return redirect(url_for('main.index'))
     form = AltaForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data)
+        user = User(username=form.username.data, email=form.email.data, store=form.store.data)
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()

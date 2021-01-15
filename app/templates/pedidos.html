@@ -2,16 +2,27 @@
 
 {% block app_content %}
     <div class='container'>
-        <h1> Pedidos</h1>
-        {% for i in pedidos %}
-        <div class="row">
-            <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
-                Pedido {{i['orden']}}
-            </div>  
-        {% endfor %}
-            <a href="{{ url_for('main.edit_profile') }}">
-                <button class="btn btn-default">Cambiar datos</button>
-        </a>
-        </div>
+        <h1> Ordenes</h1>
+        <table style="width:100%">
+            <tr>
+                <th>ID</th>
+                <th>Orden</th>
+                <th>Fecha</th>
+                <th>Estado</th>
+                <th>SubEstado</th>
+                <th></th>
+            </tr>
+            {% for i in ordenes %}
+            <tr>
+                <td>{{i['id']}}</td> 
+                <td>{{i['order_number']}}</td>
+                <td>{{i['creation_date']}}</td>
+                <td>{{i['status']}}</td>
+                <td>{{i['sub_status']}}</td>
+                <td><a href="{{ url_for('main.orden', orden_id=i['id']) }}"></a>
+                    <button class="btn btn-default"> Ver detalles </button></td>
+            </tr>
+            {% endfor %}
+        </table>
     </div>
 {% endblock %}

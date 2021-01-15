@@ -8,8 +8,7 @@ from app.models import User
 class EditProfileForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()])
-    platform = StringField('Plataforma', validators=[DataRequired()])
-    company_id = StringField('Store_id', validators=[DataRequired()])
+    store = StringField('Store_id', validators=[DataRequired()])
 
     #store_name = StringField('Nombre de la tienda')
     #admin_email = StringField('Email de Administración')
