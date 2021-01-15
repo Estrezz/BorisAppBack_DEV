@@ -1,8 +1,15 @@
 {% extends "base.html" %}
 
 {% block app_content %}
-    <div class='container'>
+    <div class='jumbotron'>
         <h1> Ordenes</h1>
+        <h4>
+            <br> <strong>Orden </strong>#{{orden.order_number}}
+            <br> <strong> Cliente </strong>{{customer.name}}  
+            <br>         {{customer.email}}
+        </h4>
+    </div>
+    <div class='container'>
         <table style="width:100%">
             <tr>
                 <th>Linea</th>
@@ -15,7 +22,7 @@
                 <th>Motivo</th>
                 <th></th>
             </tr>
-            {% for i in orden %}
+            {% for i in orden_linea %}
             <tr>
                 <td>{{i['line_number']}}</td> 
                 <td>{{i['name']}}</td> 

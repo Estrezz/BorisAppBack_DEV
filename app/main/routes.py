@@ -4,7 +4,7 @@ from flask_login import current_user, login_required
 from app import db
 from app.main.forms import EditProfileForm
 from app.models import User, Company, Order_header, Customer, Order_detail
-from app.main.interfaces import cargar_pedidos
+from app.main.interfaces import cargar_pedidos, resumen_ordenes
 
 from app.main import bp
 
@@ -44,10 +44,16 @@ def edit_profile():
                            form=form)
 
 
+@bp.route('/Dashboard', methods=['GET', 'POST'])
+@login_required
+def vision_general():
+    resumen = resumen_ordenes(current_user.store) 
+    return render_template('dashboard.html', title='Vision General', resumen=resumen)
+
+
 @bp.route('/pedidos', methods=['GET', 'POST'])
 @login_required
 def ver_pedidos():
-   # pedidos = cargar_pedidos()
     ordenes =  Order_header.query.filter_by(store=current_user.store).all()
     return render_template('pedidos.html', title='Pedidos', ordenes=ordenes)
 
@@ -101,6 +107,7 @@ def cargar_empresa():
 @bp.route('/orden/<orden_id>')
 @login_required
 def orden(orden_id):
-    orden = Order_detail.query.filter_by(order=orden_id).all()
-    return render_template('orden.html', orden=orden)
+    orden = Order_header.query.filter_by(id=orden_id).first()
+    orden_linea = Order_detail.query.filter_by(order=orden_id).all()
+    return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer)
     

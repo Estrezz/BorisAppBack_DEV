@@ -1,4 +1,4 @@
-2021-01-15 10:53:56,113 ERROR: Exception on /cargar_pedidos [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
+2021-01-15 13:16:54,800 ERROR: Exception on /cargar_pedidos [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
 Traceback (most recent call last):
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\engine\base.py", line 1257, in _execute_context
     cursor, statement, parameters, context
@@ -23,11 +23,11 @@ Traceback (most recent call last):
     return self.view_functions[rule.endpoint](**req.view_args)
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_login\utils.py", line 272, in decorated_view
     return func(*args, **kwargs)
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 81, in upload_pedidos
+  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 80, in upload_pedidos
     cargar_pedidos()
   File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\interfaces.py", line 19, in cargar_pedidos
     crear_pedido(dict)
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\interfaces.py", line 76, in crear_pedido
+  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\interfaces.py", line 78, in crear_pedido
     db.session.commit()
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\scoping.py", line 163, in do
     return getattr(self.registry(), name)(*args, **kwargs)
@@ -73,5 +73,8 @@ Traceback (most recent call last):
     cursor.executemany(statement, parameters)
 sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: order_detail.Order_line_number
 [SQL: INSERT INTO order_detail ("Order_line_number", line_number, prod_id, name, accion, accion_cambiar_por, accion_cantidad, motivo, monto_a_devolver, "order") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
-[parameters: (('3379882371', 1, 70390472, 'Jean SKINNY ALFREDO 2 (Bordó, 02)', 'cambiar', 258846867, 1, 'Es grande', 0.0, 3), ('3379882372', 2, 70391381, 'REMERA GUARDIA (02, Gris)', 'devolver', None, 1, 'Es grande', 0.0, 3))]
+[parameters: (('3379882371', 1, 70391381, 'REMERA GUARDIA (02, Gris)', 'cambiar', 258848619, 1, '', 0.0, 3), ('3379882372', 2, 70391624, 'VESTIDO ACANTILADO (Blanco, M)', 'devolver', None, 1, 'No gusta color', 2500.0, 3))]
 (Background on this error at: http://sqlalche.me/e/13/gkpj)
+2021-01-15 13:17:57,713 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-15 14:36:02,154 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-15 14:39:06,019 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]

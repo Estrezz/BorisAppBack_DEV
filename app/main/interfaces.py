@@ -15,7 +15,6 @@ def cargar_pedidos():
         full_filename = "%s/%s" % (url, file)
         with open(full_filename,'r') as fi:
             dict = json.load(fi)
-            #flash('llama al archivo {}'.format(full_filename))
             crear_pedido(dict)
             files.append(full_filename)
     return files
@@ -75,5 +74,23 @@ def crear_pedido(pedido):
         flash('Producto {} - monto: {}'.format(unProducto, unProducto.monto_a_devolver))
         db.session.add(unProducto)
         indice += indice
-    #    flash(' unProducto {}'.format(unProducto))
-    db.session.commit()
+    db.session.commit() 
+
+def resumen_ordenes(store_id):
+    entransito = 0
+    enproceso = 0
+    cerradas = 0
+    ordenes = Order_header.query.filter_by(store=store_id).all()
+    for i in ordenes:
+        if i.status == 'Shipping':
+            entransito += 1
+        else:
+            if i.status == 'Delivered':
+                enproceso += 1
+            else:
+                if i.status == 'Closed':
+                    cerradas += 1
+    resumen = {'entransito':entransito, 'enproceso':enproceso,'cerradas':cerradas}
+    return resumen
+                            
+
