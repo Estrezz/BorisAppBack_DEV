@@ -3,21 +3,47 @@
 {% block app_content %}
     <div class='Jumbotron'>
         <h1> Vision General</h1>
-        <table style="width:100%">
-            <tr>
-                <th>En Transito</th>
-                <th>En proceso</th>
-                <th>Cerradas </th>
-            </tr>
-            <tr>
-                <td>{{resumen.entransito}}</td> 
-                <td>{{resumen['enproceso']}}</td> 
-                <td>{{resumen['cerradas']}}</td> 
-            </tr>
-        </table>
-        <br>
-
-        <a href="{{ url_for('main.ver_pedidos') }}">
-            <button class="btn btn-default"> Ver detalles </button>
     </div>
+    <div class="row">
+        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">En Transito</div>
+                <div class="panel-body"> 
+                    <h3  class="text-center">{{resumen.entransito}}</h3> 
+                </div>
+                <div class="panel-footer">
+                    <a href="{{ url_for('main.ver_pedidos') }}">
+                        <button class="btn btn-default"> Ver detalles </button> 
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">En Proceso</div>
+                <div class="panel-body"> 
+                    <h3 class="text-center">{{resumen.enproceso}} </h3>
+                </div>
+                <div class="panel-footer">
+                    <a href="{{ url_for('main.ver_pedidos') }}">
+                        <button class="btn btn-default"> Ver detalles </button> 
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">Cerradas</div>
+                <div class="panel-body"> 
+                    <h3 class="text-center">{{resumen.cerradas}} </h3>
+                </div>
+                <div class="panel-footer">
+                    <a href="{{ url_for('main.ver_pedidos') }}">
+                        <button class="btn btn-default"> Ver detalles </button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
 {% endblock %}
