@@ -43,7 +43,7 @@ def crear_pedido(pedido):
         payment_card = pedido['orden_tarjeta_de_pago'],
         courier = pedido['correo']['correo_id'],
         status = 'Shipping',
-        sub_status = pedido['correo']['correo_status'],
+        sub_status = traducir_estado(pedido['correo']['correo_status']),
         customer_address = pedido['cliente']['address']['street'],
         customer_number = pedido['cliente']['address']['number'],
         customer_floor = pedido['cliente']['address']['floor'],
@@ -85,12 +85,26 @@ def resumen_ordenes(store_id):
         if i.status == 'Shipping':
             entransito += 1
         else:
-            if i.status == 'Delivered':
+            if i.status == 'En procesoo':
                 enproceso += 1
             else:
                 if i.status == 'Closed':
                     cerradas += 1
     resumen = {'entransito':entransito, 'enproceso':enproceso,'cerradas':cerradas}
     return resumen
+
+
+def traducir_estado(estado):
+    switcher={
+            'DRAFT':'Iniciado',
+            'READY':'Listo para retiro',
+            'PICKEDUP':'Recogido',
+            'DELIVERED':'Recibido'
+        }
+    return switcher.get(estado,"Aprobado")
+
+   
+      
+
                             
 

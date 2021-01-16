@@ -1,8 +1,11 @@
 {% extends "base.html" %}
 
 {% block app_content %}
+<div class='jumbotron'>
+    <h1> Ordenes</h1>
+    <h4 class="text-right"> {{ estado }}</h4>
+</div>
     <div class='container'>
-        <h1> Ordenes</h1>
         <table style="width:100%">
             <tr>
                 <th>ID</th>
@@ -24,5 +27,9 @@
             </tr>
             {% endfor %}
         </table>
+        <br>
+        <td><a href="{{ url_for('main.vision_general') }}">
+            <button class="btn btn-default"> Volver </button></a>
+        </td>
     </div>
 {% endblock %}

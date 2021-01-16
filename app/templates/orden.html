@@ -2,13 +2,14 @@
 
 {% block app_content %}
     <div class='jumbotron'>
-        <h1> Ordenes</h1>
+        <h1> 
+            <strong>Orden </strong>#{{orden.order_number}}
+        </h1>
         <h4>
-            <br> <strong>Orden </strong>#{{orden.order_number}}
             <br> <strong> Cliente </strong>{{customer.name}}  
             <br>         {{customer.email}}
+            <div class="text-right"> {{orden.status}} - {{orden.sub_status}} </div>
         </h4>
-        <h4 class="text-right"> {{orden.status}} - {{orden.sub_status}} </h4>
         
     </div>
     <div class='container'>
@@ -41,10 +42,15 @@
                 </td>
                 <td>{{i['motivo']}}</td>
 
-                <td><a href="{ url_for('main.ver_pedidos'}">
+                <td><a href="{ url_for('main.gestionar_ordenes', orden_id = orden.id}">
                     <button class="btn btn-default"> Accion </button></td>
             </tr>
             {% endfor %}
         </table>
+        <td>
+            <a href="{{ url_for('main.ver_ordenes', estado = orden.status ) }}">
+            <button class="btn btn-default"> Volver </button></a>
+        </td>
+        
     </div>
 {% endblock %}

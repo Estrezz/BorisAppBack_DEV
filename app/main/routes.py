@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import render_template, flash, redirect, url_for, request, current_app
+from flask import render_template, flash, redirect, url_for, request, current_app, session
 from flask_login import current_user, login_required
 from app import db
 from app.main.forms import EditProfileForm
@@ -50,13 +50,21 @@ def vision_general():
     resumen = resumen_ordenes(current_user.store) 
     return render_template('dashboard.html', title='Vision General', resumen=resumen)
 
+#@bp.route('/pedidos', methods=['GET', 'POST'])
+#@login_required
+#def ver_pedidos():
+#    ordenes =  Order_header.query.filter_by(store=current_user.store).all()
+#    return render_template('pedidos.html', title='Pedidos', ordenes=ordenes)
 
-@bp.route('/pedidos', methods=['GET', 'POST'])
+
+@bp.route('/ordenes/<estado>', methods=['GET', 'POST'])
 @login_required
-def ver_pedidos():
-    ordenes =  Order_header.query.filter_by(store=current_user.store).all()
-    return render_template('pedidos.html', title='Pedidos', ordenes=ordenes)
-
+def ver_ordenes(estado):
+    if estado == 'all':
+        ordenes =  Order_header.query.filter_by(store=current_user.store).all()
+    else :
+        ordenes = db.session.query(Order_header).filter((Order_header.store == current_user.store)).filter((Order_header.status == estado))
+    return render_template('ordenes.html', title='Ordenes', ordenes=ordenes, estado=estado)
 
 
 @bp.route('/borrar_pedidos', methods=['GET', 'POST'])
@@ -84,10 +92,7 @@ def borrar_pedidos():
 @login_required
 def upload_pedidos():
     cargar_pedidos()
-    #ordenes =  Order_header.query.all()
     ordenes =  Order_header.query.filter_by(store=current_user.store).all()
-    #for i in ordenes:
-    #    flash('ordenes id:{} nro:{} empresa: {} store {}'.format(i.id, i.order_number, i.store, current_user.store))
     return render_template('pedidos.html', title='Pedidos', ordenes=ordenes)
 
 
@@ -104,10 +109,23 @@ def cargar_empresa():
     db.session.commit()
     return redirect(url_for('main.user', username=current_user.username))
 
+
 @bp.route('/orden/<orden_id>')
 @login_required
 def orden(orden_id):
     orden = Order_header.query.filter_by(id=orden_id).first()
     orden_linea = Order_detail.query.filter_by(order=orden_id).all()
     return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer)
+
+
+@bp.route('/gestion_orden/<orden_id>')
+@login_required
+def gestionar_ordenes(orden_id):
+    orden = Order_header.query.filter_by(id=orden_id).first()
+    return orden
+
+
+
+
+
     

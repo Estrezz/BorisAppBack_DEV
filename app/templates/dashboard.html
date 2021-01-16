@@ -4,6 +4,7 @@
     <div class='Jumbotron'>
         <h1> Vision General</h1>
     </div>
+    <div class='container'>
     <div class="row">
         <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
             <div class="panel panel-default">
@@ -12,7 +13,7 @@
                     <h3  class="text-center">{{resumen.entransito}}</h3> 
                 </div>
                 <div class="panel-footer">
-                    <a href="{{ url_for('main.ver_pedidos') }}">
+                    <a href="{{ url_for('main.ver_ordenes', estado='Shipping') }}">
                         <button class="btn btn-default"> Ver detalles </button> 
                     </a>
                 </div>
@@ -25,7 +26,7 @@
                     <h3 class="text-center">{{resumen.enproceso}} </h3>
                 </div>
                 <div class="panel-footer">
-                    <a href="{{ url_for('main.ver_pedidos') }}">
+                    <a href="{{ url_for('main.ver_ordenes', estado='En_Proceso')  }}">
                         <button class="btn btn-default"> Ver detalles </button> 
                     </a>
                 </div>
@@ -38,12 +39,13 @@
                     <h3 class="text-center">{{resumen.cerradas}} </h3>
                 </div>
                 <div class="panel-footer">
-                    <a href="{{ url_for('main.ver_pedidos') }}">
+                    <a href="{{ url_for('main.ver_ordenes', estado='Cerradas') }}">
                         <button class="btn btn-default"> Ver detalles </button>
                     </a>
                 </div>
             </div>
         </div>
+    </div>
     </div>
     
 {% endblock %}
