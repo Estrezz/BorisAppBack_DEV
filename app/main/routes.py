@@ -118,11 +118,13 @@ def orden(orden_id):
     return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer)
 
 
-@bp.route('/gestion_orden/<orden_id>')
+@bp.route('/gestion_orden/<orden_id>', methods=['GET', 'POST'])
 @login_required
 def gestionar_ordenes(orden_id):
+    accion = request.args.get('accion_orden')
     orden = Order_header.query.filter_by(id=orden_id).first()
-    return orden
+    flash ('Accion {} - orden {}'.format(accion, orden.order_number))
+    return redirect(url_for('main.user', username=current_user.username))
 
 
 

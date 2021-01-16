@@ -47,10 +47,16 @@
             </tr>
             {% endfor %}
         </table>
-        <td>
-            <a href="{{ url_for('main.ver_ordenes', estado = orden.status ) }}">
-            <button class="btn btn-default"> Volver </button></a>
-        </td>
+        <br><br>
+
+            {% if orden.sub_status == 'Iniciado' %}
+                {% set text = 'Cobrar envío y pasar a Ready' %}
+                {% set accion_orden = 'toReady' %}
+            {% endif %}
+            <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = accion_orden ) }}">
+            <button class="btn btn-default"> {{text}} </button></a>
+            
+        
         
     </div>
 {% endblock %}
