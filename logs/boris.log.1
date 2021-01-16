@@ -1,4 +1,4 @@
-2021-01-16 12:10:48,024 ERROR: Exception on /gestion_orden/1 [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
+2021-01-16 18:35:56,233 ERROR: Exception on /cargar_pedidos [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
 Traceback (most recent call last):
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 2447, in wsgi_app
     response = self.full_dispatch_request()
@@ -14,11 +14,37 @@ Traceback (most recent call last):
     return self.view_functions[rule.endpoint](**req.view_args)
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_login\utils.py", line 272, in decorated_view
     return func(*args, **kwargs)
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 127, in gestionar_ordenes
-    return render_template('orden.html', orden=orden, orden_linea=orden_linea)
-NameError: name 'orden_linea' is not defined
-2021-01-16 12:11:08,815 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
-2021-01-16 12:11:12,927 ERROR: Exception on /gestion_orden/1 [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
+  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 100, in upload_pedidos
+    cargar_pedidos()
+  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\interfaces.py", line 18, in cargar_pedidos
+    crear_pedido(dict)
+  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\interfaces.py", line 57, in crear_pedido
+    pertenece = unaEmpresa
+  File "<string>", line 4, in __init__
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\state.py", line 433, in _initialize_instance
+    manager.dispatch.init_failure(self, args, kwargs)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 70, in __exit__
+    with_traceback=exc_tb,
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\util\compat.py", line 182, in raise_
+    raise exception
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\state.py", line 430, in _initialize_instance
+    return manager.original_init(*mixed[1:], **kwargs)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\ext\declarative\base.py", line 840, in _declarative_constructor
+    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+TypeError: 'last_update_date' is an invalid keyword argument for Order_header
+2021-01-16 18:37:48,560 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-16 18:37:51,895 ERROR: Exception on /cargar_pedidos [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
+Traceback (most recent call last):
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\engine\base.py", line 1204, in _execute_context
+    context = constructor(dialect, self, conn, *args)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\engine\default.py", line 855, in _init_compiled
+    param.append(processors[key](compiled_params[key]))
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\dialects\sqlite\base.py", line 791, in process
+    "SQLite DateTime type only accepts Python "
+TypeError: SQLite DateTime type only accepts Python datetime and date objects as input.
+
+The above exception was the direct cause of the following exception:
+
 Traceback (most recent call last):
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 2447, in wsgi_app
     response = self.full_dispatch_request()
@@ -34,78 +60,56 @@ Traceback (most recent call last):
     return self.view_functions[rule.endpoint](**req.view_args)
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_login\utils.py", line 272, in decorated_view
     return func(*args, **kwargs)
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 127, in gestionar_ordenes
-    return render_template('orden.html', orden=orden)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\templating.py", line 140, in render_template
-    ctx.app,
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\templating.py", line 120, in _render
-    rv = template.render(context)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\jinja2\environment.py", line 1090, in render
-    self.environment.handle_exception()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\jinja2\environment.py", line 832, in handle_exception
-    reraise(*rewrite_traceback_stack(source=source))
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\jinja2\_compat.py", line 28, in reraise
-    raise value.with_traceback(tb)
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\templates\orden.html", line 1, in top-level template code
-    {% extends "base.html" %}
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\templates\base.html", line 1, in top-level template code
-    {% extends 'bootstrap/base.html' %}
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_bootstrap\templates\bootstrap\base.html", line 1, in top-level template code
-    {% block doc -%}
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_bootstrap\templates\bootstrap\base.html", line 4, in block "doc"
-    {%- block html %}
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_bootstrap\templates\bootstrap\base.html", line 20, in block "html"
-    {% block body -%}
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_bootstrap\templates\bootstrap\base.html", line 23, in block "body"
-    {% block content -%}
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\templates\base.html", line 53, in block "content"
-    {% block app_content %}{% endblock %}
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\templates\orden.html", line 9, in block "app_content"
-    <br> <strong> Cliente </strong>{{customer.name}}
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\jinja2\environment.py", line 471, in getattr
-    return getattr(obj, attribute)
-jinja2.exceptions.UndefinedError: 'customer' is undefined
-2021-01-16 12:12:25,866 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
-2021-01-16 12:13:47,347 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
-2021-01-16 12:14:09,132 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
-2021-01-16 12:14:12,768 ERROR: Exception on /gestion_orden/1 [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
-Traceback (most recent call last):
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 2447, in wsgi_app
-    response = self.full_dispatch_request()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1952, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1821, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\_compat.py", line 39, in reraise
-    raise value
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1950, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1936, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_login\utils.py", line 272, in decorated_view
-    return func(*args, **kwargs)
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 124, in gestionar_ordenes
-    accion_orden = request.args.get(accion_orden)
-UnboundLocalError: local variable 'accion_orden' referenced before assignment
-2021-01-16 12:14:42,332 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
-2021-01-16 12:14:46,035 ERROR: Exception on /gestion_orden/1 [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
-Traceback (most recent call last):
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 2447, in wsgi_app
-    response = self.full_dispatch_request()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1952, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1821, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\_compat.py", line 39, in reraise
-    raise value
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1950, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1936, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_login\utils.py", line 272, in decorated_view
-    return func(*args, **kwargs)
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 124, in gestionar_ordenes
-    accion = request.args.get(accion_orden)
-NameError: name 'accion_orden' is not defined
-2021-01-16 12:15:20,238 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
-2021-01-16 12:16:46,751 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 100, in upload_pedidos
+    cargar_pedidos()
+  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\interfaces.py", line 18, in cargar_pedidos
+    crear_pedido(dict)
+  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\interfaces.py", line 78, in crear_pedido
+    db.session.commit()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\scoping.py", line 163, in do
+    return getattr(self.registry(), name)(*args, **kwargs)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\session.py", line 1046, in commit
+    self.transaction.commit()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\session.py", line 504, in commit
+    self._prepare_impl()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\session.py", line 483, in _prepare_impl
+    self.session.flush()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\session.py", line 2540, in flush
+    self._flush(objects)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\session.py", line 2682, in _flush
+    transaction.rollback(_capture_exception=True)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 70, in __exit__
+    with_traceback=exc_tb,
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\util\compat.py", line 182, in raise_
+    raise exception
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\session.py", line 2642, in _flush
+    flush_context.execute()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\unitofwork.py", line 422, in execute
+    rec.execute(self)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\unitofwork.py", line 589, in execute
+    uow,
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\persistence.py", line 245, in save_obj
+    insert,
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\persistence.py", line 1136, in _emit_insert_statements
+    statement, params
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\engine\base.py", line 1011, in execute
+    return meth(self, multiparams, params)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\sql\elements.py", line 298, in _execute_on_connection
+    return connection._execute_clauseelement(self, multiparams, params)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\engine\base.py", line 1130, in _execute_clauseelement
+    distilled_params,
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\engine\base.py", line 1207, in _execute_context
+    e, util.text_type(statement), parameters, None, None
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\engine\base.py", line 1511, in _handle_dbapi_exception
+    sqlalchemy_exception, with_traceback=exc_info[2], from_=e
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\util\compat.py", line 182, in raise_
+    raise exception
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\engine\base.py", line 1204, in _execute_context
+    context = constructor(dialect, self, conn, *args)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\engine\default.py", line 855, in _init_compiled
+    param.append(processors[key](compiled_params[key]))
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\dialects\sqlite\base.py", line 791, in process
+    "SQLite DateTime type only accepts Python "
+sqlalchemy.exc.StatementError: (builtins.TypeError) SQLite DateTime type only accepts Python datetime and date objects as input.
+[SQL: INSERT INTO order_header (order_number, order_id_anterior, creation_date, payment_method, payment_card, courier_order_id, status, sub_status, customer_address, customer_number, customer_floor, customer_zipcode, customer_locality, customer_city, customer_province, customer_country, customer_id, store) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: [{'customer_locality': 'Belgrano', 'payment_method': 'custom', 'order_id_anterior': 337988237, 'courier_order_id': '2e4b55e0-5746-11eb-861a-0545b2e031 ... (247 characters truncated) ... '2021-01-15 15:27:03.539200', 'status': 'Shipping', 'customer_zipcode': '1428', 'customer_number': '1965', 'order_number': 102, 'payment_card': None}]]

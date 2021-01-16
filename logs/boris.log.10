@@ -1,4 +1,4 @@
-2021-01-15 19:29:45,775 ERROR: Exception on /ordenes/Shipping [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
+2021-01-16 14:29:56,951 ERROR: Exception on /cargar_pedidos [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
 Traceback (most recent call last):
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 2447, in wsgi_app
     response = self.full_dispatch_request()
@@ -14,11 +14,26 @@ Traceback (most recent call last):
     return self.view_functions[rule.endpoint](**req.view_args)
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_login\utils.py", line 272, in decorated_view
     return func(*args, **kwargs)
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 65, in ver_ordenes
-    ordenes = query(Order_header).filter_by(store = current_user.store, status = estado)
-NameError: name 'query' is not defined
-2021-01-15 19:30:01,294 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
-2021-01-15 19:30:04,498 ERROR: Exception on /ordenes/Shipping [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
+  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 99, in upload_pedidos
+    cargar_pedidos()
+  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\interfaces.py", line 18, in cargar_pedidos
+    crear_pedido(dict)
+  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\interfaces.py", line 56, in crear_pedido
+    pertenece = unaEmpresa
+  File "<string>", line 4, in __init__
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\state.py", line 433, in _initialize_instance
+    manager.dispatch.init_failure(self, args, kwargs)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 70, in __exit__
+    with_traceback=exc_tb,
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\util\compat.py", line 182, in raise_
+    raise exception
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\state.py", line 430, in _initialize_instance
+    return manager.original_init(*mixed[1:], **kwargs)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\ext\declarative\base.py", line 840, in _declarative_constructor
+    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+TypeError: 'courier' is an invalid keyword argument for Order_header
+2021-01-16 14:30:44,974 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-16 14:30:48,663 ERROR: Exception on /cargar_pedidos [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
 Traceback (most recent call last):
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 2447, in wsgi_app
     response = self.full_dispatch_request()
@@ -34,11 +49,26 @@ Traceback (most recent call last):
     return self.view_functions[rule.endpoint](**req.view_args)
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_login\utils.py", line 272, in decorated_view
     return func(*args, **kwargs)
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 65, in ver_ordenes
-    ordenes = Query(Order_header).filter_by(store = current_user.store, status = estado)
-NameError: name 'Query' is not defined
-2021-01-15 19:31:35,636 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
-2021-01-15 19:31:40,655 ERROR: Exception on /ordenes/Shipping [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
+  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 99, in upload_pedidos
+    cargar_pedidos()
+  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\interfaces.py", line 18, in cargar_pedidos
+    crear_pedido(dict)
+  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\interfaces.py", line 56, in crear_pedido
+    pertenece = unaEmpresa
+  File "<string>", line 4, in __init__
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\state.py", line 433, in _initialize_instance
+    manager.dispatch.init_failure(self, args, kwargs)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 70, in __exit__
+    with_traceback=exc_tb,
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\util\compat.py", line 182, in raise_
+    raise exception
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\state.py", line 430, in _initialize_instance
+    return manager.original_init(*mixed[1:], **kwargs)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\ext\declarative\base.py", line 840, in _declarative_constructor
+    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+TypeError: 'courier' is an invalid keyword argument for Order_header
+2021-01-16 14:32:20,373 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-16 14:32:23,564 ERROR: Exception on /cargar_pedidos [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
 Traceback (most recent call last):
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 2447, in wsgi_app
     response = self.full_dispatch_request()
@@ -54,47 +84,24 @@ Traceback (most recent call last):
     return self.view_functions[rule.endpoint](**req.view_args)
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_login\utils.py", line 272, in decorated_view
     return func(*args, **kwargs)
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 65, in ver_ordenes
-    ordenes = db.session.query(Order_header).filter(store = current_user.store, status = estado)
-TypeError: filter() got an unexpected keyword argument 'store'
-2021-01-15 19:32:38,054 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
-2021-01-15 19:32:42,767 ERROR: Exception on /ordenes/Shipping [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
-Traceback (most recent call last):
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 2447, in wsgi_app
-    response = self.full_dispatch_request()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1952, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1821, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\_compat.py", line 39, in reraise
-    raise value
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1950, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1936, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_login\utils.py", line 272, in decorated_view
-    return func(*args, **kwargs)
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 65, in ver_ordenes
-    ordenes = db.session.query(Order_header).filter(and_(store = current_user.store, status = estado))
-NameError: name 'and_' is not defined
-2021-01-15 19:38:34,621 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
-2021-01-15 19:38:39,778 ERROR: Exception on /ordenes/Shipping [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
-Traceback (most recent call last):
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 2447, in wsgi_app
-    response = self.full_dispatch_request()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1952, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1821, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\_compat.py", line 39, in reraise
-    raise value
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1950, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1936, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_login\utils.py", line 272, in decorated_view
-    return func(*args, **kwargs)
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 65, in ver_ordenes
-    ordenes = db.session.query(Order_header).filter(store = current_user.store).filter(status = estado)
-TypeError: filter() got an unexpected keyword argument 'store'
-2021-01-15 19:39:35,322 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 99, in upload_pedidos
+    cargar_pedidos()
+  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\interfaces.py", line 18, in cargar_pedidos
+    crear_pedido(dict)
+  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\interfaces.py", line 56, in crear_pedido
+    pertenece = unaEmpresa
+  File "<string>", line 4, in __init__
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\state.py", line 433, in _initialize_instance
+    manager.dispatch.init_failure(self, args, kwargs)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 70, in __exit__
+    with_traceback=exc_tb,
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\util\compat.py", line 182, in raise_
+    raise exception
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\orm\state.py", line 430, in _initialize_instance
+    return manager.original_init(*mixed[1:], **kwargs)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\sqlalchemy\ext\declarative\base.py", line 840, in _declarative_constructor
+    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+TypeError: 'courier_orden_id' is an invalid keyword argument for Order_header
+2021-01-16 14:32:50,039 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-16 14:35:30,571 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-16 15:53:44,613 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]

@@ -1,8 +1,9 @@
-#import requests
+import requests
 import json
 from app import db
 from app.models import User, Company, Customer, Order_header, Order_detail
 from flask import session, flash, current_app
+from datetime import datetime
 import os
 
 def cargar_pedidos():
@@ -34,14 +35,14 @@ def crear_pedido(pedido):
         platform=unaEmpresa.platform
         )
 
-
     unaOrden = Order_header(
         order_number = pedido['orden_nro'],
         order_id_anterior = pedido['orden'],
         creation_date = pedido['orden_fecha'],
+        last_update_date = pedido['orden_fecha'],
         payment_method = pedido['orden_medio_de_pago'],
         payment_card = pedido['orden_tarjeta_de_pago'],
-        courier = pedido['correo']['correo_id'],
+        courier_order_id = pedido['correo']['correo_id'],
         status = 'Shipping',
         sub_status = traducir_estado(pedido['correo']['correo_status']),
         customer_address = pedido['cliente']['address']['street'],
@@ -85,7 +86,7 @@ def resumen_ordenes(store_id):
         if i.status == 'Shipping':
             entransito += 1
         else:
-            if i.status == 'En procesoo':
+            if i.status == 'En Proceso':
                 enproceso += 1
             else:
                 if i.status == 'Closed':
@@ -98,12 +99,43 @@ def traducir_estado(estado):
     switcher={
             'DRAFT':'Iniciado',
             'READY':'Listo para retiro',
+            'CONFIRMED':'Listo para retiro',
             'PICKEDUP':'Recogido',
+            'INTRANSIT':'En camino',
             'DELIVERED':'Recibido'
         }
     return switcher.get(estado,"Aprobado")
 
-   
+
+
+def toReady(orden_courier_id, company):
+  url = "https://api-dev.moova.io/b2b/shippings/"+str(orden_courier_id)+"/READY"
+
+  headers = {
+    'Authorization': company.correo_apikey,
+    'Content-Type': 'application/json',
+   }
+
+  params = {'appId': company.correo_id}
+
+  solicitud = requests.request("POST", url, headers=headers, params=params)
+  if solicitud.status_code != 201:
+    flash('Hubo un problema con la generación del evío. Error {}'.format(solicitud.status_code))
+    return "Fail"
+  else:
+    flash('La orden se actualizo exitosamente')
+    return 'Success'
+
+
+def toApproved(orden_id):
+    orden = Order_header.query.get(orden_id)    
+    flash('orden {}'.format(orden))
+    orden.status = 'En Proceso'
+    orden.sub_status = 'Aprobado'
+    orden.last_update_date = str(datetime.utcnow)
+    db.session.commit()
+
+
       
 
                             

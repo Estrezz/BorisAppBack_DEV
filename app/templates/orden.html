@@ -53,6 +53,10 @@
                 {% set text = 'Cobrar envío y pasar a Ready' %}
                 {% set accion_orden = 'toReady' %}
             {% endif %}
+            {% if orden.sub_status == 'Recibido' %}
+                {% set text = 'Revisar y aprobar Solicitud' %}
+                {% set accion_orden = 'toApproved' %}
+            {% endif %}
             <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = accion_orden ) }}">
             <button class="btn btn-default"> {{text}} </button></a>
             

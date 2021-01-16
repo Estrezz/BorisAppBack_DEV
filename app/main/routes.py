@@ -1,10 +1,11 @@
 from datetime import datetime
-from flask import render_template, flash, redirect, url_for, request, current_app, session
+from flask import render_template, flash, redirect, url_for, request, current_app, session, Response
 from flask_login import current_user, login_required
 from app import db
 from app.main.forms import EditProfileForm
 from app.models import User, Company, Order_header, Customer, Order_detail
-from app.main.interfaces import cargar_pedidos, resumen_ordenes
+from app.main.interfaces import cargar_pedidos, resumen_ordenes, toReady, toApproved, traducir_estado
+import json
 
 from app.main import bp
 
@@ -84,16 +85,21 @@ def borrar_pedidos():
 #    for u in users:
 #        flash('Users {} '.format(u))
 #        db.session.delete(u)
+
+    cia = Company.query.all()
+    for u in cia:
+        flash('Company {} '.format(u))
+        db.session.delete(u)
     
     db.session.commit()
-    return render_template('pedidos.html', title='Pedidos')
+    return render_template('ordenes.html', title='Ordenes')
 
 @bp.route('/cargar_pedidos', methods=['GET', 'POST'])
 @login_required
 def upload_pedidos():
     cargar_pedidos()
     ordenes =  Order_header.query.filter_by(store=current_user.store).all()
-    return render_template('pedidos.html', title='Pedidos', ordenes=ordenes)
+    return render_template('ordenes.html', title='Ordenes', ordenes=ordenes)
 
 
 @bp.route('/cargar_empresa', methods=['GET', 'POST'])
@@ -102,7 +108,9 @@ def cargar_empresa():
     unaEmpresa = Company(
         store_id = '1447373',
         platform = 'TIendaNube',
-        store_name = 'Demo Boris'
+        store_name = 'Demo Boris',
+        correo_apikey = 'b23920003684e781d87e7e5b615335ad254bdebc',
+        correo_id = 'b22bc380-439f-11eb-8002-a5572ae156e7'
     )
 
     db.session.add(unaEmpresa)
@@ -123,8 +131,31 @@ def orden(orden_id):
 def gestionar_ordenes(orden_id):
     accion = request.args.get('accion_orden')
     orden = Order_header.query.filter_by(id=orden_id).first()
-    flash ('Accion {} - orden {}'.format(accion, orden.order_number))
+    # flash ('Accion {} - orden {} CIA {}'.format(accion, orden.courier, current_user.empleado))
+    if accion == 'toReady':
+        toReady(orden.courier_order_id, current_user.empleado)
+    else: 
+        if accion == 'toApproved':
+            toApproved(orden.id)
     return redirect(url_for('main.user', username=current_user.username))
+
+
+@bp.route('/webhook', methods=['POST'])
+def webhook():
+    if request.method == 'POST':
+        
+        data = request.json
+       
+        orden = Order_header.query.filter_by(courier_order_id = str(data['id'])).first()
+       
+        orden.sub_status = traducir_estado(data['status'])
+        orden.last_update_date = data['date']
+        db.session.commit()
+
+        print('Se actualizo la orden ' + str(orden.order_number) + ' al estado ' + orden.sub_status)
+        return '', 200
+    else:
+        abort(400)
 
 
 
