@@ -24,6 +24,8 @@
                 <td>{{i['sub_status']}}</td>
                 <td><a href="{{ url_for('main.orden', orden_id = i['id']) }}">
                     <button class="btn btn-default"> Ver detalles </button></td>
+                <td><a href="{{ url_for('main.historia_orden', orden_id = i['id']) }}">
+                    <button class="btn btn-default"> Ver Historia </button></td>
             </tr>
             {% endfor %}
         </table>

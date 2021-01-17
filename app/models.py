@@ -44,6 +44,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     store = db.Column(db.Integer, db.ForeignKey('company.store_id'))
+    transaction = db.relationship('Transaction_log', backref='realizo', lazy='dynamic')
     
     def __repr__(self):
         return '<User {} {}>'.format(self.username, self.store)
@@ -94,6 +95,7 @@ class Order_header(db.Model):
     customer_province = db.Column(db.String(64))
     customer_country = db.Column(db.String(64))
     detalle = db.relationship('Order_detail', backref='productos', lazy='dynamic')
+    transaction = db.relationship('Transaction_log', backref='transaccion', lazy='dynamic')
     customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'))
     store = db.Column(db.Integer, db.ForeignKey('company.store_id'))
 
@@ -128,3 +130,11 @@ class Order_detail(db.Model):
     def __repr__(self):
         return '<Order_Detail {} {} {}>'.format(self.order_line_number, self.line_number, self.prod_id, self.name)
 
+
+class Transaction_log(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sub_status = db.Column(db.String(15))
+    fecha = db.Column(db.DateTime, default=datetime.utcnow)
+    username = db.Column(db.String(64))
+    order_id = db.Column(db.Integer, db.ForeignKey('order_header.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))

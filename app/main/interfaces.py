@@ -1,8 +1,9 @@
 import requests
 import json
 from app import db
-from app.models import User, Company, Customer, Order_header, Order_detail
+from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log
 from flask import session, flash, current_app
+from flask_login import current_user
 from datetime import datetime
 import os
 
@@ -127,12 +128,21 @@ def toReady(orden_courier_id, company):
     return 'Success'
 
 
+
 def toApproved(orden_id):
     orden = Order_header.query.get(orden_id)    
-    flash('orden {}'.format(orden))
     orden.status = 'En Proceso'
     orden.sub_status = 'Aprobado'
     orden.last_update_date = str(datetime.utcnow)
+
+    unaTransaccion = Transaction_log(
+            sub_status = orden.sub_status,
+            order_id = orden.id,
+            user_id = current_user.id,
+            username = current_user.username
+        )
+    db.session.add(unaTransaccion)
+
     db.session.commit()
 
 

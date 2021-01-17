@@ -3,7 +3,7 @@ from flask import render_template, flash, redirect, url_for, request, current_ap
 from flask_login import current_user, login_required
 from app import db
 from app.main.forms import EditProfileForm
-from app.models import User, Company, Order_header, Customer, Order_detail
+from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log
 from app.main.interfaces import cargar_pedidos, resumen_ordenes, toReady, toApproved, traducir_estado
 import json
 
@@ -51,12 +51,6 @@ def vision_general():
     resumen = resumen_ordenes(current_user.store) 
     return render_template('dashboard.html', title='Vision General', resumen=resumen)
 
-#@bp.route('/pedidos', methods=['GET', 'POST'])
-#@login_required
-#def ver_pedidos():
-#    ordenes =  Order_header.query.filter_by(store=current_user.store).all()
-#    return render_template('pedidos.html', title='Pedidos', ordenes=ordenes)
-
 
 @bp.route('/ordenes/<estado>', methods=['GET', 'POST'])
 @login_required
@@ -86,13 +80,14 @@ def borrar_pedidos():
 #        flash('Users {} '.format(u))
 #        db.session.delete(u)
 
-    cia = Company.query.all()
-    for u in cia:
-        flash('Company {} '.format(u))
-        db.session.delete(u)
+#    cia = Company.query.all()
+#    for u in cia:
+#        flash('Company {} '.format(u))
+#        db.session.delete(u)
     
     db.session.commit()
     return render_template('ordenes.html', title='Ordenes')
+
 
 @bp.route('/cargar_pedidos', methods=['GET', 'POST'])
 @login_required
@@ -112,9 +107,24 @@ def cargar_empresa():
         correo_apikey = 'b23920003684e781d87e7e5b615335ad254bdebc',
         correo_id = 'b22bc380-439f-11eb-8002-a5572ae156e7'
     )
-
     db.session.add(unaEmpresa)
+
+    otraEmpresa = Company(
+        store_id = '1',
+        platform = 'None',
+        store_name = 'Boris'
+    )
+    db.session.add(otraEmpresa)
+
+    unUsuario = User(
+        username = 'Webhook',
+        email = 'webhook@borisreturns.com',
+        store = '1',
+    )
+    db.session.add(unUsuario)
+
     db.session.commit()
+
     return redirect(url_for('main.user', username=current_user.username))
 
 
@@ -140,16 +150,31 @@ def gestionar_ordenes(orden_id):
     return redirect(url_for('main.user', username=current_user.username))
 
 
+@bp.route('/historia_orden/<orden_id>', methods=['GET', 'POST'])
+@login_required
+def historia_orden(orden_id):
+    orden = Order_header.query.filter_by(id=orden_id).first()
+    historia = Transaction_log.query.filter_by(order_id=orden_id).all()
+    return render_template('historia_orden.html', orden=orden, historia=historia, customer=orden.buyer)
+
+
 @bp.route('/webhook', methods=['POST'])
 def webhook():
     if request.method == 'POST':
-        
         data = request.json
-       
         orden = Order_header.query.filter_by(courier_order_id = str(data['id'])).first()
-       
         orden.sub_status = traducir_estado(data['status'])
         orden.last_update_date = data['date']
+
+        usuario = User.query.filter_by(username = 'Webhook').first()
+        unaTransaccion = Transaction_log(
+            sub_status = orden.sub_status,
+            order_id = orden.id,
+            user_id = usuario.id,
+            username = usuario.username
+        )
+        db.session.add(unaTransaccion)
+
         db.session.commit()
 
         print('Se actualizo la orden ' + str(orden.order_number) + ' al estado ' + orden.sub_status)

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <div class='jumbotron'>
+        <h1> 
+            <strong>Orden </strong>#{{orden.order_number}}
+        </h1>
+        <h4>
+            <br> <strong> Cliente </strong>{{customer.name}}  
+            <br>         {{customer.email}}
+            <div class="text-right"> {{orden.status}} - {{orden.sub_status}} </div>
+        </h4>
+        
+    </div>
+    <div class='container'>
+        
+        {% for i in historia %}
+            {{i.order_id}}
+            Estado: {{i.sub_status}} - 
+            Fecha: {{i.fecha}} - 
+            Actualizado por: {{i.user_id}} - {{i.username}}
+            <br>
+        {% endfor %}
+            
+        
+        
+    </div>
+{% endblock %}
