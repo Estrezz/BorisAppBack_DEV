@@ -120,11 +120,13 @@ class Order_detail(db.Model):
     line_number = db.Column(db.Integer)
     prod_id = db.Column(db.Integer)
     name = db.Column(db.String(120))
+    variant = db.Column(db.Integer)
     accion = db.Column(db.String(10))
     accion_cambiar_por = db.Column(db.Integer)
     accion_cantidad = db.Column(db.Integer)
     motivo = db.Column(db.String(50))
     monto_a_devolver = db.Column(db.Float)
+    gestionado = db.Column(db.Boolean)
     order = db.Column(db.Integer, db.ForeignKey('order_header.id'))
 
     def __repr__(self):

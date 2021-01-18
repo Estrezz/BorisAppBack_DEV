@@ -66,11 +66,13 @@ def crear_pedido(pedido):
             line_number = indice,
             prod_id =  x['id'],
             name = x['name'],
+            variant = x['variant'],
             accion = x['accion'],
             monto_a_devolver = x['monto_a_devolver'],
             accion_cantidad = x['accion_cantidad'],
             accion_cambiar_por = x['accion_cambiar_por'],
             motivo =  x['motivo'],
+            gestionado = False,
             productos = unaOrden
             )
         flash('Producto {} - monto: {}'.format(unProducto, unProducto.monto_a_devolver))

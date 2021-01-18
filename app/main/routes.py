@@ -150,6 +150,15 @@ def gestionar_ordenes(orden_id):
     return redirect(url_for('main.user', username=current_user.username))
 
 
+@bp.route('/gestion_producto/<orden_id>', methods=['GET', 'POST'])
+@login_required
+def gestionar_producto(orden_id):
+    linea_id = request.args.get('linea_id')
+    orden = Order_header.query.filter_by(id=orden_id).first()
+    linea = Order_detail.query.get(str(linea_id))
+    return render_template('producto.html', orden=orden, linea=linea, customer=orden.buyer)
+
+
 @bp.route('/historia_orden/<orden_id>', methods=['GET', 'POST'])
 @login_required
 def historia_orden(orden_id):
@@ -176,14 +185,22 @@ def webhook():
         db.session.add(unaTransaccion)
 
         db.session.commit()
-
-        print('Se actualizo la orden ' + str(orden.order_number) + ' al estado ' + orden.sub_status)
         return '', 200
     else:
         abort(400)
 
 
-
+@bp.route('/devolver', methods=['GET', 'POST'])
+@login_required
+def devolver():
+    prod_id = request.args.get('prod_id')
+    variant = request.args.get('variant')
+    orden_id = request.args.get('orden_id')
+    flash('Producto {} - Variante {}'.format(prod_id, variant))
+    flash('orden_id {}'.format(orden_id))
+    return redirect(url_for('main.orden', orden_id=orden_id))
+    
+  
 
 
     
