@@ -24,6 +24,11 @@
                     Tarjeta: {{orden.payment_card}} <br>
                     <strong>Estado de la orden:  {{orden.status}} - {{orden.sub_status}} </strong><br>
                     <strong>Accion a realizar: {{linea.accion}}</strong> <br>
+                    {% if linea.gestionado == False %}
+                        No resuelto
+                    {% else %}
+                        Resuelto
+                    {% endif %}
                 </td> 
             </tr>
         </table>
@@ -32,7 +37,7 @@
     </div>
     <div class='container'>
         <br><br>
-            <a href="{{ url_for('main.devolver', prod_id=linea.prod_id, variant=linea.variant, orden_id=orden.id, cantidad=linea.accion_cantidad ) }}">
+            <a href="{{ url_for('main.devolver', prod_id=linea.prod_id, variant=linea.variant, orden_id=orden.id, cantidad=linea.accion_cantidad, accion='devolver', order_line=linea.order_line_number ) }}">
                     <button class="btn btn-default"> Devolver dinero y regresar mercaderia al stock </button></a>
             
             {% if linea['accion'] == 'cambiar' %}

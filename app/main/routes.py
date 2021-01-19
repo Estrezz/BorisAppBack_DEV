@@ -198,10 +198,9 @@ def devolver():
     variant = request.args.get('variant')
     cantidad = request.args.get('cantidad')
     orden_id = request.args.get('orden_id')
-     #### traer stock actua
-     ### sumarle 1
-     ### escribir stock
-
+    order_line_number = request.args.get('order_line')
+    accion = request.args.get('accion')
+    
     url = "https://api.tiendanube.com/v1/1447373/products/"+str(prod_id)+"/variants/"+str(variant)
     payload={}
     headers = {
@@ -217,14 +216,34 @@ def devolver():
         "stock": stock_tmp
     }
     # Aumenta el stock de la tienda en la cantidad devuelta
-    order = requests.request("PUT", url, headers=headers, data=json.dumps(stock)).json()
+    #order = requests.request("PUT", url, headers=headers, data=json.dumps(stock)).json()
+    order = requests.request("PUT", url, headers=headers, data=json.dumps(stock))
 
-    ## validar si dio OK
-    flash('rden {}'.format(orden))
+    if order.status_code != 200:
+        flash('Hubo un problema en la devolcuión No se devolvió el stock. Error {}'.format(solicitud.status_code))
+    else:
+        loguear_transaccion('devuelto', orden_id, current_user.id, current_user.username)
+        if accion == 'devolver':
+            linea = Order_detail.query.get(str(order_line_number))
+            linea.gestionado = True
+            db.session.commit()
+            #finalizar_orden
 
     return redirect(url_for('main.orden', orden_id=orden_id))
     
-  
+
+def loguear_transaccion(sub_status, order_id, user_id, username):
+    unaTransaccion = Transaction_log(
+        sub_status = sub_status,
+        order_id = order_id,
+        user_id = user_id,
+        username = username
+    )
+    db.session.add(unaTransaccion)
+    db.session.commit()
+    return 'Success'
+
+
 
 
     
