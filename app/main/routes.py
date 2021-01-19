@@ -230,11 +230,10 @@ def devolver():
         if accion == 'devolver':
             linea.gestionado = 'Si'
             db.session.commit()
-            #finalizar_orden
+            finalizar_orden(orden_id)
         if accion == 'cambiar':
             linea.gestionado = 'Devuelto'
             db.session.commit()
-
     return redirect(url_for('main.orden', orden_id=orden_id))
     
 
@@ -250,6 +249,18 @@ def loguear_transaccion(sub_status, order_id, user_id, username):
     return 'Success'
 
 
-
+def finalizar_orden(orden_id):
+    orden = Order_header.query.filter_by(id=orden_id).first()
+    orden_linea = Order_detail.query.filter_by(order=orden_id).all()
+    finalizados = 0
+    for i in orden_linea:
+        if i.gestionado == 'Si':
+            finalizados += 1
+    if finalizados == len(orden_linea):
+        flash('Todas las tareas completas. Se finalizó la Orden {}'.format(orden_id))
+        orden.status = 'Closed'
+        orden.sub_status = 'Finalizada'
+        loguear_transaccion('Closed', orden_id, current_user.id, current_user.username)
+    return 'Success'
 
     

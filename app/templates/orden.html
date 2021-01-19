@@ -44,7 +44,7 @@
                 <td>{{i['motivo']}}</td>
                 <td>{{i['gestionado']}}</td>
 
-                {% if (orden.status == 'En Proceso' and orden.sub_status != 'Rechazado') %}
+                {% if (orden.status == 'En Proceso' and orden.sub_status != 'Rechazado' and i['gestionado'] != 'Si') %}
                     <td><a href="{{ url_for('main.gestionar_producto', orden_id=orden.id, linea_id=i['order_line_number'] ) }}">
                         <button class="btn btn-default"> Accion </button></td>
                 {% endif %}
