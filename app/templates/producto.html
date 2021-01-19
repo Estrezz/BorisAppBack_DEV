@@ -6,7 +6,7 @@
             <strong> Producto </strong> <br>
         </h2>
         </h2> 
-            <strong>{{linea.name}} </strong> <br>
+            <strong>{{linea.name}} </strong>  cantidad {{linea.accion_cantidad}} <br> 
         </h2>
         <table style="width:100%">
             <tr>
@@ -32,7 +32,7 @@
     </div>
     <div class='container'>
         <br><br>
-            <a href="{{ url_for('main.devolver', prod_id=linea.prod_id, variant=linea.variant, orden_id=orden.id ) }}">
+            <a href="{{ url_for('main.devolver', prod_id=linea.prod_id, variant=linea.variant, orden_id=orden.id, cantidad=linea.accion_cantidad ) }}">
                     <button class="btn btn-default"> Devolver dinero y regresar mercaderia al stock </button></a>
             
             {% if linea['accion'] == 'cambiar' %}

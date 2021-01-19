@@ -1,3 +1,4 @@
+import requests
 from datetime import datetime
 from flask import render_template, flash, redirect, url_for, request, current_app, session, Response
 from flask_login import current_user, login_required
@@ -195,9 +196,32 @@ def webhook():
 def devolver():
     prod_id = request.args.get('prod_id')
     variant = request.args.get('variant')
+    cantidad = request.args.get('cantidad')
     orden_id = request.args.get('orden_id')
-    flash('Producto {} - Variante {}'.format(prod_id, variant))
-    flash('orden_id {}'.format(orden_id))
+     #### traer stock actua
+     ### sumarle 1
+     ### escribir stock
+
+    url = "https://api.tiendanube.com/v1/1447373/products/"+str(prod_id)+"/variants/"+str(variant)
+    payload={}
+    headers = {
+        'User-Agent': 'Boris (erezzonico@borisreturns.com)',
+        'Content-Type': 'application/json',
+        'Authentication': 'bearer cb9d4e17f8f0c7d3c0b0df4e30bcb2b036399e16'
+     }
+
+    # Trae stock actual
+    order = requests.request("GET", url, headers=headers, data=payload).json()
+    stock_tmp = int(order['stock']) + int(cantidad)
+    stock = {
+        "stock": stock_tmp
+    }
+    # Aumenta el stock de la tienda en la cantidad devuelta
+    order = requests.request("PUT", url, headers=headers, data=json.dumps(stock)).json()
+
+    ## validar si dio OK
+    flash('rden {}'.format(orden))
+
     return redirect(url_for('main.orden', orden_id=orden_id))
     
   
