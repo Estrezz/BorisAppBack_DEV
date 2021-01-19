@@ -72,7 +72,7 @@ def crear_pedido(pedido):
             accion_cantidad = x['accion_cantidad'],
             accion_cambiar_por = x['accion_cambiar_por'],
             motivo =  x['motivo'],
-            gestionado = False,
+            gestionado = 'Iniciado',
             productos = unaOrden
             )
         flash('Producto {} - monto: {}'.format(unProducto, unProducto.monto_a_devolver))

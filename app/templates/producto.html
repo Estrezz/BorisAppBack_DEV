@@ -24,10 +24,10 @@
                     Tarjeta: {{orden.payment_card}} <br>
                     <strong>Estado de la orden:  {{orden.status}} - {{orden.sub_status}} </strong><br>
                     <strong>Accion a realizar: {{linea.accion}}</strong> <br>
-                    {% if linea.gestionado == False %}
-                        No resuelto
+                    {% if linea.gestionado !='Si' %}
+                        <strong> No resuelto </strong>
                     {% else %}
-                        Resuelto
+                        <strong> Resuelto </strong>
                     {% endif %}
                 </td> 
             </tr>
@@ -37,14 +37,28 @@
     </div>
     <div class='container'>
         <br><br>
-            <a href="{{ url_for('main.devolver', prod_id=linea.prod_id, variant=linea.variant, orden_id=orden.id, cantidad=linea.accion_cantidad, accion='devolver', order_line=linea.order_line_number ) }}">
-                    <button class="btn btn-default"> Devolver dinero y regresar mercaderia al stock </button></a>
-            
+
+        {% if linea['accion'] == 'devolver' %}
+                {% set text = 'Devolver dinero y regresar mercaderia al stock' %}
+        {% endif %}
+        {% if linea['accion'] == 'cambiar'  %}
+            {% set text = 'Regresar mercaderia al stock' %}
+        {% endif %}
+           
+
+        {% if linea.gestionado != 'Si' %}
+            {% if linea.gestionado == 'Iniciado' %}
+                <a href="{{ url_for('main.devolver', prod_id=linea.prod_id, variant=linea.variant, orden_id=orden.id, cantidad=linea.accion_cantidad, accion=linea.accion, order_line=linea.order_line_number ) }}">
+                        <button class="btn btn-default"> {{text}} </button></a>
+            {% else %}
+                    <strong> Producto Devuelto       </strong>
+            {% endif %}
             {% if linea['accion'] == 'cambiar' %}
                 <a href="{{ url_for('main.gestionar_ordenes', orden_id=orden.id, accion_orden=accion_orden ) }}">
                     <button class="btn btn-default"> Enviar nuevo pedido </button></a>
             {% endif %}
-        
+        {% endif %}
+            
     </div>
     
 {% endblock %}

@@ -142,13 +142,16 @@ def orden(orden_id):
 def gestionar_ordenes(orden_id):
     accion = request.args.get('accion_orden')
     orden = Order_header.query.filter_by(id=orden_id).first()
+    orden_linea = Order_detail.query.filter_by(order=orden_id).all()
     # flash ('Accion {} - orden {} CIA {}'.format(accion, orden.courier, current_user.empleado))
     if accion == 'toReady':
         toReady(orden.courier_order_id, current_user.empleado)
     else: 
         if accion == 'toApproved':
             toApproved(orden.id)
-    return redirect(url_for('main.user', username=current_user.username))
+    #return redirect(url_for('main.user', username=current_user.username))
+    return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer)
+    
 
 
 @bp.route('/gestion_producto/<orden_id>', methods=['GET', 'POST'])
@@ -222,12 +225,15 @@ def devolver():
     if order.status_code != 200:
         flash('Hubo un problema en la devolcuión No se devolvió el stock. Error {}'.format(solicitud.status_code))
     else:
-        loguear_transaccion('devuelto', orden_id, current_user.id, current_user.username)
+        linea = Order_detail.query.get(str(order_line_number))
+        loguear_transaccion('Devuelto', orden_id, current_user.id, current_user.username)
         if accion == 'devolver':
-            linea = Order_detail.query.get(str(order_line_number))
-            linea.gestionado = True
+            linea.gestionado = 'Si'
             db.session.commit()
             #finalizar_orden
+        if accion == 'cambiar':
+            linea.gestionado = 'Devuelto'
+            db.session.commit()
 
     return redirect(url_for('main.orden', orden_id=orden_id))
     

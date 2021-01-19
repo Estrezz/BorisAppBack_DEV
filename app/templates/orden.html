@@ -23,6 +23,7 @@
                 <th>Cantidad</th>
                 <th>Obser.</th>
                 <th>Motivo</th>
+                <th>Gestion</th>
                 <th></th>
             </tr>
             {% for i in orden_linea %}
@@ -41,9 +42,12 @@
                 {% endif %}
                 </td>
                 <td>{{i['motivo']}}</td>
+                <td>{{i['gestionado']}}</td>
 
-                <td><a href="{{ url_for('main.gestionar_producto', orden_id=orden.id, linea_id=i['order_line_number'] ) }}">
-                    <button class="btn btn-default"> Accion </button></td>
+                {% if (orden.status == 'En Proceso' and orden.sub_status != 'Rechazado') %}
+                    <td><a href="{{ url_for('main.gestionar_producto', orden_id=orden.id, linea_id=i['order_line_number'] ) }}">
+                        <button class="btn btn-default"> Accion </button></td>
+                {% endif %}
             </tr>
             {% endfor %}
         </table>

@@ -126,7 +126,7 @@ class Order_detail(db.Model):
     accion_cantidad = db.Column(db.Integer)
     motivo = db.Column(db.String(50))
     monto_a_devolver = db.Column(db.Float)
-    gestionado = db.Column(db.Boolean)
+    gestionado = db.Column(db.String(10))
     order = db.Column(db.Integer, db.ForeignKey('order_header.id'))
 
     def __repr__(self):

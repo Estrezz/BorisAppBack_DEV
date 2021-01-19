@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: e6140580ce38
+Revision ID: 118943eb1caf
 Revises: 
-Create Date: 2021-01-17 11:49:03.897194
+Create Date: 2021-01-19 09:53:04.968361
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'e6140580ce38'
+revision = '118943eb1caf'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -100,11 +100,13 @@ def upgrade():
     sa.Column('line_number', sa.Integer(), nullable=True),
     sa.Column('prod_id', sa.Integer(), nullable=True),
     sa.Column('name', sa.String(length=120), nullable=True),
+    sa.Column('variant', sa.Integer(), nullable=True),
     sa.Column('accion', sa.String(length=10), nullable=True),
     sa.Column('accion_cambiar_por', sa.Integer(), nullable=True),
     sa.Column('accion_cantidad', sa.Integer(), nullable=True),
     sa.Column('motivo', sa.String(length=50), nullable=True),
     sa.Column('monto_a_devolver', sa.Float(), nullable=True),
+    sa.Column('gestionado', sa.String(length=10), nullable=True),
     sa.Column('order', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['order'], ['order_header.id'], ),
     sa.PrimaryKeyConstraint('order_line_number')
@@ -113,6 +115,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('sub_status', sa.String(length=15), nullable=True),
     sa.Column('fecha', sa.DateTime(), nullable=True),
+    sa.Column('username', sa.String(length=64), nullable=True),
     sa.Column('order_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['order_id'], ['order_header.id'], ),
