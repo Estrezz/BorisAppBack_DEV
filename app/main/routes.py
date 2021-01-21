@@ -5,7 +5,7 @@ from flask_login import current_user, login_required
 from app import db
 from app.main.forms import EditProfileForm
 from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log
-from app.main.interfaces import cargar_pedidos, resumen_ordenes, toReady, toApproved, traducir_estado
+from app.main.interfaces import cargar_pedidos, resumen_ordenes, toReady, toApproved, toReject, traducir_estado
 import json
 
 from app.main import bp
@@ -149,6 +149,9 @@ def gestionar_ordenes(orden_id):
     else: 
         if accion == 'toApproved':
             toApproved(orden.id)
+        else: 
+            if accion == 'toReject':
+                toReject(orden.id)
     #return redirect(url_for('main.user', username=current_user.username))
     return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer)
     

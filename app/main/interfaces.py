@@ -148,7 +148,20 @@ def toApproved(orden_id):
     db.session.commit()
 
 
-      
+def toReject(orden_id):
+    orden = Order_header.query.get(orden_id)    
+    orden.status = 'Closed'
+    orden.sub_status = 'Rechazada'
+    orden.last_update_date = str(datetime.utcnow)
+
+    unaTransaccion = Transaction_log(
+            sub_status = orden.sub_status,
+            order_id = orden.id,
+            user_id = current_user.id,
+            username = current_user.username
+        )
+    db.session.add(unaTransaccion)
+    db.session.commit()
 
                             
 

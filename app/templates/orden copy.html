@@ -52,19 +52,18 @@
             {% endfor %}
         </table>
         <br><br>
-        {% if orden.status == 'Shipping' %}
+
             {% if orden.sub_status == 'Iniciado' %}
-                <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReady' ) }}">
-                    <button class="btn btn-default"> Cobrar envío y pasar a Ready </button></a>
+                {% set text = 'Cobrar envío y pasar a Ready' %}
+                {% set accion_orden = 'toReady' %}
             {% endif %}
             {% if orden.sub_status == 'Recibido' %}
-                <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toApproved' ) }}">
-                    <button class="btn btn-default"> Revisar y aprobar Solicitud </button></a>
-            
-                <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReject' ) }}">
-                <button class="btn btn-default"> Rechazar </button></a>
+                {% set text = 'Revisar y aprobar Solicitud' %}
+                {% set accion_orden = 'toApproved' %}
             {% endif %}
-        {% endif %}    
+            <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = accion_orden ) }}">
+            <button class="btn btn-default"> {{text}} </button></a>
+            
         
         
     </div>
