@@ -5,7 +5,7 @@ from flask_login import current_user, login_required
 from app import db
 from app.main.forms import EditProfileForm
 from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log
-from app.main.interfaces import cargar_pedidos, resumen_ordenes, toReady, toApproved, toReject, traducir_estado
+from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toApproved, toReject, traducir_estado
 import json
 
 from app.main import bp
@@ -195,6 +195,28 @@ def webhook():
         return '', 200
     else:
         abort(400)
+
+
+@bp.route('/pedidos', methods=['POST'])
+def recibir_pedidos():
+    if request.method == 'POST':
+        pedido = request.json
+        nuevo_pedido = crear_pedido(pedido)
+
+        usuario = User.query.filter_by(username = 'Webhook').first()
+        unaTransaccion = Transaction_log(
+            sub_status = nuevo_pedido.sub_status,
+            order_id = nuevo_pedido.id,
+            user_id = usuario.id,
+            username = usuario.username
+        )
+        db.session.add(unaTransaccion)
+
+        db.session.commit()
+        return '', 200
+    else:
+        abort(400)
+
 
 
 @bp.route('/devolver', methods=['GET', 'POST'])

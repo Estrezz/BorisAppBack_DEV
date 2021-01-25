@@ -79,6 +79,7 @@ def crear_pedido(pedido):
         db.session.add(unProducto)
         indice += indice
     db.session.commit() 
+    return unaOrden
 
 def resumen_ordenes(store_id):
     entransito = 0
