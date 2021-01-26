@@ -20,8 +20,11 @@
                 </td> 
                 <td class="text-right">
                     Fecha de Compra: {{orden.creation_date}} <br>
+                    <br>
+                    <strong>Forma de Pago: </strong>
                     Método de Pago: {{orden.payment_method}}<br>
                     Tarjeta: {{orden.payment_card}} <br>
+                    <br>
                     <strong>Estado de la orden:  {{orden.status}} - {{orden.sub_status}} </strong><br>
                     <strong>Accion a realizar: {{linea.accion}}</strong> <br>
                     {% if linea.gestionado !='Si' %}

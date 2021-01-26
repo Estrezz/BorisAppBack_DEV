@@ -7,6 +7,7 @@ from app.main.forms import EditProfileForm
 from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log
 from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toApproved, toReject, traducir_estado
 import json
+
 from app.main import bp
 
 
@@ -23,11 +24,11 @@ def before_request():
 def index():
     return render_template('index.html', title='Home')
 
-
 @bp.route('/Mantenimiento', methods=['GET', 'POST'])
 @login_required
 def mantenimiento():
     return render_template('mantenimiento.html', title='Home')
+
 
 
 @bp.route('/user/<username>')
@@ -58,18 +59,41 @@ def vision_general():
     return render_template('dashboard.html', title='Vision General', resumen=resumen)
 
 
-@bp.route('/ordenes/<estado>/<subestado>', methods=['GET', 'POST'])
+@bp.route('/ordenes/<estado>', methods=['GET', 'POST'])
 @login_required
-def ver_ordenes(estado, subestado):
+def ver_ordenes(estado):
     if estado == 'all':
         ordenes =  Order_header.query.filter_by(store=current_user.store).all()
     else :
-        if subestado == 'all':
-            ordenes = db.session.query(Order_header).filter((Order_header.store == current_user.store)).filter((Order_header.status == estado))
-        else: 
-            ordenes = db.session.query(Order_header).filter((Order_header.store == current_user.store)).filter((Order_header.status == estado)).filter((Order_header.sub_status == subestado))
+        ordenes = db.session.query(Order_header).filter((Order_header.store == current_user.store)).filter((Order_header.status == estado))
     return render_template('ordenes.html', title='Ordenes', ordenes=ordenes, estado=estado)
 
+
+@bp.route('/borrar_pedidos', methods=['GET', 'POST'])
+@login_required
+def borrar_pedidos():
+    orders = Order_header.query.all()
+    for u in orders:
+        flash('Borrando Order_header {} '.format(u))
+        db.session.delete(u)
+
+    orders = Order_detail.query.all()
+    for u in orders:
+        flash('Borrando Order_detail {} '.format(u))
+        db.session.delete(u)
+
+#    users = User.query.all()
+#    for u in users:
+#        flash('Users {} '.format(u))
+#        db.session.delete(u)
+
+#    cia = Company.query.all()
+#    for u in cia:
+#        flash('Company {} '.format(u))
+#        db.session.delete(u)
+    
+    db.session.commit()
+    return render_template('ordenes.html', title='Ordenes')
 
 
 
@@ -96,8 +120,10 @@ def gestionar_ordenes(orden_id):
         else: 
             if accion == 'toReject':
                 toReject(orden.id)
+    #return redirect(url_for('main.user', username=current_user.username))
     return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer)
     
+
 
 @bp.route('/gestion_producto/<orden_id>', methods=['GET', 'POST'])
 @login_required
@@ -153,6 +179,7 @@ def recibir_pedidos():
             username = usuario.username
         )
         db.session.add(unaTransaccion)
+
         db.session.commit()
         return '', 200
     else:
@@ -366,31 +393,4 @@ def cargar_empresa():
     db.session.commit()
 
     return redirect(url_for('main.user', username=current_user.username))
-
-
-@bp.route('/borrar_pedidos', methods=['GET', 'POST'])
-@login_required
-def borrar_pedidos():
-    orders = Order_header.query.all()
-    for u in orders:
-        flash('Borrando Order_header {} '.format(u))
-        db.session.delete(u)
-
-    orders = Order_detail.query.all()
-    for u in orders:
-        flash('Borrando Order_detail {} '.format(u))
-        db.session.delete(u)
-
-#    users = User.query.all()
-#    for u in users:
-#        flash('Users {} '.format(u))
-#        db.session.delete(u)
-
-#    cia = Company.query.all()
-#    for u in cia:
-#        flash('Company {} '.format(u))
-#        db.session.delete(u)
-    
-    db.session.commit()
-    return render_template('ordenes.html', title='Ordenes')
     

@@ -7,7 +7,6 @@ from flask_login import current_user
 from datetime import datetime
 import os
 
-
 def cargar_pedidos():
     Pedidos = []
     #flash('os :{}'.format(os.environ.get('FILES_PEDIDOS_URL')))
@@ -82,43 +81,21 @@ def crear_pedido(pedido):
     db.session.commit() 
     return unaOrden
 
-
 def resumen_ordenes(store_id):
     entransito = 0
     enproceso = 0
     cerradas = 0
-    iniciadas = 0
-    entansito = 0
-    recibidas = 0
-    aprobadas = 0
-    rechazadas = 0
     ordenes = Order_header.query.filter_by(store=store_id).all()
     for i in ordenes:
         if i.status == 'Shipping':
             entransito += 1
-            if i.sub_status == 'Iniciado':
-                iniciadas += 1
-            else:
-                if i.sub_status == 'Listo para retiro' or i.sub_status == 'Recogido' or i.sub_status == 'En camino':
-                    entansito += 1
-                else: 
-                    if i.sub_status == 'Recibido':
-                        recibidas += 1
         else:
             if i.status == 'En Proceso':
                 enproceso += 1
-                if i.sub_status == 'Aprobado':
-                    aprobadas += 1
-                else:
-                    if i.sub_status == 'Rechazado':
-                        rechazadas += 1
             else:
                 if i.status == 'Closed':
                     cerradas += 1
-    
-    resumen = {'entransito':entransito, 'enproceso':enproceso,'cerradas':cerradas, 
-        'iniciadas':iniciadas, 'entransito':entransito, 'recibidas': recibidas, 
-            'aprobadas':aprobadas, 'rechazadas':rechazadas}
+    resumen = {'entransito':entransito, 'enproceso':enproceso,'cerradas':cerradas}
     return resumen
 
 
@@ -175,8 +152,8 @@ def toApproved(orden_id):
 
 def toReject(orden_id):
     orden = Order_header.query.get(orden_id)    
-    orden.status = 'En Proceso'
-    orden.sub_status = 'Rechazado'
+    orden.status = 'Closed'
+    orden.sub_status = 'Rechazada'
     orden.last_update_date = str(datetime.utcnow)
 
     unaTransaccion = Transaction_log(

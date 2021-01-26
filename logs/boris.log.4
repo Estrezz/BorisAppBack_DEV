@@ -1,4 +1,16 @@
-2021-01-19 09:29:52,753 ERROR: Exception on /orden/1 [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
+2021-01-25 19:30:45,214 ERROR: Exception on /tracking_orden [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
+Traceback (most recent call last):
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 2447, in wsgi_app
+    response = self.full_dispatch_request()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1953, in full_dispatch_request
+    return self.finalize_request(rv)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1968, in finalize_request
+    response = self.make_response(rv)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 2098, in make_response
+    "The view function did not return a valid response. The"
+TypeError: The view function did not return a valid response. The function either returned None or ended without a return statement.
+2021-01-25 19:31:15,632 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-25 19:31:24,652 ERROR: Exception on /tracking_orden [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
 Traceback (most recent call last):
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 2447, in wsgi_app
     response = self.full_dispatch_request()
@@ -12,35 +24,19 @@ Traceback (most recent call last):
     rv = self.dispatch_request()
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1936, in dispatch_request
     return self.view_functions[rule.endpoint](**req.view_args)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_login\utils.py", line 272, in decorated_view
-    return func(*args, **kwargs)
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 137, in orden
-    return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\templating.py", line 138, in render_template
-    ctx.app.jinja_env.get_or_select_template(template_name_or_list),
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\jinja2\environment.py", line 930, in get_or_select_template
-    return self.get_template(template_name_or_list, parent, globals)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\jinja2\environment.py", line 883, in get_template
-    return self._load_template(name, self.make_globals(globals))
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\jinja2\environment.py", line 857, in _load_template
-    template = self.loader.load(self, name, globals)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\jinja2\loaders.py", line 127, in load
-    code = environment.compile(source, name, filename)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\jinja2\environment.py", line 638, in compile
-    self.handle_exception(source=source_hint)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\jinja2\environment.py", line 832, in handle_exception
-    reraise(*rewrite_traceback_stack(source=source))
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\jinja2\_compat.py", line 28, in reraise
-    raise value.with_traceback(tb)
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\templates\orden.html", line 45, in template
-    {% if (orden.status == 'Aprobado' and orden.sub_status != 'Rechazado' %}
-jinja2.exceptions.TemplateSyntaxError: unexpected '}', expected ')'
-2021-01-19 09:30:03,721 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
-2021-01-19 09:34:22,442 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
-2021-01-19 09:41:26,850 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
-2021-01-19 09:42:40,464 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
-2021-01-19 09:45:48,238 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
-2021-01-19 09:45:53,867 ERROR: Exception on /devolver [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
+  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 227, in tracking_orden
+    return json.dumps(historia), 200
+  File "C:\Users\erezzonico\AppData\Local\Continuum\anaconda3\lib\json\__init__.py", line 231, in dumps
+    return _default_encoder.encode(obj)
+  File "C:\Users\erezzonico\AppData\Local\Continuum\anaconda3\lib\json\encoder.py", line 199, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+  File "C:\Users\erezzonico\AppData\Local\Continuum\anaconda3\lib\json\encoder.py", line 257, in iterencode
+    return _iterencode(o, 0)
+  File "C:\Users\erezzonico\AppData\Local\Continuum\anaconda3\lib\json\encoder.py", line 180, in default
+    o.__class__.__name__)
+TypeError: Object of type 'Transaction_log' is not JSON serializable
+2021-01-25 19:37:52,985 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-25 19:37:58,275 ERROR: Exception on /tracking_orden [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
 Traceback (most recent call last):
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 2447, in wsgi_app
     response = self.full_dispatch_request()
@@ -54,19 +50,11 @@ Traceback (most recent call last):
     rv = self.dispatch_request()
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1936, in dispatch_request
     return self.view_functions[rule.endpoint](**req.view_args)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_login\utils.py", line 272, in decorated_view
-    return func(*args, **kwargs)
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 225, in devolver
-    orden_tmp = Order_header.query.get(order_id)
-NameError: name 'order_id' is not defined
-2021-01-19 09:46:11,575 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
-2021-01-19 09:52:59,275 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
-2021-01-19 09:53:04,886 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
-2021-01-19 09:53:10,465 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
-2021-01-19 09:53:17,362 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
-2021-01-19 09:57:36,442 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
-2021-01-19 10:08:33,094 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
-2021-01-19 10:08:42,419 ERROR: Exception on /gestion_producto/2 [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
+  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 231, in tracking_orden
+    "Fecha": i.fecha
+NameError: name 'atatus' is not defined
+2021-01-25 19:38:26,568 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-25 19:38:28,857 ERROR: Exception on /tracking_orden [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
 Traceback (most recent call last):
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 2447, in wsgi_app
     response = self.full_dispatch_request()
@@ -80,36 +68,43 @@ Traceback (most recent call last):
     rv = self.dispatch_request()
   File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1936, in dispatch_request
     return self.view_functions[rule.endpoint](**req.view_args)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_login\utils.py", line 272, in decorated_view
-    return func(*args, **kwargs)
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 163, in gestionar_producto
-    return render_template('producto.html', orden=orden, linea=linea, customer=orden.buyer)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\templating.py", line 140, in render_template
-    ctx.app,
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\templating.py", line 120, in _render
-    rv = template.render(context)
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\jinja2\environment.py", line 1090, in render
-    self.environment.handle_exception()
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\jinja2\environment.py", line 832, in handle_exception
-    reraise(*rewrite_traceback_stack(source=source))
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\jinja2\_compat.py", line 28, in reraise
-    raise value.with_traceback(tb)
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\templates\producto.html", line 1, in top-level template code
-    {% extends "base.html" %}
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\templates\base.html", line 1, in top-level template code
-    {% extends 'bootstrap/base.html' %}
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_bootstrap\templates\bootstrap\base.html", line 1, in top-level template code
-    {% block doc -%}
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_bootstrap\templates\bootstrap\base.html", line 4, in block "doc"
-    {%- block html %}
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_bootstrap\templates\bootstrap\base.html", line 20, in block "html"
-    {% block body -%}
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask_bootstrap\templates\bootstrap\base.html", line 23, in block "body"
-    {% block content -%}
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\templates\base.html", line 53, in block "content"
-    {% block app_content %}{% endblock %}
-  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\templates\producto.html", line 27, in block "app_content"
-    {{inea.gestionado}}
-  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\jinja2\environment.py", line 471, in getattr
-    return getattr(obj, attribute)
-jinja2.exceptions.UndefinedError: 'inea' is undefined
+  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 231, in tracking_orden
+    "Fecha": i.fecha
+AttributeError: 'dict' object has no attribute 'append'
+2021-01-25 19:39:07,405 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-25 19:39:10,320 ERROR: Exception on /tracking_orden [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
+Traceback (most recent call last):
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 2447, in wsgi_app
+    response = self.full_dispatch_request()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1952, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1821, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\_compat.py", line 39, in reraise
+    raise value
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 231, in tracking_orden
+    "Fecha": i.fecha
+AttributeError: 'list' object attribute 'append' is read-only
+2021-01-25 19:39:46,746 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
+2021-01-25 19:39:50,780 ERROR: Exception on /tracking_orden [GET] [in c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py:1892]
+Traceback (most recent call last):
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 2447, in wsgi_app
+    response = self.full_dispatch_request()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1952, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1821, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\_compat.py", line 39, in reraise
+    raise value
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "c:\users\erezzonico\proyectos\python\borisappback\venv\lib\site-packages\flask\app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\main\routes.py", line 231, in tracking_orden
+    "Fecha": i.fecha
+AttributeError: 'list' object attribute 'append' is read-only
+2021-01-25 19:40:04,439 INFO: Boris startup [in C:\Users\erezzonico\Proyectos\Python\BorisAppBack\app\__init__.py:71]
