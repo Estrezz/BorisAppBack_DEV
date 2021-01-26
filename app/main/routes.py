@@ -24,7 +24,7 @@ def index():
     return render_template('index.html', title='Home')
 
 
-@bp.route('/Mantenimiento', methods=['GET', 'POST'])
+@bp.route('/mantenimiento', methods=['GET', 'POST'])
 @login_required
 def mantenimiento():
     return render_template('mantenimiento.html', title='Home')
