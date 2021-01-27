@@ -163,7 +163,7 @@ def recibir_pedidos():
 def tracking_orden():
     if request.method == 'GET':
         orden_id = request.args.get('orden_id')
-        orden = Order_header.query.filter_by(order_id_anterior=orden_id).first()
+        orden = Order_header.query.filter_by(order_number=orden_id).first()
         flash('Orden: {}'.format(orden.id))
         historia = Transaction_log.query.filter_by(order_id=orden.id).all()
         status_tmp = []
@@ -173,7 +173,6 @@ def tracking_orden():
             "Estado": i.sub_status,
             "Fecha": str(i.fecha)
             })
-
         return json.dumps(status_tmp), 200
 
 

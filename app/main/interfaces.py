@@ -152,7 +152,6 @@ def toReady(orden_courier_id, company):
     return "Fail"
   else:
     flash('La orden se actualizo exitosamente')
-    flash('URL {} code {}'.format(url, solicitud.status_code))
     return 'Success'
 
 
