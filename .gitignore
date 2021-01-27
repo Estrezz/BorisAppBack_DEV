@@ -16,5 +16,7 @@ __pycache__/
 instance/
 .webassets-cache
 
-#logs
+#logs y otros
 logs/
+app.db
+boris.env
