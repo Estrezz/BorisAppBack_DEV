@@ -45,6 +45,7 @@ def crear_pedido(pedido):
         payment_method = pedido['orden_medio_de_pago'],
         payment_card = pedido['orden_tarjeta_de_pago'],
         courier_order_id = pedido['correo']['correo_id'],
+        courier_precio = pedido['correo']['correo_precio_formateado'],
         status = 'Shipping',
         sub_status = traducir_estado(pedido['correo']['correo_status']),
         customer_address = pedido['cliente']['address']['street'],
@@ -126,7 +127,7 @@ def traducir_estado(estado):
     switcher={
             'DRAFT':'Iniciado',
             'READY':'Listo para retiro',
-            'CONFIRMED':'Listo para retiro',
+            'CONFIRMED':'Confirmado',
             'PICKEDUP':'Recogido',
             'INTRANSIT':'En camino',
             'DELIVERED':'Recibido'

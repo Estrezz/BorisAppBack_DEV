@@ -84,6 +84,7 @@ class Order_header(db.Model):
     payment_method = db.Column(db.String(10))
     payment_card = db.Column(db.String(10))
     courier_order_id = db.Column(db.String(64), index=True)
+    courier_precio = db.Column(db.String(20))
     status = db.Column(db.String(15))
     sub_status = db.Column(db.String(15))
     customer_address = db.Column(db.String(64))
