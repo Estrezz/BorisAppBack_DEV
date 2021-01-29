@@ -128,7 +128,8 @@ def webhook():
 
         usuario = User.query.filter_by(username = 'Webhook').first()
         unaTransaccion = Transaction_log(
-            sub_status = orden.sub_status,
+            sub_status = traducir_estado(data['status'])[0],
+            status_client = traducir_estado(data['status'])[2],
             order_id = orden.id,
             user_id = usuario.id,
             username = usuario.username
@@ -170,11 +171,12 @@ def tracking_orden():
         historia = Transaction_log.query.filter_by(order_id=orden.id).all()
         status_tmp = []
         for i in historia:
-           status_tmp.append({
-            "id":i.order_id,
-            "Estado": i.sub_status,
-            "Fecha": str(i.fecha)
-            })
+            if i.status_client != 'N0':
+                status_tmp.append({
+                "id":i.order_id,
+                "Estado": i.status_client,
+                "Fecha": str(i.fecha)
+                })
         return json.dumps(status_tmp), 200
 
 
@@ -324,7 +326,7 @@ def finalizar_orden(orden_id):
         flash('Todas las tareas completas. Se finalizó la Orden {}'.format(orden_id))
         orden.status = 'Closed'
         orden.sub_status = 'Finalizada'
-        loguear_transaccion('Closed', ' ',orden_id, current_user.id, current_user.username)
+        loguear_transaccion('CERRADO', 'Cerrado ',orden_id, current_user.id, current_user.username)
     return 'Success'
 
 
