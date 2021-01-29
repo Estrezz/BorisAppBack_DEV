@@ -87,6 +87,7 @@ class Order_header(db.Model):
     courier_precio = db.Column(db.String(20))
     status = db.Column(db.String(15))
     sub_status = db.Column(db.String(15))
+    status_resumen = db.Column(db.String(15))
     customer_address = db.Column(db.String(64))
     customer_number = db.Column(db.String(10))
     customer_floor = db.Column(db.String(10))
@@ -137,6 +138,8 @@ class Order_detail(db.Model):
 class Transaction_log(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     sub_status = db.Column(db.String(15))
+    status_client = db.Column(db.String(25))
+    prod = db.Column(db.String(30)),
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
     username = db.Column(db.String(64))
     order_id = db.Column(db.Integer, db.ForeignKey('order_header.id'))

@@ -21,7 +21,7 @@
                 <td>{{i['order_number']}}</td>
                 <td>{{i['creation_date']}}</td>
                 <td>{{i['status']}}</td>
-                <td>{{i['sub_status']}}</td>
+                <td>{{i['status_resumen']}}</td>
                 <td><a href="{{ url_for('main.orden', orden_id = i['id']) }}">
                     <button class="btn btn-default"> Ver detalles </button></td>
                 <td><a href="{{ url_for('main.historia_orden', orden_id = i['id']) }}">

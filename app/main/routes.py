@@ -67,7 +67,7 @@ def ver_ordenes(estado, subestado):
         if subestado == 'all':
             ordenes = db.session.query(Order_header).filter((Order_header.store == current_user.store)).filter((Order_header.status == estado))
         else: 
-            ordenes = db.session.query(Order_header).filter((Order_header.store == current_user.store)).filter((Order_header.status == estado)).filter((Order_header.sub_status == subestado))
+            ordenes = db.session.query(Order_header).filter((Order_header.store == current_user.store)).filter((Order_header.status == estado)).filter((Order_header.status_resumen == subestado))
     return render_template('ordenes.html', title='Ordenes', ordenes=ordenes, estado=estado)
 
 
@@ -121,7 +121,9 @@ def webhook():
     if request.method == 'POST':
         data = request.json
         orden = Order_header.query.filter_by(courier_order_id = str(data['id'])).first()
-        orden.sub_status = traducir_estado(data['status'])
+        orden.status = 'Shipping'
+        orden.sub_status = traducir_estado(data['status'])[0]
+        orden.status_resumen = traducir_estado(data['status'])[1]
         orden.last_update_date = data['date']
 
         usuario = User.query.filter_by(username = 'Webhook').first()
@@ -209,7 +211,7 @@ def devolver():
         flash('Hubo un problema en la devolución No se devolvió el stock. Error {}'.format(solicitud.status_code))
     else:
         linea = Order_detail.query.get(str(order_line_number))
-        loguear_transaccion('Devuelto '+str(linea.name), orden_id, current_user.id, current_user.username)
+        loguear_transaccion('DEVUELTO',str(linea.name), orden_id, current_user.id, current_user.username)
         if accion == 'devolver':
             linea.gestionado = 'Si'
             db.session.commit()
@@ -217,7 +219,7 @@ def devolver():
             if linea.gestionado == 'Cambiado':
                 linea.gestionado = 'Si'
             else: 
-                linea.gestionado = 'Devuelto'
+                linea.gestionado = traducir_estado('DEVUELTO')[1]
             db.session.commit()
         finalizar_orden(orden_id)
     return redirect(url_for('main.orden', orden_id=orden_id))
@@ -284,11 +286,11 @@ def cambiar():
         flash('Hubo un problema en la generación de la Orden. Error {}'.format(order.status_code))
     else:
         linea = Order_detail.query.get(str(order_line_number))
-        loguear_transaccion('Cambiado '+str(linea.name), orden_id, current_user.id, current_user.username)
+        loguear_transaccion('CAMBIADO', str(linea.name), orden_id, current_user.id, current_user.username)
         if linea.gestionado == 'Devuelto':
             linea.gestionado = 'Si'
         else:
-            linea.gestionado = 'Cambiado'
+            linea.gestionado = traducir_estado('CAMBIADO')[1]
         finalizar_orden(orden_id)
         db.session.commit()
     return redirect(url_for('main.orden', orden_id=orden_id))
@@ -297,9 +299,11 @@ def cambiar():
 
 
 
-def loguear_transaccion(sub_status, order_id, user_id, username):
+def loguear_transaccion(sub_status, prod, order_id, user_id, username):
     unaTransaccion = Transaction_log(
-        sub_status = sub_status,
+        sub_status = traducir_estado(sub_status)[0],
+        status_client = traducir_estado(sub_status)[2],
+        prod = prod,
         order_id = order_id,
         user_id = user_id,
         username = username
@@ -320,7 +324,7 @@ def finalizar_orden(orden_id):
         flash('Todas las tareas completas. Se finalizó la Orden {}'.format(orden_id))
         orden.status = 'Closed'
         orden.sub_status = 'Finalizada'
-        loguear_transaccion('Closed', orden_id, current_user.id, current_user.username)
+        loguear_transaccion('Closed', ' ',orden_id, current_user.id, current_user.username)
     return 'Success'
 
 

@@ -47,8 +47,7 @@ def crear_pedido(pedido):
         courier_order_id = pedido['correo']['correo_id'],
         courier_precio = pedido['correo']['correo_precio_formateado'],
         status = 'Shipping',
-        sub_status = traducir_estado(pedido['correo']['correo_status'])[0],
-        status_resumen = traducir_estado(pedido['correo']['correo_status'])[1],
+        sub_status = traducir_estado(pedido['correo']['correo_status']),
         customer_address = pedido['cliente']['address']['street'],
         customer_number = pedido['cliente']['address']['number'],
         customer_floor = pedido['cliente']['address']['floor'],
@@ -86,57 +85,52 @@ def crear_pedido(pedido):
 
 
 def resumen_ordenes(store_id):
-    shipping = 0
-    enproceso = 0
     entransito = 0
+    enproceso = 0
     cerradas = 0
-    solicitadas = 0
+    iniciadas = 0
+    entansito = 0
     recibidas = 0
     aprobadas = 0
     rechazadas = 0
     ordenes = Order_header.query.filter_by(store=store_id).all()
     for i in ordenes:
         if i.status == 'Shipping':
-            shipping += 1
-            if i.status_resumen == 'Solicitado':
-                solicitadas += 1
+            entransito += 1
+            if i.sub_status == 'Iniciado':
+                iniciadas += 1
             else:
-                if i.status_resumen == 'En Transito':
-                    entransito += 1
+                if i.sub_status == 'Listo para retiro' or i.sub_status == 'Recogido' or i.sub_status == 'En camino':
+                    entansito += 1
                 else: 
-                    if i.status_resumen == 'Recibido':
+                    if i.sub_status == 'Recibido':
                         recibidas += 1
         else:
             if i.status == 'En Proceso':
                 enproceso += 1
-                if i.status_resumen == 'Aprobado':
+                if i.sub_status == 'Aprobado':
                     aprobadas += 1
                 else:
-                    if i.status_resumen == 'Rechazado':
+                    if i.sub_status == 'Rechazado':
                         rechazadas += 1
             else:
                 if i.status == 'Closed':
                     cerradas += 1
     
-    resumen = {'shipping':shipping, 'enproceso':enproceso,'cerradas':cerradas, 
-        'solicitadas':solicitadas, 'entransito':entransito, 'recibidas': recibidas, 
+    resumen = {'entransito':entransito, 'enproceso':enproceso,'cerradas':cerradas, 
+        'iniciadas':iniciadas, 'entransito':entransito, 'recibidas': recibidas, 
             'aprobadas':aprobadas, 'rechazadas':rechazadas}
     return resumen
 
 
 def traducir_estado(estado):
     switcher={
-            'DRAFT':['Solicitado','Solicitado','Inicio de la Gestion'],
-            'READY':['Listo para retiro','En Transito', 'Solicitud aprobada'],
-            'CONFIRMED':['Confirmado','En Transito', 'No'],
-            'PICKEDUP':['Recogido','En Transito', 'Se recogió la orden'],
-            'INTRANSIT':['En camino','En Transito','No'],
-            'DELIVERED':['Recibido','Recibido', 'Llego a nuestro depósito'],
-            "DEVUELTO":['Prenda devuleta a Stock', 'Devuelto', 'No'],
-            "CAMBIADO":['Orden de cambio iniciada', 'Cambiado', 'Se generó el cambio'],
-            "APROBADO":['Aprobado','Aprobado','Tu solicitud fue aprobada'],
-            "RECHAZADO":['Rechazado', 'Rechazado', 'Tu solicitud fue rechazada']
-            "CERRADO":['Cerrrado', 'Cerrado', 'Tu orden fue finalizada']
+            'DRAFT':'Solicitado',
+            'READY':'Listo para retiro',
+            'CONFIRMED':'Confirmado',
+            'PICKEDUP':'Recogido',
+            'INTRANSIT':'En camino',
+            'DELIVERED':'Recibido'
         }
     return switcher.get(estado,"Aprobado")
 
@@ -166,13 +160,11 @@ def toReady(orden_courier_id, company):
 def toApproved(orden_id):
     orden = Order_header.query.get(orden_id)    
     orden.status = 'En Proceso'
-    orden.sub_status = traducir_estado('APROBADO')[0]
-    orden.status_resumen =traducir_estado('APROBADO')[1]
+    orden.sub_status = 'Aprobado'
     orden.last_update_date = str(datetime.utcnow)
 
     unaTransaccion = Transaction_log(
-            sub_status = traducir_estado('APROBADO')[0],
-            status_client = traducir_estado('APROBADO')[2],
+            sub_status = orden.sub_status,
             order_id = orden.id,
             user_id = current_user.id,
             username = current_user.username
@@ -185,13 +177,11 @@ def toApproved(orden_id):
 def toReject(orden_id):
     orden = Order_header.query.get(orden_id)    
     orden.status = 'En Proceso'
-    orden.sub_status = traducir_estado('RECHAZADO')[0]
-    orden.status_resumen = traducir_estado('RECHAZADO')[1]
+    orden.sub_status = 'Rechazado'
     orden.last_update_date = str(datetime.utcnow)
 
     unaTransaccion = Transaction_log(
-            sub_status = traducir_estado('RECHAZADO')[0],
-            status_client = traducir_estado('RECHAZADO')[2],
+            sub_status = orden.sub_status,
             order_id = orden.id,
             user_id = current_user.id,
             username = current_user.username

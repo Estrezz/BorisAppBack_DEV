@@ -8,8 +8,8 @@
         <h4>
             <br> <strong> Cliente </strong>{{customer.name}}  
             <br>         {{customer.email}}
-            <div class="text-right"> {{orden.status}} - {{orden.sub_status}} </div>
-            {% if orden.sub_status == 'Iniciado' %}
+            <div class="text-right"> {{orden.status}} - {{orden.status_resumen}} </div>
+            {% if orden.status_resumen == 'Solicitado' %}
             <br><strong> Costo del Envío a cobrar: {{orden.courier_precio}}</strong>
             {% endif %}
         </h4>
@@ -56,17 +56,17 @@
         </table>
         <br><br>
         {% if orden.status == 'Shipping' %}
-            {% if orden.sub_status == 'Iniciado' %}
+            {% if orden.sub_status == 'Solicitado' %}
                 <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReady' ) }}">
-                    <button class="btn btn-default"> Pasar a Listo para Retiro </button></a> 
+                    <button class="btn btn-primary"> Pasar a Listo para Retiro </button></a> 
                     Pasar a "Listo paa retiro" solo despues de haber cobrado el envío al cliente
             {% endif %}
             {% if orden.sub_status == 'Recibido' %}
                 <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toApproved' ) }}">
-                    <button class="btn btn-default"> Revisar y aprobar Solicitud </button></a>
+                    <button class="btn btn-primary"> Revisada y Aprobada </button></a>
             
                 <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReject' ) }}">
-                <button class="btn btn-default"> Rechazar </button></a>
+                <button class="btn btn-primary"> Rechazada </button></a>
             {% endif %}
         {% endif %}    
         

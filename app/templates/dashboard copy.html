@@ -6,41 +6,28 @@
     </div>
     <div class='container'>
     <div class="row">
-        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-            <div class="panel panel-default">
-                <div class="panel-heading">En Transito</div>
+        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+            <div class="panel panel-primary">
+                <div class="panel-heading"> En correo </div>
                 <div class="panel-body"> 
-                    <h3  class="text-center">{{resumen.entransito}}</h3> 
+                    <h3  class="text-center">{{resumen.shipping}}</h3> 
                 </div>
                 <div class="panel-footer">
-                    <a href="{{ url_for('main.ver_ordenes', estado='Shipping') }}">
+                    <a href="{{ url_for('main.ver_ordenes', estado='Shipping', subestado='all') }}">
                         <button class="btn btn-default"> Ver detalles </button> 
                     </a>
                 </div>
             </div>
         </div>
-        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-            <div class="panel panel-default">
+        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+            <div class="panel panel-success">
                 <div class="panel-heading">En Proceso</div>
                 <div class="panel-body"> 
                     <h3 class="text-center">{{resumen.enproceso}} </h3>
                 </div>
                 <div class="panel-footer">
-                    <a href="{{ url_for('main.ver_ordenes', estado='En Proceso')  }}">
+                    <a href="{{ url_for('main.ver_ordenes', estado='En Proceso', subestado='all')  }}">
                         <button class="btn btn-default"> Ver detalles </button> 
-                    </a>
-                </div>
-            </div>
-        </div>
-        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-            <div class="panel panel-default">
-                <div class="panel-heading">Cerradas</div>
-                <div class="panel-body"> 
-                    <h3 class="text-center">{{resumen.cerradas}} </h3>
-                </div>
-                <div class="panel-footer">
-                    <a href="{{ url_for('main.ver_ordenes', estado='Closed') }}">
-                        <button class="btn btn-default"> Ver detalles </button>
                     </a>
                 </div>
             </div>
@@ -49,39 +36,65 @@
 
     <div class="row">
         <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-            <div class="panel panel-default">
-                <div class="panel-heading">Iniciadas</div>
+            <div class="panel panel-primary">
+                <div class="panel-heading">Solicitadas</div>
                 <div class="panel-body"> 
-                    <h3  class="text-center">{{resumen.entransito}}</h3> 
+                    <h3  class="text-center">{{resumen.solicitadas}}</h3> 
                 </div>
                 <div class="panel-footer">
-                    <a href="{{ url_for('main.ver_ordenes', estado='Shipping') }}">
+                    <a href="{{ url_for('main.ver_ordenes', estado='Shipping', subestado='Solicitado') }}">
                         <button class="btn btn-default"> Ver </button> 
                     </a>
                 </div>
             </div>
         </div>
         <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-            <div class="panel panel-default">
-                <div class="panel-heading">Recibidas</div>
+            <div class="panel panel-primary">
+                <div class="panel-heading">En tránsito</div>
                 <div class="panel-body"> 
-                    <h3 class="text-center">{{resumen.enproceso}} </h3>
+                    <h3 class="text-center">{{resumen.entransito}} </h3>
                 </div>
                 <div class="panel-footer">
-                    <a href="{{ url_for('main.ver_ordenes', estado='En Proceso')  }}">
+                    <a href="{{ url_for('main.ver_ordenes', estado='Shipping', subestado='En Transito')  }}">
                         <button class="btn btn-default"> Ver </button> 
                     </a>
                 </div>
             </div>
         </div>
-        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-            <div class="panel panel-default">
-                <div class="panel-heading">Cerradas</div>
+        <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+            <div class="panel panel-primary">
+                <div class="panel-heading">Recibidas</div>
                 <div class="panel-body"> 
-                    <h3 class="text-center">{{resumen.cerradas}} </h3>
+                    <h3 class="text-center">{{resumen.recibidas}} </h3>
                 </div>
                 <div class="panel-footer">
-                    <a href="{{ url_for('main.ver_ordenes', estado='Closed') }}">
+                    <a href="{{ url_for('main.ver_ordenes', estado='Shipping', subestado='Recibido') }}">
+                        <button class="btn btn-default"> Ver </button>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+            <div class="panel panel-success">
+                <div class="panel-heading">Aprobadas</div>
+                <div class="panel-body"> 
+                    <h3 class="text-center">{{resumen.aprobadas}} </h3>
+                </div>
+                <div class="panel-footer">
+                    <a href="{{ url_for('main.ver_ordenes', estado='En Proceso', subestado='Aprobado') }}">
+                        <button class="btn btn-default"> Ver </button>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+            <div class="panel panel-success">
+                <div class="panel-heading">Rechazadas</div>
+                <div class="panel-body"> 
+                    <h3 class="text-center">{{resumen.rechazadas}} </h3>
+                </div>
+                <div class="panel-footer">
+                    <a href="{{ url_for('main.ver_ordenes', estado='En Proceso', subestado='Rechazado') }}">
                         <button class="btn btn-default"> Ver </button>
                     </a>
                 </div>
