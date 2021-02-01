@@ -25,7 +25,11 @@
                 <td class="text-right">
                     Fecha de Compra: {{orden.creation_date}} <br>
                     <br>
-                   
+                    <strong>Forma de Pago: </strong>
+                    Método de Pago: {{orden.payment_method}}<br>
+                    Tarjeta: {{orden.payment_card}} <br>
+                    Monto a devolver: {{linea.monto_a_devolver}}
+                    <br>
                     <strong>Estado de la orden:  {{orden.status}} - {{orden.sub_status}} </strong><br>
                     
                     {% if linea.gestionado !='Si' %}
@@ -40,15 +44,6 @@
         
     </div>
     <div class='container'>
-        {% if linea['accion'] == 'devolver' %}
-            <br>
-            Método de Pago: {{orden.payment_method}}<br>
-            {% if orden.payment_card != None %}
-                Tarjeta: {{orden.payment_card}} <br>
-            {% endif %}
-            Monto a devolver: {{linea.monto_a_devolver}}
-        {% endif %}
-        <br>
         <br><br>
 
         {% if linea['accion'] == 'devolver' %}

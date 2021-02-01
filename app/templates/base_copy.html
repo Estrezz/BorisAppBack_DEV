@@ -21,8 +21,7 @@
                     <li><a href="{{ url_for('main.vision_general') }}"> Vision General </a></li>
                     <li><a href="{{ url_for('main.ver_ordenes', estado='all', subestado='all') }}"> Ver Ordenes </a></li>
                 </ul>
-
-                <ul class="nav navbar-nav navbar-right">    
+                <ul class="nav navbar-nav navbar-right">
                     {% if current_user.is_anonymous %}
                     <li><a href="{{ url_for('auth.login') }}"> Login </a></li>
                     <li> <a href="{{ url_for('auth.alta_usuario') }}"> Alta de Usuarios </a></li>
@@ -30,12 +29,6 @@
                     <li><a href="{{ url_for('main.user', username=current_user.username) }}"> Profile </a></li>
                     <li><a href="{{ url_for('auth.logout') }}">{{ 'Logout' }}</a></li>
                     {% endif %}
-                    <li>
-                        <form class="form-inline my-2 my-lg-0" action="{{ url_for('main.search') }}">
-                            <input class="form-control mr-sm-2" name="search" type="search" placeholder="Nro. de Orden" aria-label="Buscar">
-                            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Buscar</button>
-                        </form>
-                    </li>
                 </ul>
             </div>
         </div>

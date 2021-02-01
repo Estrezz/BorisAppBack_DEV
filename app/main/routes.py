@@ -51,6 +51,13 @@ def edit_profile():
                            form=form)
 
 
+@bp.route('/search')  
+def search():
+    query =  request.args.get('search') 
+    req_search = Order_header.query.filter_by(order_number=query).first()
+    return redirect(url_for('main.orden', orden_id=req_search.id))
+
+
 @bp.route('/Dashboard', methods=['GET', 'POST'])
 @login_required
 def vision_general():
