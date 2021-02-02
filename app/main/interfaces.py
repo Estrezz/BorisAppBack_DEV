@@ -74,6 +74,7 @@ def crear_pedido(pedido):
             monto_a_devolver = x['monto_a_devolver'],
             accion_cantidad = x['accion_cantidad'],
             accion_cambiar_por = x['accion_cambiar_por'],
+            accion_cambiar_por_desc = x['accion_cambiar_por_desc'],
             motivo =  x['motivo'],
             gestionado = 'Iniciado',
             productos = unaOrden
