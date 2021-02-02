@@ -8,9 +8,6 @@
         </h2> 
             <strong>{{linea.name}} </strong>  cantidad {{linea.accion_cantidad}} <br> 
             <strong>Accion a realizar: {{linea.accion}}</strong> <br>   
-            {% if linea.accion == 'cambiar' %}
-                {{linea.accion_cambiar_por}}
-            {% endif %}
         </h2>
         <table style="width:100%">
             <tr>
@@ -49,7 +46,7 @@
             Monto a devolver: {{linea.monto_a_devolver}}
         {% endif %}
         {% if linea.accion == 'cambiar' %}
-            Cambiar por: {{linea.name}} {{linea.accion_cambiar_por_desc}}
+            Cambiar: {{linea.name}} por {{linea.accion_cambiar_por_desc}}
         {% endif %}
         <br>
         <br><br>

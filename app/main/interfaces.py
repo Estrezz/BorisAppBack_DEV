@@ -155,6 +155,9 @@ def toReady(orden_courier_id, company):
 
   solicitud = requests.request("POST", url, headers=headers, params=params)
   if solicitud.status_code != 201:
+    if solicitud.status_code == 409:
+        flash('Revise y corrija la dirección en la página del correo. Error {}'.format(solicitud.status_code))
+        return 'Fail'
     flash('Hubo un problema con la generación del evío. Error {}'.format(solicitud.status_code))
     flash('url {} params{}'.format(url, params))
     return "Fail"

@@ -24,7 +24,6 @@
                 <th>Orden</th>
                 <th>Accion</th>
                 <th>Cantidad</th>
-                <th>Obser.</th>
                 <th>Motivo</th>
                 <th>Gestion</th>
                 <th></th>
@@ -37,20 +36,18 @@
                 <td>{{i['order']}}</td> 
                 <td>{{i['accion']}}</td>
                 <td>{{i['accion_cantidad']}}</td>
-                <td>
-                {% if i['accion'] == 'cambiar' %} 
-                    {{i['accion_cambiar_por']}}
-                {% else %}
-                    {{i['monto_a_devolver']}}
-                {% endif %}
-                </td>
                 <td>{{i['motivo']}}</td>
                 <td>{{i['gestionado']}}</td>
+                
 
                 {% if (orden.status == 'En Proceso' and orden.sub_status != 'Rechazado' and i['gestionado'] != 'Si') %}
                     <td><a href="{{ url_for('main.gestionar_producto', orden_id=orden.id, linea_id=i['order_line_number'] ) }}">
                         <button class="btn btn-default"> Accion </button></td>
                 {% endif %}
+                {% if i['gestionado'] == 'Si' %}
+                        <td><i class="fa fa-check-square-o" aria-hidden="true"></i></td>
+                {% endif %}
+
             </tr>
             {% endfor %}
         </table>
@@ -63,10 +60,10 @@
             {% endif %}
             {% if orden.sub_status == 'Recibido' %}
                 <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toApproved' ) }}">
-                    <button class="btn btn-primary"> Revisada y Aprobada </button></a>
+                    <button class="btn btn-primary"> Revisada y Aprobada <i class="fa fa-check" aria-hidden="true"></i> </button></a>
             
                 <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReject' ) }}">
-                <button class="btn btn-primary"> Rechazada </button></a>
+                <button class="btn btn-danger"> Rechazada <i class="fa fa-times" aria-hidden="true"></i></button></a>
             {% endif %}
         {% endif %}    
         
