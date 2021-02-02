@@ -158,6 +158,7 @@ def recibir_pedidos():
         usuario = User.query.filter_by(username = 'Webhook').first()
         unaTransaccion = Transaction_log(
             sub_status = nuevo_pedido.sub_status,
+            status_client = traducir_estado(nuevo_pedido.sub_status)[2],
             order_id = nuevo_pedido.id,
             user_id = usuario.id,
             username = usuario.username

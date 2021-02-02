@@ -134,8 +134,8 @@ def traducir_estado(estado):
             'DELIVERED':['Recibido','Recibido', 'Llego a nuestro depósito'],
             "DEVUELTO":['Prenda devuleta a Stock', 'Devuelto', 'No'],
             "CAMBIADO":['Orden de cambio iniciada', 'Cambiado', 'Se generó el cambio'],
-            "APROBADO":['Aprobado','Aprobado','Tu solicitud fue aprobada'],
-            "RECHAZADO":['Rechazado', 'Rechazado', 'Tu solicitud fue rechazada'],
+            "APROBADO":['Aprobado','Aprobado','Tu orden fue aprobada'],
+            "RECHAZADO":['Rechazado', 'Rechazado', 'Tu orden fue rechazada'],
             "CERRADO":['Cerrrado', 'Cerrado', 'Tu orden fue finalizada']
         }
     return switcher.get(estado,"Aprobado")
