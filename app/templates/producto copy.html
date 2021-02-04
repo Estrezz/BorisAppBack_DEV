@@ -9,22 +9,34 @@
             <strong>{{linea.name}} </strong>  cantidad {{linea.accion_cantidad}} <br> 
             <strong>Accion a realizar: {{linea.accion}}</strong> <br>   
         </h2>
-        
-                <strong>Cliente:  </strong>{{customer.name}} - {{customer.email}}<br>
-                <strong>Fecha de Compra: </strong>{{orden.creation_date}} <br>
-                <div class="text-right"> 
-                    Estado de la orden:  {{orden.status}} - {{orden.sub_status}}<br>
-
+        <table style="width:100%">
+            <tr>
+                <th>Cliente</th>
+                <th class="text-right">Datos de la transaccion</th>
+            </tr>
+            <tr>
+                <td>
+                    {{customer.name}} <br>
+                    {{customer.email}} <br>
+                </td> 
+                <td class="text-right">
+                    Fecha de Compra: {{orden.creation_date}} <br>
+                    <br>
+                   
+                    <strong>Estado de la orden:  {{orden.status}} - {{orden.sub_status}} </strong><br>
+                    
                     {% if linea.gestionado !='Si' %}
                         <strong> No resuelto </strong>
                     {% else %}
                         <strong> Resuelto </strong>
                     {% endif %}
-                </div>
+                </td> 
+            </tr>
+        </table>
+      
         
     </div>
     <div class='container'>
-    <h4>
         {% if linea['accion'] == 'devolver' %}
             <br>
             Método de Pago: {{orden.payment_method}}<br>
@@ -38,13 +50,12 @@
         {% endif %}
         <br>
         <br><br>
-    </h4>
 
         {% if linea['accion'] == 'devolver' %}
                 {% set text = 'Dinero devuelto. Regresar mercaderia al stock' %}
         {% endif %}
         {% if linea['accion'] == 'cambiar'  %}
-            {% set text = 'Regresar producto al stock' %}
+            {% set text = 'Regresar mercaderia al stock' %}
         {% endif %}
            
 

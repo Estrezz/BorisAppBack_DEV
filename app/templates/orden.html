@@ -20,8 +20,7 @@
             <tr>
                 <th>Linea</th>
                 <th>Producto</th>
-                <th>Código</th>
-                <th>Orden</th>
+                <th>Código Producto</th>
                 <th>Accion</th>
                 <th>Cantidad</th>
                 <th>Motivo</th>
@@ -33,7 +32,6 @@
                 <td>{{i['line_number']}}</td> 
                 <td>{{i['name']}}</td> 
                 <td>{{i['prod_id']}}</td> 
-                <td>{{i['order']}}</td> 
                 <td>{{i['accion']}}</td>
                 <td>{{i['accion_cantidad']}}</td>
                 <td>{{i['motivo']}}</td>
@@ -42,7 +40,7 @@
 
                 {% if (orden.status == 'En Proceso' and orden.sub_status != 'Rechazado' and i['gestionado'] != 'Si') %}
                     <td><a href="{{ url_for('main.gestionar_producto', orden_id=orden.id, linea_id=i['order_line_number'] ) }}">
-                        <button class="btn btn-default"> Accion </button></td>
+                        <button class="btn btn-primary"> Accion </button></td>
                 {% endif %}
                 {% if i['gestionado'] == 'Si' %}
                         <td><i class="fa fa-check-square-o" aria-hidden="true"></i></td>

@@ -23,9 +23,9 @@
                 <td>{{i['status']}}</td>
                 <td>{{i['status_resumen']}}</td>
                 <td><a href="{{ url_for('main.orden', orden_id = i['id']) }}">
-                    <button class="btn btn-default"> Ver detalles </button></td>
+                    <button class="btn btn-primary"> Gestionar </button></td>
                 <td><a href="{{ url_for('main.historia_orden', orden_id = i['id']) }}">
-                    <button class="btn btn-default"> Ver Historia </button></td>
+                    <button class="btn btn-link"> Ver Historia </button></td>
             </tr>
             {% endfor %}
         </table>
