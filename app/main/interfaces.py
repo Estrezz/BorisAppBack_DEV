@@ -32,6 +32,7 @@ def crear_pedido(pedido):
         unCliente = Customer(
         id = pedido['cliente']['id'],
         name = pedido['cliente']['name'],
+        identification = pedido['cliente']['identification'],
         email = pedido['cliente']['email'],
         phone = pedido['cliente']['phone'],
         platform=unaEmpresa.platform
