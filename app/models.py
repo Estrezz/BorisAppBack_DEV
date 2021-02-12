@@ -86,6 +86,7 @@ class Order_header(db.Model):
     date_lastupdate = db.Column(db.DateTime)
     payment_method = db.Column(db.String(10))
     payment_card = db.Column(db.String(10))
+    courier_method = db.Column(db.String(64))
     courier_order_id = db.Column(db.String(64), index=True)
     courier_precio = db.Column(db.String(20))
     status = db.Column(db.String(15))
