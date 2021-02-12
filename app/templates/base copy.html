@@ -19,13 +19,13 @@
                     <span class="icon-bar"></span>
                 </button>
                 <a class="navbar-brand" href="{{ url_for('main.index') }}">Boris</a>
+                
             </div>
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
                     <li><a href="{{ url_for('main.vision_general') }}"> Vision General </a></li>
                     <li><a href="{{ url_for('main.ver_ordenes', estado='all', subestado='all') }}"> Ver Ordenes </a></li>
                 </ul>
-
                 <ul class="nav navbar-nav navbar-right">    
                     {% if current_user.is_anonymous %}
                     <li><a href="{{ url_for('auth.login') }}"> Login </a></li>

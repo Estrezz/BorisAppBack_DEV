@@ -10,7 +10,8 @@
             <tr>
                 <th>ID</th>
                 <th>Orden</th>
-                <th>Fecha</th>
+                <th>Fecha Creacion</th>
+                <th>Última modificación </th>
                 <th>Estado</th>
                 <th>SubEstado</th>
                 <th></th>
@@ -27,7 +28,8 @@
             <tr>
                 <td>{{i['id']}}</td> 
                 <td>{{i['order_number']}}</td>
-                <td>{{i['creation_date']}}</td>
+                <td>{{  moment(i['date_creation']).format("DD/MM/YYYY")}}</td>
+                <td>{{ moment(i['date_lastupdate']).fromNow() }}</td>
                 <td style="color:{{color}}">{{i['status']}}</td>
                 <td style="color:{{color}}">{{i['status_resumen']}}</td>
                 <td><a href="{{ url_for('main.orden', orden_id = i['id']) }}">

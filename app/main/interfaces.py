@@ -43,6 +43,9 @@ def crear_pedido(pedido):
         order_id_anterior = pedido['orden'],
         creation_date = pedido['orden_fecha'],
         last_update_date = pedido['orden_fecha'],
+        ############### cambiado ###################
+        date_creation = datetime.strptime(pedido['orden_fecha'], '%Y-%m-%d %H:%M:%S.%f'),
+        date_lastupdate = datetime.strptime(pedido['orden_fecha'], '%Y-%m-%d %H:%M:%S.%f'),
         payment_method = pedido['orden_medio_de_pago'],
         payment_card = pedido['orden_tarjeta_de_pago'],
         courier_order_id = pedido['correo']['correo_id'],
