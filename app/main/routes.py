@@ -68,6 +68,7 @@ def vision_general():
 @bp.route('/ordenes/<estado>/<subestado>', methods=['GET', 'POST'])
 @login_required
 def ver_ordenes(estado, subestado):
+    resumen = resumen_ordenes(current_user.store) 
     if estado == 'all':
         ordenes =  Order_header.query.filter_by(store=current_user.store).all()
     else :
@@ -75,7 +76,7 @@ def ver_ordenes(estado, subestado):
             ordenes = db.session.query(Order_header).filter((Order_header.store == current_user.store)).filter((Order_header.status == estado))
         else: 
             ordenes = db.session.query(Order_header).filter((Order_header.store == current_user.store)).filter((Order_header.status == estado)).filter((Order_header.status_resumen == subestado))
-    return render_template('ordenes.html', title='Ordenes', ordenes=ordenes, estado=estado)
+    return render_template('ordenes.html', title='Ordenes', ordenes=ordenes, estado=estado, subestado=subestado,  resumen=resumen)
 
 
 

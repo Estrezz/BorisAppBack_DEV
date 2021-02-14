@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<div class='jumbotron'>
+    <h1> Ordenes</h1>
+    <h4 class="text-right"> {{ estado }}</h4>
+</div>
+    <div class='container'>
+        <table style="width:100%">
+            <tr>
+                <th>Orden</th>
+                <th>Fecha Creacion</th>
+                <th>Última modificación </th>
+                <th>Metodo Envío</th>
+                <th>Nro. Guía</th>
+                <th>Estado</th>
+                <th>SubEstado</th>
+                <th></th>
+            </tr>
+            {% for i in ordenes %}
+
+            {% if i['status'] == 'Shipping' %}
+                {% set color = 'blue' %}
+            {% endif %}
+            {% if i['status'] == 'En Proceso' %}
+                {% set color = 'green' %}
+            {% endif %}
+
+            <tr>
+                <td>{{i['order_number']}}</td>
+                <td>{{  moment(i['date_creation']).format("DD/MM/YYYY")}}</td>
+                <td>{{ moment(i['date_lastupdate']).fromNow() }}</td>
+                <td>{{ i['courier_method'] }}</td>
+                <td>{{ i['courier_order_id'] }}</td>
+                <td style="color:{{color}}">{{i['status']}}</td>
+                <td style="color:{{color}}">{{i['status_resumen']}}</td>
+                <td><a href="{{ url_for('main.orden', orden_id = i['id']) }}">
+                    <button class="btn btn-primary btn-sm"> Gestionar </button></td>
+                <td><a href="{{ url_for('main.historia_orden', orden_id = i['id']) }}">
+                    <button class="btn btn-link"> Ver Historia </button></td>
+            </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <td><a href="{{ url_for('main.vision_general') }}">
+            <button class="btn btn-default"> Volver </button></a>
+        </td>
+    </div>
+{% endblock %}

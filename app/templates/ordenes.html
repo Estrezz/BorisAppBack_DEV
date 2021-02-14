@@ -1,12 +1,21 @@
+
 {% extends "base.html" %}
 
+
 {% block app_content %}
-<div class='jumbotron'>
-    <h1> Ordenes</h1>
-    <h4 class="text-right"> {{ estado }}</h4>
-</div>
-    <div class='container'>
-        <table style="width:100%">
+
+<div class='container'> 
+<ul  class="nav nav-pills nav-fill">
+    <li role="presentation" {% if subestado == 'Solicitado' %} class='active' {% endif %}><a href="{{ url_for('main.ver_ordenes', estado='Shipping', subestado='Solicitado') }}">Solicitadas <span class="badge">{{resumen.solicitadas}}</span></a></li>
+    <li role="presentation" {% if subestado == 'En Transito' %} class='active' {% endif %}><a href="{{ url_for('main.ver_ordenes', estado='Shipping', subestado='En Transito')  }}">En Tránsito <span class="badge">{{resumen.entransito}}</span> </a></li>
+    <li role="presentation" {% if subestado == 'Recibido' %} class='active' {% endif %}><a href="{{ url_for('main.ver_ordenes', estado='Shipping', subestado='Recibido') }}">Recibidas <span class="badge">{{resumen.recibidas}}</span></a></li>
+    <li role="presentation" {% if subestado == 'Aprobado' %} class='active' {% endif %} ><a href="{{ url_for('main.ver_ordenes', estado='En Proceso', subestado='Aprobado') }}">Aprobadas <span class="badge">{{resumen.aprobadas}}</span></a></li>
+    <li role="presentation" {% if subestado == 'Rechazado' %} class='active' {% endif %}><a href="{{ url_for('main.ver_ordenes', estado='En Proceso', subestado='Rechazado') }}">Rechazadas <span class="badge">{{resumen.rechazadas}}</span></a></li>
+    <li role="presentation" {% if subestado == 'all' %} class='active' {% endif %} ><a href="{{ url_for('main.ver_ordenes', estado='all', subestado='all') }}">Todas</a></li>
+  </ul>
+
+        <table class="table table-striped" style="width:100%">
+            <caption><h3>{{active_page}}</h3></caption>
             <tr>
                 <th>Orden</th>
                 <th>Fecha Creacion</th>
@@ -27,13 +36,13 @@
             {% endif %}
 
             <tr>
-                <td>{{i['order_number']}}</td>
-                <td>{{  moment(i['date_creation']).format("DD/MM/YYYY")}}</td>
+                <td>{{i['order_number']}} </td>
+                <td>{{ moment(i['date_creation']).format("DD/MM/YYYY")}}</td>
                 <td>{{ moment(i['date_lastupdate']).fromNow() }}</td>
                 <td>{{ i['courier_method'] }}</td>
                 <td>{{ i['courier_order_id'] }}</td>
                 <td style="color:{{color}}">{{i['status']}}</td>
-                <td style="color:{{color}}">{{i['status_resumen']}}</td>
+                <td style="color:{{color}}">{{i['status_resumen']}} {{active_page}}</td>
                 <td><a href="{{ url_for('main.orden', orden_id = i['id']) }}">
                     <button class="btn btn-primary btn-sm"> Gestionar </button></td>
                 <td><a href="{{ url_for('main.historia_orden', orden_id = i['id']) }}">
@@ -42,8 +51,6 @@
             {% endfor %}
         </table>
         <br>
-        <td><a href="{{ url_for('main.vision_general') }}">
-            <button class="btn btn-default"> Volver </button></a>
-        </td>
+        
     </div>
 {% endblock %}
