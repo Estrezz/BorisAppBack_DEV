@@ -1,20 +1,20 @@
 {% extends "base.html" %}
 
 {% block app_content %}
-    <div class='jumbotron'>
-        <h2> 
-            <strong> Producto </strong> <br>
-        </h2>
-        </h2> 
-            <strong>{{linea.name}} </strong>  cantidad {{linea.accion_cantidad}} <br> 
-            <strong>Accion a realizar: {{linea.accion}}</strong> <br>   
-        </h2>
-        
+<div class='jumbotron'>
+    <div class="row">
+        <div class="col-md-5">
+            <strong style="font-size: 2em;"> Producto </strong> <br>
+            <strong> Articulo: </strong>{{linea.name}} <br>
+            <strong> Cantidad: </strong>{{linea.accion_cantidad}} <br>
+            <strong>Accion a realizar: </strong>{{linea.accion}} 
+        </div>
+        <div class="col-md-7">
+                <strong style="font-size: 2em;">  </strong> <br>
                 <strong>Cliente:  </strong>{{customer.name}} - {{customer.email}}<br>
-                <strong>Fecha de Compra: </strong>{{orden.creation_date}} <br>
-                <div class="text-right"> 
-                    Estado de la orden:  {{orden.status}} - {{orden.sub_status}}<br>
-
+                <strong>Fecha de compra: </strong> {{ moment(orden.date_creation).format("DD/MM/YYYY")}} <br>
+                <strong>Estado de la orden: </strong> {{orden.sub_status}}<br>
+                <strong>Estado de la línea: </strong> 
                     {% if linea.gestionado !='Si' %}
                         <strong> No resuelto </strong>
                     {% else %}
@@ -23,6 +23,7 @@
                 </div>
         
     </div>
+</div>
     <div class='container'>
     <h4>
         {% if linea['accion'] == 'devolver' %}

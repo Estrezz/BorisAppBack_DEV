@@ -2,18 +2,23 @@
 
 {% block app_content %}
     <div class='jumbotron'>
-        <h1> 
-            <strong>Orden </strong>#{{orden.order_number}}
-        </h1>
-        <h4>
-            <br> <strong> Cliente </strong>{{customer.name}}  
-            <br>         {{customer.email}}
-            <div class="text-right"> {{orden.status}} - {{orden.status_resumen}} </div>
-            {% if orden.status_resumen == 'Solicitado' %}
-            <br><strong> Costo del Envío a cobrar: {{orden.courier_precio}}</strong>
-            {% endif %}
-        </h4>
-        
+        <div class="row">
+            <div class="col-md-5">
+                <strong style="font-size: 2em;"> Orden #{{orden.order_number}} </strong> <br>
+                <strong> Cliente </strong>{{customer.name}}  <br>
+                                          {{customer.email}} <br>
+            </div>
+            <div class="col-md-7">
+                <strong style="font-size: 2em;">  </strong> <br>
+                <strong>Estado:</strong> {{orden.status_resumen}} <br>
+                <strong>Fecha de creación:</strong> {{ moment(orden.date_creation).format("DD/MM/YYYY")}} <br>
+                <strong>Método de Envío:</strong> {{orden.courier_method}} <br>
+                <strong>Guia:</strong> {{ orden.courier_order_id }}
+                {% if orden.status_resumen == 'Solicitado' %}
+                <br><strong> Costo del Envío: {{orden.courier_precio}}</strong>
+                {% endif %}
+            </div>
+        </div>
     </div>
     <div class='container'>
         <table style="width:100%">
@@ -53,8 +58,7 @@
         {% if orden.status == 'Shipping' %}
             {% if orden.sub_status == 'Solicitado' %}
                 <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReady' ) }}">
-                    <button class="btn btn-primary"> Pasar a Listo para Retiro </button></a> 
-                    Pasar a "Listo paa retiro" solo despues de haber cobrado el envío al cliente
+                    <button class="btn btn-primary" title='Pasa el pedido a LISTO PARA RETIRO' > Confirmar </button></a> 
             {% endif %}
             {% if orden.sub_status == 'Recibido' %}
                 <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toApproved' ) }}">
