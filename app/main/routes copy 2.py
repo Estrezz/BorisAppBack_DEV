@@ -260,69 +260,63 @@ def cambiar():
     unCliente = orden.buyer
     unaEmpresa = orden.pertenece
 
-    envio_nuevo = request.form.get('metodo_envio')
-
-    if envio_nuevo == 'tiendanube':
-        url = "https://api.tiendanube.com/v1/1447373/orders/"
-        payload={}
-        headers = {
-            'User-Agent': 'Boris (erezzonico@borisreturns.com)',
-            'Content-Type': 'application/json',
-            'Authentication': 'bearer cb9d4e17f8f0c7d3c0b0df4e30bcb2b036399e16'
-        }
-        
-        orden_tmp = { 
-            "status": "open",
-            "gateway": "offline",
-            "payment_status": "paid",
-            "products": [
-                {
-                    "variant_id": linea.accion_cambiar_por,
-                    "quantity": linea.accion_cantidad,
-                    "price": 0
-                }
-            ],
-            "inventory_behaviour" : "claim",
-            "customer": {
-                "email": unCliente.email,
-                "name": unCliente.name,
-                "phone": unCliente.phone
-            },
-            "note": 'null',
-            "shipping_address": {
-                "first_name": unCliente.name,
-                "address": orden.customer_address,
-                "number": orden.customer_number,
-                "floor": orden.customer_floor,
-                "locality": orden.customer_locality,
-                "city": orden.customer_city,
-                "province": orden.customer_province,
-                "zipcode": orden.customer_zipcode,
-                "country": orden.customer_country,
-                "phone": unCliente.phone
-            },
-            "shipping_pickup_type": "ship",
-            "shipping": "not-provided",
-            "shipping_option": "No informado",
-            "send_confirmation_email" : True,
-            "send_fulfillment_email" : False
-            }
-
-        order = requests.request("POST", url, headers=headers, data=json.dumps(orden_tmp))
-        if order.status_code != 201:
-            flash('Hubo un problema en la generación de la Orden. Error {}'.format(order.status_code))
-            return redirect(url_for('main.orden', orden_id=orden_id))
+    url = "https://api.tiendanube.com/v1/1447373/orders/"
+    payload={}
+    headers = {
+        'User-Agent': 'Boris (erezzonico@borisreturns.com)',
+        'Content-Type': 'application/json',
+        'Authentication': 'bearer cb9d4e17f8f0c7d3c0b0df4e30bcb2b036399e16'
+     }
     
+    orden_tmp = { 
+        "status": "open",
+        "gateway": "offline",
+        "payment_status": "paid",
+        "products": [
+            {
+                "variant_id": linea.accion_cambiar_por,
+                "quantity": linea.accion_cantidad,
+		        "price": 0
+            }
+   ],
+   "inventory_behaviour" : "claim",
+   "customer": {
+       "email": unCliente.email,
+       "name": unCliente.name,
+       "phone": unCliente.phone
+   },
+   "note": 'null',
+   "shipping_address": {
+       "first_name": unCliente.name,
+       "address": orden.customer_address,
+       "number": orden.customer_number,
+       "floor": orden.customer_floor,
+       "locality": orden.customer_locality,
+       "city": orden.customer_city,
+       "province": orden.customer_province,
+       "zipcode": orden.customer_zipcode,
+       "country": orden.customer_country,
+       "phone": unCliente.phone
+   },
+   "shipping_pickup_type": "ship",
+   "shipping": "not-provided",
+   "shipping_option": "No informado",
+   "send_confirmation_email" : True,
+   "send_fulfillment_email" : False
+}
 
-    linea = Order_detail.query.get(str(order_line_number))
-    linea.nuevo_envio = envio_nuevo
-    loguear_transaccion('CAMBIADO', str(linea.name)+' '+envio_nuevo, orden_id, current_user.id, current_user.username)
-    if linea.gestionado == 'Devuelto':
-        linea.gestionado = 'Si'
+    order = requests.request("POST", url, headers=headers, data=json.dumps(orden_tmp))
+    if order.status_code != 201:
+        flash('Hubo un problema en la generación de la Orden. Error {}'.format(order.status_code))
     else:
-        linea.gestionado = traducir_estado('CAMBIADO')[1]
-    finalizar_orden(orden_id)
-    db.session.commit()
+        linea = Order_detail.query.get(str(order_line_number))
+        loguear_transaccion('CAMBIADO', str(linea.name), orden_id, current_user.id, current_user.username)
+        if linea.gestionado == 'Devuelto':
+            linea.gestionado = 'Si'
+        else:
+            linea.gestionado = traducir_estado('CAMBIADO')[1]
+        finalizar_orden(orden_id)
+        db.session.commit()
     return redirect(url_for('main.orden', orden_id=orden_id))
 
     return 'Sucesss'

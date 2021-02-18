@@ -51,6 +51,9 @@
                         <td><i class="fa fa-check-square-o" aria-hidden="true"></i></td>
                 {% endif %}
 
+                <td> <td><a href="{{ url_for('main.historia_producto', linea_id=i['order_line_number']) }}">
+                    <button class="btn btn-link"> Ver Historia </button></td></td>
+
             </tr>
             {% endfor %}
         </table>

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <div class='jumbotron'>
+        <h1> 
+            <strong>Producto </strong>{{linea.name}}
+        </h1>
+        
+    {{linea.order_line_number}}<br>
+    {{linea.line_number}}<br>
+    {{linea.prod_id}}<br>
+    {{linea.name}}<br>
+    {{linea.variant}}<br>
+    {{linea.accion}}<br>
+    {{linea.accion_cambiar_por}}<br>
+    {{linea.accion_cambiar_por_desc}}<br>
+    {{linea.accion_cantidad}}<br>
+    {{linea.motivo}}<br>
+    {{linea.monto_a_devolver}}<br>
+
+    Monto devuelto: {{linea.monto_devuelto}}<br>
+    restock: {{linea.restock}}<br>
+    Nuevo envio: {{linea.nuevo_envio}}<br>
+
+    {{linea.precio}}<br>
+    {{linea.promo_descuento}}<br>
+    {{linea.promo_nombre}}<br>
+    {{linea.promo_precio_final}}<br>
+    {{linea.gestionado}}<br>
+        
+    </div>
+    
+{% endblock %}

@@ -41,9 +41,11 @@ def crear_pedido(pedido):
     unaOrden = Order_header(
         order_number = pedido['orden_nro'],
         order_id_anterior = pedido['orden'],
-        creation_date = pedido['orden_fecha'],
-        last_update_date = pedido['orden_fecha'],
-        ############### cambiado ###################
+        gastos_cupon = pedido['orden_gastos_cupon'],
+        gastos_gateway = pedido['orden_gastos_gateway'],
+        gastos_shipping_owner = pedido['orden_gastos_shipping_owner'],
+        gastos_shipping_customer = pedido['orden_gastos_shipping_customer'],
+        gastos_promocion = pedido ['orden_gastos_promocion'],
         date_creation = datetime.strptime(pedido['orden_fecha'], '%Y-%m-%d %H:%M:%S.%f'),
         date_lastupdate = datetime.strptime(pedido['orden_fecha'], '%Y-%m-%d %H:%M:%S.%f'),
         payment_method = pedido['orden_medio_de_pago'],
@@ -77,6 +79,10 @@ def crear_pedido(pedido):
             variant = x['variant'],
             accion = x['accion'],
             monto_a_devolver = x['monto_a_devolver'],
+            precio = float(x['precio']),
+            promo_descuento = float(x['promo_descuento']),
+            promo_nombre = x['promo_nombre'],
+            promo_precio_final = float(x['promo_precio_final']),
             accion_cantidad = x['accion_cantidad'],
             accion_cambiar_por = x['accion_cambiar_por'],
             accion_cambiar_por_desc = x['accion_cambiar_por_desc'],
@@ -128,6 +134,19 @@ def resumen_ordenes(store_id):
         'solicitadas':solicitadas, 'entransito':entransito, 'recibidas': recibidas, 
             'aprobadas':aprobadas, 'rechazadas':rechazadas}
     return resumen
+
+def buscar_producto(prod_id):
+    url = "https://api.tiendanube.com/v1/1447373/products/"+str(prod_id)
+    payload={}
+    headers = {
+        'User-Agent': 'Boris (erezzonico@borisreturns.com)',
+        'Content-Type': 'application/json',
+        'Authentication': 'bearer cb9d4e17f8f0c7d3c0b0df4e30bcb2b036399e16'
+    }
+
+    producto = requests.request("GET", url, headers=headers, data=payload).json()
+    return producto
+
 
 
 def traducir_estado(estado):

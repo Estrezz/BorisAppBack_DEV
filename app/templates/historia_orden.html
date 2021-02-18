@@ -17,7 +17,8 @@
         {% for i in historia %}
             {{i.order_id}}
             Estado: {{i.sub_status}} - 
-            Fecha: {{i.fecha}} - 
+            Fecha: {{ moment(i.fecha).format("DD/MM/YYYY")}} - 
+            Producto: {{i.prod}} - 
             Actualizado por: {{i.user_id}} - {{i.username}}
             <br>
         {% endfor %}

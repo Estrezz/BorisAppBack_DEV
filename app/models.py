@@ -80,10 +80,13 @@ class Order_header(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     order_number = db.Column(db.Integer, index=True)
     order_id_anterior = db.Column(db.Integer)
-    creation_date = db.Column(db.String(35), index=True)
     date_creation = db.Column(db.DateTime)
-    last_update_date = db.Column(db.String(35))
     date_lastupdate = db.Column(db.DateTime)
+    gastos_cupon = db.Column(db.Float)
+    gastos_gateway = db.Column(db.Float)
+    gastos_shipping_owner = db.Column(db.Float)
+    gastos_shipping_customer = db.Column(db.Float)
+    gastos_promocion = db.Column(db.Float)
     payment_method = db.Column(db.String(10))
     payment_card = db.Column(db.String(10))
     courier_method = db.Column(db.String(64))
@@ -106,7 +109,7 @@ class Order_header(db.Model):
     store = db.Column(db.Integer, db.ForeignKey('company.store_id'))
 
     def __repr__(self):
-        return '<Order {} - {} - {}>'.format(self.order_number, self.creation_date, self.status)
+        return '<Order {} - {} - {}>'.format(self.order_number, self.date_creation, self.status)
 
 
 class Customer(db.Model):
@@ -114,6 +117,7 @@ class Customer(db.Model):
     platform = db.Column(db.String(64), index=True)
     name = db.Column(db.String(64), index=True)
     email = db.Column(db.String(120), index=True, unique=True)
+    identification = db.Column(db.String(10))
     phone = db.Column(db.String(15))
     orders = db.relationship('Order_header', backref='buyer', lazy='dynamic')
 
@@ -133,6 +137,13 @@ class Order_detail(db.Model):
     accion_cantidad = db.Column(db.Integer)
     motivo = db.Column(db.String(50))
     monto_a_devolver = db.Column(db.Float)
+    monto_devuelto = db.Column(db.Float)
+    nuevo_envio =  db.Column(db.String(15))
+    restock =  db.Column(db.String(15))
+    precio = db.Column(db.Float)
+    promo_descuento = db.Column(db.Float)
+    promo_nombre = db.Column(db.String(120))
+    promo_precio_final = db.Column(db.Float)
     gestionado = db.Column(db.String(10))
     order = db.Column(db.Integer, db.ForeignKey('order_header.id'))
 
@@ -144,7 +155,7 @@ class Transaction_log(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     sub_status = db.Column(db.String(15))
     status_client = db.Column(db.String(25))
-    prod = db.Column(db.String(30)),
+    prod = db.Column(db.String(30))
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
     username = db.Column(db.String(64))
     order_id = db.Column(db.Integer, db.ForeignKey('order_header.id'))

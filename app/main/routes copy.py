@@ -5,7 +5,7 @@ from flask_login import current_user, login_required
 from app import db
 from app.main.forms import EditProfileForm
 from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log
-from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toApproved, toReject, traducir_estado, buscar_producto
+from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toApproved, toReject, traducir_estado
 import json
 from app.main import bp
 
@@ -108,8 +108,7 @@ def gestionar_producto(orden_id):
     linea_id = request.args.get('linea_id')
     orden = Order_header.query.filter_by(id=orden_id).first()
     linea = Order_detail.query.get(str(linea_id))
-    producto_nuevo = buscar_producto(linea.prod_id)
-    return render_template('producto.html', orden=orden, linea=linea, customer=orden.buyer, producto=producto_nuevo)
+    return render_template('producto.html', orden=orden, linea=linea, customer=orden.buyer)
 
 
 @bp.route('/orden/historia/<orden_id>', methods=['GET', 'POST'])
@@ -118,13 +117,6 @@ def historia_orden(orden_id):
     orden = Order_header.query.filter_by(id=orden_id).first()
     historia = Transaction_log.query.filter_by(order_id=orden_id).all()
     return render_template('historia_orden.html', orden=orden, historia=historia, customer=orden.buyer)
-
-
-@bp.route('/producto/historia/<linea_id>', methods=['GET', 'POST'])
-@login_required
-def historia_producto(linea_id):
-    linea = Order_detail.query.get(str(linea_id))
-    return render_template('historia_producto.html', linea=linea)
 
 
 @bp.route('/webhook', methods=['POST'])
@@ -202,52 +194,42 @@ def devolver():
     orden_id = request.args.get('orden_id')
     order_line_number = request.args.get('order_line')
     accion = request.args.get('accion')
+    
+    url = "https://api.tiendanube.com/v1/1447373/products/"+str(prod_id)+"/variants/"+str(variant)
+    payload={}
+    headers = {
+        'User-Agent': 'Boris (erezzonico@borisreturns.com)',
+        'Content-Type': 'application/json',
+        'Authentication': 'bearer cb9d4e17f8f0c7d3c0b0df4e30bcb2b036399e16'
+     }
 
-    accion_stock = request.form['stockradio']
+    # Trae stock actual
+    order = requests.request("GET", url, headers=headers, data=payload).json()
+    stock_tmp = int(order['stock']) + int(cantidad)
+    stock = {
+        "stock": stock_tmp
+    }
+    # Aumenta el stock de la tienda en la cantidad devuelta
+    #order = requests.request("PUT", url, headers=headers, data=json.dumps(stock)).json()
+    order = requests.request("PUT", url, headers=headers, data=json.dumps(stock))
 
-    if request.form.get('monto') != None :
-        monto_devuelto = request.form.get('monto')
+    if order.status_code != 200:
+        flash('Hubo un problema en la devolución No se devolvió el stock. Error {}'.format(solicitud.status_code))
     else:
-        monto_devuelto = 0
-    
-    if accion_stock != 'no_vuelve':
-        url = "https://api.tiendanube.com/v1/1447373/products/"+str(prod_id)+"/variants/"+str(variant)
-        payload={}
-        headers = {
-            'User-Agent': 'Boris (erezzonico@borisreturns.com)',
-            'Content-Type': 'application/json',
-            'Authentication': 'bearer cb9d4e17f8f0c7d3c0b0df4e30bcb2b036399e16'
-        }
-
-        # Trae stock actual
-        order = requests.request("GET", url, headers=headers, data=payload).json()
-        stock_tmp = int(order['stock']) + int(cantidad)
-        stock = {
-            "stock": stock_tmp
-        }
-        # Aumenta el stock de la tienda en la cantidad devuelta
-        order = requests.request("PUT", url, headers=headers, data=json.dumps(stock))
-
-        if order.status_code != 200:
-            flash('Hubo un problema en la devolución No se pudo devolver el stock. Error {}'.format(solicitud.status_code))
-            return redirect(url_for('main.orden', orden_id=orden_id))
-    
-    linea = Order_detail.query.get(str(order_line_number))
-    linea.monto_devuelto = monto_devuelto
-    linea.restock = accion_stock
-    loguear_transaccion('DEVUELTO',str(linea.name)+' '+accion_stock, orden_id, current_user.id, current_user.username)
-    if accion == 'devolver':
-        linea.gestionado = 'Si'
-        db.session.commit()
-    if accion == 'cambiar':
-        if linea.gestionado == 'Cambiado':
+        linea = Order_detail.query.get(str(order_line_number))
+        loguear_transaccion('DEVUELTO',str(linea.name), orden_id, current_user.id, current_user.username)
+        if accion == 'devolver':
             linea.gestionado = 'Si'
-        else: 
-            linea.gestionado = traducir_estado('DEVUELTO')[1]
-        db.session.commit()
-    finalizar_orden(orden_id)
+            db.session.commit()
+        if accion == 'cambiar':
+            if linea.gestionado == 'Cambiado':
+                linea.gestionado = 'Si'
+            else: 
+                linea.gestionado = traducir_estado('DEVUELTO')[1]
+            db.session.commit()
+        finalizar_orden(orden_id)
     return redirect(url_for('main.orden', orden_id=orden_id))
-
+    
 
 @bp.route('/cambiar', methods=['GET', 'POST'])
 @login_required
@@ -260,69 +242,63 @@ def cambiar():
     unCliente = orden.buyer
     unaEmpresa = orden.pertenece
 
-    envio_nuevo = request.form.get('metodo_envio')
-
-    if envio_nuevo == 'tiendanube':
-        url = "https://api.tiendanube.com/v1/1447373/orders/"
-        payload={}
-        headers = {
-            'User-Agent': 'Boris (erezzonico@borisreturns.com)',
-            'Content-Type': 'application/json',
-            'Authentication': 'bearer cb9d4e17f8f0c7d3c0b0df4e30bcb2b036399e16'
-        }
-        
-        orden_tmp = { 
-            "status": "open",
-            "gateway": "offline",
-            "payment_status": "paid",
-            "products": [
-                {
-                    "variant_id": linea.accion_cambiar_por,
-                    "quantity": linea.accion_cantidad,
-                    "price": 0
-                }
-            ],
-            "inventory_behaviour" : "claim",
-            "customer": {
-                "email": unCliente.email,
-                "name": unCliente.name,
-                "phone": unCliente.phone
-            },
-            "note": 'null',
-            "shipping_address": {
-                "first_name": unCliente.name,
-                "address": orden.customer_address,
-                "number": orden.customer_number,
-                "floor": orden.customer_floor,
-                "locality": orden.customer_locality,
-                "city": orden.customer_city,
-                "province": orden.customer_province,
-                "zipcode": orden.customer_zipcode,
-                "country": orden.customer_country,
-                "phone": unCliente.phone
-            },
-            "shipping_pickup_type": "ship",
-            "shipping": "not-provided",
-            "shipping_option": "No informado",
-            "send_confirmation_email" : True,
-            "send_fulfillment_email" : False
-            }
-
-        order = requests.request("POST", url, headers=headers, data=json.dumps(orden_tmp))
-        if order.status_code != 201:
-            flash('Hubo un problema en la generación de la Orden. Error {}'.format(order.status_code))
-            return redirect(url_for('main.orden', orden_id=orden_id))
+    url = "https://api.tiendanube.com/v1/1447373/orders/"
+    payload={}
+    headers = {
+        'User-Agent': 'Boris (erezzonico@borisreturns.com)',
+        'Content-Type': 'application/json',
+        'Authentication': 'bearer cb9d4e17f8f0c7d3c0b0df4e30bcb2b036399e16'
+     }
     
+    orden_tmp = { 
+        "status": "open",
+        "gateway": "offline",
+        "payment_status": "paid",
+        "products": [
+            {
+                "variant_id": linea.accion_cambiar_por,
+                "quantity": linea.accion_cantidad,
+		        "price": 0
+            }
+   ],
+   "inventory_behaviour" : "claim",
+   "customer": {
+       "email": unCliente.email,
+       "name": unCliente.name,
+       "phone": unCliente.phone
+   },
+   "note": 'null',
+   "shipping_address": {
+       "first_name": unCliente.name,
+       "address": orden.customer_address,
+       "number": orden.customer_number,
+       "floor": orden.customer_floor,
+       "locality": orden.customer_locality,
+       "city": orden.customer_city,
+       "province": orden.customer_province,
+       "zipcode": orden.customer_zipcode,
+       "country": orden.customer_country,
+       "phone": unCliente.phone
+   },
+   "shipping_pickup_type": "ship",
+   "shipping": "not-provided",
+   "shipping_option": "No informado",
+   "send_confirmation_email" : True,
+   "send_fulfillment_email" : False
+}
 
-    linea = Order_detail.query.get(str(order_line_number))
-    linea.nuevo_envio = envio_nuevo
-    loguear_transaccion('CAMBIADO', str(linea.name)+' '+envio_nuevo, orden_id, current_user.id, current_user.username)
-    if linea.gestionado == 'Devuelto':
-        linea.gestionado = 'Si'
+    order = requests.request("POST", url, headers=headers, data=json.dumps(orden_tmp))
+    if order.status_code != 201:
+        flash('Hubo un problema en la generación de la Orden. Error {}'.format(order.status_code))
     else:
-        linea.gestionado = traducir_estado('CAMBIADO')[1]
-    finalizar_orden(orden_id)
-    db.session.commit()
+        linea = Order_detail.query.get(str(order_line_number))
+        loguear_transaccion('CAMBIADO', str(linea.name), orden_id, current_user.id, current_user.username)
+        if linea.gestionado == 'Devuelto':
+            linea.gestionado = 'Si'
+        else:
+            linea.gestionado = traducir_estado('CAMBIADO')[1]
+        finalizar_orden(orden_id)
+        db.session.commit()
     return redirect(url_for('main.orden', orden_id=orden_id))
 
     return 'Sucesss'
