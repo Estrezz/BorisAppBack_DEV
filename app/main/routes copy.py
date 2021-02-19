@@ -194,6 +194,8 @@ def devolver():
     orden_id = request.args.get('orden_id')
     order_line_number = request.args.get('order_line')
     accion = request.args.get('accion')
+
+    if request.form.get("form_item") == "cambiar_item" 
     
     url = "https://api.tiendanube.com/v1/1447373/products/"+str(prod_id)+"/variants/"+str(variant)
     payload={}

@@ -2,31 +2,41 @@
 
 {% block app_content %}
     <div class='jumbotron'>
-        <h1> 
-            <strong>Producto </strong>{{linea.name}}
-        </h1>
+        <h3> 
+            <strong>Producto</strong>{{linea.name}}<br>
+            Estado de a Gestión: {{linea.gestionado}}
+        </h3>
+    </div>
+    <div class="col-md-5">
+     
+        Código de Producto: {{linea.prod_id}}<br>
+        Cantidad: {{linea.accion_cantidad}}<br>
         
-    {{linea.order_line_number}}<br>
-    {{linea.line_number}}<br>
-    {{linea.prod_id}}<br>
-    {{linea.name}}<br>
-    {{linea.variant}}<br>
-    {{linea.accion}}<br>
-    {{linea.accion_cambiar_por}}<br>
-    {{linea.accion_cambiar_por_desc}}<br>
-    {{linea.accion_cantidad}}<br>
-    {{linea.motivo}}<br>
-    {{linea.monto_a_devolver}}<br>
+        Acción a realizar: {{linea.accion}}<br>
+        {% if linea.accion == 'cambiar' %}
+            {{linea.accion_cambiar_por_desc}}<br>
 
-    Monto devuelto: {{linea.monto_devuelto}}<br>
-    restock: {{linea.restock}}<br>
-    Nuevo envio: {{linea.nuevo_envio}}<br>
+            Nuevo envio: {{linea.nuevo_envio}}<br>
+        {% endif %}
+        Motivo: {{linea.motivo}}<br>
+        
+        {% if linea.accion == 'devolver' %}
+            Precio del artículo {{linea.precio}}<br>
+            Otros descuentos:
+            {% if linea.promo_descuento != 0 %} 
+                Descuento {{linea.promo_descuento}} ({{linea.promo_nombre}})<br>
+                Precio Abonado: {{linea.promo_precio_final}}<br>
+            {% else %}
+                No tiene <br>
+            {% endif %}
 
-    {{linea.precio}}<br>
-    {{linea.promo_descuento}}<br>
-    {{linea.promo_nombre}}<br>
-    {{linea.promo_precio_final}}<br>
-    {{linea.gestionado}}<br>
+            Monto devuelto: {{linea.monto_devuelto}}<br>
+        {% endif %}
+
+        restock del articulo: {{linea.restock}}<br>
+        
+    
+        
         
     </div>
     
