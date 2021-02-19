@@ -145,6 +145,7 @@ class Order_detail(db.Model):
     promo_nombre = db.Column(db.String(120))
     promo_precio_final = db.Column(db.Float)
     gestionado = db.Column(db.String(10))
+    fecha_gestionado = db.Column(db.DateTime)
     order = db.Column(db.Integer, db.ForeignKey('order_header.id'))
 
     def __repr__(self):

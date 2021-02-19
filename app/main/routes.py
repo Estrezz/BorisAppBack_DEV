@@ -5,7 +5,7 @@ from flask_login import current_user, login_required
 from app import db
 from app.main.forms import EditProfileForm
 from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log
-from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toApproved, toReject, traducir_estado, buscar_producto
+from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto
 import json
 from app.main import bp
 
@@ -92,13 +92,16 @@ def gestionar_ordenes(orden_id):
     orden_linea = Order_detail.query.filter_by(order=orden_id).all()
     # flash ('Accion {} - orden {} CIA {}'.format(accion, orden.courier, current_user.empleado))
     if accion == 'toReady':
-        toReady(orden.courier_order_id, current_user.empleado)
+        toReady(orden, current_user.empleado)
     else: 
-        if accion == 'toApproved':
-            toApproved(orden.id)
-        else: 
-            if accion == 'toReject':
-                toReject(orden.id)
+        if accion == 'toReceived':
+            toReceived(orden.id)
+        else:
+            if accion == 'toApproved':
+                toApproved(orden.id)
+            else: 
+                if accion == 'toReject':
+                    toReject(orden.id)
     return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer)
     
 
@@ -235,6 +238,7 @@ def devolver():
     linea = Order_detail.query.get(str(order_line_number))
     linea.monto_devuelto = monto_devuelto
     linea.restock = accion_stock
+    linea.fecha_gestionado = datetime.utcnow()
     loguear_transaccion('DEVUELTO',str(linea.name)+' '+accion_stock, orden_id, current_user.id, current_user.username)
     if accion == 'devolver':
         linea.gestionado = 'Si'
@@ -316,6 +320,7 @@ def cambiar():
 
     linea = Order_detail.query.get(str(order_line_number))
     linea.nuevo_envio = envio_nuevo
+    linea.fecha_gestionado = datetime.utcnow()
     loguear_transaccion('CAMBIADO', str(linea.name)+' '+envio_nuevo, orden_id, current_user.id, current_user.username)
     if linea.gestionado == 'Devuelto':
         linea.gestionado = 'Si'
@@ -352,8 +357,9 @@ def finalizar_orden(orden_id):
             finalizados += 1
     if finalizados == len(orden_linea):
         flash('Todas las tareas completas. Se finalizó la Orden {}'.format(orden_id))
-        orden.status = 'Closed'
-        orden.sub_status = 'Finalizada'
+        orden.sub_status = traducir_estado('CERRADO')[0]
+        orden.status_resumen =traducir_estado('CERRADO')[1]
+        orden.status = 'Cerrado'
         loguear_transaccion('CERRADO', 'Cerrado ',orden_id, current_user.id, current_user.username)
     return 'Success'
 

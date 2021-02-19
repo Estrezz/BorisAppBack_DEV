@@ -6,6 +6,7 @@
             <strong>Producto</strong>{{linea.name}}<br>
             Estado de a Gestión: {{linea.gestionado}}
         </h3>
+            Fecha de la última gestión: {{ moment(linea.fecha_gestionado).format("DD/MM/YYYY")}} 
     </div>
     <div class="col-md-5">
      
@@ -14,7 +15,7 @@
         
         Acción a realizar: {{linea.accion}}<br>
         {% if linea.accion == 'cambiar' %}
-            {{linea.accion_cambiar_por_desc}}<br>
+           Cambiar X {{linea.accion_cambiar_por_desc}}<br>
 
             Nuevo envio: {{linea.nuevo_envio}}<br>
         {% endif %}

@@ -127,7 +127,7 @@ def resumen_ordenes(store_id):
                     if i.status_resumen == 'Rechazado':
                         rechazadas += 1
             else:
-                if i.status == 'Closed':
+                if i.status == 'Cerrado':
                     cerradas += 1
     
     resumen = {'shipping':shipping, 'enproceso':enproceso,'cerradas':cerradas, 
@@ -161,35 +161,58 @@ def traducir_estado(estado):
             "CAMBIADO":['Orden de cambio iniciada', 'Cambiado', 'Se generó el cambio'],
             "APROBADO":['Aprobado','Aprobado','Tu orden fue aprobada'],
             "RECHAZADO":['Rechazado', 'Rechazado', 'Tu orden fue rechazada'],
-            "CERRADO":['Cerrrado', 'Cerrado', 'Tu orden fue finalizada']
+            "CERRADO":['Cerrado', 'Cerrado', 'Tu orden fue finalizada']
         }
     return switcher.get(estado,"Aprobado")
 
 
 
-def toReady(orden_courier_id, company):
-  url = "https://api-dev.moova.io/b2b/shippings/"+str(orden_courier_id)+"/READY"
+def toReady(orden, company):
+    if orden.courier_method == 'Moova':
+        url = "https://api-dev.moova.io/b2b/shippings/"+str(orden.orden_courier_id)+"/READY"
+        headers = {
+            'Authorization': company.correo_apikey,
+            'Content-Type': 'application/json',
+        }
+        params = {'appId': company.correo_id}
 
-  headers = {
-    'Authorization': company.correo_apikey,
-    'Content-Type': 'application/json',
-   }
+        solicitud = requests.request("POST", url, headers=headers, params=params)
+        if solicitud.status_code != 201:
+            if solicitud.status_code == 409:
+                flash('Revise y corrija la dirección en la página del correo. Error {}'.format(solicitud.status_code))
+                return 'Fail'
+            flash('Hubo un problema con la generación del evío. Error {}'.format(solicitud.status_code))
+            flash('url {} params{}'.format(url, params))
+            return "Fail"
+        else:
+            flash('La orden se actualizó en Moova exitosamente')
+            return "Success"
+    else:
+        ## envio mail con instrucciones para envío manual
+        orden_tmp = Order_header.query.get(orden.id)
+        orden_tmp.status = 'Shipping'
+        orden_tmp.sub_status = traducir_estado('READY')[0]
+        orden_tmp.status_resumen = traducir_estado('READY')[1]
+        orden_tmp.last_update_date = str(datetime.utcnow)
+        db.session.commit()
+        return "Success"
 
-  params = {'appId': company.correo_id}
+def toReceived(orden_id):
+    orden = Order_header.query.get(orden_id)    
+    orden.status = 'Shipping'
+    orden.sub_status = traducir_estado('DELIVERED')[0]
+    orden.status_resumen =traducir_estado('DELIVERED')[1]
+    orden.last_update_date = str(datetime.utcnow)
 
-  solicitud = requests.request("POST", url, headers=headers, params=params)
-  if solicitud.status_code != 201:
-    if solicitud.status_code == 409:
-        flash('Revise y corrija la dirección en la página del correo. Error {}'.format(solicitud.status_code))
-        return 'Fail'
-    flash('Hubo un problema con la generación del evío. Error {}'.format(solicitud.status_code))
-    flash('url {} params{}'.format(url, params))
-    return "Fail"
-  else:
-    flash('La orden se actualizo exitosamente')
-    return 'Success'
-
-
+    unaTransaccion = Transaction_log(
+            sub_status = traducir_estado('DELIVERED')[0],
+            status_client = traducir_estado('DELIVERED')[2],
+            order_id = orden.id,
+            user_id = current_user.id,
+            username = current_user.username
+        )
+    db.session.add(unaTransaccion)
+    db.session.commit()
 
 def toApproved(orden_id):
     orden = Order_header.query.get(orden_id)    

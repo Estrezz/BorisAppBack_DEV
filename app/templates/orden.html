@@ -63,6 +63,10 @@
                 <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReady' ) }}">
                     <button class="btn btn-primary" title='Pasa el pedido a LISTO PARA RETIRO' > Confirmar </button></a> 
             {% endif %}
+            {% if orden.sub_status == 'Listo para retiro' %}
+            <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReceived' ) }}">
+                <button class="btn btn-primary" title='Pasa la orden a Reciibida' > Recibir </button></a> 
+            {% endif %}
             {% if orden.sub_status == 'Recibido' %}
                 <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toApproved' ) }}">
                     <button class="btn btn-primary"> Revisada y Aprobada <i class="fa fa-check" aria-hidden="true"></i> </button></a>

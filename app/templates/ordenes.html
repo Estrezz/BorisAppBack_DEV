@@ -40,7 +40,7 @@
                 <td>{{ moment(i['date_lastupdate']).fromNow() }}</td>
                 <td>{{ i['courier_method'] }}</td>
                 <td>{{ i['courier_order_id'] }}</td>
-                <td style="color:{{color}}">{{i['status_resumen']}} {{active_page}}</td>
+                <td style="color:{{color}}">{{i['status_resumen']}}</td>
                 <td><a href="{{ url_for('main.orden', orden_id = i['id']) }}">
                     <button class="btn btn-primary btn-sm" > Gestionar </button></td>
                 <td><a href="{{ url_for('main.historia_orden', orden_id = i['id']) }}">
