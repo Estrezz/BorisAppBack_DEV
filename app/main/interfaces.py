@@ -169,7 +169,7 @@ def traducir_estado(estado):
 
 def toReady(orden, company):
     if orden.courier_method == 'Moova':
-        url = "https://api-dev.moova.io/b2b/shippings/"+str(orden.orden_courier_id)+"/READY"
+        url = "https://api-dev.moova.io/b2b/shippings/"+str(orden.courier_order_id)+"/READY"
         headers = {
             'Authorization': company.correo_apikey,
             'Content-Type': 'application/json',
