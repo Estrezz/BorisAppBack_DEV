@@ -44,7 +44,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
-    store = db.Column(db.Integer, db.ForeignKey('company.store_id'))
+    store = db.Column(db.String(64), db.ForeignKey('company.store_id'))
     transaction = db.relationship('Transaction_log', backref='realizo', lazy='dynamic')
     
     def __repr__(self):
