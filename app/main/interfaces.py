@@ -12,8 +12,9 @@ import os
 def cargar_pedidos():
     Pedidos = []
     #flash('os :{}'.format(os.environ.get('FILES_PEDIDOS_URL')))
-    #flash('app {}'.format(current_app.config['FILES_PEDIDOS_URL']))
-    url = "../Boris_common/logs/"
+    flash('app {}'.format(current_app.config['FILES_PEDIDOS_URL']))
+    #url = "../Boris_common/logs/"
+    url = current_app.config['FILES_PEDIDOS_URL']
     for file in os.listdir(url):
         files = []
         full_filename = "%s/%s" % (url, file)
