@@ -3,7 +3,7 @@ import json
 from app import db
 from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log
 from app.email import send_email
-from flask import session, flash, current_app,render_template
+from flask import session, flash, current_app
 from flask_login import current_user
 from datetime import datetime
 import os
@@ -169,10 +169,8 @@ def traducir_estado(estado):
 
 
 def toReady(orden, company):
-    customer = Customer.query.get(orden.customer_id)
     if orden.courier_method == 'Moova':
         url = "https://api-dev.moova.io/b2b/shippings/"+str(orden.courier_order_id)+"/READY"
-        url_label = "https://api-dev.moova.io/b2b/shippings/"+str(orden.courier_order_id)+"/label"
         headers = {
             'Authorization': company.correo_apikey,
             'Content-Type': 'application/json',
@@ -189,18 +187,6 @@ def toReady(orden, company):
             return "Fail"
         else:
             flash('La orden se actualizó en Moova exitosamente')
-            label_tmp = requests.request("GET", url_label, headers=headers, params=params)
-            label = label_tmp.json()['label']
-            flash ('label {}'.format(label))
-            send_email('Tu orden ha sido confirmada', 
-                sender=current_app.config['ADMINS'][0], 
-                recipients=[customer.email], 
-                text_body=render_template('email/1447373/pedido_confirmado.txt',
-                                         customer=customer, order=orden, envio=orden.courier_method, label=label),
-                html_body=render_template('email/1447373/pedido_confirmado.html',
-                                         customer=customer, order=orden, envio=orden.courier_method, label=label), 
-                attachments=None, 
-                sync=False)
             return "Success"
     else:
         ## envio mail con instrucciones para envío manual
@@ -210,15 +196,6 @@ def toReady(orden, company):
         orden_tmp.status_resumen = traducir_estado('READY')[1]
         orden_tmp.last_update_date = str(datetime.utcnow)
         db.session.commit()
-        end_email('Tu orden ha sido confirmada', 
-                sender=current_app.config['ADMINS'][0], 
-                recipients=[customer.email], 
-                text_body=render_template('email/1447373/pedido_confirmado.txt',
-                                         customer=customer, order=orden, envio=orden.courier_method),
-                html_body=render_template('email/1447373/pedido_confirmado.html',
-                                         customer=customer, order=orden, envio=orden.courier_method), 
-                attachments=None, 
-                sync=False)
         return "Success"
 
 def toReceived(orden_id):
