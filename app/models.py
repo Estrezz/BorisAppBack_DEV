@@ -38,7 +38,7 @@ class Company(db.Model):
 
 
 class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, index=True)
     username = db.Column(db.String(64), index=True, unique=True)
     identification = db.Column(db.String(64), index=True) 
     email = db.Column(db.String(120), index=True, unique=True)
