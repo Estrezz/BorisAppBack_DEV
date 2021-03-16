@@ -377,7 +377,6 @@ def upload_pedidos():
 
 
 @bp.route('/cargar_empresa', methods=['GET', 'POST'])
-@login_required
 def cargar_empresa():
     unaEmpresa = Company(
         store_id = '1447373',
