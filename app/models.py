@@ -105,8 +105,8 @@ class Order_header(db.Model):
     customer_country = db.Column(db.String(64))
     detalle = db.relationship('Order_detail', backref='productos', lazy='dynamic')
     transaction = db.relationship('Transaction_log', backref='transaccion', lazy='dynamic')
-    customer_id = db.Column(db.String(64), db.ForeignKey('customer.id'))
-    store = db.Column(db.Integer, db.ForeignKey('company.store_id'))
+    customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'))
+    store = db.Column(db.String(64), db.ForeignKey('company.store_id'))
 
     def __repr__(self):
         return '<Order {} - {} - {}>'.format(self.order_number, self.date_creation, self.status)
