@@ -126,7 +126,7 @@ class Customer(db.Model):
 
 
 class Order_detail(db.Model):
-    order_line_number = db.Column(db.String, primary_key=True)
+    order_line_number = db.Column(db.String(30), primary_key=True)
     line_number = db.Column(db.Integer)
     prod_id = db.Column(db.Integer)
     name = db.Column(db.String(120))
