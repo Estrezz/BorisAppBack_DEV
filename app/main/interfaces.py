@@ -12,7 +12,7 @@ import os
 def cargar_pedidos():
     Pedidos = []
     #flash('os :{}'.format(os.environ.get('FILES_PEDIDOS_URL')))
-    flash('app {}'.format(current_app.config['FILES_PEDIDOS_URL']))
+    #flash('app {}'.format(current_app.config['FILES_PEDIDOS_URL']))
     #url = "../Boris_common/logs/"
     url = current_app.config['FILES_PEDIDOS_URL']
     for file in os.listdir(url):
@@ -192,7 +192,7 @@ def toReady(orden, company):
             flash('La orden se actualizó en Moova exitosamente')
             label_tmp = requests.request("GET", url_label, headers=headers, params=params)
             label = label_tmp.json()['label']
-            flash ('label {}'.format(label))
+            
             send_email('Tu orden ha sido confirmada', 
                 sender=current_app.config['ADMINS'][0], 
                 recipients=[customer.email], 
@@ -211,7 +211,7 @@ def toReady(orden, company):
         orden_tmp.status_resumen = traducir_estado('READY')[1]
         orden_tmp.last_update_date = str(datetime.utcnow)
         db.session.commit()
-        end_email('Tu orden ha sido confirmada', 
+        send_email('Tu orden ha sido confirmada', 
                 sender=current_app.config['ADMINS'][0], 
                 recipients=[customer.email], 
                 text_body=render_template('email/1447373/pedido_confirmado.txt',
