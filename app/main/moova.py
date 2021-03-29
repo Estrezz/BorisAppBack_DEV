@@ -4,16 +4,7 @@ from flask import session, flash, current_app,render_template
 from app.email import send_email
 
 def toready_moova(orden,company,customer):
-    if company.correo_test == True:
-        url = "https://api-dev.moova.io/b2b/shippings/"+str(orden.courier_order_id)+"/READY"
-        url_label = "https://api-dev.moova.io/b2b/shippings/"+str(orden.courier_order_id)+"/label"
-        headers = {
-            'Authorization': company.correo_apikey_test,
-            'Content-Type': 'application/json',
-        }
-        params = {'appId': company.correo_id_test}
-        api_usada = 'DEV'
-    else: 
+    if company.correo_test == False:
         url = "https://api-prod.moova.io/b2b/shippings/"+str(orden.courier_order_id)+"/READY"
         url_label = "https://api-prod.moova.io/b2b/shippings/"+str(orden.courier_order_id)+"/label"
         headers = {
@@ -22,6 +13,15 @@ def toready_moova(orden,company,customer):
         }
         params = {'appId': company.correo_id}
         api_usada ='PROD'
+    else :
+        url = "https://api-dev.moova.io/b2b/shippings/"+str(orden.courier_order_id)+"/READY"
+        url_label = "https://api-dev.moova.io/b2b/shippings/"+str(orden.courier_order_id)+"/label"
+        headers = {
+            'Authorization': company.correo_apikey_test,
+            'Content-Type': 'application/json',
+        }
+        params = {'appId': company.correo_id_test}
+        api_usada = 'DEV'
 
     solicitud = requests.request("POST", url, headers=headers, params=params)
     if solicitud.status_code != 201:
