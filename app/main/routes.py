@@ -328,6 +328,7 @@ def cambiar():
         linea.gestionado = traducir_estado('CAMBIADO')[1]
     finalizar_orden(orden_id)
     db.session.commit()
+    
     return redirect(url_for('main.orden', orden_id=orden_id))
 
     return 'Sucesss'
@@ -382,8 +383,11 @@ def cargar_empresa():
         store_id = '1447373',
         platform = 'TIendaNube',
         store_name = 'Demo Boris',
+        correo_test = True,
         correo_apikey = 'b23920003684e781d87e7e5b615335ad254bdebc',
-        correo_id = 'b22bc380-439f-11eb-8002-a5572ae156e7'
+        correo_id = 'b22bc380-439f-11eb-8002-a5572ae156e7',
+        correo_apikey_test = 'b23920003684e781d87e7e5b615335ad254bdebc',
+        correo_id_test = 'b22bc380-439f-11eb-8002-a5572ae156e7'
     )
     db.session.add(unaEmpresa)
 

@@ -1,0 +1,8 @@
+Hola {{ customer.name }}!
+
+    Tu orden ha sido aprobada 
+        Recibimos tu orden en nuestro alamacén y estamos procediendo a procesarla 
+        En breve recibiras la confirmación del procesamiento
+
+Podes hacer el seguimiento de tu orden acá:
+        http://ec2-54-208-172-198.compute-1.amazonaws.com/tracking/{{order.order_number}}

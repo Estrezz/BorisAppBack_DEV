@@ -2,6 +2,7 @@ import requests
 import json
 from app import db
 from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log
+from app.main.moova import toready_moova
 from app.email import send_email
 from flask import session, flash, current_app,render_template
 from flask_login import current_user
@@ -11,9 +12,6 @@ import os
 
 def cargar_pedidos():
     Pedidos = []
-    #flash('os :{}'.format(os.environ.get('FILES_PEDIDOS_URL')))
-    #flash('app {}'.format(current_app.config['FILES_PEDIDOS_URL']))
-    #url = "../Boris_common/logs/"
     url = current_app.config['FILES_PEDIDOS_URL']
     for file in os.listdir(url):
         files = []
@@ -172,37 +170,8 @@ def traducir_estado(estado):
 def toReady(orden, company):
     customer = Customer.query.get(orden.customer_id)
     if orden.courier_method == 'Moova':
-        url = "https://api-dev.moova.io/b2b/shippings/"+str(orden.courier_order_id)+"/READY"
-        url_label = "https://api-dev.moova.io/b2b/shippings/"+str(orden.courier_order_id)+"/label"
-        headers = {
-            'Authorization': company.correo_apikey,
-            'Content-Type': 'application/json',
-        }
-        params = {'appId': company.correo_id}
-
-        solicitud = requests.request("POST", url, headers=headers, params=params)
-        if solicitud.status_code != 201:
-            if solicitud.status_code == 409:
-                flash('Revise y corrija la dirección en la página del correo. Error {}'.format(solicitud.status_code))
-                return 'Fail'
-            flash('Hubo un problema con la generación del evío. Error {}'.format(solicitud.status_code))
-            flash('url {} params{}'.format(url, params))
-            return "Fail"
-        else:
-            flash('La orden se actualizó en Moova exitosamente')
-            label_tmp = requests.request("GET", url_label, headers=headers, params=params)
-            label = label_tmp.json()['label']
-            
-            send_email('Tu orden ha sido confirmada', 
-                sender=current_app.config['ADMINS'][0], 
-                recipients=[customer.email], 
-                text_body=render_template('email/1447373/pedido_confirmado.txt',
-                                         customer=customer, order=orden, envio=orden.courier_method, label=label),
-                html_body=render_template('email/1447373/pedido_confirmado.html',
-                                         customer=customer, order=orden, envio=orden.courier_method, label=label), 
-                attachments=None, 
-                sync=False)
-            return "Success"
+        manda_envio = toready_moova(orden,company,customer) 
+        return manda_envio
     else:
         ## envio mail con instrucciones para envío manual
         orden_tmp = Order_header.query.get(orden.id)
@@ -221,6 +190,7 @@ def toReady(orden, company):
                 attachments=None, 
                 sync=False)
         return "Success"
+
 
 def toReceived(orden_id):
     orden = Order_header.query.get(orden_id)    
@@ -245,6 +215,7 @@ def toApproved(orden_id):
     orden.sub_status = traducir_estado('APROBADO')[0]
     orden.status_resumen =traducir_estado('APROBADO')[1]
     orden.last_update_date = str(datetime.utcnow)
+    customer = Customer.query.get(orden.customer_id)
 
     unaTransaccion = Transaction_log(
             sub_status = traducir_estado('APROBADO')[0],
@@ -254,8 +225,16 @@ def toApproved(orden_id):
             username = current_user.username
         )
     db.session.add(unaTransaccion)
-
     db.session.commit()
+    send_email('Tu orden ha sido aprobada', 
+                sender=current_app.config['ADMINS'][0], 
+                recipients=[customer.email], 
+                text_body=render_template('email/1447373/pedido_aprobado.txt',
+                                         customer=customer, order=orden, envio=orden.courier_method),
+                html_body=render_template('email/1447373/pedido_aprobado.html',
+                                         customer=customer, order=orden, envio=orden.courier_method), 
+                attachments=None, 
+                sync=False)
 
 
 def toReject(orden_id):
@@ -264,6 +243,7 @@ def toReject(orden_id):
     orden.sub_status = traducir_estado('RECHAZADO')[0]
     orden.status_resumen = traducir_estado('RECHAZADO')[1]
     orden.last_update_date = str(datetime.utcnow)
+    customer = Customer.query.get(orden.customer_id)
 
     unaTransaccion = Transaction_log(
             sub_status = traducir_estado('RECHAZADO')[0],
@@ -274,6 +254,15 @@ def toReject(orden_id):
         )
     db.session.add(unaTransaccion)
     db.session.commit()
+    send_email('Tu orden ha sido rechazada', 
+                sender=current_app.config['ADMINS'][0], 
+                recipients=[customer.email], 
+                text_body=render_template('email/1447373/pedido_rechazado.txt',
+                                         customer=customer, order=orden, envio=orden.courier_method),
+                html_body=render_template('email/1447373/pedido_rechazado.html',
+                                         customer=customer, order=orden, envio=orden.courier_method), 
+                attachments=None, 
+                sync=False)
 
                             
 
