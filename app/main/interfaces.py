@@ -136,7 +136,7 @@ def resumen_ordenes(store_id):
     return resumen
 
 def buscar_producto(prod_id):
-    url = "https://api.tiendanube.com/v1/1447373/products/"+str(prod_id)
+    url = "https://api.tiendanube.com/v1/"+str(current_user.store)+"/products/"+str(prod_id)
     payload={}
     headers = {
         'User-Agent': 'Boris (erezzonico@borisreturns.com)',
@@ -183,9 +183,9 @@ def toReady(orden, company):
         send_email('Tu orden ha sido confirmada', 
                 sender=current_app.config['ADMINS'][0], 
                 recipients=[customer.email], 
-                text_body=render_template('email/1447373/pedido_confirmado.txt',
+                text_body=render_template('email/'+str(current_user.store)+'/pedido_confirmado.txt',
                                          customer=customer, order=orden, envio=orden.courier_method),
-                html_body=render_template('email/1447373/pedido_confirmado.html',
+                html_body=render_template('email/'+str(current_user.store)+'/pedido_confirmado.html',
                                          customer=customer, order=orden, envio=orden.courier_method), 
                 attachments=None, 
                 sync=False)
@@ -229,9 +229,9 @@ def toApproved(orden_id):
     send_email('Tu orden ha sido aprobada', 
                 sender=current_app.config['ADMINS'][0], 
                 recipients=[customer.email], 
-                text_body=render_template('email/1447373/pedido_aprobado.txt',
+                text_body=render_template('email/'+str(current_user.store)+'/pedido_aprobado.txt',
                                          customer=customer, order=orden, envio=orden.courier_method),
-                html_body=render_template('email/1447373/pedido_aprobado.html',
+                html_body=render_template('email/'+str(current_user.store)+'/pedido_aprobado.html',
                                          customer=customer, order=orden, envio=orden.courier_method), 
                 attachments=None, 
                 sync=False)
@@ -257,9 +257,9 @@ def toReject(orden_id):
     send_email('Tu orden ha sido rechazada', 
                 sender=current_app.config['ADMINS'][0], 
                 recipients=[customer.email], 
-                text_body=render_template('email/1447373/pedido_rechazado.txt',
+                text_body=render_template('email/'+str(current_user.store)+'/pedido_rechazado.txt',
                                          customer=customer, order=orden, envio=orden.courier_method),
-                html_body=render_template('email/1447373/pedido_rechazado.html',
+                html_body=render_template('email/'+str(current_user.store)+'/pedido_rechazado.html',
                                          customer=customer, order=orden, envio=orden.courier_method), 
                 attachments=None, 
                 sync=False)

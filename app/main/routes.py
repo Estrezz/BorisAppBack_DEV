@@ -215,7 +215,7 @@ def devolver():
         monto_devuelto = 0
     
     if accion_stock != 'no_vuelve':
-        url = "https://api.tiendanube.com/v1/1447373/products/"+str(prod_id)+"/variants/"+str(variant)
+        url = "https://api.tiendanube.com/v1/"+str(current_user.store)+"/products/"+str(prod_id)+"/variants/"+str(variant)
         payload={}
         headers = {
             'User-Agent': 'Boris (erezzonico@borisreturns.com)',
@@ -268,7 +268,7 @@ def cambiar():
     envio_nuevo = request.form.get('metodo_envio')
 
     if envio_nuevo == 'tiendanube':
-        url = "https://api.tiendanube.com/v1/1447373/orders/"
+        url = "https://api.tiendanube.com/v1/"+str(current_user.store)+"/orders/"
         payload={}
         headers = {
             'User-Agent': 'Boris (erezzonico@borisreturns.com)',
@@ -368,9 +368,9 @@ def finalizar_orden(orden_id):
         send_email('EL procesamiento de tu orden ha finalizado', 
             sender=current_app.config['ADMINS'][0], 
             recipients=[customer.email], 
-            text_body=render_template('email/1447373/pedido_finalizado.txt',
+            text_body=render_template('email/'+str(current_user.store)+'/pedido_finalizado.txt',
                                     customer=customer, order=orden, linea=orden_linea),
-            html_body=render_template('email/1447373/pedido_finalizado.html',
+            html_body=render_template('email/'+str(current_user.store)+'/pedido_finalizado.html',
                                     customer=customer, order=orden, linea=orden_linea), 
             attachments=None, 
             sync=False)

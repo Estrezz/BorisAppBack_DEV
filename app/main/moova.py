@@ -2,6 +2,7 @@ import requests
 import json
 from flask import session, flash, current_app,render_template
 from app.email import send_email
+from flask_login import current_user
 
 def toready_moova(orden,company,customer):
     if company.correo_test == False:
@@ -42,9 +43,9 @@ def toready_moova(orden,company,customer):
         send_email('Tu orden ha sido confirmada', 
             sender=current_app.config['ADMINS'][0], 
             recipients=[customer.email], 
-            text_body=render_template('email/1447373/pedido_confirmado.txt',
+            text_body=render_template('email/'+str(current_user.store)+'/pedido_confirmado.txt',
                                         customer=customer, order=orden, envio=orden.courier_method, label=label),
-                                        html_body=render_template('email/1447373/pedido_confirmado.html',
+                                        html_body=render_template('email/'+str(current_user.store)+'/pedido_confirmado.html',
                                         customer=customer, order=orden, envio=orden.courier_method, label=label), 
                                         attachments=None, 
                                         sync=False)
