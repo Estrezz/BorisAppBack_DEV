@@ -3,6 +3,7 @@ from datetime import datetime
 from flask import render_template, flash, redirect, url_for, request, current_app, session, Response
 from flask_login import current_user, login_required
 from app import db
+from app.email import send_email
 from app.main.forms import EditProfileForm
 from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log
 from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto
@@ -351,6 +352,7 @@ def loguear_transaccion(sub_status, prod, order_id, user_id, username):
 
 def finalizar_orden(orden_id):
     orden = Order_header.query.filter_by(id=orden_id).first()
+    customer = Customer.query.get(orden.customer_id)
     orden_linea = Order_detail.query.filter_by(order=orden_id).all()
     finalizados = 0
     for i in orden_linea:
@@ -362,6 +364,16 @@ def finalizar_orden(orden_id):
         orden.status_resumen =traducir_estado('CERRADO')[1]
         orden.status = 'Cerrado'
         loguear_transaccion('CERRADO', 'Cerrado ',orden_id, current_user.id, current_user.username)
+        #flash('Mail {} para {} - orden {} , orden linea {}'.format(current_app.config['ADMINS'][0], customer.email, orden, orden_linea))
+        send_email('EL procesamiento de tu orden ha finalizado', 
+            sender=current_app.config['ADMINS'][0], 
+            recipients=[customer.email], 
+            text_body=render_template('email/1447373/pedido_finalizado.txt',
+                                    customer=customer, order=orden, linea=orden_linea),
+            html_body=render_template('email/1447373/pedido_finalizado.html',
+                                    customer=customer, order=orden, linea=orden_linea), 
+            attachments=None, 
+            sync=False)
     return 'Success'
 
 
