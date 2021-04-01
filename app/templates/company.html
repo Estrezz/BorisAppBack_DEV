@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <div class='container'>
+        <h1> Datos de la Empresa</h1>
+        <div class="row">
+            <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
+                <strong> {{ empresa.store_name }} </strong> <br>
+                Plataforma: {{empresa.platform}} <br>
+                Store_id: {{empresa.store_id}}<br>
+                <br>
+                <strong>Contacto</strong><br>
+                 Nombre: {{ empresa.contact_name }}<br>
+                 Teléfono: {{ empresa.contact_phone }}<br>
+                 Mail: {{ empresa.contact_email }}<br>
+                 Mail Administración: {{ empresa.admin_email}} <br>
+                 Mail Comunicaciones: {{empresa.communication_email}} <br>
+                <br>
+                <strong>Empresa de correo</strong><br>
+                Correo Usado: {{ empresa.correo_usado }}<br>
+                APIKEY {{ empresa.correo_apikey }}<br>
+                ID {{ empresa.correo_id }}<br>
+                    Entorno de Test <br>
+                    Test correo {{empresa.correo_test}}<br>
+                    APIKEY_TEST {{ empresa.correo_apikey_test }}<br>
+                    ID_TEST {{ empresa.correo_id_test }}<br>
+                <br>
+                <strong>Direccion de Envio</strong><br>
+                {{ empresa.shipping_address}} {{empresa.shipping_number}} {{ empresa.shipping_floor }} <br>
+                {{ empresa.shipping_city }} ({{ empresa.shipping_zipcode }}) <br>
+                {{ empresa.shipping_province}} <br>
+                {{ empresa.shipping_country }} <br>
+                Informacion para envíos :<br>
+                {{ empresa.shipping_info }} <br>
+                <br>
+                <strong> Configuracion</strong>
+                Logo: {{ empresa.param_logo }} <br>
+                Fondo: {{ empresa.param_fondo }} <br>
+                Config {{ empresa.param_config }} <br>
+                <br>
+                <a href="{{ url_for('main.edit_profile_company') }}">
+                        <button class="btn btn-default">Cambiar datos</button>
+                </a>
+            </div>  
+                  
+        </div>
+    </div>
+{% endblock %}

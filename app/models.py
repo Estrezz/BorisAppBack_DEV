@@ -13,6 +13,7 @@ class Company(db.Model):
     platform = db.Column(db.String(64), index=True)
     store_name = db.Column(db.String(64))
     admin_email = db.Column(db.String(120))
+    communication_email = db.Column(db.String(120))
     param_logo = db.Column(db.String(120))
     param_fondo = db.Column(db.String(120))
     param_config = db.Column(db.String(120))

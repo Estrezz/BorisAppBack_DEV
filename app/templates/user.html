@@ -5,41 +5,14 @@
         <h1> Datos del Usuario</h1>
         <div class="row">
             <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
-                <strong> {{ user.username }} </strong> <br>
+                <strong> {{ user.store_name }} </strong> <br>
                 {{ user.email}} <br>
                 {% if user.last_seen %}
                     Último acceso: {{ moment(user.last_seen).format('LLL') }}
                 {% endif %}
                 <br><br>
                 <strong> Tienda </strong>
-                {{store_name}} <br>
-                Plataforma: {{user.platform}} <br>
-                Store_id: {{user.store_id}}<br>
-                <br>
-                <strong>Contacto</strong><br>
-                 {{ user.contact_name }}<br>
-                 {{ user.contact_phone }}<br>
-                 Mail: {{ user.contact_email }}<br>
-                 Mail Administración: {{ user.admin_email}} <br>
-                <br>
-                <strong>Empresa de correo</strong><br>
-                {{ user.correo_usado }}<br>
-                APIKEY {{ user.correo_apikey }}<br>
-                ID {{ user.correo_id }}<br>
-                <br>
-                <strong>Direccion de Envio</strong><br>
-                {{ user.shipping_address}} {{user.shipping_number}} {{ user.shipping_floor }} <br>
-                {{ user.shipping_city }} ({{ user.shipping_zipcode }}) <br>
-                {{ user.shipping_province}} <br>
-                {{ user.shipping_country }} <br>
-                Informacion para envíos :<br>
-                {{ user.shipping_info }} <br>
-                <br>
-                <strong> Configuracion</strong>
-                Logo: {{ user.param_logo }} 
-                Fondo: {{ user.param_fondo }}
-                Config {{ user.param_config }}
-                <br>
+                {{user.store}} <br>
                 <br>
                 <a href="{{ url_for('main.edit_profile') }}">
                         <button class="btn btn-default">Cambiar datos</button>

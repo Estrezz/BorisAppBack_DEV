@@ -4,7 +4,7 @@ from flask import render_template, flash, redirect, url_for, request, current_ap
 from flask_login import current_user, login_required
 from app import db
 from app.email import send_email
-from app.main.forms import EditProfileForm
+from app.main.forms import EditProfileForm, EditProfileCompanyForm
 from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log
 from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto
 import json
@@ -49,6 +49,28 @@ def edit_profile():
         #return redirect(url_for('main.edit_profile'))
         return redirect(url_for('main.user', username=current_user.username))
     return render_template('edit_profile.html', title='Editar perfil',
+                           form=form)
+
+
+@bp.route('/company/<empresa_id>')
+@login_required
+def company(empresa_id):
+    empresa = Company.query.filter_by(store_id=empresa_id).first_or_404()
+    return render_template('company.html', empresa=empresa)
+
+
+@bp.route('/edit_profile_company', methods=['GET', 'POST'])
+@login_required
+def edit_profile_company():
+    empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
+    form = EditProfileCompanyForm(obj=empresa)
+
+    if form.validate_on_submit():
+        form.populate_obj(empresa)
+        db.session.commit() 
+        #return redirect(url_for('main.edit_profile'))
+        return redirect(url_for('main.company', empresa_id=empresa.store_id))
+    return render_template('edit_profile_company.html', title='Editar perfil',
                            form=form)
 
 
