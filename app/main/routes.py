@@ -293,7 +293,7 @@ def cambiar():
                 "name": unCliente.name,
                 "phone": unCliente.phone
             },
-            "note": 'null',
+            "note": 'Cambio realizado mediante Boris',
             "shipping_address": {
                 "first_name": unCliente.name,
                 "address": orden.customer_address,
@@ -309,7 +309,7 @@ def cambiar():
             "shipping_pickup_type": "ship",
             "shipping": "not-provided",
             "shipping_option": "No informado",
-            "send_confirmation_email" : True,
+            "send_confirmation_email" : False,
             "send_fulfillment_email" : False
             }
 

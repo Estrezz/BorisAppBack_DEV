@@ -142,7 +142,7 @@ class Order_detail(db.Model):
     monto_a_devolver = db.Column(db.Float)
     monto_devuelto = db.Column(db.Float)
     nuevo_envio =  db.Column(db.String(15))
-    restock =  db.Column(db.String(15))
+    restock =  db.Column(db.String(30))
     precio = db.Column(db.Float)
     promo_descuento = db.Column(db.Float)
     promo_nombre = db.Column(db.String(120))
