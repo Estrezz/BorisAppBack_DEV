@@ -41,7 +41,8 @@ def toready_moova(orden,company,customer):
         label = label_tmp.json()['label']
             
         send_email('Tu orden ha sido confirmada', 
-            sender=current_app.config['ADMINS'][0], 
+            #sender=current_app.config['ADMINS'][0], 
+            sender=company.communication_email,
             recipients=[customer.email], 
             text_body=render_template('email/'+str(current_user.store)+'/pedido_confirmado.txt',
                                         customer=customer, order=orden, envio=orden.courier_method, label=label),

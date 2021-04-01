@@ -387,8 +387,9 @@ def finalizar_orden(orden_id):
         orden.status = 'Cerrado'
         loguear_transaccion('CERRADO', 'Cerrado ',orden_id, current_user.id, current_user.username)
         #flash('Mail {} para {} - orden {} , orden linea {}'.format(current_app.config['ADMINS'][0], customer.email, orden, orden_linea))
-        send_email('EL procesamiento de tu orden ha finalizado', 
-            sender=current_app.config['ADMINS'][0], 
+        company = Company.query.get(current_user.store)
+        send_email('El procesamiento de tu orden ha finalizado', 
+            sender=company.communication_email, 
             recipients=[customer.email], 
             text_body=render_template('email/'+str(current_user.store)+'/pedido_finalizado.txt',
                                     customer=customer, order=orden, linea=orden_linea),

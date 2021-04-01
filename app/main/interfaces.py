@@ -181,7 +181,8 @@ def toReady(orden, company):
         orden_tmp.last_update_date = str(datetime.utcnow)
         db.session.commit()
         send_email('Tu orden ha sido confirmada', 
-                sender=current_app.config['ADMINS'][0], 
+                #sender=current_app.config['ADMINS'][0], 
+                sender=company.communication_email,
                 recipients=[customer.email], 
                 text_body=render_template('email/'+str(current_user.store)+'/pedido_confirmado.txt',
                                          customer=customer, order=orden, envio=orden.courier_method),
@@ -216,6 +217,7 @@ def toApproved(orden_id):
     orden.status_resumen =traducir_estado('APROBADO')[1]
     orden.last_update_date = str(datetime.utcnow)
     customer = Customer.query.get(orden.customer_id)
+    company = Company.query.get(orden.store)
 
     unaTransaccion = Transaction_log(
             sub_status = traducir_estado('APROBADO')[0],
@@ -227,7 +229,8 @@ def toApproved(orden_id):
     db.session.add(unaTransaccion)
     db.session.commit()
     send_email('Tu orden ha sido aprobada', 
-                sender=current_app.config['ADMINS'][0], 
+                #sender=current_app.config['ADMINS'][0], 
+                sender=company.communication_email,
                 recipients=[customer.email], 
                 text_body=render_template('email/'+str(current_user.store)+'/pedido_aprobado.txt',
                                          customer=customer, order=orden, envio=orden.courier_method),
@@ -244,6 +247,7 @@ def toReject(orden_id):
     orden.status_resumen = traducir_estado('RECHAZADO')[1]
     orden.last_update_date = str(datetime.utcnow)
     customer = Customer.query.get(orden.customer_id)
+    company = Company.query.get(orden.store)
 
     unaTransaccion = Transaction_log(
             sub_status = traducir_estado('RECHAZADO')[0],
@@ -255,7 +259,7 @@ def toReject(orden_id):
     db.session.add(unaTransaccion)
     db.session.commit()
     send_email('Tu orden ha sido rechazada', 
-                sender=current_app.config['ADMINS'][0], 
+                sender=company.communication_email,
                 recipients=[customer.email], 
                 text_body=render_template('email/'+str(current_user.store)+'/pedido_rechazado.txt',
                                          customer=customer, order=orden, envio=orden.courier_method),
