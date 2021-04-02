@@ -37,6 +37,8 @@ class EditProfileCompanyForm(FlaskForm):
     platform = StringField('Plataforma utilizada')
     platform_token_type = StringField('Token type')
     platform_access_token = StringField('Access Token')
+    store_main_language = StringField('Idioma Principal')
+    store_country = StringField('Pais de la Tienda')
 
     contact_name = StringField('Nombre del contacto')
     contact_phone = StringField('Telefono del contacto')
