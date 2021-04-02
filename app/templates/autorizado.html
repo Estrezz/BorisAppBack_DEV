@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <div class='container'>
+        <h1> Gracias por Instalar Boris</h1>
+        <div class="row">
+            <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
+            {% if codigo == 'error'%}
+                <br>
+                Se produjo un error en la autorización <br>
+                por favor ponete en contacto con nostros <br>
+            {% else %}    
+                <strong> {{ codigo }} </strong> <br>
+                <strong> {{ estado }} </strong> <br>  
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

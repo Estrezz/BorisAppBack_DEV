@@ -5,7 +5,7 @@ from flask_login import current_user, login_required
 from app import db
 from app.email import send_email
 from app.main.forms import EditProfileForm, EditProfileCompanyForm
-from app.main.tiendanube import devolver_stock_tiendanube, generar_envio_tiendanube
+from app.main.tiendanube import devolver_stock_tiendanube, generar_envio_tiendanube, autorizar_tiendanube
 from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log
 from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto
 import json
@@ -80,8 +80,6 @@ def search():
     return redirect(url_for('main.orden', orden_id=req_search.id))
 
 
-
-
 @bp.route('/ordenes/<estado>/<subestado>', methods=['GET', 'POST'])
 @login_required
 def ver_ordenes(estado, subestado):
@@ -94,8 +92,6 @@ def ver_ordenes(estado, subestado):
         else: 
             ordenes = db.session.query(Order_header).filter((Order_header.store == current_user.store)).filter((Order_header.status == estado)).filter((Order_header.status_resumen == subestado))
     return render_template('ordenes.html', title='Ordenes', ordenes=ordenes, estado=estado, subestado=subestado,  resumen=resumen)
-
-
 
 
 @bp.route('/orden/<orden_id>')
@@ -200,6 +196,23 @@ def recibir_pedidos():
         abort(400)
 
 
+@bp.route('/autorizar/<plataforma>', methods=['GET', 'POST'])
+def autorizar(plataforma):
+    if request.args.get('code') != None:
+        codigo = request.args.get('code')
+    else: 
+        return render_template('autorizado.html', codigo='error')   
+    if request.args.get('state') != None:
+        estado = request.args.get('state')
+
+    
+    autorizacion = autorizar_tiendanube(codigo)
+    if autorizacion == 'Sucess':
+        return render_template('autorizado.html', codigo=codigo, estado=estado)
+    else:
+        return render_template('autorizado.html', codigo='error') 
+
+
 @bp.route('/orden/tracking', methods=['GET', 'POST'])
 def tracking_orden():
     if request.method == 'GET':
@@ -216,7 +229,6 @@ def tracking_orden():
                 "Fecha": str(i.fecha)
                 })
         return json.dumps(status_tmp), 200
-
 
 
 @bp.route('/devolver', methods=['GET', 'POST'])
@@ -295,7 +307,6 @@ def cambiar():
     return 'Sucesss'
 
 
-
 def loguear_transaccion(sub_status, prod, order_id, user_id, username):
     unaTransaccion = Transaction_log(
         sub_status = traducir_estado(sub_status)[0],
@@ -354,7 +365,7 @@ def upload_pedidos():
 def cargar_empresa():
     unaEmpresa = Company(
         store_id = '1447373',
-        platform = 'TIendaNube',
+        platform = 'tiendaNube',
         store_name = 'Demo Boris',
         correo_test = True,
         correo_apikey = 'b23920003684e781d87e7e5b615335ad254bdebc',

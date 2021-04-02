@@ -20,4 +20,7 @@ class Config(object):
     ADMINS = ['soporte@borisreturns.com']
     POSTS_PER_PAGE = 25
     FILES_PEDIDOS_URL = os.environ.get('FILES_PEDIDOS_URL')
+
+    CLIENT_ID_TN=os.environ.get('CLIENT_ID_TN')
+    CLIENT_SECRET_TN=os.environ.get('CLIENT_SECRET_TN')
     

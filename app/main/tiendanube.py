@@ -3,8 +3,7 @@ import json
 from app import db
 from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log
 from flask_login import current_user
-from flask import flash
-
+from flask import flash, current_app
 
 
 def buscar_producto_tiendanube(prod_id, empresa):
@@ -90,3 +89,34 @@ def generar_envio_tiendanube(orden, linea, unCliente, unaEmpresa):
         flash('Hubo un problema en la generación de la Orden. Error {}'.format(order.status_code))  
         return 'Failed'
     return 'Success'
+
+
+def autorizar_tiendanube(codigo):
+    url = "https://www.tiendanube.com/apps/authorize/token"
+    data = {
+        'client_id': current_app.config['CLIENT_ID_TN'] ,
+        'client_secret': current_app.config['CLIENT_SECRET_TN'],
+        'grant_type': 'authorization_code',
+        'code': codigo
+    }
+  
+    response = requests.request("POST", url, data=data)
+    flash('codigo de respuesta {}'.format(response.status_code))
+    respuesta = response.json()
+    #flash('curl {}{} response {}'.format(url,data, respuesta))
+    #flash('error {}'.format(respuesta['error']))
+    if response.status_code != 200:
+        flash('Store {}'.format(respuesta['store_id']))
+        unaEmpresa = Company(
+            store_id = respuesta['store_id'],
+            platform = 'tiendaNube',
+            platform_token_type =  respuesta['token_type'],
+            platform_access_token = respuesta['access_token'],
+            correo_usado = 'Ninguno',
+            correo_test = True
+        )
+        db.session.add(unaEmpresa)
+        db.session.commit()
+        return 'Success'
+    return 'Failed'
+    
