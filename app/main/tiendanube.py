@@ -103,6 +103,7 @@ def autorizar_tiendanube(codigo):
     response = requests.request("POST", url, data=data)
     flash('codigo de respuesta {}'.format(response.status_code))
     respuesta = response.json()
+    flash ('Respuesta {}'.format(respuesta))
     #flash('curl {}{} response {}'.format(url,data, respuesta))
     #flash('error {}'.format(respuesta['error']))
     if response.status_code != 200:
