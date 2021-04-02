@@ -202,10 +202,9 @@ def autorizar(plataforma):
         codigo = request.args.get('code')
     else: 
         return render_template('autorizado.html', codigo='error')   
-    if request.args.get('state') != None:
-        estado = request.args.get('state')
+    #if request.args.get('state') != None:
+    #    estado = request.args.get('state')
 
-    
     autorizacion = autorizar_tiendanube(codigo)
     if autorizacion == 'Success':
         return render_template('autorizado.html', codigo=codigo, estado=estado)
