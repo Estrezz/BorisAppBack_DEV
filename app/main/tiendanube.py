@@ -28,7 +28,7 @@ def devolver_stock_tiendanube(empresa, prod_id, variant, cantidad):
     order = requests.request("GET", url, headers=headers, data=payload).json()
     if isinstance(order['stock'], type(None)) == True:
         flash('No se está gestionando información de Stock.')
-        return 'Failed'
+        return 'Success'
     stock_tmp = int(order['stock']) + int(cantidad)
     stock = {
         "stock": stock_tmp
