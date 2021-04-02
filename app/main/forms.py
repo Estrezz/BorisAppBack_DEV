@@ -35,10 +35,11 @@ class EditProfileForm(FlaskForm):
 class EditProfileCompanyForm(FlaskForm):
     store_name = StringField('Nombre de la tienda')
     platform = StringField('Plataforma utilizada')
-    platform_token_type = StringField('Token type')
-    platform_access_token = StringField('Access Token')
-    store_main_language = StringField('Idioma Principal')
-    store_country = StringField('Pais de la Tienda')
+    platform_token_type = StringField('Token type', render_kw={'readonly': True})
+    platform_access_token = StringField('Access Token', render_kw={'readonly': True})
+    store_main_language = StringField('Idioma Principal', render_kw={'readonly': True})
+    store_main_currency = StringField('Moneda Principal', render_kw={'readonly': True})
+    store_country = StringField('Pais de la Tienda', render_kw={'readonly': True})
 
     contact_name = StringField('Nombre del contacto')
     contact_phone = StringField('Telefono del contacto')
