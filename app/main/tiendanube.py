@@ -123,6 +123,7 @@ def autorizar_tiendanube(codigo):
             contact_email = empresa['contact_email'],
             param_logo = empresa['logo'],
             store_main_language = empresa['main_language'],
+            store_main_currency = empresa['main_currency'],
             store_country = empresa['country'],
             correo_usado = 'Ninguno',
             correo_test = True

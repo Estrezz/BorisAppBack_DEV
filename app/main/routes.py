@@ -207,6 +207,13 @@ def autorizar(plataforma):
 
     autorizacion = autorizar_tiendanube(codigo)
     if autorizacion != 'Failed':
+        send_email('Se ha creado una nueva empresa', 
+            sender=current_app.config['ADMINS'][0], 
+            recipients=current_app.config['ADMINS'][0], 
+            text_body=render_template('autorizado.txt', codigo='OK', store=autorizacion),
+            html_body=render_template('autorizado.html', codigo='OK', store=autorizacion), 
+            attachments=None, 
+            sync=False)
         return render_template('autorizado.html', codigo='OK', store=autorizacion)
     else:
         return render_template('autorizado.html', codigo='error') 
