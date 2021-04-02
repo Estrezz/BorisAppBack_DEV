@@ -139,6 +139,9 @@ def resumen_ordenes(store_id):
 def buscar_producto(prod_id, empresa):
     if empresa.platform == 'tiendanube':
         producto = buscar_producto_tiendanube(prod_id, empresa)
+    else: 
+        flash('plataforma {}'.format(empresa.platform))
+        producto = 'no existe'
     return producto
 
 
