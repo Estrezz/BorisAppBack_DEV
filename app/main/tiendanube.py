@@ -103,13 +103,18 @@ def autorizar_tiendanube(codigo):
     response = requests.request("POST", url, data=data)
     flash('codigo de respuesta {}'.format(response.status_code))
     respuesta = response.json()
-    flash ('Respuesta {}'.format(respuesta))
+    flash ('Respuesta {} {}'.format(respuesta, type(respuesta)))
     #flash('curl {}{} response {}'.format(url,data, respuesta))
     #flash('error {}'.format(respuesta['error']))
-    if response.status_code != 200:
-        flash('Store {}'.format(respuesta['store_id']))
+    if 'scope' in respuesta:
+        if 'store_id' in respuesta:
+            store = respuesta['store_id']
+        if 'user_id' in respuesta:
+            store = respuesta['user_id']
+        
+        flash('Store {}'.format(store))
         unaEmpresa = Company(
-            store_id = respuesta['store_id'],
+            store_id = store,
             platform = 'tiendaNube',
             platform_token_type =  respuesta['token_type'],
             platform_access_token = respuesta['access_token'],
