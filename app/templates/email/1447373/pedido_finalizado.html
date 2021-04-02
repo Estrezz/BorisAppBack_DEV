@@ -5,7 +5,7 @@
         Se ha completado el procesamiento de tu orden<br>
         {% for i in linea %}
             {% if i.accion == 'devolver' %}
-                Se ha procedido a la devolución de {{i.monto_devuelto}} por la devolución de {{i.name}}<br>
+                Se ha procedido a la devolución de  {{ "${:,.2f}".format(i.monto_devuelto) }} por la devolución de {{i.name}}<br>
  	            Recorda que la devolución se realiza por el mismo método que utilizaste para realizar el pago.<br>
                 En caso de pago con tarjeta, dependiendo de la fecha de cierre, 
                 el importe podría aparacer en el siguiente período <br>

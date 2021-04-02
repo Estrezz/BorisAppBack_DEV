@@ -31,7 +31,7 @@
                 No tiene <br>
             {% endif %}
 
-            Monto devuelto: {{linea.monto_devuelto}}<br>
+            Monto devuleto: {{ "${:,.2f}".format(linea.monto_devuelto) }}
         {% endif %}
 
         restock del articulo: {{linea.restock}}<br>
