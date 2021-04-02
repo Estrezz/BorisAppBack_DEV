@@ -207,7 +207,7 @@ def autorizar(plataforma):
 
     
     autorizacion = autorizar_tiendanube(codigo)
-    if autorizacion == 'Sucess':
+    if autorizacion == 'Success':
         return render_template('autorizado.html', codigo=codigo, estado=estado)
     else:
         return render_template('autorizado.html', codigo='error') 

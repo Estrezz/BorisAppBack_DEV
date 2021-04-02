@@ -99,11 +99,10 @@ def autorizar_tiendanube(codigo):
         'grant_type': 'authorization_code',
         'code': codigo
     }
-  
     response = requests.request("POST", url, data=data)
     flash('codigo de respuesta {}'.format(response.status_code))
     respuesta = response.json()
-    flash ('Respuesta {} {}'.format(respuesta, type(respuesta)))
+    #flash ('Respuesta {} {}'.format(respuesta, type(respuesta)))
     #flash('curl {}{} response {}'.format(url,data, respuesta))
     #flash('error {}'.format(respuesta['error']))
     if 'scope' in respuesta:
@@ -113,11 +112,15 @@ def autorizar_tiendanube(codigo):
             store = respuesta['user_id']
         
         flash('Store {}'.format(store))
+        empresa = traer_datos_tiendanube(store, respuesta['token_type'],respuesta['access_token'] )
         unaEmpresa = Company(
             store_id = store,
             platform = 'tiendaNube',
             platform_token_type =  respuesta['token_type'],
             platform_access_token = respuesta['access_token'],
+            store_name = empresa['name']['es'],
+            admin_email = empresa['email'],
+            contact_email = empresa['contact_email'],
             correo_usado = 'Ninguno',
             correo_test = True
         )
@@ -125,4 +128,16 @@ def autorizar_tiendanube(codigo):
         db.session.commit()
         return 'Success'
     return 'Failed'
+
+
+def traer_datos_tiendanube(store, token_type, access_token):
+    url = "https://api.tiendanube.com/v1/"+str(store)+"/store"
+    payload={}
+    headers = {
+        'Content-Type': 'application/json',
+        'Authentication': str(token_type)+' '+str(access_token)
+    }
+    empresa = requests.request("GET", url, headers=headers, data=payload).json()
+    return empresa
+
     
