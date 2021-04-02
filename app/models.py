@@ -11,6 +11,8 @@ from app import db, login
 class Company(db.Model):
     store_id = db.Column(db.String(64), primary_key=True, index=True)
     platform = db.Column(db.String(64), index=True)
+    platform_token_type = db.Column(db.String(30))
+    platform_access_token = db.Column(db.String(64))
     store_name = db.Column(db.String(64))
     admin_email = db.Column(db.String(120))
     communication_email = db.Column(db.String(120))

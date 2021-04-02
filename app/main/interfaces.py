@@ -3,6 +3,7 @@ import json
 from app import db
 from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log
 from app.main.moova import toready_moova
+from app.main.tiendanube import buscar_producto_tiendanube
 from app.email import send_email
 from flask import session, flash, current_app,render_template
 from flask_login import current_user
@@ -135,16 +136,9 @@ def resumen_ordenes(store_id):
             'aprobadas':aprobadas, 'rechazadas':rechazadas}
     return resumen
 
-def buscar_producto(prod_id):
-    url = "https://api.tiendanube.com/v1/"+str(current_user.store)+"/products/"+str(prod_id)
-    payload={}
-    headers = {
-        'User-Agent': 'Boris (erezzonico@borisreturns.com)',
-        'Content-Type': 'application/json',
-        'Authentication': 'bearer cb9d4e17f8f0c7d3c0b0df4e30bcb2b036399e16'
-    }
-
-    producto = requests.request("GET", url, headers=headers, data=payload).json()
+def buscar_producto(prod_id, empresa):
+    if empresa.platform == 'tiendanube':
+        producto = buscar_producto_tiendanube(prod_id, empresa)
     return producto
 
 

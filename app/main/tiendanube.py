@@ -1,0 +1,92 @@
+import requests
+import json
+from app import db
+from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log
+from flask_login import current_user
+from flask import flash
+
+
+
+def buscar_producto_tiendanube(prod_id, empresa):
+    url = "https://api.tiendanube.com/v1/"+str(current_user.store)+"/products/"+str(prod_id)
+    payload={}
+    headers = {
+        'Content-Type': 'application/json',
+        'Authentication': empresa.platform_token_type+' '+empresa.platform_access_token
+    }
+    producto = requests.request("GET", url, headers=headers, data=payload).json()
+    return producto
+
+
+def devolver_stock_tiendanube(empresa, prod_id, variant, cantidad):
+    url = "https://api.tiendanube.com/v1/"+str(current_user.store)+"/products/"+str(prod_id)+"/variants/"+str(variant)
+    payload={}
+    headers = {
+        'Content-Type': 'application/json',
+        'Authentication': empresa.platform_token_type+' '+empresa.platform_access_token
+    }
+    # Trae stock actual
+    order = requests.request("GET", url, headers=headers, data=payload).json()
+    stock_tmp = int(order['stock']) + int(cantidad)
+    stock = {
+        "stock": stock_tmp
+    }
+    # Aumenta el stock de la tienda en la cantidad devuelta
+    order = requests.request("PUT", url, headers=headers, data=json.dumps(stock))
+
+    if order.status_code != 200:
+        flash('Hubo un problema en la devolución No se pudo devolver el stock. Error {}'.format(solicitud.status_code))
+        return 'Failed'
+    return 'Success'
+
+
+def generar_envio_tiendanube(orden, linea, unCliente, unaEmpresa):
+    url = "https://api.tiendanube.com/v1/"+str(current_user.store)+"/orders/"
+    payload={}
+    headers = {
+        'Content-Type': 'application/json',
+        'Authentication': unaEmpresa.platform_token_type+' '+unaEmpresa.platform_access_token
+    }
+        
+    orden_tmp = { 
+        "status": "open",
+        "gateway": "offline",
+        "payment_status": "paid",
+        "products": [
+            {
+                "variant_id": linea.accion_cambiar_por,
+                "quantity": linea.accion_cantidad,
+                "price": 0
+            }
+        ],
+        "inventory_behaviour" : "claim",
+        "customer": {
+            "email": unCliente.email,
+            "name": unCliente.name,
+            "phone": unCliente.phone
+        },
+        "note": 'Cambio realizado mediante Boris',
+        "shipping_address": {
+            "first_name": unCliente.name,
+            "address": orden.customer_address,
+            "number": orden.customer_number,
+            "floor": orden.customer_floor,
+            "locality": orden.customer_locality,
+            "city": orden.customer_city,
+            "province": orden.customer_province,
+            "zipcode": orden.customer_zipcode,
+            "country": orden.customer_country,
+            "phone": unCliente.phone
+        },
+        "shipping_pickup_type": "ship",
+        "shipping": "not-provided",
+        "shipping_option": "No informado",
+        "send_confirmation_email" : False,
+        "send_fulfillment_email" : False
+        }
+
+    order = requests.request("POST", url, headers=headers, data=json.dumps(orden_tmp))
+    if order.status_code != 201:
+        flash('Hubo un problema en la generación de la Orden. Error {}'.format(order.status_code))  
+        return 'Failed'
+    return 'Success'

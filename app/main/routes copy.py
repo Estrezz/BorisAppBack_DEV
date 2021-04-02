@@ -5,7 +5,6 @@ from flask_login import current_user, login_required
 from app import db
 from app.email import send_email
 from app.main.forms import EditProfileForm, EditProfileCompanyForm
-from app.main.tiendanube import devolver_stock_tiendanube, generar_envio_tiendanube
 from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log
 from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto
 import json
@@ -47,6 +46,7 @@ def edit_profile():
     if form.validate_on_submit():
         form.populate_obj(current_user)
         db.session.commit() 
+        #return redirect(url_for('main.edit_profile'))
         return redirect(url_for('main.user', username=current_user.username))
     return render_template('edit_profile.html', title='Editar perfil',
                            form=form)
@@ -68,6 +68,7 @@ def edit_profile_company():
     if form.validate_on_submit():
         form.populate_obj(empresa)
         db.session.commit() 
+        #return redirect(url_for('main.edit_profile'))
         return redirect(url_for('main.company', empresa_id=empresa.store_id))
     return render_template('edit_profile_company.html', title='Editar perfil',
                            form=form)
@@ -133,6 +134,7 @@ def gestionar_producto(orden_id):
     linea_id = request.args.get('linea_id')
     orden = Order_header.query.filter_by(id=orden_id).first()
     linea = Order_detail.query.get(str(linea_id))
+    #### cambios
     empresa = Company.query.get(orden.store)
     producto_nuevo = buscar_producto(linea.prod_id, empresa)
     return render_template('producto.html', orden=orden, linea=linea, customer=orden.buyer, producto=producto_nuevo)
@@ -228,6 +230,7 @@ def devolver():
     orden_id = request.args.get('orden_id')
     order_line_number = request.args.get('order_line')
     accion = request.args.get('accion')
+
     accion_stock = request.form['stockradio']
 
     if request.form.get('monto') != None :
@@ -236,11 +239,26 @@ def devolver():
         monto_devuelto = 0
     
     if accion_stock != 'no_vuelve':
-        empresa = Company.query.get(current_user.store)
-        if empresa.platform == 'tiendanube':
-            devolucion = devolver_stock_tiendanube(empresa, prod_id, variant, cantidad)
-            if devolucion == 'Failed':
-                return redirect(url_for('main.orden', orden_id=orden_id))
+        url = "https://api.tiendanube.com/v1/"+str(current_user.store)+"/products/"+str(prod_id)+"/variants/"+str(variant)
+        payload={}
+        headers = {
+            'User-Agent': 'Boris (erezzonico@borisreturns.com)',
+            'Content-Type': 'application/json',
+            'Authentication': 'bearer cb9d4e17f8f0c7d3c0b0df4e30bcb2b036399e16'
+        }
+
+        # Trae stock actual
+        order = requests.request("GET", url, headers=headers, data=payload).json()
+        stock_tmp = int(order['stock']) + int(cantidad)
+        stock = {
+            "stock": stock_tmp
+        }
+        # Aumenta el stock de la tienda en la cantidad devuelta
+        order = requests.request("PUT", url, headers=headers, data=json.dumps(stock))
+
+        if order.status_code != 200:
+            flash('Hubo un problema en la devolución No se pudo devolver el stock. Error {}'.format(solicitud.status_code))
+            return redirect(url_for('main.orden', orden_id=orden_id))
     
     linea = Order_detail.query.get(str(order_line_number))
     linea.monto_devuelto = monto_devuelto
@@ -274,8 +292,54 @@ def cambiar():
     envio_nuevo = request.form.get('metodo_envio')
 
     if envio_nuevo == 'tiendanube':
-        generacion_envio = generar_envio_tiendanube(orden, linea, unCliente, unaEmpresa)
-        if generacion_envio == 'Failed':
+        url = "https://api.tiendanube.com/v1/"+str(current_user.store)+"/orders/"
+        payload={}
+        headers = {
+            'User-Agent': 'Boris (erezzonico@borisreturns.com)',
+            'Content-Type': 'application/json',
+            'Authentication': 'bearer cb9d4e17f8f0c7d3c0b0df4e30bcb2b036399e16'
+        }
+        
+        orden_tmp = { 
+            "status": "open",
+            "gateway": "offline",
+            "payment_status": "paid",
+            "products": [
+                {
+                    "variant_id": linea.accion_cambiar_por,
+                    "quantity": linea.accion_cantidad,
+                    "price": 0
+                }
+            ],
+            "inventory_behaviour" : "claim",
+            "customer": {
+                "email": unCliente.email,
+                "name": unCliente.name,
+                "phone": unCliente.phone
+            },
+            "note": 'Cambio realizado mediante Boris',
+            "shipping_address": {
+                "first_name": unCliente.name,
+                "address": orden.customer_address,
+                "number": orden.customer_number,
+                "floor": orden.customer_floor,
+                "locality": orden.customer_locality,
+                "city": orden.customer_city,
+                "province": orden.customer_province,
+                "zipcode": orden.customer_zipcode,
+                "country": orden.customer_country,
+                "phone": unCliente.phone
+            },
+            "shipping_pickup_type": "ship",
+            "shipping": "not-provided",
+            "shipping_option": "No informado",
+            "send_confirmation_email" : False,
+            "send_fulfillment_email" : False
+            }
+
+        order = requests.request("POST", url, headers=headers, data=json.dumps(orden_tmp))
+        if order.status_code != 201:
+            flash('Hubo un problema en la generación de la Orden. Error {}'.format(order.status_code))
             return redirect(url_for('main.orden', orden_id=orden_id))
     
 
