@@ -115,7 +115,7 @@ def autorizar_tiendanube(codigo):
         empresa = traer_datos_tiendanube(store, respuesta['token_type'],respuesta['access_token'] )
         unaEmpresa = Company(
             store_id = store,
-            platform = 'tiendaNube',
+            platform = 'tiendanube',
             platform_token_type =  respuesta['token_type'],
             platform_access_token = respuesta['access_token'],
             store_name = empresa['name']['es'],
