@@ -14,6 +14,8 @@ class Company(db.Model):
     platform_token_type = db.Column(db.String(30))
     platform_access_token = db.Column(db.String(64))
     store_name = db.Column(db.String(64))
+    store_main_language = db.Column(db.String(20))
+    store_country = db.Column(db.String(20))
     admin_email = db.Column(db.String(120))
     communication_email = db.Column(db.String(120))
     param_logo = db.Column(db.String(120))

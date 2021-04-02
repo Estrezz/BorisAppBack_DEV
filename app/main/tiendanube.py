@@ -100,7 +100,7 @@ def autorizar_tiendanube(codigo):
         'code': codigo
     }
     response = requests.request("POST", url, data=data)
-    flash('codigo de respuesta {}'.format(response.status_code))
+    #flash('codigo de respuesta {}'.format(response.status_code))
     respuesta = response.json()
     #flash ('Respuesta {} {}'.format(respuesta, type(respuesta)))
     #flash('curl {}{} response {}'.format(url,data, respuesta))
@@ -111,7 +111,7 @@ def autorizar_tiendanube(codigo):
         if 'user_id' in respuesta:
             store = respuesta['user_id']
         
-        flash('Store {}'.format(store))
+        #flash('Store {}'.format(store))
         empresa = traer_datos_tiendanube(store, respuesta['token_type'],respuesta['access_token'] )
         unaEmpresa = Company(
             store_id = store,
@@ -121,12 +121,15 @@ def autorizar_tiendanube(codigo):
             store_name = empresa['name']['es'],
             admin_email = empresa['email'],
             contact_email = empresa['contact_email'],
+            param_logo = empresa['logo'],
+            store_main_language = empresa['main_language'],
+            store_country = empresa['country'],
             correo_usado = 'Ninguno',
             correo_test = True
         )
         db.session.add(unaEmpresa)
         db.session.commit()
-        return 'Success'
+        return empresa['name']['es']
     return 'Failed'
 
 
