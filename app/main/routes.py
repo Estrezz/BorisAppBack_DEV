@@ -208,8 +208,8 @@ def autorizar(plataforma):
     autorizacion = autorizar_tiendanube(codigo)
     if autorizacion != 'Failed':
         send_email('Se ha creado una nueva empresa', 
-            sender='soporte@borisreturns.com', 
-            recipients='soporte@borisreturns.com', 
+            sender=current_app.config['ADMINS'][0],  
+            recipients=[current_app.config['ADMINS'][0]],
             text_body=render_template('autorizado.txt', codigo='OK', store=autorizacion),
             html_body=render_template('autorizado.html', codigo='OK', store=autorizacion), 
             attachments=None, 
