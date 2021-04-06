@@ -177,13 +177,14 @@ def inicializa_tiendanube(empresa) :
     "event" : "onload",
     "where" : "store"
     }
-    response_1 = requests.request("POST", url, headers=headers, data=script_1)
-    response_2 = requests.request("POST", url, headers=headers, data=script_2)
+    response_1 = requests.request("POST", url, headers=headers, data=json.dumps(script_1))
+    response_2 = requests.request("POST", url, headers=headers, data=json.dumps(script_2))
     flash ('crea scripts 1-{} 2-{}'.format(response_1, response_2))
 
     ### Crea carpeta para mails
+    flash('Valida directorio {}'.format('app/templates/email'+str(empresa.store_id)))
     if not os.path.exists('app/templates/email'+str(empresa.store_id)):
-        flash('crea directorio {}'.format('app/templates/email'+str(empresa.store_id)))
+        flash('no existe - crea directorio {}'.format('app/templates/email'+str(empresa.store_id)))
         os.mkdir('app/templates/email'+str(empresa.store_id))
         source_dir = 'app/templates/email_models'
         target_dir = 'app/templates/email'+str(empresa.store_id)
