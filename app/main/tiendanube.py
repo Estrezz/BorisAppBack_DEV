@@ -183,11 +183,11 @@ def inicializa_tiendanube(empresa) :
 
     ### Crea carpeta para mails
     flash('Valida directorio {}'.format('app/templates/email'+str(empresa.store_id)))
-    if not os.path.exists('app/templates/email'+str(empresa.store_id)):
-        flash('no existe - crea directorio {}'.format('app/templates/email'+str(empresa.store_id)))
-        os.mkdir('app/templates/email'+str(empresa.store_id))
+    if not os.path.exists('app/templates/email/'+str(empresa.store_id)):
+        flash('no existe - crea directorio {}'.format('app/templates/email/'+str(empresa.store_id)))
+        os.mkdir('app/templates/email/'+str(empresa.store_id))
         source_dir = 'app/templates/email_models'
-        target_dir = 'app/templates/email'+str(empresa.store_id)
+        target_dir = 'app/templates/email/'+str(empresa.store_id)
     
         file_names = os.listdir(source_dir)
     
