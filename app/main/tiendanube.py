@@ -141,7 +141,7 @@ def autorizar_tiendanube(codigo):
                 correo_test = True
             )
             inicializa_tiendanube(unaEmpresa)
-            flash('Inicia parametros - Crear carpeta y copiar Mails / Insertar scripts')
+            #flash('Inicia parametros - Crear carpeta y copiar Mails / Insertar scripts')
         db.session.add(unaEmpresa)
         db.session.commit()
         return unaEmpresa.store_name
