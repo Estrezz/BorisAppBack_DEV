@@ -115,25 +115,34 @@ def autorizar_tiendanube(codigo):
             store = respuesta['user_id']
         
         #flash('Store {}'.format(store))
-        empresa = traer_datos_tiendanube(store, respuesta['token_type'],respuesta['access_token'] )
-        unaEmpresa = Company(
-            store_id = store,
-            platform = 'tiendanube',
-            platform_token_type =  respuesta['token_type'],
-            platform_access_token = respuesta['access_token'],
-            store_name = empresa['name']['es'],
-            admin_email = empresa['email'],
-            contact_email = empresa['contact_email'],
-            param_logo = empresa['logo'],
-            store_main_language = empresa['main_language'],
-            store_main_currency = empresa['main_currency'],
-            store_country = empresa['country'],
-            correo_usado = 'Ninguno',
-            correo_test = True
-        )
+        if Company.query.get(store):
+            flash('Ya existe la empresa')
+            unaEmpresa = Customer.query.get(store)
+            unaEmpresa.platform_token_type =  respuesta['token_type'],
+            unaEmpresa.platform_access_token = respuesta['access_token'],
+        else: 
+            empresa = traer_datos_tiendanube(store, respuesta['token_type'],respuesta['access_token'] )
+            unaEmpresa = Company(
+                store_id = store,
+                platform = 'tiendanube',
+                platform_token_type =  respuesta['token_type'],
+                platform_access_token = respuesta['access_token'],
+                store_name = empresa['name']['es'],
+                admin_email = empresa['email'],
+                contact_email = empresa['contact_email'],
+                param_logo = empresa['logo'],
+                store_main_language = empresa['main_language'],
+                store_main_currency = empresa['main_currency'],
+                store_country = empresa['country'],
+                correo_usado = 'Ninguno',
+                correo_test = True
+            )
+            flash('Inicia parametros - Crear carpeta y copiar Mails / Insertar scripts')
         db.session.add(unaEmpresa)
         db.session.commit()
-        return empresa['name']['es']
+        
+
+        return unaEmpresa.store_name
     return 'Failed'
 
 
