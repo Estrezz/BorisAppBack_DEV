@@ -177,8 +177,8 @@ def inicializa_tiendanube(empresa) :
     "event" : "onload",
     "where" : "store"
     }
-    response_1 = requests.request("POST", url, data=script_1)
-    response_2 = requests.request("POST", url, data=script_2)
+    response_1 = requests.request("POST", url, headers=headers, data=script_1)
+    response_2 = requests.request("POST", url, headers=headers, data=script_2)
     flash ('crea scripts 1-{} 2-{}'.format(response_1, response_2))
 
     ### Crea carpeta para mails
