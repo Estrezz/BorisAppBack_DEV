@@ -116,11 +116,11 @@ def autorizar_tiendanube(codigo):
         
         #flash('Store {}'.format(store))
         if Company.query.filter_by(store_id=store).first_or_404 != 404:
-            unaEmpresa = Customer.query.get(store)
+            unaEmpresa = Company.query.filter_by(store_id=store).first()
             flash('Ya existe la empresa {} - {}'.format(unaEmpresa, respuesta))
-            #unaEmpresa.platform_token_type = respuesta['token_type']
-            #unaEmpresa.platform_access_token = respuesta['access_token']
-            return unaEmpresa.store_name
+            unaEmpresa.platform_token_type = respuesta['token_type']
+            unaEmpresa.platform_access_token = respuesta['access_token']
+            
         else: 
             empresa = traer_datos_tiendanube(store, respuesta['token_type'],respuesta['access_token'] )
             unaEmpresa = Company(
