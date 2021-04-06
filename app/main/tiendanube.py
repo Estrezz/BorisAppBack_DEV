@@ -117,7 +117,8 @@ def autorizar_tiendanube(codigo):
             store = respuesta['user_id']
         
         #flash('Store {}'.format(store))
-        if Company.query.filter_by(store_id=store).first_or_404 != 404:
+        #if Company.query.filter_by(store_id=store).first_or_404 != 404:
+        if Company.query.filter_by(store_id=store).first():
             unaEmpresa = Company.query.filter_by(store_id=store).first()
             unaEmpresa.platform_token_type = respuesta['token_type']
             unaEmpresa.platform_access_token = respuesta['access_token']
