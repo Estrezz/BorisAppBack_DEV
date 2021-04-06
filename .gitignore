@@ -20,3 +20,4 @@ instance/
 logs/
 app.db
 boris.env
+app/templates/email/
