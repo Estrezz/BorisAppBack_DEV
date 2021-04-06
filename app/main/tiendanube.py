@@ -1,5 +1,7 @@
 import requests
 import json
+import os
+import shutil
 from app import db
 from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log
 from flask_login import current_user
@@ -117,7 +119,6 @@ def autorizar_tiendanube(codigo):
         #flash('Store {}'.format(store))
         if Company.query.filter_by(store_id=store).first_or_404 != 404:
             unaEmpresa = Company.query.filter_by(store_id=store).first()
-            flash('Ya existe la empresa {} - {}'.format(unaEmpresa, respuesta))
             unaEmpresa.platform_token_type = respuesta['token_type']
             unaEmpresa.platform_access_token = respuesta['access_token']
             
@@ -138,6 +139,7 @@ def autorizar_tiendanube(codigo):
                 correo_usado = 'Ninguno',
                 correo_test = True
             )
+            inicializa_tiendanube(unaEmpresa)
             flash('Inicia parametros - Crear carpeta y copiar Mails / Insertar scripts')
         db.session.add(unaEmpresa)
         db.session.commit()
@@ -155,4 +157,37 @@ def traer_datos_tiendanube(store, token_type, access_token):
     empresa = requests.request("GET", url, headers=headers, data=payload).json()
     return empresa
 
+
+def inicializa_tiendanube(empresa) :
+    ### Carga scripts en la tienda
+    url = "https://api.tiendanube.com/v1/"+str(store)+"/scripts"
+    payload={}
+    headers = {
+        'Content-Type': 'application/json',
+        'Authentication': str(empresa.platform_token_type)+' '+str(empresa.platform_access_token)
+    }
+    script_1= {
+    "src": "https://front.borisreturns.com/static/boris_politica.js",
+    "event" : "onload",
+    "where" : "store"
+    }
+    script_2= {
+    "src": "https://front.borisreturns.com/static/boris.js",
+    "event" : "onload",
+    "where" : "store"
+    }
+    response_1 = requests.request("POST", url, data=script_1)
+    response_2 = requests.request("POST", url, data=script_2)
+
+    ### Crea carpeta para mails
+    if not os.path.exists('app/templates/email'+str(empresa.store_id)):
+        os.mkdir('app/templates/email'+str(empresa.store_id))
+        source_dir = 'app/templates/email_models'
+        target_dir = 'app/templates/email'+str(empresa.store_id)
     
+        file_names = os.listdir(source_dir)
+    
+        for file_name in file_names:
+            shutil.move(os.path.join(source_dir, file_name), target_dir)
+    return 'Success'
+        
