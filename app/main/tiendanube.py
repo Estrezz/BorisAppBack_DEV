@@ -168,12 +168,12 @@ def inicializa_tiendanube(empresa) :
         'Authentication': str(empresa.platform_token_type)+' '+str(empresa.platform_access_token)
     }
     script_1= {
-    "src": "https://front.borisreturns.com/static/boris_politica.js",
+    "src": "https://front.borisreturns.com/static/boris_order.js",
     "event" : "onload",
     "where" : "store"
     }
     script_2= {
-    "src": "https://front.borisreturns.com/static/politica_boris.js",
+    "src": "https://front.borisreturns.com/static/boris_politica.js",
     "event" : "onload",
     "where" : "store"
     }
