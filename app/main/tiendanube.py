@@ -161,7 +161,7 @@ def traer_datos_tiendanube(store, token_type, access_token):
 
 def inicializa_tiendanube(empresa) :
     ### Carga scripts en la tienda
-    url = "https://api.tiendanube.com/v1/"+str(store)+"/scripts"
+    url = "https://api.tiendanube.com/v1/"+str(empresa.store_id)+"/scripts"
     payload={}
     headers = {
         'Content-Type': 'application/json',
