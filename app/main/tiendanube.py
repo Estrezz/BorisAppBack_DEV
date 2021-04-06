@@ -120,6 +120,7 @@ def autorizar_tiendanube(codigo):
             flash('Ya existe la empresa {} - {}'.format(unaEmpresa, respuesta))
             #unaEmpresa.platform_token_type = respuesta['token_type']
             #unaEmpresa.platform_access_token = respuesta['access_token']
+            return unaEmpresa.store_name
         else: 
             empresa = traer_datos_tiendanube(store, respuesta['token_type'],respuesta['access_token'] )
             unaEmpresa = Company(
@@ -140,8 +141,6 @@ def autorizar_tiendanube(codigo):
             flash('Inicia parametros - Crear carpeta y copiar Mails / Insertar scripts')
         db.session.add(unaEmpresa)
         db.session.commit()
-        
-
         return unaEmpresa.store_name
     return 'Failed'
 
