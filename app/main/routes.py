@@ -16,6 +16,8 @@ from app.main import bp
 def before_request():
     if current_user.is_authenticated:
         current_user.last_seen = datetime.utcnow()
+        empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
+        session['current_empresa'] = empresa.store_name
         db.session.commit()
 
 
@@ -23,20 +25,20 @@ def before_request():
 @bp.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
-    return render_template('index.html', title='Home')
+    return render_template('index.html', title='Home', empresa_name=session['current_empresa'])
 
 
 @bp.route('/mantenimiento', methods=['GET', 'POST'])
 @login_required
 def mantenimiento():
-    return render_template('mantenimiento.html', title='Home')
+    return render_template('mantenimiento.html', title='Home',  empresa_name=session['current_empresa'])
 
 
 @bp.route('/user/<username>')
 @login_required
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
-    return render_template('user.html', user=user)
+    return render_template('user.html', user=user,  empresa_name=session['current_empresa'])
 
 
 @bp.route('/edit_profile', methods=['GET', 'POST'])
@@ -49,14 +51,14 @@ def edit_profile():
         db.session.commit() 
         return redirect(url_for('main.user', username=current_user.username))
     return render_template('edit_profile.html', title='Editar perfil',
-                           form=form)
+                           form=form,  empresa_name=session['current_empresa'])
 
 
 @bp.route('/company/<empresa_id>')
 @login_required
 def company(empresa_id):
     empresa = Company.query.filter_by(store_id=empresa_id).first_or_404()
-    return render_template('company.html', empresa=empresa)
+    return render_template('company.html', empresa=empresa, empresa_name=session['current_empresa'])
 
 
 @bp.route('/edit_profile_company', methods=['GET', 'POST'])
@@ -70,7 +72,7 @@ def edit_profile_company():
         db.session.commit() 
         return redirect(url_for('main.company', empresa_id=empresa.store_id))
     return render_template('edit_profile_company.html', title='Editar perfil',
-                           form=form)
+                           form=form, empresa_name=session['current_empresa'])
 
 
 @bp.route('/search')  
@@ -91,7 +93,7 @@ def ver_ordenes(estado, subestado):
             ordenes = db.session.query(Order_header).filter((Order_header.store == current_user.store)).filter((Order_header.status == estado))
         else: 
             ordenes = db.session.query(Order_header).filter((Order_header.store == current_user.store)).filter((Order_header.status == estado)).filter((Order_header.status_resumen == subestado))
-    return render_template('ordenes.html', title='Ordenes', ordenes=ordenes, estado=estado, subestado=subestado,  resumen=resumen)
+    return render_template('ordenes.html', title='Ordenes', ordenes=ordenes, estado=estado, subestado=subestado,  resumen=resumen, empresa_name=session['current_empresa'])
 
 
 @bp.route('/orden/<orden_id>')
@@ -99,7 +101,7 @@ def ver_ordenes(estado, subestado):
 def orden(orden_id):
     orden = Order_header.query.filter_by(id=orden_id).first()
     orden_linea = Order_detail.query.filter_by(order=orden_id).all()
-    return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer)
+    return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer, empresa_name=session['current_empresa'])
 
 
 @bp.route('/orden/gestion/<orden_id>', methods=['GET', 'POST'])
@@ -120,7 +122,7 @@ def gestionar_ordenes(orden_id):
             else: 
                 if accion == 'toReject':
                     toReject(orden.id)
-    return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer)
+    return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer, empresa_name=session['current_empresa'])
     
 
 @bp.route('/gestion_producto/<orden_id>', methods=['GET', 'POST'])
@@ -131,7 +133,7 @@ def gestionar_producto(orden_id):
     linea = Order_detail.query.get(str(linea_id))
     empresa = Company.query.get(orden.store)
     producto_nuevo = buscar_producto(linea.prod_id, empresa)
-    return render_template('producto.html', orden=orden, linea=linea, customer=orden.buyer, producto=producto_nuevo)
+    return render_template('producto.html', orden=orden, linea=linea, customer=orden.buyer, producto=producto_nuevo, empresa_name=session['current_empresa'])
 
 
 @bp.route('/orden/historia/<orden_id>', methods=['GET', 'POST'])
@@ -139,14 +141,14 @@ def gestionar_producto(orden_id):
 def historia_orden(orden_id):
     orden = Order_header.query.filter_by(id=orden_id).first()
     historia = Transaction_log.query.filter_by(order_id=orden_id).all()
-    return render_template('historia_orden.html', orden=orden, historia=historia, customer=orden.buyer)
+    return render_template('historia_orden.html', orden=orden, historia=historia, customer=orden.buyer, empresa_name=session['current_empresa'])
 
 
 @bp.route('/producto/historia/<linea_id>', methods=['GET', 'POST'])
 @login_required
 def historia_producto(linea_id):
     linea = Order_detail.query.get(str(linea_id))
-    return render_template('historia_producto.html', linea=linea)
+    return render_template('historia_producto.html', linea=linea, empresa_name=session['current_empresa'])
 
 
 @bp.route('/webhook', methods=['POST'])
@@ -364,7 +366,7 @@ def finalizar_orden(orden_id):
 def upload_pedidos():
     cargar_pedidos()
     ordenes =  Order_header.query.filter_by(store=current_user.store).all()
-    return render_template('ordenes.html', title='Ordenes', ordenes=ordenes)
+    return render_template('ordenes.html', title='Ordenes', ordenes=ordenes, empresa_name=session['current_empresa'])
 
 
 @bp.route('/cargar_empresa', methods=['GET', 'POST'])
@@ -424,5 +426,5 @@ def borrar_pedidos():
 #        db.session.delete(u)
     
     db.session.commit()
-    return render_template('ordenes.html', title='Ordenes')
+    return render_template('ordenes.html', title='Ordenes', empresa_name=session['current_empresa'])
     
