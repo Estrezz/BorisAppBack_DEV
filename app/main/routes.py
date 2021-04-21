@@ -226,7 +226,7 @@ def tracking_orden():
     if request.method == 'GET':
         orden_id = request.args.get('orden_id')
         orden = Order_header.query.filter_by(order_number=orden_id).first()
-        flash('Orden: {}'.format(orden.id))
+        # flash('Orden: {}'.format(orden.id))
         historia = Transaction_log.query.filter_by(order_id=orden.id).all()
         status_tmp = []
         for i in historia:

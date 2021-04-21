@@ -71,7 +71,7 @@ def crear_pedido(pedido):
 
     indice = 1
     for x in pedido['producto']: 
-        flash('monto {} tipo {}'.format(x['monto_a_devolver'], type(x['monto_a_devolver'])))
+        # flash('monto {} tipo {}'.format(x['monto_a_devolver'], type(x['monto_a_devolver'])))
         unProducto = Order_detail(
             order_line_number = str(pedido['orden']) + str(indice),
             line_number = indice,
@@ -91,7 +91,7 @@ def crear_pedido(pedido):
             gestionado = 'Iniciado',
             productos = unaOrden
             )
-        flash('Producto {} - monto: {}'.format(unProducto, unProducto.monto_a_devolver))
+        # flash('Producto {} - monto: {}'.format(unProducto, unProducto.monto_a_devolver))
         db.session.add(unProducto)
         indice += indice
     db.session.commit() 
