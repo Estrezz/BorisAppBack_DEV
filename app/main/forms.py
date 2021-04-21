@@ -40,6 +40,11 @@ class EditProfileCompanyForm(FlaskForm):
     store_main_language = StringField('Idioma Principal', render_kw={'readonly': True})
     store_main_currency = StringField('Moneda Principal', render_kw={'readonly': True})
     store_country = StringField('Pais de la Tienda', render_kw={'readonly': True})
+    store_name_bis = StringField('Nombre de la tienda - con lenguage automático', render_kw={'readonly': True})
+    store_url = StringField('Url con protocolo', render_kw={'readonly': True})
+    store_plan = StringField('Plan', render_kw={'readonly': True})
+    store_phone = StringField('Telefono', render_kw={'readonly': True})
+    store_address= StringField('Dirección', render_kw={'readonly': True})
 
     contact_name = StringField('Nombre del contacto')
     contact_phone = StringField('Telefono del contacto')
