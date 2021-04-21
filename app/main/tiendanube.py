@@ -133,7 +133,7 @@ def autorizar_tiendanube(codigo):
                 store_name = empresa['name']['es'],
                 store_name_bis = empresa['name'][empresa['main_language']],
                 store_url = empresa['url_with_protocol'],
-                store_plan = empresa["plan_name"],
+                store_plan = empresa['plan_name'],
                 store_phone = empresa['phone'],
                 store_address= empresa['address'], 
                 admin_email = empresa['email'],
