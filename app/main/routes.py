@@ -133,7 +133,7 @@ def gestionar_producto(orden_id):
     linea = Order_detail.query.get(str(linea_id))
     empresa = Company.query.get(orden.store)
     producto_nuevo = buscar_producto(linea.prod_id, empresa)
-    return render_template('producto.html', orden=orden, linea=linea, customer=orden.buyer, producto=producto_nuevo, empresa_name=session['current_empresa'])
+    return render_template('producto.html', orden=orden, linea=linea, customer=orden.buyer, producto=producto_nuevo, empresa=empresa,  empresa_name=session['current_empresa'])
 
 
 @bp.route('/orden/historia/<orden_id>', methods=['GET', 'POST'])
@@ -374,7 +374,10 @@ def cargar_empresa():
     unaEmpresa = Company(
         store_id = '1447373',
         platform = 'tiendaNube',
+        platform_token_type = 'bearer',
+        platform_access_token = 'cb9d4e17f8f0c7d3c0b0df4e30bcb2b036399e16',
         store_name = 'Demo Boris',
+        store_url = 'https://demoboris.mitiendanube.com',
         correo_test = True,
         correo_apikey = 'b23920003684e781d87e7e5b615335ad254bdebc',
         correo_id = 'b22bc380-439f-11eb-8002-a5572ae156e7',
@@ -382,6 +385,21 @@ def cargar_empresa():
         correo_id_test = 'b22bc380-439f-11eb-8002-a5572ae156e7'
     )
     db.session.add(unaEmpresa)
+
+    unaEmpresa2 = Company(
+        store_id = '1631829',
+        platform = 'tiendaNube',
+        platform_token_type = 'bearer',
+        platform_access_token = 'c9446f515b3f5d22c26017e9cb1befcd576462fa',
+        store_name = 'Demo de boca en boca',
+        store_url = 'https://demodebocaenboca.mitiendanube.com',
+        correo_test = True,
+        correo_apikey = 'b23920003684e781d87e7e5b615335ad254bdebc',
+        correo_id = 'b22bc380-439f-11eb-8002-a5572ae156e7',
+        correo_apikey_test = 'b23920003684e781d87e7e5b615335ad254bdebc',
+        correo_id_test = 'b22bc380-439f-11eb-8002-a5572ae156e7'
+    )
+    db.session.add(unaEmpresa2)
 
     otraEmpresa = Company(
         store_id = '1',
@@ -415,16 +433,17 @@ def borrar_pedidos():
         flash('Borrando Order_detail {} '.format(u))
         db.session.delete(u)
 
-#    users = User.query.all()
-#    for u in users:
-#        flash('Users {} '.format(u))
-#        db.session.delete(u)
+    #users = User.query.all()
+    #for u in users:
+    #    flash('Users {} '.format(u))
+    #    db.session.delete(u)
 
-#    cia = Company.query.all()
-#    for u in cia:
-#        flash('Company {} '.format(u))
-#        db.session.delete(u)
+    #cia = Company.query.all()
+    #for u in cia:
+    #    flash('Company {} {}'.format(u, u.store_id))
+    #    db.session.delete(u)
     
     db.session.commit()
-    return render_template('ordenes.html', title='Ordenes', empresa_name=session['current_empresa'])
+    return redirect(url_for('main.user', username=current_user.username))
+    
     
