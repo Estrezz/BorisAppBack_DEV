@@ -30,8 +30,10 @@
             {% else %}
                 No tiene <br>
             {% endif %}
-
-            Monto devuleto: {{ "${:,.2f}".format(linea.monto_devuelto) }}
+            
+            {% if linea.monto_devuelto != None %}
+                Monto devuelto: {{ "${:,.2f}".format(linea.monto_devuelto) }}   
+            {% endif %}
         {% endif %}
 
         restock del articulo: {{linea.restock}}<br>

@@ -101,7 +101,9 @@ def ver_ordenes(estado, subestado):
 def orden(orden_id):
     orden = Order_header.query.filter_by(id=orden_id).first()
     orden_linea = Order_detail.query.filter_by(order=orden_id).all()
-    return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer, empresa_name=session['current_empresa'])
+    ### cambio_link
+    empresa = Company.query.get(orden.store)
+    return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer, empresa=empresa, empresa_name=session['current_empresa'])
 
 
 @bp.route('/orden/gestion/<orden_id>', methods=['GET', 'POST'])
@@ -110,6 +112,8 @@ def gestionar_ordenes(orden_id):
     accion = request.args.get('accion_orden')
     orden = Order_header.query.filter_by(id=orden_id).first()
     orden_linea = Order_detail.query.filter_by(order=orden_id).all()
+    ### cambio_link
+    empresa = Company.query.get(orden.store)
     # flash ('Accion {} - orden {} CIA {}'.format(accion, orden.courier, current_user.empleado))
     if accion == 'toReady':
         toReady(orden, current_user.empleado)
@@ -122,7 +126,7 @@ def gestionar_ordenes(orden_id):
             else: 
                 if accion == 'toReject':
                     toReject(orden.id)
-    return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer, empresa_name=session['current_empresa'])
+    return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer, empresa=empresa, empresa_name=session['current_empresa'])
     
 
 @bp.route('/gestion_producto/<orden_id>', methods=['GET', 'POST'])
@@ -141,7 +145,9 @@ def gestionar_producto(orden_id):
 def historia_orden(orden_id):
     orden = Order_header.query.filter_by(id=orden_id).first()
     historia = Transaction_log.query.filter_by(order_id=orden_id).all()
-    return render_template('historia_orden.html', orden=orden, historia=historia, customer=orden.buyer, empresa_name=session['current_empresa'])
+    ### cambio_link
+    empresa = Company.query.get(orden.store)
+    return render_template('historia_orden.html', orden=orden, historia=historia, customer=orden.buyer, empresa=empresa, empresa_name=session['current_empresa'])
 
 
 @bp.route('/producto/historia/<linea_id>', methods=['GET', 'POST'])
@@ -364,56 +370,69 @@ def finalizar_orden(orden_id):
 @bp.route('/cargar_pedidos', methods=['GET', 'POST'])
 @login_required
 def upload_pedidos():
-    cargar_pedidos()
-    ordenes =  Order_header.query.filter_by(store=current_user.store).all()
+    #cargar_pedidos()
+    #ordenes =  Order_header.query.filter_by(store=current_user.store).all()
     return render_template('ordenes.html', title='Ordenes', ordenes=ordenes, empresa_name=session['current_empresa'])
 
 
 @bp.route('/cargar_empresa', methods=['GET', 'POST'])
 def cargar_empresa():
-    unaEmpresa = Company(
-        store_id = '1447373',
-        platform = 'tiendaNube',
-        platform_token_type = 'bearer',
-        platform_access_token = 'cb9d4e17f8f0c7d3c0b0df4e30bcb2b036399e16',
-        store_name = 'Demo Boris',
-        store_url = 'https://demoboris.mitiendanube.com',
-        correo_test = True,
-        correo_apikey = 'b23920003684e781d87e7e5b615335ad254bdebc',
-        correo_id = 'b22bc380-439f-11eb-8002-a5572ae156e7',
-        correo_apikey_test = 'b23920003684e781d87e7e5b615335ad254bdebc',
-        correo_id_test = 'b22bc380-439f-11eb-8002-a5572ae156e7'
-    )
-    db.session.add(unaEmpresa)
+    if Company.query.filter_by(store_id='1447373').first():
+        unaEmpresa = Company.query.filter_by(store_id='1447373').first()
+        #unaEmpresa.store_url = 'https://demoboris.mitiendanube.com'
+        flash('ya existe 1447373')
+    else: 
+        unaEmpresa = Company(
+            store_id = '1447373',
+            platform = 'tiendanube',
+            platform_token_type = 'bearer',
+            platform_access_token = 'cb9d4e17f8f0c7d3c0b0df4e30bcb2b036399e16',
+            store_name = 'Demo Boris',
+            store_url = 'https://demoboris.mitiendanube.com',
+            correo_test = True,
+            correo_apikey = 'b23920003684e781d87e7e5b615335ad254bdebc',
+            correo_id = 'b22bc380-439f-11eb-8002-a5572ae156e7',
+            correo_apikey_test = 'b23920003684e781d87e7e5b615335ad254bdebc',
+            correo_id_test = 'b22bc380-439f-11eb-8002-a5572ae156e7'
+        )
+        db.session.add(unaEmpresa)
+    if Company.query.filter_by(store_id='1631829').first():
+        unaEmpresa2 = Company.query.filter_by(store_id='1631829').first()
+        unaEmpresa2.platform = 'tiendanube'
+        flash('ya existe 1631829')
+    else: 
+        unaEmpresa2 = Company(
+            store_id = '1631829',
+            platform = 'tiendanube',
+            platform_token_type = 'bearer',
+            platform_access_token = 'c4c8afc07063098d7afa72bef6fdaf67ba7e22a3',
+            store_name = 'Demo de boca en boca',
+            store_url = 'https://demodebocaenboca.mitiendanube.com',
+            correo_test = True,
+            correo_apikey = 'b23920003684e781d87e7e5b615335ad254bdebc',
+            correo_id = 'b22bc380-439f-11eb-8002-a5572ae156e7',
+            correo_apikey_test = 'b23920003684e781d87e7e5b615335ad254bdebc',
+            correo_id_test = 'b22bc380-439f-11eb-8002-a5572ae156e7'
+        )
+        db.session.add(unaEmpresa2)
 
-    unaEmpresa2 = Company(
-        store_id = '1631829',
-        platform = 'tiendaNube',
-        platform_token_type = 'bearer',
-        platform_access_token = 'c9446f515b3f5d22c26017e9cb1befcd576462fa',
-        store_name = 'Demo de boca en boca',
-        store_url = 'https://demodebocaenboca.mitiendanube.com',
-        correo_test = True,
-        correo_apikey = 'b23920003684e781d87e7e5b615335ad254bdebc',
-        correo_id = 'b22bc380-439f-11eb-8002-a5572ae156e7',
-        correo_apikey_test = 'b23920003684e781d87e7e5b615335ad254bdebc',
-        correo_id_test = 'b22bc380-439f-11eb-8002-a5572ae156e7'
-    )
-    db.session.add(unaEmpresa2)
+    if Company.query.filter_by(store_id='1').first():
+        otraEmpresa = Company.query.filter_by(store_id='1').first()
+        flash('ya existe 1')
+    else: 
+        otraEmpresa = Company(
+            store_id = '1',
+            platform = 'None',
+            store_name = 'Boris'
+        )
+        db.session.add(otraEmpresa)
 
-    otraEmpresa = Company(
-        store_id = '1',
-        platform = 'None',
-        store_name = 'Boris'
-    )
-    db.session.add(otraEmpresa)
-
-    unUsuario = User(
-        username = 'Webhook',
-        email = 'webhook@borisreturns.com',
-        store = '1',
-    )
-    db.session.add(unUsuario)
+    #unUsuario = User(
+    #    username = 'Webhook',
+    #    email = 'webhook@borisreturns.com',
+    #    store = '1',
+    #)
+    #db.session.add(unUsuario)
 
     db.session.commit()
 

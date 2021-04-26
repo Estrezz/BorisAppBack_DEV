@@ -17,6 +17,9 @@
                 {% if orden.status_resumen == 'Solicitado' %}
                 <br><strong> Costo del Envío: {{orden.courier_precio}}</strong>
                 {% endif %}
+                {% set link_orden = empresa.store_url+'/admin/orders/'+orden.order_id_anterior|string %}
+                <br> <strong>Ver compra en la Tienda: </strong> 
+                <a href={{link_orden}} target="_blank" rel="noreferrer noopener"> Click Acá </a>
             </div>
         </div>
     </div>

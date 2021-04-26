@@ -9,6 +9,9 @@
             <br> <strong> Cliente </strong>{{customer.name}}  
             <br>         {{customer.email}}
             <div class="text-right"> {{orden.status}} - {{orden.sub_status}} </div>
+            {% set link_orden = empresa.store_url+'/admin/orders/'+orden.order_id_anterior|string %}
+            <br> <strong>Ver compra en la Tienda: </strong> 
+            <a href={{link_orden}} target="_blank" rel="noreferrer noopener"> Click Acá </a>
         </h4>
         
     </div>
