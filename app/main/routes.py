@@ -308,10 +308,11 @@ def cambiar():
             return redirect(url_for('main.orden', orden_id=orden_id))
 
     if  envio_nuevo == 'cupon': 
-        flash('Cupon x {} - {}'.format(request.form.get('monto'), unaEmpresa.platform ))
+        #flash('Cupon x {} - {}'.format(request.form.get('monto'), unaEmpresa.platform ))
         monto = request.form.get('monto')
-        credito = genera_credito(unaEmpresa, monto, unCliente, orden)
+        credito = genera_credito(unaEmpresa, monto, unCliente, orden, linea)
         envio_nuevo_metodo = 'Se genera cupon: '+credito+' por '+monto
+
         if credito == 'Failed':
             return redirect(url_for('main.orden', orden_id=orden_id))
         
@@ -326,7 +327,6 @@ def cambiar():
         linea.gestionado = traducir_estado('CAMBIADO')[1]
     finalizar_orden(orden_id)
     db.session.commit()
-    
     return redirect(url_for('main.orden', orden_id=orden_id))
 
     return 'Sucesss'

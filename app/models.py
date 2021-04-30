@@ -151,7 +151,7 @@ class Order_detail(db.Model):
     motivo = db.Column(db.String(50))
     monto_a_devolver = db.Column(db.Float)
     monto_devuelto = db.Column(db.Float)
-    nuevo_envio =  db.Column(db.String(15))
+    nuevo_envio =  db.Column(db.String(100))
     restock =  db.Column(db.String(30))
     precio = db.Column(db.Float)
     promo_descuento = db.Column(db.Float)

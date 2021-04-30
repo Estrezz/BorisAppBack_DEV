@@ -265,13 +265,13 @@ def toReject(orden_id):
                 sync=False)
 
 
-def genera_credito(empresa, monto, cliente, orden):
+def genera_credito(empresa, monto, cliente, orden, linea):
     importe = float(monto)
     codigo_tmp = genera_codigo(8)
     codigo = str(orden.order_number)+codigo_tmp+str(orden.id)
     if empresa.platform == 'tiendanube':
-       cupon = genera_credito_tiendanube(empresa, importe, codigo)
-       send_email('Hemos generado tu Cupón', 
+        cupon = genera_credito_tiendanube(empresa, importe, codigo)
+        send_email('Hemos generado tu Cupón', 
                 sender=empresa.communication_email,
                 recipients=[cliente.email], 
                 text_body=render_template('email/'+str(current_user.store)+'/cupon_generado.txt',
@@ -280,9 +280,18 @@ def genera_credito(empresa, monto, cliente, orden):
                                          customer=cliente, order=orden, cupon=cupon, monto=importe), 
                 attachments=None, 
                 sync=False)
-       return cupon
+        send_email('BORIS ha generado un Cupon', 
+                sender=empresa.communication_email,
+                recipients=[empresa.admin_email], 
+                text_body=render_template('email/'+str(current_user.store)+'/cupon_generado_empresa.txt',
+                                         customer=cliente, order=orden, cupon=cupon, monto=importe, linea=linea),
+                html_body=render_template('email/'+str(current_user.store)+'/cupon_generado_empresa.html',
+                                         customer=cliente, order=orden, cupon=cupon, monto=importe, linea=linea), 
+                attachments=None, 
+                sync=False)
+        return cupon
     else:
-         return "Failed"
+        return "Failed"
     
 
 def genera_codigo(size=6, chars=string.ascii_uppercase + string.digits):
