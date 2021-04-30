@@ -30,7 +30,6 @@
 
 <div class='container'>
 <form id="devolver_form" action="{{ url_for('main.devolver', prod_id=linea.prod_id, variant=linea.variant, orden_id=orden.id, cantidad=linea.accion_cantidad, accion=linea.accion, order_line=linea.order_line_number ) }}"method="POST"> 
-
     <!-- MUESTRA FORMULARIO PARA DEVOLUCION -->
     {% if linea['accion'] == 'devolver' %}
         <div class="panel panel-default">
@@ -166,14 +165,9 @@
             </h4>
         </div>
         <div class="panel-body">
-            <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-5">
                     Cambiar: {{linea.name}} <br>
-                    {% if linea.accion_cambiar_por_desc == 'Cupón' %}
-                        Por: {{linea.accion_cambiar_por_desc}} <br>
-                    {% else %}
-                        Por: {{producto['name']['es']}} - {{linea.accion_cambiar_por_desc}} <br>
-                    {% endif %}
+                    Por: {{producto['name']['es']}} - {{linea.accion_cambiar_por_desc}} <br>
                     {% for i in producto['variants'] %}
                         {% if i['id'] == linea.accion_cambiar_por %}
                             Stock actual: {{i['stock']}}
@@ -181,99 +175,17 @@
                     {% endfor %}
                    <br><br>
                 </div>
-                {% if linea.accion_cambiar_por_desc == 'Cupón' %}
-                    {% set texto_boton = 'Generar Cupón' %}
-                    <div class="col-md-4" >
-                        <input type="hidden" name="metodo_envio" value="cupon">
-                
-                        <table class="table table-striped">
-                        <caption>
-                            <b>
-                                Método de Pago: {{orden.payment_method}}
-                                {% if orden.payment_card != None %}
-                                - Tarjeta: {{orden.payment_card}} <br>
-                                {% endif %}
-                            </b>
-                        </caption>
-                        <tr>
-                            <td> Precio articulo</td>
-                            <td> {{linea.precio}} </td>
-                        </tr>
-                        </table>
-                        
-                        <table class="table table-striped"> 
-                            <caption>
-                                <b>
-                                    Descuentos Orden
-                                </b>
-                            </caption>
-                            {% if linea.promo_descuento != 0 %} 
-                                    <tr>
-                                    <td> Descuento Promo: </td>
-                                    <td> - {{linea.promo_descuento}} ({{linea.promo_nombre}}) </td>
-                                    </tr>
-                                    <tr>
-                                    <td>Precio final</td>
-                                    <td>{{linea.promo_precio_final}}</td>
-                                    </tr>
-                            {% endif %}
-                            {% if orden.gastos_cupon != 0 %}
-                                    <tr>
-                                        <td>Cupon</td> 
-                                        <td> - {{orden.gastos_cupon}}</td>
-                                    </tr>
-                            {% endif %}
-                            {% if orden.gastos_gateway != 0 %} 
-                                    <tr>
-                                        <td>Desc. forma de pago</td>
-                                        <td> - {{orden.gastos_gateway}}</td>
-                                    </tr>
-                            {% endif %}
-                            {% if orden.gastos_shipping_owner != 0 %} 
-                                    <tr>
-                                        <td>Costo envío vendedor</td>
-                                        <td> - {{orden.gastos_shipping_owner}}</td>
-                                    </tr> 
-                            {% endif %}
-                            {% if orden.gastos_shipping_customer != 0 %} 
-                                    <tr>
-                                        <td>Costo envío vendedor</td>
-                                        <td>{{orden.gastos_shipping_customer}}</td>> 
-                                    </tr>
-                            {% endif %}
-                            {% if orden.gastos_promocion != 0 %} 
-                                    <tr>
-                                        <td>Dec. Promo</td>
-                                        <td> - {{orden.gastos_promocion}}</td>
-                                    </tr>
-                            {% endif %}    
-                        </table>
+                <div class="col-md-5">
+                    <b>Cómo enviarás el producto?</b>
+                    <div class="radio">
+                        <label><input type="radio" name="metodo_envio" value="tiendanube" checked>Crear nueva orden en la tienda</label>
                     </div>
-                    <div class="col-md-4">
-                        <div style="text-align: center;">
-                            <h4>Importe del Cupón $
-                            <input type="text" style="color:green;" size="8" id="monto" name="monto" value="{{linea.precio}}">
-                            </h4>
-                        </div>
+                    <div class="radio">
+                        <label><input type="radio" name="metodo_envio" value="manual">Envío del producto manual</label>
                     </div>
-
-                {% else %}
-                    <div class="col-md-5">
-                        <b>Cómo enviarás el producto?</b>
-                        {% set texto_boton = 'Enviar nuevo producto' %}
-                        <div class="radio">
-                            <label><input type="radio" name="metodo_envio" value="tiendanube" checked>Crear nueva orden en la tienda</label>
-                        </div>
-                        <div class="radio">
-                            <label><input type="radio" name="metodo_envio" value="manual">Envío del producto manual</label>
-                        </div>
-                    </div>
-                {% endif %}
-                
-            </div>
-            <div class="row">
-                <div class="col-md-2" >
-                    <button  class="btn btn-primary" type="submit"> {{texto_boton}} </button></a>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-primary" type="submit"> Enviar nuevo producto </button></a>
                 </div>
             </div>
         </form>

@@ -7,7 +7,7 @@ from app.email import send_email
 from app.main.forms import EditProfileForm, EditProfileCompanyForm
 from app.main.tiendanube import devolver_stock_tiendanube, generar_envio_tiendanube, autorizar_tiendanube
 from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log
-from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto
+from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto, genera_credito
 import json
 from app.main import bp
 
@@ -291,7 +291,6 @@ def devolver():
 def cambiar():
     orden_id = request.args.get('orden_id')
     order_line_number = request.args.get('order_line')
-
     orden = Order_header.query.filter_by(id=orden_id).first()
     linea = Order_detail.query.get(str(order_line_number))
     unCliente = orden.buyer
@@ -299,14 +298,26 @@ def cambiar():
 
     envio_nuevo = request.form.get('metodo_envio')
 
+    if  envio_nuevo == 'manual': 
+        envio_nuevo_metodo = 'Se envía manualmente'
+
     if envio_nuevo == 'tiendanube':
         generacion_envio = generar_envio_tiendanube(orden, linea, unCliente, unaEmpresa)
+        envio_nuevo_metodo = 'Se envía mediante orden en Tiendanube'
         if generacion_envio == 'Failed':
             return redirect(url_for('main.orden', orden_id=orden_id))
-    
+
+    if  envio_nuevo == 'cupon': 
+        flash('Cupon x {} - {}'.format(request.form.get('monto'), unaEmpresa.platform ))
+        monto = request.form.get('monto')
+        credito = genera_credito(unaEmpresa, monto, unCliente, orden)
+        envio_nuevo_metodo = 'Se genera cupon: '+credito+' por '+monto
+        if credito == 'Failed':
+            return redirect(url_for('main.orden', orden_id=orden_id))
+        
 
     linea = Order_detail.query.get(str(order_line_number))
-    linea.nuevo_envio = envio_nuevo
+    linea.nuevo_envio = envio_nuevo_metodo
     linea.fecha_gestionado = datetime.utcnow()
     loguear_transaccion('CAMBIADO', str(linea.name)+' '+envio_nuevo, orden_id, current_user.id, current_user.username)
     if linea.gestionado == 'Devuelto':
@@ -370,8 +381,8 @@ def finalizar_orden(orden_id):
 @bp.route('/cargar_pedidos', methods=['GET', 'POST'])
 @login_required
 def upload_pedidos():
-    #cargar_pedidos()
-    #ordenes =  Order_header.query.filter_by(store=current_user.store).all()
+    cargar_pedidos()
+    ordenes =  Order_header.query.filter_by(store=current_user.store).all()
     return render_template('ordenes.html', title='Ordenes', ordenes=ordenes, empresa_name=session['current_empresa'])
 
 

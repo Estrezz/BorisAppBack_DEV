@@ -1,0 +1,6 @@
+Hola {{ customer.name }}!
+
+Hemos generado un cupón por {{ "${:,.2f}".format(monto) }} para que compres lo que quieras <br>
+                       El codigo es el siguiente: {{cupon}} 
+        
+    

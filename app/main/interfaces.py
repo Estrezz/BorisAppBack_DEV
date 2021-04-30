@@ -1,15 +1,16 @@
 import requests
 import json
+import string
+import random
 from app import db
 from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log
 from app.main.moova import toready_moova
-from app.main.tiendanube import buscar_producto_tiendanube
+from app.main.tiendanube import buscar_producto_tiendanube,  genera_credito_tiendanube
 from app.email import send_email
 from flask import session, flash, current_app,render_template
 from flask_login import current_user
 from datetime import datetime
 import os
-
 
 def cargar_pedidos():
     Pedidos = []
@@ -137,13 +138,11 @@ def resumen_ordenes(store_id):
     return resumen
 
 def buscar_producto(prod_id, empresa):
-    #flash('plataforma {}'.format(empresa.platform))
     if empresa.platform == 'tiendanube':
         producto = buscar_producto_tiendanube(prod_id, empresa)
     else:
         return 'no existe'
     return producto
-
 
 
 def traducir_estado(estado):
@@ -266,5 +265,27 @@ def toReject(orden_id):
                 sync=False)
 
 
+def genera_credito(empresa, monto, cliente, orden):
+    importe = float(monto)
+    codigo_tmp = genera_codigo(8)
+    codigo = str(orden.order_number)+codigo_tmp+str(orden.id)
+    if empresa.platform == 'tiendanube':
+       cupon = genera_credito_tiendanube(empresa, importe, codigo)
+       send_email('Hemos generado tu Cupón', 
+                sender=empresa.communication_email,
+                recipients=[cliente.email], 
+                text_body=render_template('email/'+str(current_user.store)+'/cupon_generado.txt',
+                                         customer=cliente, order=orden, cupon=cupon, monto=importe),
+                html_body=render_template('email/'+str(current_user.store)+'/cupon_generado.html',
+                                         customer=cliente, order=orden, cupon=cupon, monto=importe), 
+                attachments=None, 
+                sync=False)
+       return cupon
+    else:
+         return "Failed"
+    
+
+def genera_codigo(size=6, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
 
 

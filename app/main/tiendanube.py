@@ -202,4 +202,23 @@ def inicializa_tiendanube(empresa) :
         for file_name in file_names:
             shutil.move(os.path.join(source_dir, file_name), target_dir)
     return 'Success'
-        
+
+
+def genera_credito_tiendanube(empresa, monto, codigo):
+    url = "https://api.tiendanube.com/v1/"+str(empresa.store_id)+"/coupons"
+    payload={}
+    headers = {
+        'Content-Type': 'application/json',
+        'Authentication': empresa.platform_token_type+' '+empresa.platform_access_token
+    }
+    cupon_tmp = { 
+        "code": codigo,
+        "type": "absolute",
+        "value": monto,
+        "max_uses": 1
+    }
+    cupon = requests.request("POST", url, headers=headers, data=json.dumps(cupon_tmp))
+    if cupon.status_code != 201:
+        flash('Hubo un problema en la generación del cupón. Error {}'.format(cupon.status_code))  
+        return 'Failed'
+    return codigo
