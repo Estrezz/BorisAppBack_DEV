@@ -283,9 +283,9 @@ def genera_credito(empresa, monto, cliente, orden, linea):
         send_email('BORIS ha generado un Cupon', 
                 sender=empresa.communication_email,
                 recipients=[empresa.admin_email], 
-                text_body=render_template('email/'+str(current_user.store)+'/cupon_generado_empresa.txt',
+                text_body=render_template('email/'+str(current_user.store)+'/cupon_empresa.txt',
                                          customer=cliente, order=orden, cupon=cupon, monto=importe, linea=linea),
-                html_body=render_template('email/'+str(current_user.store)+'/cupon_generado_empresa.html',
+                html_body=render_template('email/'+str(current_user.store)+'/cupon_empresa.html',
                                          customer=cliente, order=orden, cupon=cupon, monto=importe, linea=linea), 
                 attachments=None, 
                 sync=False)
