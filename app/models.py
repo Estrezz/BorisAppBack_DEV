@@ -33,6 +33,7 @@ class Company(db.Model):
     correo_apikey = db.Column(db.String(50))
     correo_id = db.Column(db.String(50))
     correo_test = db.Column(db.Boolean)
+    stock_vuelve_config = db.Column(db.Boolean)
     correo_apikey_test = db.Column(db.String(50))
     correo_id_test = db.Column(db.String(50))
     shipping_address = db.Column(db.String(64))

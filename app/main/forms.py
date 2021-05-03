@@ -50,6 +50,8 @@ class EditProfileCompanyForm(FlaskForm):
     admin_email = StringField('Email de Administración')
     communication_email = StringField('Email para las comuniaciones')
     
+    stock_vuelve_config = BooleanField('Al devolver el stock se ingresa físicamente:')
+
     correo_usado = StringField('Empresa de correo utilizada')
     correo_apikey = StringField('API KEY de la empresa de correo')
     correo_id = StringField('ID de cliente para la empresa de correo')

@@ -29,7 +29,7 @@ def index():
 
 
 @bp.route('/mantenimiento', methods=['GET', 'POST'])
-@login_required
+
 def mantenimiento():
     return render_template('mantenimiento.html', title='Home',  empresa_name=session['current_empresa'])
 
@@ -255,6 +255,8 @@ def devolver():
     order_line_number = request.args.get('order_line')
     accion = request.args.get('accion')
     accion_stock = request.form['stockradio']
+    linea = Order_detail.query.get(str(order_line_number))
+    orden = Order_header.query.get(orden_id)
 
     if request.form.get('monto') != None :
         monto_devuelto = request.form.get('monto')
@@ -263,12 +265,25 @@ def devolver():
     
     if accion_stock != 'no_vuelve':
         empresa = Company.query.get(current_user.store)
-        if empresa.platform == 'tiendanube':
-            devolucion = devolver_stock_tiendanube(empresa, prod_id, variant, cantidad)
-            if devolucion == 'Failed':
-                return redirect(url_for('main.orden', orden_id=orden_id))
-    
-    linea = Order_detail.query.get(str(order_line_number))
+        if empresa.stock_vuelve_config == True:
+            if empresa.platform == 'tiendanube':
+                devolucion = devolver_stock_tiendanube(empresa, prod_id, variant, cantidad)
+                if devolucion == 'Failed':
+                    return redirect(url_for('main.orden', orden_id=orden_id))
+        else: 
+            ## Si la configuracion de stock_vuelve_config es False (el stock no se devuelve fisicamente)
+            ## Envía mail al administrador de la empresa avisando para que lo devuelva por sistema
+            send_email('Se ha devuelto un artículo en BORIS ', 
+                sender=empresa.communication_email,
+                recipients=[empresa.admin_email], 
+                text_body=render_template('email/'+str(current_user.store)+'/articulo_devuelto.txt',
+                                         order=orden, linea=linea),
+                html_body=render_template('email/'+str(current_user.store)+'/articulo_devuelto.html',
+                                         order=orden, linea=linea), 
+                attachments=None, 
+                sync=False)
+        
+    # linea = Order_detail.query.get(str(order_line_number))
     linea.monto_devuelto = monto_devuelto
     linea.restock = accion_stock
     linea.fecha_gestionado = datetime.utcnow()
@@ -443,7 +458,7 @@ def cargar_empresa():
     #    email = 'webhook@borisreturns.com',
     #    store = '1',
     #)
-    #db.session.add(unUsuario)
+    db.session.add(unUsuario)
 
     db.session.commit()
 
