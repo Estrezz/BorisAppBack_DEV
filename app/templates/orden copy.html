@@ -3,12 +3,12 @@
 {% block app_content %}
     <div class='jumbotron'>
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-5">
                 <strong style="font-size: 2em;"> Orden #{{orden.order_number}} </strong> <br>
                 <strong> Cliente </strong>{{customer.name}}  <br>
                                           {{customer.email}} <br>
             </div>
-            <div class="col-md-5">
+            <div class="col-md-7">
                 <strong style="font-size: 2em;">  </strong> <br>
                 <strong>Estado:</strong> {{orden.status_resumen}} <br>
                 <strong>Fecha de creación:</strong> {{ moment(orden.date_creation).format("DD/MM/YYYY")}} <br>
@@ -21,21 +21,6 @@
                 <br> <strong>Ver compra en la Tienda: </strong> 
                 <a href={{link_orden}} target="_blank" rel="noreferrer noopener"> Click Acá </a>
             </div>
-            {% if orden.courier_method == 'Coordinar' %}
-                <div class="col-md-3">
-                    <strong style="font-size: 2em;">  </strong> <br>
-                    <strong>Datos del envío coordinado:</strong> <br>
-                    <strong>Correo:</strong> {{orden.courier_coordinar_empresa}} <br>
-                    <strong>Guia:</strong> {{orden.courier_coordinar_guia}} <br>
-                    <strong>Recogida + entrega:</strong> 
-                        {% if orden.courier_coordinar_roundtrip == True %}
-                            Si
-                        {% else %}
-                            No
-                        {% endif %}
-                        <br>
-                </div>
-            {% endif %}
         </div>
     </div>
     <div class='container'>
@@ -46,7 +31,6 @@
                 <th>Código Producto</th>
                 <th>Accion</th>
                 <th>Cantidad</th>
-                <th>Cambio X</th>
                 <th>Motivo</th>
                 <th>Gestion</th>
                 <th></th>
@@ -58,14 +42,13 @@
                 <td>{{i['prod_id']}}</td> 
                 <td>{{i['accion']}}</td>
                 <td>{{i['accion_cantidad']}}</td>
-                <td>{{i['accion_cambiar_por_desc']}}</td>
                 <td>{{i['motivo']}}</td>
                 <td>{{i['gestionado']}}</td>
                 
 
                 {% if (orden.status == 'En Proceso' and orden.sub_status != 'Rechazado' and i['gestionado'] != 'Si') %}
                     <td><a href="{{ url_for('main.gestionar_producto', orden_id=orden.id, linea_id=i['order_line_number'] ) }}">
-                    <button class="btn btn-primary"> Accion </button></td>
+                        <button class="btn btn-primary"> Accion </button></td>
                 {% endif %}
                 {% if i['gestionado'] == 'Si' %}
                         <td><i class="fa fa-check-square-o" aria-hidden="true"></i></td>
@@ -80,24 +63,8 @@
         <br><br>
         {% if orden.status == 'Shipping' %}
             {% if orden.sub_status == 'Solicitado' %}
-                {% if orden.courier_method == 'Coordinar' %}
-                <form id="coordinar_form" action="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReady' ) }}" method="POST"> 
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-                            <label for="coordinar_empresa">Correo:</label>
-                            <input type="text" id="coordinar_empresa" name="coordinar_empresa" value=""> <br>
-                            <label for="coordinar_guia">Guia &nbsp;&nbsp;:</label>
-                            <input type="text" id="coordinar_guia" name="coordinar_guia" value=""> <br>
-                            <label for="coordinar_Roundtrip">Recogida + Entrega?:</label>
-                            <input type="checkbox" id="coordinar_roundtrip" name="coordinar_roundtrip" value="True"><br>
-                        </div>
-                    </div>
-                    <br> <button type="submit" class="btn btn-primary" title='Pasa el pedido a LISTO PARA RETIRO' > Coordinado </button>
-                </form>
-                {% else %}
                 <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReady' ) }}">
                     <button class="btn btn-primary" title='Pasa el pedido a LISTO PARA RETIRO' > Confirmar </button></a> 
-                {% endif %}
             {% endif %}
             {% if orden.sub_status == 'Listo para retiro' %}
             <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReceived' ) }}">

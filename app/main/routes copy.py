@@ -112,17 +112,10 @@ def gestionar_ordenes(orden_id):
     accion = request.args.get('accion_orden')
     orden = Order_header.query.filter_by(id=orden_id).first()
     orden_linea = Order_detail.query.filter_by(order=orden_id).all()
+    ### cambio_link
     empresa = Company.query.get(orden.store)
     # flash ('Accion {} - orden {} CIA {}'.format(accion, orden.courier, current_user.empleado))
     if accion == 'toReady':
-        if request.form['coordinar_empresa']:
-            orden.courier_coordinar_empresa = request.form['coordinar_empresa']
-            orden.courier_coordinar_guia = request.form['coordinar_guia']
-            if request.form.get('coordinar_roundtrip') == "True":
-                orden.courier_coordinar_roundtrip = True
-            else:
-                orden.courier_coordinar_roundtrip = False
-            db.session.commit()
         toReady(orden, current_user.empleado)
     else: 
         if accion == 'toReceived':
