@@ -115,9 +115,10 @@ def gestionar_ordenes(orden_id):
     empresa = Company.query.get(orden.store)
     # flash ('Accion {} - orden {} CIA {}'.format(accion, orden.courier, current_user.empleado))
     if accion == 'toReady':
-        if request.form['coordinar_empresa']:
+        # if request.form['coordinar_empresa']:
+        if request.form.get('coordinar_empresa'):
             orden.courier_coordinar_empresa = request.form['coordinar_empresa']
-            orden.courier_coordinar_guia = request.form['coordinar_guia']
+            orden.courier_coordinar_guia = request.form.get('coordinar_guia')
             if request.form.get('coordinar_roundtrip') == "True":
                 orden.courier_coordinar_roundtrip = True
             else:
