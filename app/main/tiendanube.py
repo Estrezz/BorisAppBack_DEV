@@ -39,7 +39,7 @@ def devolver_stock_tiendanube(empresa, prod_id, variant, cantidad):
     order = requests.request("PUT", url, headers=headers, data=json.dumps(stock))
 
     if order.status_code != 200:
-        flash('Hubo un problema en la devolución No se pudo devolver el stock. Error {}'.format(solicitud.status_code))
+        flash('Hubo un problema en la devolución No se pudo devolver el stock. Error {}'.format(order.status_code))
         return 'Failed'
     return 'Success'
 

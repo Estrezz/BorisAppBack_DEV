@@ -458,7 +458,7 @@ def cargar_empresa():
     #    email = 'webhook@borisreturns.com',
     #    store = '1',
     #)
-    db.session.add(unUsuario)
+    # db.session.add(unUsuario)
 
     db.session.commit()
 
