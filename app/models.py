@@ -116,7 +116,7 @@ class Order_header(db.Model):
     customer_number = db.Column(db.String(10))
     customer_floor = db.Column(db.String(10))
     customer_zipcode = db.Column(db.String(8))
-    customer_locality = db.Column(db.String(64))
+    customer_locality = db.Column(db.String(150))
     customer_city = db.Column(db.String(64))
     customer_province = db.Column(db.String(64))
     customer_country = db.Column(db.String(64))

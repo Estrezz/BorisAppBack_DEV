@@ -78,7 +78,11 @@ def edit_profile_company():
 @bp.route('/search')  
 def search():
     query =  request.args.get('search') 
-    req_search = Order_header.query.filter_by(order_number=query).first()
+    if Order_header.query.filter_by(order_number=query).first():
+        req_search = Order_header.query.filter_by(order_number=query).first()
+    else:
+        flash('No se encontró ese nro de Orden')
+        return redirect(url_for('main.ver_ordenes', estado='all', subestado='all'))
     return redirect(url_for('main.orden', orden_id=req_search.id))
 
 
