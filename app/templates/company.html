@@ -2,30 +2,49 @@
 
 {% block app_content %}
     <div class='container'>
-        <h1> Datos de la Empresa</h1>
-        <div class="row">
-            <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
-                <strong> {{ empresa.store_name }} </strong> <br>
-                Plataforma: {{empresa.platform}} <br>
-                Token type: {{empresa.platform_token_type}}<br>
-                Access Token: {{empresa.platform_access_token}}<br>
-                Store_id: {{empresa.store_id}}<br>
-                Idioma: {{empresa.store_main_language}}<br>
-                Pais: {{empresa.store_country}}<br>
-                Moneda: {{empresa.store_main_currency}}
-                <br>
+        <h1>Configurar Perfil</h1>
+        <h3><strong> {{ empresa.store_name }} </strong> <br></h3>
+
+    <div class="panel-group">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title pull-left">
+              <a data-toggle="collapse" href="#collapse1">Datos de la Empresa</a>
+            </h4>
+            <div class="panel-title pull-right">
+              <a href="{{ url_for('main.edit_profile_company', formulario='Datos de la empresa') }}">Editar</a>
+            </div>
+            <div class="clearfix"></div>   
+          </div>
+          <div id="collapse1" class="panel-collapse collapse">
+            <div class="panel-body">
                 <strong>Contacto</strong><br>
                  Nombre: {{ empresa.contact_name }}<br>
                  Teléfono: {{ empresa.contact_phone }}<br>
                  Mail: {{ empresa.contact_email }}<br>
                  Mail Administración: {{ empresa.admin_email}} <br>
-                 Mail Comunicaciones: {{empresa.communication_email}} <br>
-                <br>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title pull-left">
+                <a data-toggle="collapse" href="#collapse2">Correo</a>
+              </h4>
+              <div class="panel-title pull-right">
+                <a href="{{ url_for('main.edit_profile_company', formulario='Correo') }}">Editar</a>
+              </div>
+              <div class="clearfix"></div>   
+            </div>
+            <div id="collapse2" class="panel-collapse collapse">
+              <div class="panel-body">
                 <strong>Empresa de correo</strong><br>
                 Correo Usado: {{ empresa.correo_usado }}<br>
                 APIKEY {{ empresa.correo_apikey }}<br>
                 ID {{ empresa.correo_id }}<br>
-                    Entorno de Test <br>
+                <br>
+                    <strong>Entorno de Test <br></strong>
                     Test correo {{empresa.correo_test}}<br>
                     APIKEY_TEST {{ empresa.correo_apikey_test }}<br>
                     ID_TEST {{ empresa.correo_id_test }}<br>
@@ -37,17 +56,66 @@
                 {{ empresa.shipping_country }} <br>
                 Informacion para envíos :<br>
                 {{ empresa.shipping_info }} <br>
-                <br>
-                <strong> Configuracion</strong><br>
+              </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title pull-left">
+                <a data-toggle="collapse" href="#collapse3">Parametros</a>
+              </h4>
+              <div class="panel-title pull-right">
+                <a href="{{ url_for('main.edit_profile_company', formulario='Parametros') }}">Editar</a>
+              </div>
+              <div class="clearfix"></div>  
+            </div>
+            <div id="collapse3" class="panel-collapse collapse">
+              <div class="panel-body">
+                Plataforma: {{empresa.platform}} <br>
+                Token type: {{empresa.platform_token_type}}<br>
+                Access Token: {{empresa.platform_access_token}}<br>
+                Store_id: {{empresa.store_id}}<br>
+                Idioma: {{empresa.store_main_language}}<br>
+                Pais: {{empresa.store_country}}<br>
+                Moneda: {{empresa.store_main_currency}}<br>
                 Logo: {{ empresa.param_logo }} <br>
                 Fondo: {{ empresa.param_fondo }} <br>
-                Config {{ empresa.param_config }} <br>
-                <br>
-                <a href="{{ url_for('main.edit_profile_company') }}">
-                        <button class="btn btn-default">Cambiar datos</button>
-                </a>
-            </div>  
-                  
+                Archivo Config: {{ empresa.param_config }} <br>
+              </div>
+            </div>
         </div>
-    </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title pull-left">
+                <a data-toggle="collapse" href="#collapse4">Mails</a>
+              </h4>
+              <div class="panel-title pull-right">
+                <a href="{{ url_for('main.edit_profile_company', formulario='Mails') }}">Editar</a>
+              </div>
+              <div class="clearfix"></div>  
+            </div>
+            <div id="collapse4" class="panel-collapse collapse">
+              <div class="panel-body">
+                <strong>Mail para Comunicaciones:</strong> {{empresa.communication_email}} <br>
+                <br>
+                <strong>Mail CONFIRMACION:<br></strong>
+                Nota para Envios Manuales: {{empresa.envio_manual_note}}<br>
+                Nota para Envios A coordinar: {{empresa.envio_coordinar_note}}<br>
+                Nota para Envios x Correo: {{empresa.envio_correo_note}}<br>
+                <br>
+                <strong>Mail APROBACION:<br></strong>
+                Nota para solicitudes recibidas y aprobadas: {{empresa.aprobado_note}}<br>
+                <br>
+              <strong>Mail FINALIZACION:<br></strong>
+                    Nota para el final del procesamiento: {{empresa.finalizado_note}}<br>  
+              </div>
+            </div>
+        </div>
+
+      </div>
+               
+               
+            
 {% endblock %}

@@ -44,6 +44,11 @@ class Company(db.Model):
     shipping_province = db.Column(db.String(64))
     shipping_country = db.Column(db.String(64))
     shipping_info = db.Column(db.String(120))
+    aprobado_note = db.Column(db.String(250))
+    envio_manual_note = db.Column(db.String(250))
+    envio_coordinar_note = db.Column(db.String(250))
+    envio_correo_note = db.Column(db.String(250))
+    finalizado_note = db.Column(db.String(250))
     users = db.relationship('User', backref='empleado', lazy='dynamic')
     orders = db.relationship('Order_header', backref='pertenece', lazy='dynamic')
 

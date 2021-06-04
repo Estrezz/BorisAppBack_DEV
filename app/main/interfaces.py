@@ -181,9 +181,9 @@ def toReady(orden, company):
                 sender=company.communication_email,
                 recipients=[customer.email], 
                 text_body=render_template('email/'+str(current_user.store)+'/pedido_confirmado.txt',
-                                         customer=customer, order=orden, envio=orden.courier_method),
+                                         company=company, customer=customer, order=orden, envio=orden.courier_method),
                 html_body=render_template('email/'+str(current_user.store)+'/pedido_confirmado.html',
-                                         customer=customer, order=orden, envio=orden.courier_method), 
+                                         company=company, customer=customer, order=orden, envio=orden.courier_method), 
                 attachments=None, 
                 sync=False)
         return "Success"
@@ -229,9 +229,9 @@ def toApproved(orden_id):
                 sender=company.communication_email,
                 recipients=[customer.email], 
                 text_body=render_template('email/'+str(current_user.store)+'/pedido_aprobado.txt',
-                                         customer=customer, order=orden, envio=orden.courier_method),
+                                         company=company, customer=customer, order=orden, envio=orden.courier_method),
                 html_body=render_template('email/'+str(current_user.store)+'/pedido_aprobado.html',
-                                         customer=customer, order=orden, envio=orden.courier_method), 
+                                         company=company, customer=customer, order=orden, envio=orden.courier_method), 
                 attachments=None, 
                 sync=False)
 

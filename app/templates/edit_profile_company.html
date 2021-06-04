@@ -2,10 +2,24 @@
 {% import 'bootstrap/wtf.html' as wtf %}
 
 {% block app_content %}
-    <h1>Datos de la Empresa</h1>
-    <div class="row">
-        <div class="col-md-4">
-            {{ wtf.quick_form(form) }}
+    <h1>Configurar Perfil</h1>
+
+    <div class="panel-group">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              {{titulo}}
+            </h4>
+          </div>
+          
+            <div class="panel-body">
+                {{ wtf.quick_form(form) }}
+            </div>
+          
         </div>
-    </div>
+
+        
+
+      </div>
+      
 {% endblock %}

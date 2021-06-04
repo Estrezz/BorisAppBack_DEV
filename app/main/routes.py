@@ -4,7 +4,7 @@ from flask import render_template, flash, redirect, url_for, request, current_ap
 from flask_login import current_user, login_required
 from app import db
 from app.email import send_email
-from app.main.forms import EditProfileForm, EditProfileCompanyForm
+from app.main.forms import EditProfileForm, EditProfileCompanyForm, EditMailsCompanyForm, EditCorreoCompanyForm, EditParamsCompanyForm
 from app.main.tiendanube import devolver_stock_tiendanube, generar_envio_tiendanube, autorizar_tiendanube
 from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log
 from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto, genera_credito
@@ -65,15 +65,25 @@ def company(empresa_id):
 @login_required
 def edit_profile_company():
     empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
-    form = EditProfileCompanyForm(obj=empresa)
+    query =  request.args.get('formulario')
+    
+    if query == "Datos de la empresa":
+        form = EditProfileCompanyForm(obj=empresa)
+    if query == "Correo":
+        form = EditCorreoCompanyForm(obj=empresa)
+    if query == "Parametros":
+        form = EditParamsCompanyForm(obj=empresa)
+    if query == "Mails":
+        form = EditMailsCompanyForm(obj=empresa)
 
     if form.validate_on_submit():
         form.populate_obj(empresa)
         db.session.commit() 
         return redirect(url_for('main.company', empresa_id=empresa.store_id))
-    return render_template('edit_profile_company.html', title='Editar perfil',
-                           form=form, empresa_name=session['current_empresa'])
 
+    return render_template('edit_profile_company.html', title='Editar perfil',
+                           form=form, titulo=query, empresa_name=session['current_empresa'])
+    
 
 @bp.route('/search')  
 def search():
@@ -393,9 +403,9 @@ def finalizar_orden(orden_id):
             sender=company.communication_email, 
             recipients=[customer.email], 
             text_body=render_template('email/'+str(current_user.store)+'/pedido_finalizado.txt',
-                                    customer=customer, order=orden, linea=orden_linea),
+                                    company=company, customer=customer, order=orden, linea=orden_linea),
             html_body=render_template('email/'+str(current_user.store)+'/pedido_finalizado.html',
-                                    customer=customer, order=orden, linea=orden_linea), 
+                                    company=company, customer=customer, order=orden, linea=orden_linea), 
             attachments=None, 
             sync=False)
     return 'Success'
