@@ -1,0 +1,24 @@
+<div class='container-fluid'>
+    <img  class="center-block img-responsive" src='{{company.param_logo}}'> 
+</div>
+
+<h3 style="text-align:left"> 
+   <br> Hola {{ customer.name }}! 
+</h3>
+    <p>
+        Hemos recibimos tus productos correctamente y estamos procediendo al procesamiento tu solicitud <br>
+        {{company.aprobado_note | safe}}
+    </p>
+
+    <hr>
+<h3><strong> Como seguimos ? </strong></h3>
+    <p>En breve recibiras un email confirmando el fin del mismo</p>
+
+
+<h5 style="text-align:left"> 
+    <br><br>
+    Podes hacer el seguimiento de tu orden acá: <br>
+    <a href="http://frontprod.borisreturns.com/tracking/{{order.order_number}}">
+    http://frontprod.borisreturns.com/tracking/{{order.order_number}}
+    </a>
+</h5>

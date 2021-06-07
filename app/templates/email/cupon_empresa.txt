@@ -1,0 +1,8 @@
+BORIS generó un Cupón
+    
+    Se generado el cupon {{cupon}} por {{ "${:,.2f}".format(monto) }} para:
+        Cliente: {{ customer.name }}
+        Orden: {{order.order_number}}
+        Articulo: {{linea.name}}
+        
+    

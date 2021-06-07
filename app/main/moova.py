@@ -44,7 +44,7 @@ def toready_moova(orden,company,customer):
             #sender=current_app.config['ADMINS'][0], 
             sender=company.communication_email,
             recipients=[customer.email], 
-            text_body=render_template('email/'+str(current_user.store)+'/pedido_confirmado.txt',
+            text_body=render_template('email/pedido_confirmado.txt',
                                         company=company, customer=customer, order=orden, envio=orden.courier_method, label=label),
                                         html_body=render_template('email/'+str(current_user.store)+'/pedido_confirmado.html',
                                         company=company, customer=customer, order=orden, envio=orden.courier_method, label=label), 

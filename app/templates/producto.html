@@ -172,7 +172,7 @@
                     {% if linea.accion_cambiar_por_desc == 'Cupón' %}
                         Por: {{linea.accion_cambiar_por_desc}} <br>
                     {% else %}
-                        Por: {{producto['name']['es']}} - {{linea.accion_cambiar_por_desc}} <br>
+                        Por: {{linea.accion_cambiar_por_desc}} <br>
                     {% endif %}
                     {% for i in producto['variants'] %}
                         {% if i['id'] == linea.accion_cambiar_por %}

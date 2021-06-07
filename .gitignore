@@ -20,4 +20,5 @@ instance/
 logs/
 app.db
 boris.env
-app/templates/email/
+app/templates/email/1447373/
+app/templates/email/1631829/

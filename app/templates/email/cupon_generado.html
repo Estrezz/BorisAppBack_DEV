@@ -1,0 +1,20 @@
+<div class='container-fluid'>
+    <img  class="center-block img-responsive" src='{{company.param_logo}}'> 
+</div>
+
+<h3 style="text-align:left"> 
+   <br> Hola {{ customer.name }}! 
+</h3>
+
+
+<p style="text-align:left">  
+    Hemos generado un cupón para vos!<br>
+    Ahora tenés {{ "${:,.2f}".format(monto) }} para que compres lo que quieras <br>
+    Lo vas a poder ingresar en el proceso de checkout de la tienda<br>
+    El codigo es el siguiente: <strong>{{cupon}}</strong> <br>
+    <br>
+    {{company.cupon_generado_note | safe}}
+</p>
+
+
+

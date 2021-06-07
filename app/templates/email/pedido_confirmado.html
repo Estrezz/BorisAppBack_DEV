@@ -1,0 +1,58 @@
+<div class='container-fluid'>
+    <img  class="center-block img-responsive" src='{{company.param_logo}}'> 
+</div>
+<br>
+<h3 style="text-align:left"> 
+    Hola {{ customer.name }}! <br>
+    Tu orden #{{order.order_number}} ha sido confirmada
+</h3>
+
+{% if envio == 'Manual' %}
+    <p>   
+        <br>
+        Por favor segui las siguientes intstrucciones para hacernos llegar tu pedido:<br>
+            1 - Embala tu producto cuidadosamente <br>
+            2 - Envialo por tu método de correo preferido o acercalo a una de nuestras sucursales<br>
+            {{company.envio_manual_note | safe}}
+    </p>
+{% endif %}
+
+{% if envio == 'Coordinar' %}
+    <p>   
+        <br>
+        Por favor segui las siguientes intstrucciones para hacernos llegar tu pedido:<br>
+            1 - Embala tu producto correctamente<br>
+            {% if order.courier_coordinar_empresa  is defined  %}
+                2 - Un mensajero de {{order.courier_coordinar_empresa}} pasará a retirarlo en breve<br>
+            {% else %}
+                {{order.courier_coordinar_empresa}}
+                2 - Un mensajero pasará a retirarlo en breve <br>
+            {% endif %}
+            {{company.envio_coordinar_note | safe}}
+    </p>
+{% endif %}
+
+{% if envio == 'Moova' %}
+   <p>
+    Por favor segui las siguientes intstrucciones para hacernos llegar tu pedido:<br>
+        1 - Embala tu producto cuidadosamente <br>
+        2 - imprimi y pega la etiqueta que encontraras en: {{label}} <br>
+        3 - Un Moover pasará por tu domicilio para retirar el pedido <br>
+    
+    {{company.envio_correo_note | safe}}
+    </p>
+{% endif %}
+
+<br>
+    <hr>
+    <h3 style="text-align:left"> Como seguimos? </h3>
+    <p>
+        Te confirmaremos por email una vez que recibamos tus productos y procederemos al procesamiento de tu solicitud
+    </p>
+   
+
+<h5 style="text-align:center"> Podes hacer el seguimiento de tu orden acá: <br>
+        <a href="http://frontprod.borisreturns.com/tracking/{{order.order_number}}">
+        http://frontprod.borisreturns.com/tracking/{{order.order_number}}
+        </a>
+</h5>

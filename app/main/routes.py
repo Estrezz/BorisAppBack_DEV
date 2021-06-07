@@ -159,7 +159,7 @@ def gestionar_producto(orden_id):
     linea = Order_detail.query.get(str(linea_id))
     empresa = Company.query.get(orden.store)
     producto_nuevo = buscar_producto(linea.prod_id, empresa)
-    return render_template('producto.html', orden=orden, linea=linea, customer=orden.buyer, producto=producto_nuevo, empresa=empresa,  empresa_name=session['current_empresa'])
+    return render_template('producto.html', producto=producto_nuevo, orden=orden, linea=linea, customer=orden.buyer, empresa=empresa,  empresa_name=session['current_empresa'])
 
 
 @bp.route('/orden/historia/<orden_id>', methods=['GET', 'POST'])
@@ -298,9 +298,9 @@ def devolver():
             send_email('Se ha devuelto un artículo en BORIS ', 
                 sender=empresa.communication_email,
                 recipients=[empresa.admin_email], 
-                text_body=render_template('email/'+str(current_user.store)+'/articulo_devuelto.txt',
+                text_body=render_template('email/articulo_devuelto.txt',
                                          order=orden, linea=linea),
-                html_body=render_template('email/'+str(current_user.store)+'/articulo_devuelto.html',
+                html_body=render_template('email/articulo_devuelto.html',
                                          order=orden, linea=linea), 
                 attachments=None, 
                 sync=False)
@@ -402,9 +402,9 @@ def finalizar_orden(orden_id):
         send_email('El procesamiento de tu orden ha finalizado', 
             sender=company.communication_email, 
             recipients=[customer.email], 
-            text_body=render_template('email/'+str(current_user.store)+'/pedido_finalizado.txt',
+            text_body=render_template('email/pedido_finalizado.txt',
                                     company=company, customer=customer, order=orden, linea=orden_linea),
-            html_body=render_template('email/'+str(current_user.store)+'/pedido_finalizado.html',
+            html_body=render_template('email/pedido_finalizado.html',
                                     company=company, customer=customer, order=orden, linea=orden_linea), 
             attachments=None, 
             sync=False)
