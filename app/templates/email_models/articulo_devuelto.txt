@@ -1,6 +1,0 @@
-BORIS ha devuelto un articulo
-    
-    Se generado une devolución para la orden #{{order.order_number}} para el articulo:
-         {{linea.name}} ({{linea.prod_id}}/{{linea.variant}})
-        
-    

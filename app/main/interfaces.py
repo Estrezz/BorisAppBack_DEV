@@ -271,24 +271,25 @@ def genera_credito(empresa, monto, cliente, orden, linea):
     codigo = str(orden.order_number)+codigo_tmp+str(orden.id)
     if empresa.platform == 'tiendanube':
         cupon = genera_credito_tiendanube(empresa, importe, codigo)
-        send_email('Hemos generado tu Cupón', 
-                sender=empresa.communication_email,
-                recipients=[cliente.email], 
-                text_body=render_template('email/cupon_generado.txt',
-                                         company=empresa, customer=cliente, order=orden, cupon=cupon, monto=importe),
-                html_body=render_template('email/cupon_generado.html',
-                                          company=empresa, customer=cliente, order=orden, cupon=cupon, monto=importe), 
-                attachments=None, 
-                sync=False)
-        send_email('BORIS ha generado un Cupon', 
-                sender=empresa.communication_email,
-                recipients=[empresa.admin_email], 
-                text_body=render_template('email/cupon_empresa.txt',
-                                         customer=cliente, order=orden, cupon=cupon, monto=importe, linea=linea),
-                html_body=render_template('email/cupon_empresa.html',
-                                         customer=cliente, order=orden, cupon=cupon, monto=importe, linea=linea), 
-                attachments=None, 
-                sync=False)
+        if cupon != 'Failed':
+            send_email('Hemos generado tu Cupón', 
+                    sender=empresa.communication_email,
+                    recipients=[cliente.email], 
+                    text_body=render_template('email/cupon_generado.txt',
+                                            company=empresa, customer=cliente, order=orden, cupon=cupon, monto=importe),
+                    html_body=render_template('email/cupon_generado.html',
+                                            company=empresa, customer=cliente, order=orden, cupon=cupon, monto=importe), 
+                    attachments=None, 
+                    sync=False)
+            send_email('BORIS ha generado un Cupon', 
+                    sender=empresa.communication_email,
+                    recipients=[empresa.admin_email], 
+                    text_body=render_template('email/cupon_empresa.txt',
+                                            customer=cliente, order=orden, cupon=cupon, monto=importe, linea=linea),
+                    html_body=render_template('email/cupon_empresa.html',
+                                            customer=cliente, order=orden, cupon=cupon, monto=importe, linea=linea), 
+                    attachments=None, 
+                    sync=False)
         return cupon
     else:
         return "Failed"

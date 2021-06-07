@@ -1,7 +1,0 @@
-Hola {{ customer.name }}!
-
-    Tu orden ha sido rechazada 
-        Lamentamos informarte que hubo un problema con tu orden.
-        Por favor ponete en contacto con nosotros
-
-
