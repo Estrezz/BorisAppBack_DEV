@@ -7,7 +7,7 @@ from app.email import send_email
 from app.main.forms import EditProfileForm, EditProfileCompanyForm, EditMailsCompanyForm, EditCorreoCompanyForm, EditParamsCompanyForm
 from app.main.tiendanube import devolver_stock_tiendanube, generar_envio_tiendanube, autorizar_tiendanube
 from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log
-from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto, genera_credito
+from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto, genera_credito, actualiza_empresa
 import json
 from app.main import bp
 
@@ -232,19 +232,21 @@ def autorizar(plataforma):
         codigo = request.args.get('code')
     else: 
         return render_template('autorizado.html', codigo='error')   
-    #if request.args.get('state') != None:
-    #    estado = request.args.get('state')
-
+    
     autorizacion = autorizar_tiendanube(codigo)
     if autorizacion != 'Failed':
-        send_email('Se ha creado una nueva empresa', 
-            sender=current_app.config['ADMINS'][0],  
-            recipients=[current_app.config['ADMINS'][0]],
-            text_body=render_template('autorizado.txt', codigo='OK', store=autorizacion),
-            html_body=render_template('autorizado.html', codigo='OK', store=autorizacion), 
-            attachments=None, 
-            sync=False)
-        return render_template('autorizado.html', codigo='OK', store=autorizacion)
+
+        actualizado = actualiza_empresa(autorizacion)
+
+        if actualizado != 'Failed':
+            send_email('Se ha creado una nueva empresa', 
+                sender=current_app.config['ADMINS'][0],  
+                recipients=[current_app.config['ADMINS'][0]],
+                text_body=render_template('autorizado.txt', codigo='OK', store=autorizacion),
+                html_body=render_template('autorizado.html', codigo='OK', store=autorizacion), 
+                attachments=None, 
+                sync=False)
+            return render_template('autorizado.html', codigo='OK', store=autorizacion)
     else:
         return render_template('autorizado.html', codigo='error') 
 

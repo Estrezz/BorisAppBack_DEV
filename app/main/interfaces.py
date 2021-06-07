@@ -299,3 +299,20 @@ def genera_codigo(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
 
+def actualiza_empresa(empresa):
+    if current_app.config['SERVER_ROLE'] == 'DEV':
+        url="https://front.borisreturns.com/empresa/actualiza"
+    if current_app.config['SERVER_ROLE'] == 'PROD':
+        url="https://frontprod.borisreturns.com/empresa/actualiza"
+    
+    headers = {
+        'Content-Type': 'application/json'
+    }
+
+    solicitud = requests.request("POST", url, headers=headers, data=json.dumps(empresa))
+    if solicitud.status_code != 200:
+        return 'Failed'
+    else: 
+        return 'Success'
+
+

@@ -148,7 +148,7 @@ def autorizar_tiendanube(codigo):
             #flash('Inicia parametros - Crear carpeta y copiar Mails / Insertar scripts')
         db.session.add(unaEmpresa)
         db.session.commit()
-        return unaEmpresa.store_name
+        return unaEmpresa
     return 'Failed'
 
 
@@ -187,9 +187,19 @@ def inicializa_tiendanube(empresa) :
     "where" : "store"
     }
 
-    # response_1 = requests.request("POST", url, headers=headers, data=json.dumps(script_1))
-    # response_2 = requests.request("POST", url, headers=headers, data=json.dumps(script_2))
-    # response_3 = requests.request("POST", url, headers=headers, data=json.dumps(script_3))
+    response_1 = requests.request("POST", url, headers=headers, data=json.dumps(script_1))
+    response_2 = requests.request("POST", url, headers=headers, data=json.dumps(script_2))
+    response_3 = requests.request("POST", url, headers=headers, data=json.dumps(script_3))
+
+    ### Crea usuario para Backoffice
+    unUsuario = User(
+        username=empresa.store_name[0:8], 
+        email=empresa.contact_email, 
+        store=empresa.store_id
+        )
+    unUsuario.set_password(empresa.store_name[0:8])
+    db.session.add(unUsuario)
+    db.session.commit()
 
     ### Crea carpeta para mails
     #if not os.path.exists('app/templates/email/'+str(empresa.store_id)):
