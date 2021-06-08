@@ -139,9 +139,9 @@ def autorizar_tiendanube(codigo):
                 correo_usado = 'Ninguno',
                 correo_test = True
             )
+            db.session.add(unaEmpresa)
             inicializa_tiendanube(unaEmpresa)
             
-        db.session.add(unaEmpresa)
         db.session.commit()
         return unaEmpresa
     return 'Failed'
