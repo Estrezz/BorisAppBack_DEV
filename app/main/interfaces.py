@@ -299,17 +299,38 @@ def genera_codigo(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
 
+############# Envia datos de la empresa al FRONT para dar de alta o actualizar #################
 def actualiza_empresa(empresa):
     if current_app.config['SERVER_ROLE'] == 'DEV':
-        url="https://front.borisreturns.com/empresa/actualiza"
+        url="https://front.borisreturns.com/empresa/chequear"
     if current_app.config['SERVER_ROLE'] == 'PROD':
-        url="https://frontprod.borisreturns.com/empresa/actualiza"
+        url="https://frontprod.borisreturns.com/empresa/chequear"
     
     headers = {
         'Content-Type': 'application/json'
     }
 
-    solicitud = requests.request("POST", url, headers=headers, data=json.dumps(empresa))
+    data = {
+        "store_id" : empresa.store_id,
+        "platform" : empresa.platform,
+        "platform_token_type" :  empresa.platform_token_type,
+        "platform_access_token" : empresa.platform_access_token,
+        "store_name" : empresa.store_name ,
+        "store_url" : empresa.store_url,    
+        "store_phone" : empresa.store_phone,
+        "store_address": empresa.store_address, 
+        "admin_email" : empresa.admin_email,
+        "contact_email" : empresa.contact_email,
+        "communication_email" : "info@borisreturns.com",
+        "param_logo" : empresa.param_logo,
+        "store_main_language" : empresa.store_main_language,
+        "store_main_currency" : empresa.store_main_currency,
+        "store_country" : empresa.store_country,
+        "correo_usado" : 'Ninguno',
+        "correo_test" : True
+    }
+
+    solicitud = requests.request("POST", url, headers=headers, data=json.dumps(data))
     if solicitud.status_code != 200:
         return 'Failed'
     else: 

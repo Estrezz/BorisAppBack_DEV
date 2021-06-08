@@ -105,19 +105,14 @@ def autorizar_tiendanube(codigo):
         'code': codigo
     }
     response = requests.request("POST", url, data=data)
-    #flash('codigo de respuesta {}'.format(response.status_code))
     respuesta = response.json()
-    #flash ('Respuesta {} {}'.format(respuesta, type(respuesta)))
-    #flash('curl {}{} response {}'.format(url,data, respuesta))
-    #flash('error {}'.format(respuesta['error']))
+    
     if 'scope' in respuesta:
         if 'store_id' in respuesta:
             store = respuesta['store_id']
         if 'user_id' in respuesta:
             store = respuesta['user_id']
         
-        #flash('Store {}'.format(store))
-        #if Company.query.filter_by(store_id=store).first_or_404 != 404:
         if Company.query.filter_by(store_id=store).first():
             unaEmpresa = Company.query.filter_by(store_id=store).first()
             unaEmpresa.platform_token_type = respuesta['token_type']
@@ -134,7 +129,7 @@ def autorizar_tiendanube(codigo):
                 store_url = empresa['url_with_protocol'],
                 store_plan = empresa['plan_name'],
                 store_phone = empresa['phone'],
-                store_address= empresa['address'], 
+                store_address= empresa['business_address'], 
                 admin_email = empresa['email'],
                 contact_email = empresa['contact_email'],
                 param_logo = empresa['logo'],
@@ -145,7 +140,7 @@ def autorizar_tiendanube(codigo):
                 correo_test = True
             )
             inicializa_tiendanube(unaEmpresa)
-            #flash('Inicia parametros - Crear carpeta y copiar Mails / Insertar scripts')
+            
         db.session.add(unaEmpresa)
         db.session.commit()
         return unaEmpresa
