@@ -309,7 +309,6 @@ def actualiza_empresa(empresa):
     headers = {
         'Content-Type': 'application/json'
     }
-
     data = {
         "store_id" : empresa.store_id,
         "platform" : empresa.platform,
@@ -329,7 +328,6 @@ def actualiza_empresa(empresa):
         "correo_usado" : 'Ninguno',
         "correo_test" : True
     }
-
     solicitud = requests.request("POST", url, headers=headers, data=json.dumps(data))
     if solicitud.status_code != 200:
         return 'Failed'

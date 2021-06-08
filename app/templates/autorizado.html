@@ -6,8 +6,15 @@
             {% if codigo == 'error' %}
                 <br>
                 Se produjo un error en la autorización <br>
-                por favor ponete en contacto con nostros <br>
-            {% else %} 
+                por favor ponete en contacto con nosotros <br>
+            {% endif %} 
+            {% if codigo == 'error_al_actualizar' %}
+                <br>
+                Se produjo un error en la actualización del FRONT <br>
+                por favor ponete en contacto con nosotros <br>
+                {{store}}
+            {% endif %}
+            {% if codigo != 'OK' %}
             <h1> Bienvenido  {{ store.store_name }} <br>
                 Gracias por Instalar Boris </h1>
                 <br> <br> En breve nos pondremos en contacto contigo para finalizar la configuración
