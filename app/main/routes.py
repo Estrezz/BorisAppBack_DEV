@@ -234,9 +234,11 @@ def autorizar(plataforma):
         return render_template('autorizado.html', codigo='error')   
     
     autorizacion = autorizar_tiendanube(codigo)
+    print(autorizacion)
     if autorizacion != 'Failed':
-
+        
         actualizado = actualiza_empresa(autorizacion)
+        print (actualizado)
 
         if actualizado != 'Failed':
             send_email('Se ha creado una nueva empresa', 

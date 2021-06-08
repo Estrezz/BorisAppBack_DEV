@@ -189,7 +189,7 @@ def inicializa_tiendanube(empresa) :
     ### Crea usuario para Backoffice
     unUsuario = User(
         username=empresa.store_name[0:8], 
-        email=empresa.contact_email, 
+        email=empresa.admin_email, 
         store=empresa.store_id
         )
     unUsuario.set_password(empresa.store_name[0:8])
