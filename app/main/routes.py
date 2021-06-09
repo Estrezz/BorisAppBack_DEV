@@ -79,6 +79,12 @@ def edit_profile_company():
     if form.validate_on_submit():
         form.populate_obj(empresa)
         db.session.commit() 
+        #### Actualiza los datos de la empresa en el FRONT ####
+        status = actualiza_empresa(empresa)
+        if status != 'Failed':
+            flash('Los datos se actuaizaron correctamente')
+        else:
+            flash('Se produjo un error {}'. format(status))
         return redirect(url_for('main.company', empresa_id=empresa.store_id))
 
     return render_template('edit_profile_company.html', title='Editar perfil',
@@ -237,10 +243,10 @@ def autorizar(plataforma):
   
     if autorizacion != 'Failed': 
 
+        #### REVISAR ################################################################
         actualizado = actualiza_empresa(autorizacion)
 
-        #if actualizado != 'Failed':
-        if actualizado == 'Failed':
+        if actualizado != 'Failed':
             send_email('Se ha creado una nueva empresa', 
                 sender=current_app.config['ADMINS'][0],  
                 recipients=[current_app.config['ADMINS'][0]],

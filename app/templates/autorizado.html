@@ -16,6 +16,9 @@
             {% if codigo == 'OK' %}
             <h1> Bienvenido  {{ store.store_name }} <br>
                 Gracias por Instalar Boris </h1>
+                Para poder ingresar en tu panel entra en:
+                <a href="http://backprod.borisreturns.com">http://backprod.borisreturns.com</a>
+                con el usuario y contraseña : {{store.store_name[0:8]}} 
                 <br> <br> En breve nos pondremos en contacto contigo para finalizar la configuración
             {% else %}
                 Se produjo un error en la autorización <br>

@@ -136,6 +136,7 @@ def autorizar_tiendanube(codigo):
                 store_main_language = empresa['main_language'],
                 store_main_currency = empresa['main_currency'],
                 store_country = empresa['country'],
+                communication_email = 'info@borisreturns.com',
                 correo_usado = 'Ninguno',
                 correo_test = True
             )

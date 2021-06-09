@@ -320,15 +320,31 @@ def actualiza_empresa(empresa):
         "store_address": empresa.store_address, 
         "admin_email" : empresa.admin_email,
         "contact_email" : empresa.contact_email,
-        "communication_email" : "info@borisreturns.com",
+        "communication_email" : empresa.communication_email, # ver default
         "param_logo" : empresa.param_logo,
+        "param_fondo" : empresa.param_fondo,
         "store_main_language" : empresa.store_main_language,
         "store_main_currency" : empresa.store_main_currency,
         "store_country" : empresa.store_country,
-        "correo_usado" : 'Ninguno',
-        "correo_test" : True
+        "correo_usado" : empresa.correo_usado, # ver default
+        "correo_test" : empresa.correo_test, # ver default
+        "correo_apikey" : empresa.correo_apikey,
+        "correo_id" : empresa.correo_id,
+        "contact_email" : empresa.contact_email,
+        "contact_name" : empresa.contact_name,
+        "contact_email" : empresa.contact_email,
+        "contact_phone" : empresa.contact_phone,
+        "shipping_address" : empresa.shipping_address,
+        "shipping_number" : empresa.shipping_number,
+        "shipping_floor" : empresa.shipping_floor,
+        "shipping_zipcode" : empresa.shipping_zipcode,
+        "shipping_city" : empresa.shipping_city,
+        "shipping_province" : empresa.shipping_province,
+        "shipping_country" : empresa.shipping_country,
+        "shipping_info" : empresa.shipping_info 
     }
     solicitud = requests.request("POST", url, headers=headers, data=json.dumps(data))
+
     if solicitud.status_code != 200:
         return 'Failed'
     else: 
