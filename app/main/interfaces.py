@@ -320,15 +320,17 @@ def actualiza_empresa(empresa):
         "store_address": empresa.store_address, 
         "admin_email" : empresa.admin_email,
         "contact_email" : empresa.contact_email,
-        "communication_email" : empresa.communication_email, # ver default
+        "communication_email" : empresa.communication_email, 
         "param_logo" : empresa.param_logo,
         "param_fondo" : empresa.param_fondo,
         "store_main_language" : empresa.store_main_language,
         "store_main_currency" : empresa.store_main_currency,
         "store_country" : empresa.store_country,
-        "correo_usado" : empresa.correo_usado, # ver default
-        "correo_test" : empresa.correo_test, # ver default
+        "correo_usado" : empresa.correo_usado, 
+        "correo_test" : empresa.correo_test, 
         "correo_apikey" : empresa.correo_apikey,
+        "correo_id_test" : empresa.correo_id_test,
+        "correo_apikey_test" : empresa.correo_apikey_test,
         "correo_id" : empresa.correo_id,
         "contact_email" : empresa.contact_email,
         "contact_name" : empresa.contact_name,

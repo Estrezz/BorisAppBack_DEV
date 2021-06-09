@@ -239,14 +239,15 @@ def autorizar(plataforma):
     else: 
         return render_template('autorizado.html', codigo='error')   
     
+    #### Autoriza permisos en Tiendanube y asigna TOKEN
+    ##### graba datos de la empresa en autorizacion
     autorizacion = autorizar_tiendanube(codigo)
   
     if autorizacion != 'Failed': 
-
-        #### REVISAR ################################################################
+        #### actualiza los datos de la empresa en FRONT #####
         actualizado = actualiza_empresa(autorizacion)
-
         if actualizado != 'Failed':
+
             send_email('Se ha creado una nueva empresa', 
                 sender=current_app.config['ADMINS'][0],  
                 recipients=[current_app.config['ADMINS'][0]],
