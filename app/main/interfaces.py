@@ -346,7 +346,6 @@ def actualiza_empresa(empresa):
         "shipping_info" : empresa.shipping_info 
     }
     solicitud = requests.request("POST", url, headers=headers, data=json.dumps(data))
-    flash('JSON {}'.format(json.dumps(data)))
     if solicitud.status_code != 200:
         return 'Failed'
     else: 
