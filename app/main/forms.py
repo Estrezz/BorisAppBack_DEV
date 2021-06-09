@@ -49,7 +49,7 @@ class EditCorreoCompanyForm(FlaskForm):
     shipping_zipcode = StringField('Codigo Postal')
     shipping_city = StringField('Ciudad')
     shipping_province = StringField('Provincia')
-    shipping_country = StringField('Pais')
+    shipping_country = StringField('Pais', render_kw={'readonly': True})
     shipping_info = StringField('Info para envíos')
     submit = SubmitField('Confirmar')
 
