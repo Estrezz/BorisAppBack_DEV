@@ -329,9 +329,9 @@ def actualiza_empresa(empresa):
         "correo_usado" : empresa.correo_usado, 
         "correo_test" : empresa.correo_test, 
         "correo_apikey" : empresa.correo_apikey,
+        "correo_id" : empresa.correo_id,
         "correo_id_test" : empresa.correo_id_test,
         "correo_apikey_test" : empresa.correo_apikey_test,
-        "correo_id" : empresa.correo_id,
         "contact_email" : empresa.contact_email,
         "contact_name" : empresa.contact_name,
         "contact_email" : empresa.contact_email,
@@ -346,7 +346,7 @@ def actualiza_empresa(empresa):
         "shipping_info" : empresa.shipping_info 
     }
     solicitud = requests.request("POST", url, headers=headers, data=json.dumps(data))
-
+    flash('JSON {}'.format(json.dumps(data)))
     if solicitud.status_code != 200:
         return 'Failed'
     else: 

@@ -247,7 +247,6 @@ def autorizar(plataforma):
         #### actualiza los datos de la empresa en FRONT #####
         actualizado = actualiza_empresa(autorizacion)
         if actualizado != 'Failed':
-
             send_email('Se ha creado una nueva empresa', 
                 sender=current_app.config['ADMINS'][0],  
                 recipients=[current_app.config['ADMINS'][0]],
