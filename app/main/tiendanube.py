@@ -174,7 +174,7 @@ def inicializa_tiendanube(empresa) :
     "where" : "store"
     }
     script_2= {
-    "src": "https://frontprod.borisreturns.com/static/boris_politica.js",
+    "src": "https://frontprod.borisreturns.com/static/politica_boris.js",
     "event" : "onload",
     "where" : "store"
     }
