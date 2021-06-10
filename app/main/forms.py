@@ -32,7 +32,7 @@ class EditParamsCompanyForm(FlaskForm):
     stock_vuelve_config = BooleanField('Al devolver el stock se ingresa físicamente:')
     param_logo = StringField('Ruta para el Logo')
     param_fondo = StringField('Ruta para el fondo')
-    param_config = StringField('Ruta para el archivo de configuración')
+    param_config = StringField('Ruta para el archivo de configuración', render_kw={'readonly': True})
     submit = SubmitField('Confirmar')
 
 class EditCorreoCompanyForm(FlaskForm):
