@@ -13,6 +13,7 @@
         Por favor segui las siguientes intstrucciones para hacernos llegar tu pedido:<br>
             1 - Embala tu producto cuidadosamente <br>
             2 - Envialo por tu método de correo preferido o acercalo a una de nuestras sucursales<br>
+            <br>
             {{company.envio_manual_note | safe}}
     </p>
 {% endif %}
@@ -28,6 +29,7 @@
                 {{order.courier_coordinar_empresa}}
                 2 - Un mensajero pasará a retirarlo en breve <br>
             {% endif %}
+            <br>
             {{company.envio_coordinar_note | safe}}
     </p>
 {% endif %}
