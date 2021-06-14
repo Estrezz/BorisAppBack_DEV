@@ -12,7 +12,7 @@
               <a data-toggle="collapse" href="#collapse1">Datos de la Empresa</a>
             </h4>
             <div class="panel-title pull-right">
-              <a href="{{ url_for('main.edit_profile_company', formulario='Datos de la empresa') }}">Editar</a>
+              <a href="{{ url_for('main.edit_profile_company', formulario='Datos de la tienda') }}">Editar</a>
             </div>
             <div class="clearfix"></div>   
           </div>
@@ -23,6 +23,8 @@
                  Teléfono: {{ empresa.contact_phone }}<br>
                  Mail: {{ empresa.contact_email }}<br>
                  Mail Administración: {{ empresa.admin_email}} <br>
+                 <br>
+                 Link portal consumidor: <a href='http://frontprod.borisreturns.com/buscar?empresa={{empresa.store_id}}'>Hace click aqui para ver tu portal</a>
             </div>
           </div>
         </div>

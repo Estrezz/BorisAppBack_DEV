@@ -21,7 +21,9 @@
         {% if i.accion == 'cambiar' %}
             <li>
                 Se ha realizado el cambio de {{i.name}} X {{i.accion_cambiar_por_desc}} <br>
+                {% if i.accion_cambiar_por_desc != 'Cupón' %}
                 Ya se generó la nueva orden, en breve recibiras la confirmación del envío <br>
+                {% endif %}
             </li>
         {% endif %}
     {% endfor %}

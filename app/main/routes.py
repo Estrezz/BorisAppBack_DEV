@@ -67,7 +67,7 @@ def edit_profile_company():
     empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
     query =  request.args.get('formulario')
     
-    if query == "Datos de la empresa":
+    if query == "Datos de la tienda":
         form = EditProfileCompanyForm(obj=empresa)
     if query == "Correo":
         form = EditCorreoCompanyForm(obj=empresa)

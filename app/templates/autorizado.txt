@@ -1,5 +1,25 @@
 {% extends "base.html" %}
 
 {% block app_content %}
-            Bienvenido  {{ store.store_name }}. Gracias por Instalar Boris
+             {% if codigo == 'error' %}
+                Se produjo un error en la autorización 
+                por favor ponete en contacto con nosotros
+            {% endif %} 
+            {% if codigo == 'error_al_actualizar' %}
+                Se produjo un error en la actualización del FRONT
+                por favor ponete en contacto con nosotros
+            {% endif %}
+            {% if codigo == 'OK' %}
+            Bienvenido  {{ store.store_name }}
+                Gracias por Instalar Boris 
+                Para poder ingresar en tu panel entra en: http://backprod.borisreturns.com
+                con el usuario y contraseña : {{store.store_name[0:8]}} 
+                
+                Para terminar con la configuración podés seguir las intrucciones en nuestra página
+                http://www.borisreturns.com/instalacion
+            {% else %}
+                Se produjo un error en la autorización
+                por favor ponete en contacto con nosotros
+                Opcion de codigo -- {{codigo}}
+            {% endif %}
 {% endblock %}

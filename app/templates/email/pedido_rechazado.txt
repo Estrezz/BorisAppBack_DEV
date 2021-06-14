@@ -1,6 +1,8 @@
-Hola {{ customer.name }}!
+Hola {{ customer.name }}! 
 
-    Tu orden ha sido rechazada 
-        Lamentamos informarte que hubo un problema con tu orden.
-        Por favor ponete en contacto con nosotros
+Tu orden ha sido rechazada 
+        Lamentamos informarte que ha habido un problema en la recpeción de tus productos.
+        Por favor ponete en contacto con nosotros. 
+        
+        {{company.rechazado_note | safe}}
 

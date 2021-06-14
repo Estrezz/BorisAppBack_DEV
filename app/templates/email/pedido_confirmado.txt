@@ -1,18 +1,41 @@
 Hola {{ customer.name }}!
+    Tu orden #{{order.order_number}} ha sido confirmada
+
+
+{% if envio == 'Manual' %}
+        Por favor segui las siguientes intstrucciones para hacernos llegar tu pedido:
+            1 - Embala tu producto cuidadosamente 
+            2 - Envialo por tu método de correo preferido o acercalo a una de nuestras sucursales
+            {{company.envio_manual_note | safe}}
+{% endif %}
+
+{% if envio == 'Coordinar' %}
+        Por favor segui las siguientes intstrucciones para hacernos llegar tu pedido:
+            1 - Embala tu producto correctamente
+            {% if order.courier_coordinar_empresa  is defined  %}
+                2 - Un mensajero de {{order.courier_coordinar_empresa}} pasará a retirarlo en breve
+            {% else %}
+                {{order.courier_coordinar_empresa}}
+                2 - Un mensajero pasará a retirarlo en breve
+            {% endif %}
+            {{company.envio_coordinar_note | safe}}
+{% endif %}
 
 {% if envio == 'Moova' %}
-    Tu Orden ha sido confirmada
     Por favor segui las siguientes intstrucciones para hacernos llegar tu pedido:
-        1 - Embala tu producto
-        2 - imprimi y pega la etiqueta que encontraras en {{label}}
-        3 - Un Moover pasará por tu domicilio para retirar el pedido
-{% endif %}
-{% if envio == 'Manual' %}
-    Tu orden ha sido confirmada
-    Por favor segui las siguientes intstrucciones para hacernos llegar tu pedido:
-        1 - Embala tu producto
-        2 - Envialo por tu método de correo preferido o acercalo a una de nustras sucursales
+        1 - Embala tu producto cuidadosamente 
+        2 - imprimi y pega la etiqueta que encontraras en: {{label}} 
+        3 - Un Moover pasará por tu domicilio para retirar el pedido 
+    
+    {{company.envio_correo_note | safe}}
 {% endif %}
 
+
+_________________________________________________________________________________________________
+Como seguimos? 
+    Te confirmaremos por email una vez que recibamos tus productos y procederemos al procesamiento de tu solicitud
+
+
 Podes hacer el seguimiento de tu orden acá:
-        http://ec2-54-208-172-198.compute-1.amazonaws.com/tracking/{{order.order_number}}
+http://frontprod.borisreturns.com/tracking/{{order.order_number}}
+        
