@@ -183,10 +183,17 @@ def inicializa_tiendanube(empresa) :
     "event" : "onload",
     "where" : "store"
     }
+    script_4= {
+    "src": "https://frontprod.borisreturns.com/static/boris_cambios.js",
+    "event" : "onload",
+    "where" : "store"
+    }
 
     response_1 = requests.request("POST", url, headers=headers, data=json.dumps(script_1))
     response_2 = requests.request("POST", url, headers=headers, data=json.dumps(script_2))
     response_3 = requests.request("POST", url, headers=headers, data=json.dumps(script_3))
+    response_4 = requests.request("POST", url, headers=headers, data=json.dumps(script_4))
+
 
     ### Crea usuario para Backoffice
     unUsuario = User(

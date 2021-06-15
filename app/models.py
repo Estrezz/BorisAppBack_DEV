@@ -19,7 +19,7 @@ class Company(db.Model):
     store_country = db.Column(db.String(20))
     store_url = db.Column(db.String(120))
     store_plan = db.Column(db.String(64))
-    store_phone = db.Column(db.String(15))
+    store_phone = db.Column(db.String(20))
     store_address= db.Column(db.String(120)) 
     admin_email = db.Column(db.String(120))
     communication_email = db.Column(db.String(120))

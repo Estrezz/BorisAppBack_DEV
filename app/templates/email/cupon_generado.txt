@@ -2,7 +2,7 @@ Hola {{ customer.name }}!
 
     Hemos generado un cupón para vos!
     Ahora tenés {{ "${:,.2f}".format(monto) }} para que compres lo que quieras
-    Lo vas a poder ingresar en el proceso de checkout de la tienda
+    
     El codigo es el siguiente: {{cupon}}
     
     {{company.cupon_generado_note | safe}}
