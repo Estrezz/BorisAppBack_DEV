@@ -10,7 +10,7 @@
 {% if envio == 'Manual' %}
     <p>   
         <br>
-        Por favor segui las siguientes intstrucciones para hacernos llegar tu pedido:<br>
+        Por favor seguí las siguientes intstrucciones para hacernos llegar tus productos:<br>
             1 - Embala tu producto cuidadosamente <br>
             2 - Envialo por tu método de correo preferido o acercalo a una de nuestras sucursales<br>
             <br>
@@ -21,13 +21,12 @@
 {% if envio == 'Coordinar' %}
     <p>   
         <br>
-        Por favor segui las siguientes intstrucciones para hacernos llegar tu pedido:<br>
-            1 - Embala tu producto correctamente<br>
+        Por favor seguí las siguientes intstrucciones para continuar con el cambio / devolución:<br>
+            1 - Embalá tu producto correctamente<br>
             {% if order.courier_coordinar_empresa  is defined  %}
-                2 - Un mensajero de {{order.courier_coordinar_empresa}} pasará a retirarlo en breve<br>
+                2 - El correo pasará a retirarlo<br>
             {% else %}
-                {{order.courier_coordinar_empresa}}
-                2 - Un mensajero pasará a retirarlo en breve <br>
+                2 -El correo pasará a retirarlo<br>
             {% endif %}
             <br>
             {{company.envio_coordinar_note | safe}}
@@ -36,9 +35,9 @@
 
 {% if envio == 'Moova' %}
    <p>
-    Por favor segui las siguientes intstrucciones para hacernos llegar tu pedido:<br>
-        1 - Embala tu producto cuidadosamente <br>
-        2 - imprimi y pega la etiqueta que encontraras <a href="{{label}}">acá</a> <br>
+    Por favor seguí las siguientes intstrucciones para hacernos llegar tu pedido:<br>
+        1 - Embalá tu producto cuidadosamente <br>
+        2 - imprimí y pega la etiqueta que encontrarás <a href="{{label}}">acá</a> <br>
         3 - Un Moover pasará por tu domicilio para retirar el pedido <br>
     <br>
     {{company.envio_correo_note | safe}}

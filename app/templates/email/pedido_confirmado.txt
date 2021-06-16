@@ -10,13 +10,13 @@ Hola {{ customer.name }}!
 {% endif %}
 
 {% if envio == 'Coordinar' %}
-        Por favor segui las siguientes intstrucciones para hacernos llegar tu pedido:
+        Por favor segui las siguientes intstrucciones para continuar con el cambio / devolución::
             1 - Embala tu producto correctamente
             {% if order.courier_coordinar_empresa  is defined  %}
-                2 - Un mensajero de {{order.courier_coordinar_empresa}} pasará a retirarlo en breve
+                2 -El correo pasará a retirarlo en breve
             {% else %}
                 {{order.courier_coordinar_empresa}}
-                2 - Un mensajero pasará a retirarlo en breve
+                2 - El correo pasará a retirarlo en breve
             {% endif %}
             {{company.envio_coordinar_note | safe}}
 {% endif %}

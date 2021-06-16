@@ -55,12 +55,12 @@ class EditCorreoCompanyForm(FlaskForm):
 
 class EditMailsCompanyForm(FlaskForm):
     communication_email = StringField('Email para las comuniaciones', validators=[Email()])
-    aprobado_note = StringField('Nota para el MAIL de Aprobacion', validators=[Length(max=250)])
-    rechazado_note = StringField('Nota para el MAIL de Rechazo al recibir', validators=[Length(max=250)])
-    envio_manual_note = StringField('Nota para el MAIL de confirmacion - Retiro Manual', validators=[Length(max=250)])
-    envio_coordinar_note = StringField('Nota para el MAIL de confirmacion -Retiro a Coordinar', validators=[Length(max=250)])
-    envio_correo_note = StringField('Nota para el MAIL de confirmacion - Retiro x Correo', validators=[Length(max=250)])
-    cupon_generado_note = StringField('Nota para el MAIL de generación de cupón', validators=[Length(max=250)])
-    finalizado_note = StringField('Nota para el MAIL de finalización', validators=[Length(max=250)])
+    aprobado_note = StringField('Nota para el MAIL de Aprobacion', validators=[Length(max=350)])
+    rechazado_note = StringField('Nota para el MAIL de Rechazo al recibir', validators=[Length(max=350)])
+    envio_manual_note = StringField('Nota para el MAIL de confirmacion - Retiro Manual', validators=[Length(max=350)])
+    envio_coordinar_note = StringField('Nota para el MAIL de confirmacion -Retiro a Coordinar', validators=[Length(max=350)])
+    envio_correo_note = StringField('Nota para el MAIL de confirmacion - Retiro x Correo', validators=[Length(max=350)])
+    cupon_generado_note = StringField('Nota para el MAIL de generación de cupón', validators=[Length(max=350)])
+    finalizado_note = StringField('Nota para el MAIL de finalización', validators=[Length(max=350)])
     submit = SubmitField('Confirmar')
 
