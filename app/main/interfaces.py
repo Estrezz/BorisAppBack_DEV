@@ -3,7 +3,7 @@ import json
 import string
 import random
 from app import db
-from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log
+from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log, categories_filter
 from app.main.moova import toready_moova
 from app.main.tiendanube import buscar_producto_tiendanube,  genera_credito_tiendanube
 from app.email import send_email
@@ -136,6 +136,7 @@ def resumen_ordenes(store_id):
         'solicitadas':solicitadas, 'entransito':entransito, 'recibidas': recibidas, 
             'aprobadas':aprobadas, 'rechazadas':rechazadas}
     return resumen
+
 
 def buscar_producto(prod_id, empresa):
     if empresa.platform == 'tiendanube':
@@ -351,4 +352,31 @@ def actualiza_empresa(empresa):
     else: 
         return 'Success'
 
+
+############# Envia datos de las categorias filtradas al FRONT para dar de alta o actualizar #################
+def actualiza_empresa_categorias(empresa):
+
+    categorias_tmp = categories_filter.query.filter_by(store=empresa.store_id).all()
+    categorias = []
+    for i in categorias_tmp:
+        categorias.append(i.category_id)
+    
+    if current_app.config['SERVER_ROLE'] == 'DEV':
+        url="https://front.borisreturns.com/empresa_categorias"
+    if current_app.config['SERVER_ROLE'] == 'PROD':
+        url="https://frontprod.borisreturns.com/empresa_categorias"
+    
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    data = {
+        "store_id" : empresa.store_id,
+        "categorias" : categorias,
+    }
+    solicitud = requests.request("POST", url, headers=headers, data=json.dumps(data))
+    if solicitud.status_code != 200:
+        return 'Failed'
+    else: 
+        return 'Success'
+    
 

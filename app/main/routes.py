@@ -5,9 +5,9 @@ from flask_login import current_user, login_required
 from app import db
 from app.email import send_email
 from app.main.forms import EditProfileForm, EditProfileCompanyForm, EditMailsCompanyForm, EditCorreoCompanyForm, EditParamsCompanyForm
-from app.main.tiendanube import devolver_stock_tiendanube, generar_envio_tiendanube, autorizar_tiendanube
-from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log
-from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto, genera_credito, actualiza_empresa
+from app.main.tiendanube import devolver_stock_tiendanube, generar_envio_tiendanube, autorizar_tiendanube, buscar_codigo_categoria_tiendanube
+from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log, categories_filter
+from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto, genera_credito, actualiza_empresa, actualiza_empresa_categorias
 import json
 from app.main import bp
 
@@ -90,6 +90,60 @@ def edit_profile_company():
     return render_template('edit_profile_company.html', title='Editar perfil',
                            form=form, titulo=query, empresa_name=session['current_empresa'])
     
+
+@bp.route('/categorias_filtro', methods=['GET', 'POST'])
+@login_required
+def filtrar_categorias():
+    empresa = Company.query.filter_by(store_id=current_user.store).first()
+    
+    ##### carga un dicccionario con categorias desde la plataforma ######
+    try:
+        categorias
+    except:
+        if empresa.platform == 'tiendanube':
+            categorias = buscar_codigo_categoria_tiendanube(empresa)
+        else: 
+            categorias = []
+
+    select = request.form.get('categoria')
+    accion = request.form.get('boton')
+    
+    #### Si se agregó una categoria ##############################
+    if accion == 'agregar':
+        if categories_filter.query.get(select):
+            flash('Ya existe esa categoria')
+        else:
+            unaCategoria =  categories_filter(
+                store=current_user.store,
+                category_id = select,
+                category_desc = categorias[float(select)]
+            )
+            db.session.add(unaCategoria)
+            db.session.commit()
+            status = actualiza_empresa_categorias(empresa)
+            if status != 'Failed':
+                flash('Los datos se actuaizaron correctamente')
+            else:
+                flash('Se produjo un error {}'. format(status)) 
+    
+    #### Si se quitó una categoria ##############################
+    if accion == 'quitar':
+        if categories_filter.query.get(select):
+            unaCategoria = categories_filter.query.get(select)
+            db.session.delete(unaCategoria)
+            db.session.commit()
+            status = actualiza_empresa_categorias(empresa)
+            if status != 'Failed':
+                flash('Los datos se actuaizaron correctamente')
+            else:
+                flash('Se produjo un error {}'. format(status))  
+        else:
+            flash('No se puede quitar esa categoria porque no existe')
+     
+    categorias_filtradas = categories_filter.query.filter_by(store=current_user.store).all()
+    return render_template('category.html', categorias=categorias, categorias_filtradas=categorias_filtradas, title='Categorias', empresa_name=session['current_empresa'])
+
+
 
 @bp.route('/search')  
 def search():
@@ -524,5 +578,9 @@ def borrar_pedidos():
     
     db.session.commit()
     return redirect(url_for('main.user', username=current_user.username))
+
+
+
+    
     
     

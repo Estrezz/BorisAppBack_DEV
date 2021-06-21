@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block app_content %}
+    <h4><strong>Filtros para Categorias</strong></h4>
+
+    <div class="row">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h4 class="panel-title">
+                    <strong>Categorias sin cambio/devolución</strong>
+                  </h4>
+                </div>
+                <div class="panel-body">
+                    <ul>
+                        {% for i in categorias_filtradas %}
+                            <li> {{i.category_desc}} </li> 
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+    </div>
+    <br>
+    <br>
+    <h5>Agregar un nueva categoria:</h5>
+    
+            <form id="seleccionar_categoria" action="{{ url_for('main.filtrar_categorias') }}" method="POST"> 
+                <select name="categoria" class="form-control">
+                    {% for key, value in categorias.items() %}
+                        <option value="{{key}}" > {{ value }} </option>
+                    {% endfor %}
+                </select>
+                <br> 
+                <button name="boton" type="submit" class="btn btn-primary" value="agregar"> Agregar </button>
+                <button name="boton" type="submit" class="btn btn-primary" value="quitar"> Quitar </button>
+            </form>
+    
+{% endblock %}

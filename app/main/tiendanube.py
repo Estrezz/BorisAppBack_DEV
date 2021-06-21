@@ -236,3 +236,18 @@ def genera_credito_tiendanube(empresa, monto, codigo):
         flash('Hubo un problema en la generación del cupón. Error {}'.format(cupon.status_code))  
         return 'Failed'
     return codigo
+
+
+## Devuelve todas las categorias existentes apra una tienda
+def buscar_codigo_categoria_tiendanube(empresa):
+    url = "https://api.tiendanube.com/v1/"+str(empresa.store_id)+"/categories?fields=id,name"
+    payload={}
+    headers = {
+        'Content-Type': 'application/json',
+        'Authentication': empresa.platform_token_type+' '+empresa.platform_access_token
+    }
+    categorias_tmp = requests.request("GET", url, headers=headers, data=payload).json()
+    categorias = {}
+    for x  in categorias_tmp:
+        categorias[x['id']]=(x['name']['es'])
+    return categorias

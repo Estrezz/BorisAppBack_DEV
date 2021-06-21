@@ -52,6 +52,7 @@ class Company(db.Model):
     cupon_generado_note = db.Column(db.String(350))
     finalizado_note = db.Column(db.String(350))
     users = db.relationship('User', backref='empleado', lazy='dynamic')
+    categories_filter = db.relationship('categories_filter', backref='filtroCategorias', lazy='dynamic')
     orders = db.relationship('Order_header', backref='pertenece', lazy='dynamic')
 
     def __repr__(self):
@@ -185,3 +186,12 @@ class Transaction_log(db.Model):
     username = db.Column(db.String(64))
     order_id = db.Column(db.Integer, db.ForeignKey('order_header.id'))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+
+class  categories_filter(db.Model):
+    store = db.Column(db.String(64), db.ForeignKey('company.store_id'))
+    category_id = db.Column(db.Integer, primary_key=True)
+    category_desc = db.Column(db.String(100))
+
+    def __repr__(self):
+        return '<Categoria {} {} >'.format(self.category_id, self.category_desc)

@@ -60,6 +60,7 @@
                         <ul class="dropdown-menu">
                           <li><a href="{{ url_for('main.user', username=current_user.username) }}">Perfil de Usuario</a></li>
                           <li><a href="{{ url_for('main.company', empresa_id=current_user.store) }}">Perfil de la Tienda</a></li>
+                          <li><a href="{{ url_for('main.filtrar_categorias', empresa_id=current_user.store) }}"> Filtros para Categorias</a></li>
                         </ul>
                     </li>
                     <li><a href="{{ url_for('auth.logout') }}">{{ 'Logout' }}</a></li>
