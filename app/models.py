@@ -122,7 +122,7 @@ class Order_header(db.Model):
     status_resumen = db.Column(db.String(25))
     customer_address = db.Column(db.String(64))
     customer_number = db.Column(db.String(10))
-    customer_floor = db.Column(db.String(10))
+    customer_floor = db.Column(db.String(64))
     customer_zipcode = db.Column(db.String(8))
     customer_locality = db.Column(db.String(150))
     customer_city = db.Column(db.String(64))
@@ -142,7 +142,7 @@ class Customer(db.Model):
     platform = db.Column(db.String(64), index=True)
     name = db.Column(db.String(64), index=True)
     email = db.Column(db.String(120), index=True)
-    identification = db.Column(db.String(10))
+    identification = db.Column(db.String(20))
     phone = db.Column(db.String(15))
     orders = db.relationship('Order_header', backref='buyer', lazy='dynamic')
 
