@@ -353,9 +353,29 @@ def actualiza_empresa(empresa):
         return 'Success'
 
 
+####################### Actualiza el JSON de configuracion del FRONT #################################
+def actualiza_empresa_JSON(empresa, clave, valor):
+
+    if current_app.config['SERVER_ROLE'] == 'DEV':
+        url="https://front.borisreturns.com/empresa_json"
+    if current_app.config['SERVER_ROLE'] == 'PROD':
+        url="https://frontprod.borisreturns.com/empresa_json"
+    
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    data = {
+        "store_id" : empresa.store_id,
+        clave : valor,
+    }
+    solicitud = requests.request("POST", url, headers=headers, data=json.dumps(data))
+    if solicitud.status_code != 200:
+        return 'Failed'
+    else: 
+        return 'Success'
+    
 ############# Envia datos de las categorias filtradas al FRONT para dar de alta o actualizar #################
 def actualiza_empresa_categorias(empresa):
-
     categorias_tmp = categories_filter.query.filter_by(store=empresa.store_id).all()
     categorias = []
     for i in categorias_tmp:
