@@ -556,15 +556,18 @@ def cargar_empresa():
 @bp.route('/borrar_pedidos', methods=['GET', 'POST'])
 @login_required
 def borrar_pedidos():
-    orders = Order_header.query.all()
+    orders =  Order_header.query.filter_by(store=1447373).all()
+    # orders = Order_header.query.all()
     for u in orders:
+        lineas = Order_detail.query.filter_by(order=u.orden_id).all()
         flash('Borrando Order_header {} '.format(u))
+        db.session.delete(lineas)
         db.session.delete(u)
 
-    orders = Order_detail.query.all()
-    for u in orders:
-        flash('Borrando Order_detail {} '.format(u))
-        db.session.delete(u)
+    #orders = Order_detail.query.all()
+    #for u in orders:
+    #    flash('Borrando Order_detail {} '.format(u))
+    #    db.session.delete(u)
 
     #users = User.query.all()
     #for u in users:
