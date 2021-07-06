@@ -557,12 +557,20 @@ def cargar_empresa():
 @login_required
 def borrar_pedidos():
     orders =  Order_header.query.filter_by(store=1447373).all()
-    # orders = Order_header.query.all()
+    orders2 = Order_header.query.all()
+    flash('orders {}'.format( type(orders)))
+    flash('orders2 {}'.format( type(orders2)))
     for u in orders:
-        lineas = Order_detail.query.filter_by(order=u.orden_id).all()
+        lineas = Order_detail.query.filter_by(order=u.id).all()
+        for l in lineas:
+            flash('Borrando Order_detail {} '.format(l))
+            db.session.delete(l)
         flash('Borrando Order_header {} '.format(u))
-        db.session.delete(lineas)
         db.session.delete(u)
+
+    #for u in orders:
+    #    flash('Borrando Order_header {} '.format(u))
+    #    db.session.delete(u)
 
     #orders = Order_detail.query.all()
     #for u in orders:

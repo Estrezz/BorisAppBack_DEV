@@ -10,10 +10,10 @@ import csv
 app=create_app()
 with app.app_context():
 
-  
-    cnx = create_engine(current_app.config['SQLALCHEMY_DATABASE_URI']).connect()
-    df = pd.read_sql_table('company', cnx)
-    print(df)
+    # to dreate df from database
+    #cnx = create_engine(current_app.config['SQLALCHEMY_DATABASE_URI']).connect()
+    #df = pd.read_sql_table('company', cnx)
+    #print(df)
 
     companies = Company.query.all()
     with open('logs/app/datos.csv', 'w+') as f:
