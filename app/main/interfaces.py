@@ -355,11 +355,10 @@ def actualiza_empresa(empresa):
 
 ####################### Actualiza el JSON de configuracion del FRONT #################################
 def actualiza_empresa_JSON(empresa, clave, valor):
-
     if current_app.config['SERVER_ROLE'] == 'DEV':
-        url="https://front.borisreturns.com/empresa_json"
+        url="https://front.borisreturns.com/empresa_json?clave="+clave
     if current_app.config['SERVER_ROLE'] == 'PROD':
-        url="https://frontprod.borisreturns.com/empresa_json"
+        url="https://frontprod.borisreturns.com/empresa_json?clave="+clave
     
     headers = {
         'Content-Type': 'application/json'

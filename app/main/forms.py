@@ -64,3 +64,8 @@ class EditMailsCompanyForm(FlaskForm):
     finalizado_note = StringField('Nota para el MAIL de finalización', validators=[Length(max=350)])
     submit = SubmitField('Confirmar')
 
+class EditMailsFrontCompanyForm(FlaskForm):
+    confirma_manual_note = StringField('Nota para el MAIL de inicio de Solicitud - Retiro Manual', validators=[Length(max=350)])
+    confirma_coordinar_note = StringField('Nota para el MAIL de inicio de Solicitud -Retiro a Coordinar', validators=[Length(max=350)])
+    confirma_moova_note = StringField('Nota para el MAIL de inicio de Solicitud - Retiro x Moova', validators=[Length(max=350)])
+    submit = SubmitField('Confirmar')

@@ -4,10 +4,10 @@ from flask import render_template, flash, redirect, url_for, request, current_ap
 from flask_login import current_user, login_required
 from app import db
 from app.email import send_email
-from app.main.forms import EditProfileForm, EditProfileCompanyForm, EditMailsCompanyForm, EditCorreoCompanyForm, EditParamsCompanyForm
+from app.main.forms import EditProfileForm, EditProfileCompanyForm, EditMailsCompanyForm, EditCorreoCompanyForm, EditParamsCompanyForm, EditMailsFrontCompanyForm
 from app.main.tiendanube import devolver_stock_tiendanube, generar_envio_tiendanube, autorizar_tiendanube, buscar_codigo_categoria_tiendanube
 from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log, categories_filter
-from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto, genera_credito, actualiza_empresa, actualiza_empresa_categorias
+from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto, genera_credito, actualiza_empresa, actualiza_empresa_categorias, actualiza_empresa_JSON
 import json
 from app.main import bp
 
@@ -82,14 +82,43 @@ def edit_profile_company():
         #### Actualiza los datos de la empresa en el FRONT ####
         status = actualiza_empresa(empresa)
         if status != 'Failed':
-            flash('Los datos se actuaizaron correctamente')
+            flash('Los datos se actualizaron correctamente')
         else:
             flash('Se produjo un error {}'. format(status))
         return redirect(url_for('main.company', empresa_id=empresa.store_id))
 
     return render_template('edit_profile_company.html', title='Editar perfil',
                            form=form, titulo=query, empresa_name=session['current_empresa'])
+
+
+@bp.route('/edit_profile_company_front', methods=['GET', 'POST'])
+@login_required
+def edit_profile_company_front():
+    empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
+    query =  request.args.get('formulario')
     
+    form = EditMailsFrontCompanyForm(obj=empresa)
+    if form.validate_on_submit():
+       
+        if empresa.confirma_manual_note != form.confirma_manual_note.data:
+            empresa.confirma_manual_note = form.confirma_manual_note.data
+            actualiza_empresa_JSON(empresa, 'confirma_manual_note', form.confirma_manual_note.data)
+            
+        if empresa.confirma_coordinar_note != form.confirma_coordinar_note.data:
+            empresa.confirma_coordinar_note = form.confirma_coordinar_note.data
+            actualiza_empresa_JSON(empresa, 'confirma_coordinar_note', form.confirma_coordinar_note.data)
+
+        if empresa.confirma_moova_note != form.confirma_moova_note.data:
+            empresa.confirma_moova_note = form.confirma_moova_note.data
+            actualiza_empresa_JSON(empresa, 'confirma_moova_note', form.confirma_moova_note.data)
+  
+        db.session.commit() 
+        return redirect(url_for('main.company', empresa_id=empresa.store_id))
+
+    return render_template('edit_profile_company.html', title='Editar perfil',
+                           form=form, titulo=query, empresa_name=session['current_empresa'])
+
+
 
 @bp.route('/categorias_filtro', methods=['GET', 'POST'])
 @login_required

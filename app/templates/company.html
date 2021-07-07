@@ -124,6 +124,26 @@
             </div>
         </div>
 
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title pull-left">
+              <a data-toggle="collapse" href="#collapse5">Mails Front</a>
+            </h4>
+            <div class="panel-title pull-right">
+              <a href="{{ url_for('main.edit_profile_company_front', formulario='Mails Front') }}">Editar</a>
+            </div>
+            <div class="clearfix"></div>  
+          </div>
+          <div id="collapse5" class="panel-collapse collapse">
+            <div class="panel-body">
+              <strong>Mail INICIO DE SOLICITUD:<br></strong>
+              Nota para Inicio de Envios Manuales: {{empresa.confirma_manual_note}}<br>
+              Nota para Inicio de Envios A coordinar: {{empresa.confirma_coordinar_note}}<br>
+              Nota para Inicio de Envios x Correo: {{empresa.confirma_moova_note}}<br>
+              <br>
+            </div>
+          </div>
+      </div>
       </div>
                
                
