@@ -300,7 +300,8 @@ def genera_codigo(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
 
-############# Envia datos de la empresa al FRONT para dar de alta o actualizar #################
+##################################################################################################
+############# Envia datos de la empresa al FRONT para dar de alta o actualizar ###################
 def actualiza_empresa(empresa):
     if current_app.config['SERVER_ROLE'] == 'DEV':
         url="https://front.borisreturns.com/empresa/chequear"
@@ -353,6 +354,7 @@ def actualiza_empresa(empresa):
         return 'Success'
 
 
+######################################################################################################
 ####################### Actualiza el JSON de configuracion del FRONT #################################
 def actualiza_empresa_JSON(empresa, clave, valor):
     if current_app.config['SERVER_ROLE'] == 'DEV':

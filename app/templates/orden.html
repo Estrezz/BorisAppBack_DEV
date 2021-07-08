@@ -70,6 +70,7 @@
                     <td><a href="{{ url_for('main.gestionar_producto', orden_id=orden.id, linea_id=i['order_line_number'] ) }}">
                     <button class="btn btn-primary"> Accion </button></td>
                 {% endif %}
+
                 {% if i['gestionado'] == 'Si' %}
                         <td><i class="fa fa-check-square-o" aria-hidden="true"></i></td>
                 {% endif %}
@@ -95,12 +96,18 @@
                             <input type="checkbox" id="coordinar_roundtrip" name="coordinar_roundtrip" value="True"><br>
                         </div>
                     </div>
-                    <br> <button type="submit" class="btn btn-primary" title='Pasa el pedido a LISTO PARA RETIRO' > Coordinado </button>
+                    <input type="submit" id="submit-form" class="hidden" />
                 </form>
+                    <label for="submit-form" tabindex="0" class="btn btn-primary" title='Pasa el pedido a LISTO PARA RETIRO'>Coordinar </label>
+
                 {% else %}
                 <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReady' ) }}">
                     <button class="btn btn-primary" title='Pasa el pedido a LISTO PARA RETIRO' > Confirmar </button></a> 
                 {% endif %}
+
+                <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReject' ) }}">
+                    <button class="btn btn-danger" title='Rechaza la solicitud' style="margin-left: 50px" > Rechazar <i class="fa fa-times" aria-hidden="true"> </i> </button></a> 
+
             {% endif %}
             {% if orden.sub_status == 'Listo para retiro' %}
             <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReceived' ) }}">
@@ -111,7 +118,7 @@
                     <button class="btn btn-primary"> Revisada y Aprobada <i class="fa fa-check" aria-hidden="true"></i> </button></a>
             
                 <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReject' ) }}">
-                <button class="btn btn-danger"> Rechazada <i class="fa fa-times" aria-hidden="true"></i></button></a>
+                <button class="btn btn-danger" style="margin-left: 50px" > Rechazada <i class="fa fa-times" aria-hidden="true"></i></button></a>
             {% endif %}
         {% endif %}    
         
