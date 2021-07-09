@@ -124,6 +124,7 @@ class Order_header(db.Model):
     status = db.Column(db.String(25))
     sub_status = db.Column(db.String(25))
     status_resumen = db.Column(db.String(25))
+    reject_reason = db.Column(db.String(350))
     customer_address = db.Column(db.String(64))
     customer_number = db.Column(db.String(10))
     customer_floor = db.Column(db.String(64))

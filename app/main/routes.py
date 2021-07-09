@@ -204,7 +204,6 @@ def ver_ordenes(estado, subestado):
 def orden(orden_id):
     orden = Order_header.query.filter_by(id=orden_id).first()
     orden_linea = Order_detail.query.filter_by(order=orden_id).all()
-    ### cambio_link
     empresa = Company.query.get(orden.store)
     return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer, empresa=empresa, empresa_name=session['current_empresa'])
 
@@ -235,8 +234,9 @@ def gestionar_ordenes(orden_id):
             if accion == 'toApproved':
                 toApproved(orden.id)
             else: 
-                if accion == 'toReject':
-                    toReject(orden.id)
+                if accion == 'toReject': 
+                    motivo = request.form.get('motivo')
+                    toReject(orden.id, motivo)
     return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer, empresa=empresa, empresa_name=session['current_empresa'])
     
 

@@ -86,13 +86,9 @@
             {% endfor %}
         </table>
         <br><br>
-        {% if orden.status == 'Shipping' %} 
-            <form id="coordinar_form" action="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReject' ) }}" method="POST"> 
-                <input type="text" id="motivo" name="motivo" class="hidden" value=""> <br>
-                <input type="submit" id="submit-reject" class="hidden" />
-            </form>
+        {% if orden.status == 'Shipping' %}
             {% if orden.sub_status == 'Solicitado' %}
-            <form id="coordinar_form" action="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReject' ) }}" method="POST"> 
+                <form id="coordinar_form" action="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReject' ) }}" method="POST"> 
                     <input type="text" id="motivo" name="motivo" class="hidden" value=""> <br>
                     <input type="submit" id="submit-reject" class="hidden" />
                 </form>
@@ -130,8 +126,8 @@
                 <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toApproved' ) }}">
                     <button class="btn btn-primary"> Revisada y Aprobada <i class="fa fa-check" aria-hidden="true"></i> </button></a>
             
-                <label id="bton" for="submit-reject" tabindex="0" class="btn btn-danger" style="margin-left: 25px" title='Pasa el pedido a LISTO PARA RETIRO'>Rechazar</label>
-                    
+                <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReject' ) }}">
+                <button class="btn btn-danger" style="margin-left: 25px" > Rechazada <i class="fa fa-times" aria-hidden="true"></i></button></a>
             {% endif %}
         {% endif %}    
         

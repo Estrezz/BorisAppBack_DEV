@@ -237,12 +237,13 @@ def toApproved(orden_id):
                 sync=False)
 
 
-def toReject(orden_id):
+def toReject(orden_id, motivo):
     orden = Order_header.query.get(orden_id)    
     orden.status = 'En Proceso'
     orden.sub_status = traducir_estado('RECHAZADO')[0]
     orden.status_resumen = traducir_estado('RECHAZADO')[1]
     orden.last_update_date = str(datetime.utcnow)
+    orden.reject_reason = motivo
     customer = Customer.query.get(orden.customer_id)
     company = Company.query.get(orden.store)
 
