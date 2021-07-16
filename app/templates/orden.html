@@ -28,6 +28,7 @@
                 <br> <strong>Ver compra en la Tienda: </strong> 
                 <a href={{link_orden}} target="_blank" rel="noreferrer noopener"> Click Acá </a>
             </div>
+            
             {% if orden.courier_method == 'Coordinar' %}
                 <div class="col-md-3">
                     <strong style="font-size: 2em;">  </strong> <br>
@@ -40,52 +41,64 @@
                         {% else %}
                             No
                         {% endif %}
-                        <br>
+                        <br><br>
                 </div>
-            {% endif %}
+            {% endif %}        
         </div>
+
+        <div class="row" style="margin-top: 25px">
+            <form id="Nota" action="{{ url_for('main.orden', orden_id = orden.id) }}" method="POST"> 
+                <label for="nota">Notas:</label>
+                <textarea class="form-control" rows="2" id="nota" name="nota" style="background-color: rgba(255, 255, 255, 0.705)" > {{orden.note}} </textarea>
+                <button  class="btn btn-link btn-xs" type="submit"> Añadir Nota </button>
+            </form>
+        </div>
+
     </div>
     <div class='container'>
-        <table style="width:100%">
-            <tr>
-                <th>Linea</th>
-                <th>Producto</th>
-                <th>Código Producto</th>
-                <th>Accion</th>
-                <th>Cantidad</th>
-                <th>Cambio X</th>
-                <th>Motivo</th>
-                <th>Gestion</th>
-                <th></th>
-            </tr>
-            {% for i in orden_linea %}
-            <tr>
-                <td>{{i['line_number']}}</td> 
-                <td>{{i['name']}}</td> 
-                <td>{{i['prod_id']}}</td> 
-                <td>{{i['accion']}}</td>
-                <td>{{i['accion_cantidad']}}</td>
-                <td>{{i['accion_cambiar_por_desc']}}</td>
-                <td>{{i['motivo']}}</td>
-                <td>{{i['gestionado']}}</td>
-                
+                <table style="width:100%">
+                    <tr>
+                        <th> </th>
+                        <th>Producto</th>
+                        <th>Código</th>
+                        <th>Accion</th>
+                        <th>Cantidad</th>
+                        <th>Cambio X</th>
+                        <th>Motivo</th>
+                        <th>Gestion</th>
+                        <th></th>
+                    </tr>
+                    {% for i in orden_linea %}
+                    <tr>
+                        <td>{{i['line_number']}} - </td> 
+                        <td>{{i['name']}}</td> 
+                        <td>{{i['prod_id']}}</td> 
+                        <td>{{i['accion']}}</td>
+                        <td>{{i['accion_cantidad']}}</td>
+                        <td>{{i['accion_cambiar_por_desc']}}</td>
+                        <td>{{i['motivo']}}</td>
+                        <td>{{i['gestionado']}}</td>
+                        
 
-                {% if (orden.status == 'En Proceso' and orden.sub_status != 'Rechazado' and i['gestionado'] != 'Si') %}
-                    <td><a href="{{ url_for('main.gestionar_producto', orden_id=orden.id, linea_id=i['order_line_number'] ) }}">
-                    <button class="btn btn-primary"> Accion </button></td>
-                {% endif %}
+                        {% if (orden.status == 'En Proceso' and orden.sub_status != 'Rechazado' and i['gestionado'] != 'Si') %}
+                            <td><a href="{{ url_for('main.gestionar_producto', orden_id=orden.id, linea_id=i['order_line_number'] ) }}">
+                            <button class="btn btn-primary"> Accion </button></td>
+                        {% endif %}
 
-                {% if i['gestionado'] == 'Si' %}
-                        <td><i class="fa fa-check-square-o" aria-hidden="true"></i></td>
-                {% endif %}
+                        {% if i['gestionado'] == 'Si' %}
+                                <td><i class="fa fa-check-square-o" aria-hidden="true"></i></td>
+                        {% endif %}
 
-                <td> <td><a href="{{ url_for('main.historia_producto', linea_id=i['order_line_number']) }}">
-                    <button class="btn btn-link"> Ver Historia </button></td></td>
+                        <td> <td><a href="{{ url_for('main.historia_producto', linea_id=i['order_line_number']) }}">
+                            <button class="btn btn-link"> Ver Historia </button></td></td>
 
-            </tr>
-            {% endfor %}
-        </table>
-        <br><br>
+                    </tr>
+                    {% endfor %}
+                </table>
+         
+        <br>
+
+        
         {% if orden.status == 'Shipping' %} 
             <form id="coordinar_form" action="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReject' ) }}" method="POST"> 
                 <input type="text" id="motivo" name="motivo" class="hidden" value=""> <br>
@@ -101,12 +114,20 @@
                 <form id="coordinar_form" action="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReady' ) }}" method="POST"> 
                     <div class="panel panel-default">
                         <div class="panel-body">
-                            <label for="coordinar_empresa">Correo:</label>
-                            <input type="text" id="coordinar_empresa" name="coordinar_empresa" value=""> <br>
-                            <label for="coordinar_guia">Guia &nbsp;&nbsp;:</label>
-                            <input type="text" id="coordinar_guia" name="coordinar_guia" value=""> <br>
-                            <label for="coordinar_Roundtrip">Recogida + Entrega?:</label>
-                            <input type="checkbox" id="coordinar_roundtrip" name="coordinar_roundtrip" value="True"><br>
+                            <div class="row">
+                                <div class="col-lg-5">                              
+                                    <input type="text" class="form-control" id="coordinar_empresa" name="coordinar_empresa" value="" placeholder="correo">
+                                </div>
+                                <div class="col-lg-5">
+                                    <input type="text" class="form-control" id="coordinar_guia" name="coordinar_guia" value="" placeholder="Guia">
+                                </div>
+                            </div> <!-- /row -->
+                            <br>
+                            <div class="row">
+                                <div class="col-lg-5 ">
+                                    <input type="checkbox" id="coordinar_roundtrip" name="coordinar_roundtrip" value="True"> Recogida + Entrega?:
+                                </div><!-- /.col-lg-6 -->
+                            </div>
                         </div>
                     </div>
                     <input type="submit" id="submit-form" class="hidden" />
@@ -133,8 +154,7 @@
                 <label id="bton" for="submit-reject" tabindex="0" class="btn btn-danger" style="margin-left: 25px" title='Pasa el pedido a LISTO PARA RETIRO'>Rechazar</label>
                     
             {% endif %}
-        {% endif %}    
-        
-        
+        {% endif %}  
+ 
     </div>
 {% endblock %}

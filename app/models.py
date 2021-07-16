@@ -133,6 +133,7 @@ class Order_header(db.Model):
     customer_city = db.Column(db.String(64))
     customer_province = db.Column(db.String(64))
     customer_country = db.Column(db.String(64))
+    note = db.Column(db.Text)
     detalle = db.relationship('Order_detail', backref='productos', lazy='dynamic')
     transaction = db.relationship('Transaction_log', backref='transaccion', lazy='dynamic')
     customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'))

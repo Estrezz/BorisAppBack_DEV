@@ -85,10 +85,21 @@
             </tr>
             {% endfor %}
         </table>
-        <br><br>
-        {% if orden.status == 'Shipping' %}
+        <br>
+
+        <form id="Nota" action="{{ url_for('main.orden', orden_id = orden.id) }}" method="POST"> 
+            <label for="nota">Notas:</label>
+            <textarea class="form-control " rows="1" id="nota" name="nota" ></textarea>
+            <button  class="btn btn btn-default btn-xs" type="submit"> Añadir Nota </button>
+        </form>
+        
+        {% if orden.status == 'Shipping' %} 
+            <form id="coordinar_form" action="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReject' ) }}" method="POST"> 
+                <input type="text" id="motivo" name="motivo" class="hidden" value=""> <br>
+                <input type="submit" id="submit-reject" class="hidden" />
+            </form>
             {% if orden.sub_status == 'Solicitado' %}
-                <form id="coordinar_form" action="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReject' ) }}" method="POST"> 
+            <form id="coordinar_form" action="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReject' ) }}" method="POST"> 
                     <input type="text" id="motivo" name="motivo" class="hidden" value=""> <br>
                     <input type="submit" id="submit-reject" class="hidden" />
                 </form>
@@ -97,12 +108,20 @@
                 <form id="coordinar_form" action="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReady' ) }}" method="POST"> 
                     <div class="panel panel-default">
                         <div class="panel-body">
-                            <label for="coordinar_empresa">Correo:</label>
-                            <input type="text" id="coordinar_empresa" name="coordinar_empresa" value=""> <br>
-                            <label for="coordinar_guia">Guia &nbsp;&nbsp;:</label>
-                            <input type="text" id="coordinar_guia" name="coordinar_guia" value=""> <br>
-                            <label for="coordinar_Roundtrip">Recogida + Entrega?:</label>
-                            <input type="checkbox" id="coordinar_roundtrip" name="coordinar_roundtrip" value="True"><br>
+                            <div class="row">
+                                <div class="col-lg-5">                              
+                                    <input type="text" class="form-control" id="coordinar_empresa" name="coordinar_empresa" value="" placeholder="correo">
+                                </div>
+                                <div class="col-lg-5">
+                                    <input type="text" class="form-control" id="coordinar_guia" name="coordinar_guia" value="" placeholder="Guia">
+                                </div>
+                            </div> <!-- /row -->
+                            <br>
+                            <div class="row">
+                                <div class="col-lg-5 ">
+                                    <input type="checkbox" id="coordinar_roundtrip" name="coordinar_roundtrip" value="True"> Recogida + Entrega?:
+                                </div><!-- /.col-lg-6 -->
+                            </div>
                         </div>
                     </div>
                     <input type="submit" id="submit-form" class="hidden" />
@@ -126,11 +145,10 @@
                 <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toApproved' ) }}">
                     <button class="btn btn-primary"> Revisada y Aprobada <i class="fa fa-check" aria-hidden="true"></i> </button></a>
             
-                <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReject' ) }}">
-                <button class="btn btn-danger" style="margin-left: 25px" > Rechazada <i class="fa fa-times" aria-hidden="true"></i></button></a>
+                <label id="bton" for="submit-reject" tabindex="0" class="btn btn-danger" style="margin-left: 25px" title='Pasa el pedido a LISTO PARA RETIRO'>Rechazar</label>
+                    
             {% endif %}
-        {% endif %}    
-        
-        
+        {% endif %}  
+ 
     </div>
 {% endblock %}

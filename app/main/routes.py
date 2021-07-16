@@ -189,22 +189,49 @@ def search():
 @login_required
 def ver_ordenes(estado, subestado):
     resumen = resumen_ordenes(current_user.store) 
+    page = request.args.get('page', 1, type=int)
+    next_url = None
+    prev_url = None
     if estado == 'all':
-        ordenes =  Order_header.query.filter_by(store=current_user.store).all()
+        #### Paginacion
+        #### Paginacion ####
+        ordenes =  Order_header.query.filter_by(store=current_user.store).paginate(
+            page, current_app.config['POSTS_PER_PAGE'], False)
+        next_url = url_for('main.ver_ordenes', estado=estado, subestado=subestado, page=ordenes.next_num) \
+                if ordenes.has_next else None
+        prev_url = url_for('main.ver_ordenes', estado=estado, subestado=subestado, page=ordenes.prev_num) \
+                if ordenes.has_prev else None
+        #ordenes =  Order_header.query.filter_by(store=current_user.store).all()
     else :
         if subestado == 'all':
-            ordenes = db.session.query(Order_header).filter((Order_header.store == current_user.store)).filter((Order_header.status == estado))
+            ordenes = db.session.query(Order_header).filter((Order_header.store == current_user.store)).filter((Order_header.status == estado)).paginate(
+            page, current_app.config['POSTS_PER_PAGE'], False)
+            next_url = url_for('main.ver_ordenes', estado=estado, subestado=subestado, page=ordenes.next_num) \
+                if ordenes.has_next else None
+            prev_url = url_for('main.ver_ordenes', estado=estado, subestado=subestado, page=ordenes.prev_num) \
+                if ordenes.has_prev else None
         else: 
-            ordenes = db.session.query(Order_header).filter((Order_header.store == current_user.store)).filter((Order_header.status == estado)).filter((Order_header.status_resumen == subestado))
-    return render_template('ordenes.html', title='Ordenes', ordenes=ordenes, estado=estado, subestado=subestado,  resumen=resumen, empresa_name=session['current_empresa'])
+            ordenes = db.session.query(Order_header).filter((Order_header.store == current_user.store)).filter((Order_header.status == estado)).filter((Order_header.status_resumen == subestado)).paginate(
+            page, current_app.config['POSTS_PER_PAGE'], False)
+            next_url = url_for('main.ver_ordenes', estado=estado, subestado=subestado, page=ordenes.next_num) \
+                if ordenes.has_next else None
+            prev_url = url_for('main.ver_ordenes', estado=estado, subestado=subestado, page=ordenes.prev_num) \
+                if ordenes.has_prev else None
+
+    return render_template('ordenes.html', title='Ordenes', ordenes=ordenes, estado=estado, subestado=subestado,  resumen=resumen, empresa_name=session['current_empresa'], next_url=next_url,
+                           prev_url=prev_url)
 
 
-@bp.route('/orden/<orden_id>')
+@bp.route('/orden/<orden_id>', methods=['GET', 'POST'])
 @login_required
 def orden(orden_id):
     orden = Order_header.query.filter_by(id=orden_id).first()
     orden_linea = Order_detail.query.filter_by(order=orden_id).all()
     empresa = Company.query.get(orden.store)
+    if request.form.get('nota'):
+        orden.note = request.form.get('nota')
+        db.session.commit()
+        
     return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer, empresa=empresa, empresa_name=session['current_empresa'])
 
 

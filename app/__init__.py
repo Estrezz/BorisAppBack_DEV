@@ -61,7 +61,7 @@ def create_app(config_class=Config):
         if not os.path.exists('logs'):
             os.mkdir('logs')
         file_handler = RotatingFileHandler('logs/boris.log',
-                                            maxBytes=10240, backupCount=10)
+                                            maxBytes=10240, backupCount=20)
         file_handler.setFormatter(logging.Formatter(
                 '%(asctime)s %(levelname)s: %(message)s '
                 '[in %(pathname)s:%(lineno)d]'))
@@ -69,7 +69,7 @@ def create_app(config_class=Config):
         app.logger.addHandler(file_handler)
 
         app.logger.setLevel(logging.INFO)
-        app.logger.info('Boris startup')
+        app.logger.info('Boris Back startup')
 
     return app
 
