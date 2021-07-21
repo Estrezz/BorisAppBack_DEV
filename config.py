@@ -18,7 +18,7 @@ class Config(object):
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     ADMINS = ['soporte@borisreturns.com']
-    POSTS_PER_PAGE = 25
+    POSTS_PER_PAGE = int(os.environ.get('POST_PER_PAGE') or 20)
     FILES_PEDIDOS_URL = os.environ.get('FILES_PEDIDOS_URL')
     SERVER_ROLE = os.environ.get('SERVER_ROLE')
 
