@@ -50,13 +50,18 @@
         </table>
         <br>
         
-        <ul class="pager">
-            {% if prev_url %}
-            <li class="previous"><a href="{{ prev_url }}"> <span aria-hidden="true">&larr;</span> Anteriores</a></li>
-            {% endif %}
-            {% if next_url %}
-            <li class="next"><a href="{{ next_url }}"> Siguientes<span aria-hidden="true">&rarr;</span></a></li>
-            {% endif %}
-          </ul>
+        <div class="text-center">
+            <ul class="pagination">
+                {% if prev_url %}
+                    <li><a href="{{ prev_url }}" data-original-title="" title=""><span aria-hidden="true">&larr;</span> Anteriores</a></li> 
+                    <li class="page-item disabled"><a href="{{ next_url }}" data-original-title="" title=""> Siguientes<span aria-hidden="true">&rarr;</span></a></li> 
+                {% endif %}
+                {% if next_url %}
+                    <li class="page-item disabled"> <a href="{{ prev_url }}" data-original-title="" title=""><span aria-hidden="true">&larr;</span> Anteriores</a></li> 
+                    <li><a href="{{ next_url }}" data-original-title="" title=""> Siguientes<span aria-hidden="true">&rarr;</span></a></li> 
+                {% endif %}
+            </ul>
+        </div>
+
     </div>
 {% endblock %}
