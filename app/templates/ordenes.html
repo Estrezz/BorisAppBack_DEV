@@ -1,21 +1,21 @@
 
 {% extends "base.html" %}
 
-
 {% block app_content %}
 
 <div class='container'> 
-<ul  class="nav nav-pills nav-fill">
-    <li role="presentation" {% if subestado == 'all' %} class='active' {% endif %} ><a href="{{ url_for('main.ver_ordenes', estado='all', subestado='all') }}">Todas</a></li>
-    <li role="presentation" {% if subestado == 'Solicitado' %} class='active' {% endif %}><a href="{{ url_for('main.ver_ordenes', estado='Shipping', subestado='Solicitado') }}">Solicitadas <span class="badge">{{resumen.solicitadas}}</span></a></li>
-    <li role="presentation" {% if subestado == 'En Transito' %} class='active' {% endif %}><a href="{{ url_for('main.ver_ordenes', estado='Shipping', subestado='En Transito')  }}">En Tránsito <span class="badge">{{resumen.entransito}}</span> </a></li>
-    <li role="presentation" {% if subestado == 'Recibido' %} class='active' {% endif %}><a href="{{ url_for('main.ver_ordenes', estado='Shipping', subestado='Recibido') }}">Recibidas <span class="badge">{{resumen.recibidas}}</span></a></li>
-    <li role="presentation" {% if subestado == 'Aprobado' %} class='active' {% endif %} ><a href="{{ url_for('main.ver_ordenes', estado='En Proceso', subestado='Aprobado') }}">Aprobadas <span class="badge">{{resumen.aprobadas}}</span></a></li>
-    <li role="presentation" {% if subestado == 'Rechazado' %} class='active' {% endif %}><a href="{{ url_for('main.ver_ordenes', estado='En Proceso', subestado='Rechazado') }}">Rechazadas <span class="badge">{{resumen.rechazadas}}</span></a></li>
-  </ul>
+    <ul  class="nav nav-pills nav-fill" >
+        <li  class="nav-item" role="presentation" ><a {% if subestado == 'all' %} class='nav-link active' {% else %} class='nav-link' {% endif %} href="{{ url_for('main.ver_ordenes', estado='all', subestado='all') }}">Todas</a></li>
+        <li  class="nav-item" role="presentation" ><a {% if subestado == 'Solicitado' %} class='nav-link active' {% else %} class='nav-link' {% endif %} href="{{ url_for('main.ver_ordenes', estado='Shipping', subestado='Solicitado') }}">Solicitadas <span class="badge badge-secondary">{{resumen.solicitadas}}</span></a></li>
+        <li  class="nav-item" role="presentation" ><a {% if subestado == 'En Transito' %}class='nav-link active' {% else %} class='nav-link' {% endif %} href="{{ url_for('main.ver_ordenes', estado='Shipping', subestado='En Transito')  }}">En Tránsito <span class="badge badge-secondary">{{resumen.entransito}}</span> </a></li>
+        <li  class="nav-item" role="presentation" ><a {% if subestado == 'Recibido' %} class='nav-link active' {% else %} class='nav-link' {% endif %} href="{{ url_for('main.ver_ordenes', estado='Shipping', subestado='Recibido') }}">Recibidas <span class="badge badge-secondary">{{resumen.recibidas}}</span></a></li>
+        <li  class="nav-item" role="presentation" ><a {% if subestado == 'Aprobado' %} class='nav-link active'{% else %} class='nav-link' {% endif %} href="{{ url_for('main.ver_ordenes', estado='En Proceso', subestado='Aprobado') }}">Aprobadas <span class="badge badge-secondary">{{resumen.aprobadas}}</span></a></li>
+        <li  class="nav-item" role="presentation" ><a {% if subestado == 'Rechazado' %} class='nav-link active'{% else %} class='nav-link' {% endif %} href="{{ url_for('main.ver_ordenes', estado='En Proceso', subestado='Rechazado') }}">Rechazadas <span class="badge badge-secondary">{{resumen.rechazadas}}</span></a></li>
+    </ul>
+    <br>
 
-        <table class="table table-striped" style="width:100%">
-            <caption><h3>{{active_page}}</h3></caption>
+    <table id="ordenes" class="table table-sm table-striped table-responsive-sm" >
+        <thead>
             <tr>
                 <th>Orden</th>
                 <th>Fecha Creacion</th>
@@ -24,44 +24,47 @@
                 <th>Nro. Guía</th>
                 <th>Estado</th>
                 <th></th>
+                <th></th>
             </tr>
-            {% for i in ordenes.items %}
+        </thead>
 
-            {% if i['status'] == 'Shipping' %}
-                {% set color = 'blue' %}
-            {% endif %}
-            {% if i['status'] == 'En Proceso' %}
-                {% set color = 'green' %}
-            {% endif %}
+        <tbody>
+            {% for i in ordenes %}
 
-            <tr>
-                <td>{{i['order_number']}} </td>
-                <td>{{ moment(i['date_creation']).format("DD/MM/YYYY")}}</td>
-                <td>{{ moment(i['date_lastupdate']).fromNow() }}</td>
-                <td>{{ i['courier_method'] }}</td>
-                <td>{{ i['courier_order_id'] }}</td>
-                <td style="color:{{color}}">{{i['status_resumen']}}</td>
-                <td><a href="{{ url_for('main.orden', orden_id = i['id']) }}">
-                    <button class="btn btn-primary btn-sm" > Gestionar </button></td>
-                <td><a href="{{ url_for('main.historia_orden', orden_id = i['id']) }}">
-                    <button class="btn btn-link"> Ver Historia </button></td>
-            </tr>
+                {% if i['status'] == 'Shipping' %}
+                    {% set color = 'blue' %}
+                {% endif %}
+                {% if i['status'] == 'En Proceso' %}
+                    {% set color = 'green' %}
+                {% endif %}
+                
+                <tr>
+                    <td>{{i['order_number']}} </td>
+                    <td>{{ moment(i['date_creation']).format("DD/MM/YYYY")}}</td>
+                    <td>{{ moment(i['date_lastupdate']).fromNow() }}</td>
+                    <td>{{ i['courier_method'] }}</td>
+                    <td>{{ i['courier_order_id'] }}</td>
+                    <td style="color:{{color}}">{{i['status_resumen']}}</td>
+                    <td><a href="{{ url_for('main.orden', orden_id = i['id']) }}">
+                        <button class="btn btn-primary btn-sm" > Gestionar </button></td>
+                    <td><a href="{{ url_for('main.historia_orden', orden_id = i['id']) }}">
+                        <button class="btn btn-link"> Ver Historia </button></td>
+                </tr>
             {% endfor %}
-        </table>
-        <br>
-        
-        <div class="text-center">
-            <ul class="pagination">
-                {% if prev_url %}
-                    <li><a href="{{ prev_url }}" data-original-title="" title=""><span aria-hidden="true">&larr;</span> Anteriores</a></li> 
-                    <li class="page-item disabled"><a href="{{ next_url }}" data-original-title="" title=""> Siguientes<span aria-hidden="true">&rarr;</span></a></li> 
-                {% endif %}
-                {% if next_url %}
-                    <li class="page-item disabled"> <a href="{{ prev_url }}" data-original-title="" title=""><span aria-hidden="true">&larr;</span> Anteriores</a></li> 
-                    <li><a href="{{ next_url }}" data-original-title="" title=""> Siguientes<span aria-hidden="true">&rarr;</span></a></li> 
-                {% endif %}
-            </ul>
-        </div>
+        </tbody>
+    </table>
+    <br>
+</div>
+{% endblock %}
 
-    </div>
+{% block scripts %}
+    {{ super() }}
+    <script>
+    
+        $(document).ready( function () {
+            $.noConflict();
+            $('#ordenes').DataTable();
+        } );
+    
+    </script>
 {% endblock %}

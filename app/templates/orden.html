@@ -1,160 +1,245 @@
 {% extends "base.html" %}
 
 {% block app_content %}
-    <div class='jumbotron'>
-        <div class="row">
-            <div class="col-md-4">
-                <strong style="font-size: 2em;"> Orden #{{orden.order_number}} </strong> <br>
-                <input type="hidden" id="ordenId" name="ordenId" value={{orden.id}}>
-                <strong> Cliente </strong>{{customer.name}}  <br>
-                                          {{customer.email}} <br>
-                                          {{orden.customer_address}}&nbsp{{orden.customer_number}}&nbsp{{orden.customer_floor}}<br>
-                                          {{orden.customer_locality}}&nbsp({{orden.customer_zipcode}})<br>
-                                          {{orden.customer_city}} &nbsp - &nbsp{{orden.customer_province}}
-            </div>
-            <div class="col-md-5">
-                <strong style="font-size: 2em;">  </strong> <br>
-                <strong>Estado:</strong> {{orden.status_resumen}} 
-                {% if orden.reject_reason != None %}
-                    - {{orden.reject_reason}}
-                {% endif %}<br>
-                <strong>Fecha de creación:</strong> {{ moment(orden.date_creation).format("DD/MM/YYYY")}} <br>
-                <strong>Método de Envío:</strong> {{orden.courier_method}} <br>
-                <strong>Guia:</strong> {{ orden.courier_order_id }}
-                {% if orden.status_resumen == 'Solicitado' %}
-                <br><strong> Costo del Envío: {{orden.courier_precio}}</strong>
-                {% endif %}
-                {% set link_orden = empresa.store_url+'/admin/orders/'+orden.order_id_anterior|string %}
-                <br> <strong>Ver compra en la Tienda: </strong> 
-                <a href={{link_orden}} target="_blank" rel="noreferrer noopener"> Click Acá </a>
-            </div>
-            
-            {% if orden.courier_method == 'Coordinar' %}
-                <div class="col-md-3">
-                    <strong style="font-size: 2em;">  </strong> <br>
-                    <strong>Datos del envío coordinado:</strong> <br>
-                    <strong>Correo:</strong> {{orden.courier_coordinar_empresa}} <br>
-                    <strong>Guia:</strong> {{orden.courier_coordinar_guia}} <br>
-                    <strong>Recogida + entrega:</strong> 
-                        {% if orden.courier_coordinar_roundtrip == True %}
-                            Si
-                        {% else %}
-                            No
-                        {% endif %}
-                        <br><br>
-                </div>
-            {% endif %}        
-        </div>
-
-        <div class="row" style="margin-top: 25px">
-            <form id="Nota" action="{{ url_for('main.orden', orden_id = orden.id) }}" method="POST"> 
-                <label for="nota">Notas:</label>
-                <textarea class="form-control" rows="2" id="nota" name="nota" style="background-color: rgba(255, 255, 255, 0.705)" > {{orden.note}} </textarea>
-                <button  class="btn btn-link btn-xs" type="submit"> Añadir Nota </button>
-            </form>
-        </div>
-
-    </div>
     <div class='container'>
-                <table style="width:100%">
-                    <tr>
-                        <th> </th>
-                        <th>Producto</th>
-                        <th>Código</th>
-                        <th>Accion</th>
-                        <th>Cantidad</th>
-                        <th>Cambio X</th>
-                        <th>Motivo</th>
-                        <th>Gestion</th>
-                        <th></th>
-                    </tr>
-                    {% for i in orden_linea %}
-                    <tr>
-                        <td>{{i['line_number']}} - </td> 
-                        <td>{{i['name']}}</td> 
-                        <td>{{i['prod_id']}}</td> 
-                        <td>{{i['accion']}}</td>
-                        <td>{{i['accion_cantidad']}}</td>
-                        <td>{{i['accion_cambiar_por_desc']}}</td>
-                        <td>{{i['motivo']}}</td>
-                        <td>{{i['gestionado']}}</td>
-                        
+        <div class="row">
+            <div class="col-md-8">
 
-                        {% if (orden.status == 'En Proceso' and orden.sub_status != 'Rechazado' and i['gestionado'] != 'Si') %}
-                            <td><a href="{{ url_for('main.gestionar_producto', orden_id=orden.id, linea_id=i['order_line_number'] ) }}">
-                            <button class="btn btn-primary"> Accion </button></td>
-                        {% endif %}
+                <!-- Encabezado conNro de Orden-->
+                <div class="row">
+                    <div class = "page-header"> <h4> Orden #{{orden.order_number}}</h4> </div>
+                </div>
+                
+                <!-- Listado de articulos que entran-->
+                <div class="row">
+                    <h5> Artículos entrantes </h5> 
+                </div>     
 
+                {% for i in orden_linea %}
+                <div class="row">
+                   
+                    <!-- Descripcio + datos articulos -->
+                    <div class="col-xs-6 col-sm-6 col-md-8 col-lg-8">
+                        <input type="hidden" id="{{ i['prod_id'] }}" name="prod_Id" value="{{ i['prod_id'] }}">
+                        <br> 
+                        <strong> {{ i['name'] }} </strong> 
+                        <small>
+                        <a href="{{ url_for('main.historia_producto', linea_id=i['order_line_number']) }}">
+                            <button class="btn btn-link btn-sm">Ver Historia </button></a>
+                        </small>
+                        <br> 
+                        Estado: 
                         {% if i['gestionado'] == 'Si' %}
-                                <td><i class="fa fa-check-square-o" aria-hidden="true"></i></td>
+                            Gestionado <i class="fa fa-check-square-o" aria-hidden="true"></i>
+                        {% else %}
+                            {{i['gestionado']}} 
+                        {% endif %}<br>
+                        {{i['accion']}} - {{i['accion_cantidad']}}
+                        {% if i['accion'] == 'cambiar' %}
+                            &nbsp; x {{ i['accion_cambiar_por_desc'] }} 
                         {% endif %}
-
-                        <td> <td><a href="{{ url_for('main.historia_producto', linea_id=i['order_line_number']) }}">
-                            <button class="btn btn-link"> Ver Historia </button></td></td>
-
-                    </tr>
-                    {% endfor %}
-                </table>
-         
-        <br>
-
-        
-        {% if orden.status == 'Shipping' %} 
-            <form id="coordinar_form" action="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReject' ) }}" method="POST"> 
-                <input type="text" id="motivo" name="motivo" class="hidden" value=""> <br>
-                <input type="submit" id="submit-reject" class="hidden" />
-            </form>
-            {% if orden.sub_status == 'Solicitado' %}
-            <form id="coordinar_form" action="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReject' ) }}" method="POST"> 
-                    <input type="text" id="motivo" name="motivo" class="hidden" value=""> <br>
-                    <input type="submit" id="submit-reject" class="hidden" />
-                </form>
-                    
-                {% if orden.courier_method == 'Coordinar' %}
-                <form id="coordinar_form" action="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReady' ) }}" method="POST"> 
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-                            <div class="row">
-                                <div class="col-lg-5">                              
-                                    <input type="text" class="form-control" id="coordinar_empresa" name="coordinar_empresa" value="" placeholder="correo">
-                                </div>
-                                <div class="col-lg-5">
-                                    <input type="text" class="form-control" id="coordinar_guia" name="coordinar_guia" value="" placeholder="Guia">
-                                </div>
-                            </div> <!-- /row -->
-                            <br>
-                            <div class="row">
-                                <div class="col-lg-5 ">
-                                    <input type="checkbox" id="coordinar_roundtrip" name="coordinar_roundtrip" value="True"> Recogida + Entrega?:
-                                </div><!-- /.col-lg-6 -->
-                            </div>
-                        </div>
+                        ({{i['motivo']}}) <br>        
                     </div>
-                    <input type="submit" id="submit-form" class="hidden" />
-                </form>
 
-                <label for="submit-form" tabindex="0" class="btn btn-primary" title='Pasa el pedido a LISTO PARA RETIRO'>Coordinar </label>
+                    <!-- Precios articulos -->
+                    <div class="col-xs-4 col-sm-4 col-md-2 col-lg-2">
+                        <br>
+                        {{i['precio']}}<br>
+                        {% if i.promo_descuento != 0 %} 
+                            Promo: {{i.promo_descuento}} ({{i.promo_nombre}})
+                            final: {{i.promo_precio_final}}
+                        {% endif %}
+                    </div>
 
-                {% else %}
-                <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReady' ) }}">
-                    <button class="btn btn-primary" title='Pasa el pedido a LISTO PARA RETIRO' > Confirmar </button></a> 
+                </div>
+                {% endfor %} 
+                <hr>
+                
+                <!-- Listado de articulos Saliente  -->
+                <div class="row">
+                    <h5> Artículos salientes</h5> 
+                </div>     
+                {% for i in orden_linea %}
+                <div class="row">
+                   
+                    <!-- Descripcio + datos articulos -->
+                    <div class="col-xs-6 col-sm-6 col-md-8 col-lg-8">
+                        <input type="hidden" id="sale_{{ i['prod_id'] }}" name="prod_Id" value="{{ i['prod_id'] }}">
+                        {% if i['accion'] == 'cambiar' %}
+                            <br>
+                            <strong> {{ i['accion_cambiar_por_desc'] }} </strong> <br>
+                            ({{ i['accion_cambiar_por'] }})
+                            <br>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+                <hr>
+
+
+                <!-- Calculo de diferencia de precio -->
+                <div class="row">
+                        {% if orden.gastos_cupon != 0 %}
+                            Cupon: {{orden.gastos_cupon}}
+                        {% endif %}
+                        {% if orden.gastos_gateway != 0 %} 
+                            Desc. forma de pago: {{orden.gastos_gateway}}
+                        {% endif %}
+                        {% if orden.gastos_shipping_owner != 0 %} 
+                            Costo envío vendedor: {{orden.gastos_shipping_owner}}
+                        {% endif %}
+                        {% if orden.gastos_shipping_customer != 0 %} 
+                            Costo envío Cliente: {{orden.gastos_shipping_customer}}
+                        {% endif %}
+                        {% if orden.gastos_promocion != 0 %}
+                            Dec. Promo: {{orden.gastos_promocion}}
+                        {% endif %}       
+                    </div>
+
+
+                <!-- Botones -->
+
+                <!-- Si el articulo Aún no fue RECIBIDO  -->
+                {% if orden.status == 'Shipping' %}
+                    <form id="coordinar_form" action="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReject' ) }}" method="POST"> 
+                        <input type="text" id="motivo" name="motivo" class="d-none" value=""> <br>
+                        <input type="submit" id="submit-reject" class="d-none" />
+                    </form>
+                    <!-- Si el articulo Aún no fue CONFIRMADO  -->
+                    {% if orden.sub_status == 'Solicitado' %}
+                        <form id="coordinar_form" action="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReject' ) }}" method="POST"> 
+                            <input type="text" id="motivo" name="motivo" class="d-none" value=""> <br>
+                            <input type="submit" id="submit-reject" class="d-none" />
+                        </form>
+
+                        <!-- Si no fue confirmado y el metodo de Envio elegido es COORDINAR  -->     
+                        {% if orden.courier_method == 'Coordinar' %}
+                            <label for="submit-form" tabindex="0" class="btn btn-primary" title='Pasa el pedido a LISTO PARA RETIRO'>Coordinar </label>
+                        <!-- Si no fue confirmado y el metodo de Envio elegido es MOOVA o MANUAL  --> 
+                        {% else %}
+                        <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReady' ) }}">
+                            <button class="btn btn-primary" title='Pasa el pedido a LISTO PARA RETIRO' > Confirmar </button></a> 
+                        {% endif %}
+                        
+                        <!-- Boton de rechazo (previo a confirmación)  -->  
+                        <label id="bton" for="submit-reject" tabindex="0" class="btn btn-outline-danger float-right" title='Rechaza el pedido'>Rechazar</label>
+                    {% endif %}
+
+                    <!-- Si el articulo Aún no fue RECIBIDO  pero ya esta confirmado -->
+                    {% if orden.sub_status == 'Listo para retiro' %}
+                    <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReceived' ) }}">
+                        <button class="btn btn-primary" title='Pasa la orden a Reciibida' > Recibir </button></a> 
+                    {% endif %}
+
+                    <!-- Si el articulo ya fue RECIBIDO  (aún no aprobado) -->
+                    {% if orden.sub_status == 'Recibido' %}
+                        <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toApproved' ) }}">
+                            <button class="btn btn-primary"> Revisar y Aprobar <i class="fa fa-check" aria-hidden="true"></i> </button></a>
+
+                        <!-- Boton de rechazo (post confirmación, previo a recibir)  -->  
+                        <label id="bton" for="submit-reject" tabindex="0" class="btn btn-outline-danger float-right" title='Rechaza el pedido'>Rechazar</label>      
+                    {% endif %}
                 {% endif %}
                 
-                <label id="bton" for="submit-reject" tabindex="0" class="btn btn-danger" style="margin-left: 25px" title='Pasa el pedido a LISTO PARA RETIRO'>Rechazar</label>
-                
-            {% endif %}
-            {% if orden.sub_status == 'Listo para retiro' %}
-            <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReceived' ) }}">
-                <button class="btn btn-primary" title='Pasa la orden a Reciibida' > Recibir </button></a> 
-            {% endif %}
-            {% if orden.sub_status == 'Recibido' %}
-                <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toApproved' ) }}">
-                    <button class="btn btn-primary"> Revisada y Aprobada <i class="fa fa-check" aria-hidden="true"></i> </button></a>
-            
-                <label id="bton" for="submit-reject" tabindex="0" class="btn btn-danger" style="margin-left: 25px" title='Pasa el pedido a LISTO PARA RETIRO'>Rechazar</label>
-                    
-            {% endif %}
-        {% endif %}  
- 
-    </div>
+                <!-- Articulo RECIBIDO y APROBADO - Solicitud lista para getsionarse o gestionandose -->
+                {% if orden.status == 'En Proceso' %}
+                            La solicitud se está gestionando
+                            {% if orden.status_resumen == 'Aprobado' %}
+                                y fue aprobada
+                            {% endif %}
+                            {% if orden.status_resumen == 'Rechazado' %}
+                                y No fue aprobada
+                            {% endif %}
+                {% endif %}
+
+                <!-- Solicitud ya gestionada o Rechazada -->
+                {% if orden.status == 'Cerrado' %}
+                            La solicitud ya fue gestionada
+                {% endif %}
+            </div>
+   
+            <div class="col-md-4">
+                <!-- Barra con Info ed Orden y de Cliente -->
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h6 class="card-title"> <strong>
+                            Estado: {{orden.status_resumen}} 
+                            {% if orden.reject_reason != None %}
+                                - {{orden.reject_reason}}
+                            {% endif %}
+                        </strong> </h6>    
+                        <input type="hidden" id="ordenId" name="ordenId" value={{orden.id}}>
+
+                        <!-- Info Orden -->
+                        <p class="card-text"> <small>
+                            Fecha de creación: {{ moment(orden.date_creation).format("DD/MM/YYYY")}} <br>
+                            Método de Pago: {{orden.payment_method}}<br>
+                            {% if orden.payment_card != None %}
+                                - Tarjeta: {{orden.payment_card}} <br>
+                            {% endif %}
+                            {% set link_orden = empresa.store_url+'/admin/orders/'+orden.order_id_anterior|string %}
+                            Ver compra en la Tienda:
+                            <a href={{link_orden}} target="_blank" rel="noreferrer noopener"> Click Acá </a>
+                            <hr>
+
+                        <!-- Info Envio -->
+                            <strong>Método de Envío: {{orden.courier_method}} </strong><br>
+                            {% if orden.courier_method == 'Coordinar' %}
+                                {% if orden.sub_status == 'Solicitado' %}
+                                    <form id="coordinar_form" action="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReady' ) }}" method="POST"> 
+                                        <div class="form-group">
+                                            <input type="text" class="form-control form-control-sm" id="coordinar_empresa" name="coordinar_empresa" value="" placeholder="correo">
+                                            <input type="text" class="form-control form-control-sm" id="coordinar_guia" name="coordinar_guia" value="" placeholder="Guia">
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="form-check">   
+                                                <input class="form-check-input" type="checkbox" id="coordinar_roundtrip" name="coordinar_roundtrip">
+                                                <label class="form-check-label" for="coordinar_roundtrip"> Recogida + Entrega </label>
+                                            </div>
+                                        </div>
+                                        <input type="submit" id="submit-form" class="d-none" />
+                                    </form>
+                                {% else %}
+                                    Correo: {{orden.courier_coordinar_empresa}} <br>
+                                    Guia: {{orden.courier_coordinar_guia}} <br>
+                                    Recogida + entrega:
+                                    {% if orden.courier_coordinar_roundtrip == True %}
+                                        Si
+                                    {% else %}
+                                        No
+                                    {% endif %}
+                                    <br>
+                                {% endif %}
+                            {% endif %}        
+                            {% if orden.courier_method == 'Moova' %}
+                                Guia: {{ orden.courier_order_id }} <br>
+                                {% if orden.status_resumen == 'Solicitado' %}
+                                    Costo del Envío: {{orden.courier_precio}}<br>
+                                {% endif %}
+                            {% endif %}
+                            <hr>
+
+                        <!-- Info Cliente -->
+                            <strong>Cliente {{customer.name}}</strong><br>
+                            {{customer.email}} / {{customer.phone}} <br> 
+                            {{orden.customer_address}}&nbsp{{orden.customer_number}}&nbsp{{orden.customer_floor}}<br>
+                            {{orden.customer_locality}}&nbsp({{orden.customer_zipcode}})<br>
+                            {{orden.customer_city}} &nbsp - &nbsp{{orden.customer_province}} <br>
+                            <hr>
+                        <!-- Notas -->
+                            
+                            <form id="Nota" action="{{ url_for('main.orden', orden_id = orden.id) }}" method="POST"> 
+                                <label for="nota">Notas:</label>
+                                <textarea class="form-control" style="height: 100px" id="nota" name="nota" placeholder="Notas" > {{orden.note}} </textarea>
+                                
+                                <button  class="btn btn-outline-primary btn-sm mt-2 float-right" type="submit"> Añadir Nota </button>
+                            </form>
+                            
+                        </small></p>
+                    </div> <!-- end card body -->
+                </div> <!-- end card -->            
+            </div> <!-- end col-md-4 -->
+
+        </div> <!-- end row -->
+    </div> <!-- end container -->
 {% endblock %}
