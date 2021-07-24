@@ -12,57 +12,85 @@
                 
                 <!-- Listado de articulos que entran-->
                 <div class="row">
-                    <div class = "page-header mt-2 mb-2"> <h5> Articulos entrantes</h5> </div>
+                    <div class = "page-header mt-2 mb-2 text-info font-weight-bold"> <h5> Articulos entrantes</h5> </div>
                 </div>    
 
-                {% for i in orden_linea %}
-                <form id="entrante{{ i['prod_id'] }}" action="" method="POST"> 
-                    <input type="hidden" id="{{ i['prod_id'] }}" name="prod_id" value="{{ i['prod_id'] }}">
-                    <div class="row">
+                <form id="entrante" action="{{ url_for('main.gestion_lineas_entrantes') }}" method="POST"> 
+                    {% for i in orden_linea %}
+                    <div class="card mb-2 ">
+                        <div class="card-body">
+                            <input type="hidden" id="prod_id" name="prod_id" value="{{ i['prod_id'] }}">
+                            <div class="row">
+                            <!-- Descripcio + datos articulos -->
+                                <div class="col-xs-6 col-sm-6 col-md-8 col-lg-8">
+                                    <strong> {{ i['name'] }} </strong> 
+                                    <br> 
+                                    Estado: 
+                                    {% if i['gestionado'] == 'Si' %}
+                                        Gestionado <i class="fa fa-check-square-o" aria-hidden="true"></i>
+                                    {% else %}
+                                        {{i['gestionado']}} 
+                                    {% endif %}
+                                    <div class="font-weight-light"><small>
+                                        {{i['accion']}} - {{i['accion_cantidad']}}
+                                        {% if i['accion'] == 'cambiar' %}
+                                            &nbsp; x {{ i['accion_cambiar_por_desc'] }} 
+                                        {% endif %}
+                                        ({{i['motivo']}}) <br>  
+                                    </small></div>
+                                </div> <!-- end columna descr Articulos -->
 
-                    <!-- Descripcio + datos articulos -->
-                        <div class="col-xs-6 col-sm-6 col-md-8 col-lg-8">
-                            <br> 
-                            <strong> {{ i['name'] }} </strong> 
-                            <small>
-                            <a href="{{ url_for('main.historia_producto', linea_id=i['order_line_number']) }}">
-                                <button class="btn btn-link btn-sm">Ver Historia </button></a>
-                            </small>
-                            <br> 
-                            Estado: 
-                            {% if i['gestionado'] == 'Si' %}
-                                Gestionado <i class="fa fa-check-square-o" aria-hidden="true"></i>
-                            {% else %}
-                                {{i['gestionado']}} 
-                            {% endif %}
-                            <div class="font-weight-light"><small>
-                                {{i['accion']}} - {{i['accion_cantidad']}}
-                                {% if i['accion'] == 'cambiar' %}
-                                    &nbsp; x {{ i['accion_cambiar_por_desc'] }} 
-                                {% endif %}
-                                ({{i['motivo']}}) <br>  
-                            </small></div>
-                        </div> <!-- end columna descr Articulos -->
+                                <!-- Precios articulos -->
+                                <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
+                                    <div class="float-right">
 
-                        <!-- Precios articulos -->
-                        <div class="col-xs-4 col-sm-4 col-md-2 col-lg-2">
+                                        <!-- Input del precio / el boton de editar solo aparece si la orden
+                                        no ha sido gestioanda -->
+                                        <div class="input-group input-group-sm">
+                                            <div class="input-group-prepend">
+                                              <span class="input-group-text">$</span>
+                                            </div>
+                                            <input type="text" id="precio{{ i['prod_id'] }}" name="precio{{ i['prod_id'] }}" class="form-control" value="{{i['precio']}}">
+                                            {% if orden.status_resumen == 'Aprobado' %}
+                                                {% if (i.gestionado == 'Iniciado' or i.gestionado == 'Cambiado' ) %}
+                                                    <div class="input-group-prepend">
+                                                        <button id="boton_precio{{ i['prod_id'] }}" class="btn btn-outline-secondary" type="button" value="{{ i['prod_id'] }}">Editar</button>
+                                                    </div>
+                                                {% endif %}
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <br>
+                                        {% if i.promo_descuento != 0 %} 
+                                            Promo: {{i.promo_descuento}} ({{i.promo_nombre}})<br>
+                                            final: {{i.promo_precio_final}}<br>
+                                        {% endif %}
+                                        
+                                        <!-- muestra checkbox de restock solo si 
+                                        la solicitud esta aprobada, pero no gestionada ni devuleta al stock -->
+                                        {% if orden.status_resumen == 'Aprobado' %}
+                                            {% if (i.gestionado == 'Iniciado' or i.gestionado == 'Cambiado' ) %}
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="stockradio{{ i['prod_id'] }}" name="stockradio{{ i['prod_id'] }}">
+                                                    <label class="custom-control-label" for="stockradio{{ i['prod_id'] }}"><small>Restock</small></label>
+                                                </div>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                </div> <!-- end columna Precios -->
+                            </div> <!-- end row -->
+                        </div> <!-- end of card body -->
+                    </div> <!-- end of card -->
+                    {% endfor %}
+
+                    {% if orden.status_resumen == 'Aprobado' %}
+                            <!-- Ver como hacer para que aparezca solo si alguna de las lineas esta no gestionada o devuelta -->
+                            <button class="btn btn-info btn-sm float-right mt-1 mb-1" type="submit"> Procesar</button>
                             <br>
-                            {{i['precio']}}<br>
-                            {% if i.promo_descuento != 0 %} 
-                                Promo: {{i.promo_descuento}} ({{i.promo_nombre}})
-                                final: {{i.promo_precio_final}}
-                            {% endif %}
-                            <br>
-                            {% if orden.status_resumen == 'Aprobado' %}
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input" id="stockradio{{ i['prod_id'] }}" name="stockradio{{ i['prod_id'] }}">
-                                    <label class="custom-control-label" for="stockradio{{ i['prod_id'] }}"><small>Restock</small></label>
-                                </div>
-                            {% endif %}
-                        </div> <!-- end columna Precios -->
-                    </div> <!-- end row -->
-                </form>
-                {% endfor %} 
+                        
+                    {% endif %}
+                </form> <!-- end of formulario articulos entrantes -->
+
                 <hr>
                 <!-- Listado de articulos Saliente  -->
                 <div class="row">
@@ -72,7 +100,7 @@
                 {% for i in orden_linea %}
                 <div class="row">
                    
-                    <!-- Descripcio + datos articulos -->
+                    <!-- Descripcio + datos articulos salientes -->
                     <div class="col-xs-6 col-sm-6 col-md-8 col-lg-8">
                         <input type="hidden" id="sale_{{ i['prod_id'] }}" name="prod_Id" value="{{ i['prod_id'] }}">
                         {% if i['accion'] == 'cambiar' %}
@@ -251,4 +279,27 @@
 
         </div> <!-- end row -->
     </div> <!-- end container -->
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script>
+        $('#bton').on('click', function () {
+            var reason = prompt("Motivo del Rechazo ): ");
+            $("#motivo").val(reason)
+        }); 
+        
+        // dehabilitar todos los Ids que comiencen con precio
+        $(document).ready(function () {
+            $('[id^="precio"]').prop("disabled", true);
+        });
+
+        // habilita la edicion del precio
+        $(document).on("click", '#boton_precio'+$('#prod_id').val(), function() {
+            valor = '#precio'+$('#prod_id').val();
+            $(valor).prop("disabled", false);
+        });
+
+
+    </script>
 {% endblock %}

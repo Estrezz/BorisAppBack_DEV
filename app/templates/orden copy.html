@@ -12,47 +12,90 @@
                 
                 <!-- Listado de articulos que entran-->
                 <div class="row">
-                    <div> <h6> Artículos entrantes </h6> </div>
-                </div>     
+                    <div class = "page-header mt-2 mb-2"> <h5> Articulos entrantes</h5> </div>
+                </div>    
 
+                <form id="entrante" action="{{ url_for('main.gestion_lineas_entrantes') }}" method="POST"> 
+                    {% for i in orden_linea %}
+                    <div class="card mb-2">
+                    <div class="card-body">
+
+                        <input type="hidden" id="prod_id" name="prod_id" value="{{ i['prod_id'] }}">
+                        <div class="row">
+                        <!-- Descripcio + datos articulos -->
+                            <div class="col-xs-6 col-sm-6 col-md-8 col-lg-8">
+                                <br> 
+                                <strong> {{ i['name'] }} </strong> 
+                                <small>
+                                <a href="{{ url_for('main.historia_producto', linea_id=i['order_line_number']) }}">
+                                    <button class="btn btn-link btn-sm">Ver Historia </button></a>
+                                </small>
+                                <br> 
+                                Estado: 
+                                {% if i['gestionado'] == 'Si' %}
+                                    Gestionado <i class="fa fa-check-square-o" aria-hidden="true"></i>
+                                {% else %}
+                                    {{i['gestionado']}} 
+                                {% endif %}
+                                <div class="font-weight-light"><small>
+                                    {{i['accion']}} - {{i['accion_cantidad']}}
+                                    {% if i['accion'] == 'cambiar' %}
+                                        &nbsp; x {{ i['accion_cambiar_por_desc'] }} 
+                                    {% endif %}
+                                    ({{i['motivo']}}) <br>  
+                                </small></div>
+                            </div> <!-- end columna descr Articulos -->
+
+                            <!-- Precios articulos -->
+                            <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
+                                <div class="float-right">
+                                <br>
+                                {{i['precio']}}<br>
+                                {% if i.promo_descuento != 0 %} 
+                                    Promo: {{i.promo_descuento}} ({{i.promo_nombre}})<br>
+                                    final: {{i.promo_precio_final}}
+                                {% endif %}
+                                <br>
+                                {% if orden.status_resumen == 'Aprobado' %}
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="stockradio{{ i['prod_id'] }}" name="stockradio{{ i['prod_id'] }}">
+                                        <label class="custom-control-label" for="stockradio{{ i['prod_id'] }}"><small>Restock</small></label>
+                                    </div>
+                                {% endif %}
+                                </div>
+                            </div> <!-- end columna Precios -->
+                        </div> <!-- end row -->
+                    </div>
+                    </div>
+                    {% endfor %}
+                    {% if orden.status_resumen == 'Aprobado' %} 
+                        <button class="btn btn-info btn-sm float-right mt-1 mb-1" type="submit"> Procesar</button>
+                        <br>
+                    {% endif %}
+                </form> <!-- end of formulario articulos entrantes -->
+
+                <hr>
+                <!-- Listado de articulos Saliente  -->
+                <div class="row">
+                    <div class = "page-header mt-2 mb-2"> <h5> Articulos salientes</h5> </div>
+                </div>
+                
                 {% for i in orden_linea %}
                 <div class="row">
                    
-                    <!-- Descripcio + datos articulos -->
+                    <!-- Descripcio + datos articulos salientes -->
                     <div class="col-xs-6 col-sm-6 col-md-8 col-lg-8">
-                        <input type="hidden" id="{{ i['prod_id'] }}" name="prod_Id" value="{{ i['prod_id'] }}">
-                        <br> <strong> {{ i['name'] }} </strong> <br>
-                        Estado: 
-                        {% if i['gestionado'] == 'Si' %}
-                            Gestionado <i class="fa fa-check-square-o" aria-hidden="true"></i>
-                        {% else %}
-                            {{i['gestionado']}} 
-                        {% endif %}<br>
-                        {{i['accion']}} - {{i['accion_cantidad']}}
+                        <input type="hidden" id="sale_{{ i['prod_id'] }}" name="prod_Id" value="{{ i['prod_id'] }}">
                         {% if i['accion'] == 'cambiar' %}
-                            &nbsp; x {{ i['accion_cambiar_por_desc'] }} <br>
-                        {% endif %}
-                        {{i['motivo']}}<br>        
-                        <a href="{{ url_for('main.historia_producto', linea_id=i['order_line_number']) }}">
-                            <button class="btn btn-link">Ver Historia </button></a>
-                        <br>
-                    </div>
-
-                    <!-- Precios articulos -->
-                    <div class="col-xs-4 col-sm-4 col-md-2 col-lg-2">
-                        <br>
-                        {{i['precio']}}<br>
-                        {% if i.promo_descuento != 0 %} 
-                            Promo: {{i.promo_descuento}} ({{i.promo_nombre}})
-                            final: {{i.promo_precio_final}}
+                            <br>
+                            <strong> {{ i['accion_cambiar_por_desc'] }} </strong> 
+                            ({{ i['accion_cambiar_por'] }})
+                            <br>
                         {% endif %}
                     </div>
-
                 </div>
-                {% endfor %} 
+                {% endfor %}
                 <hr>
-                
-                <!-- Listado de articulos Saliente  -->
 
 
                 <!-- Calculo de diferencia de precio -->
@@ -106,7 +149,7 @@
                     <!-- Si el articulo Aún no fue RECIBIDO  pero ya esta confirmado -->
                     {% if orden.sub_status == 'Listo para retiro' %}
                     <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReceived' ) }}">
-                        <button class="btn btn-primary" title='Pasa la orden a Reciibida' > Recibir </button></a> 
+                        <button class="btn btn-primary" title='Pasa la orden a Recibida' > Recibir </button></a> 
                     {% endif %}
 
                     <!-- Si el articulo ya fue RECIBIDO  (aún no aprobado) -->
@@ -140,12 +183,12 @@
                 <!-- Barra con Info ed Orden y de Cliente -->
                 <div class="card bg-light">
                     <div class="card-body">
-                        <h6 class="card-title"> <strong>
+                        <h5 class="card-title"> <strong>
                             Estado: {{orden.status_resumen}} 
                             {% if orden.reject_reason != None %}
                                 - {{orden.reject_reason}}
                             {% endif %}
-                        </strong> </h6>    
+                        </strong> </h5>    
                         <input type="hidden" id="ordenId" name="ordenId" value={{orden.id}}>
 
                         <!-- Info Orden -->
@@ -202,7 +245,16 @@
                             {{customer.email}} / {{customer.phone}} <br> 
                             {{orden.customer_address}}&nbsp{{orden.customer_number}}&nbsp{{orden.customer_floor}}<br>
                             {{orden.customer_locality}}&nbsp({{orden.customer_zipcode}})<br>
-                            {{orden.customer_city}} &nbsp - &nbsp{{orden.customer_province}}
+                            {{orden.customer_city}} &nbsp - &nbsp{{orden.customer_province}} <br>
+                            <hr>
+
+                        <!-- Notas --> 
+                            <form id="Nota" action="{{ url_for('main.orden', orden_id = orden.id) }}" method="POST"> 
+                                <label for="nota">Notas:</label>
+                                <textarea class="form-control" style="height: 100px" id="nota" name="nota" placeholder="Notas" >{{orden.note}}</textarea>
+                                <button  class="btn btn-outline-primary btn-sm mt-2 float-right" type="submit"> Añadir Nota </button>
+                            </form>
+                            
                         </small></p>
                     </div> <!-- end card body -->
                 </div> <!-- end card -->            

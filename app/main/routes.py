@@ -185,12 +185,14 @@ def search():
     return redirect(url_for('main.orden', orden_id=req_search.id))
 
 
-@bp.route('/gestion_linea',methods=['GET', 'POST'])  
-def gestion_lineas():
-    productos = request.form.getlist('prod_id')
-    for p in productos:
-        stock = request.form.get("stockradio"+str(p))
-        flash('productos: {} {}'.format(p, stock ))
+@bp.route('/gestion_lineas_entrantes',methods=['GET', 'POST'])  
+def gestion_lineas_entrantes():
+    if request.method == "POST":
+        productos = request.form.getlist('prod_id')
+        for p in productos:
+            stock = request.form.get("stockradio"+str(p))
+            precio = request.form.get("precio"+str(p))
+            flash('productos: {} {} {}'.format(p, stock, precio ))
     return redirect(url_for('main.user', username=current_user.username))
 
 
