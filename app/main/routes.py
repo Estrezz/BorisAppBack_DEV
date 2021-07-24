@@ -185,6 +185,15 @@ def search():
     return redirect(url_for('main.orden', orden_id=req_search.id))
 
 
+@bp.route('/gestion_linea',methods=['GET', 'POST'])  
+def gestion_lineas():
+    productos = request.form.getlist('prod_id')
+    for p in productos:
+        stock = request.form.get("stockradio"+str(p))
+        flash('productos: {} {}'.format(p, stock ))
+    return redirect(url_for('main.user', username=current_user.username))
+
+
 @bp.route('/ordenes/<estado>/<subestado>', methods=['GET', 'POST'])
 @login_required
 def ver_ordenes(estado, subestado):

@@ -15,10 +15,11 @@
                     <div class = "page-header mt-2 mb-2"> <h5> Articulos entrantes</h5> </div>
                 </div>    
 
-                <form id="entrante" action="{{ url_for('main.gestion_lineas') }}" method="POST"> 
                 {% for i in orden_linea %}
-                    <input type="hidden" id="prod_id" name="prod_id" value="{{ i['prod_id'] }}">
+                <form id="entrante{{ i['prod_id'] }}" action="" method="POST"> 
+                    <input type="hidden" id="{{ i['prod_id'] }}" name="prod_id" value="{{ i['prod_id'] }}">
                     <div class="row">
+
                     <!-- Descripcio + datos articulos -->
                         <div class="col-xs-6 col-sm-6 col-md-8 col-lg-8">
                             <br> 
@@ -60,10 +61,8 @@
                             {% endif %}
                         </div> <!-- end columna Precios -->
                     </div> <!-- end row -->
-                {% endfor %} 
-                <input type="submit" id="submit-form" />
                 </form>
-
+                {% endfor %} 
                 <hr>
                 <!-- Listado de articulos Saliente  -->
                 <div class="row">
