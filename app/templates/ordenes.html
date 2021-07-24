@@ -14,15 +14,15 @@
     </ul>
     <br>
 
-    <table id="ordenes" class="table table-sm table-striped table-responsive-sm" >
+    <table id="ordenes" class="table table-condensed table-striped table-responsive-sm" >
         <thead>
             <tr>
-                <th>Orden</th>
-                <th>Fecha Creacion</th>
-                <th>Última modificación </th>
-                <th>Metodo Envío</th>
-                <th>Nro. Guía</th>
-                <th>Estado</th>
+                <th><small>Orden</small></th>
+                <th><small>Fecha Creacion</small></th>
+                <th><small>Última modificación</small></th>
+                <th><small>Metodo Envío</small></th>
+                <th><small>Nro. Guía</small></th>
+                <th><small>Estado</small></th>
                 <th></th>
                 <th></th>
             </tr>
@@ -37,18 +37,17 @@
                 {% if i['status'] == 'En Proceso' %}
                     {% set color = 'green' %}
                 {% endif %}
-                
                 <tr>
-                    <td>{{i['order_number']}} </td>
-                    <td>{{ moment(i['date_creation']).format("DD/MM/YYYY")}}</td>
-                    <td>{{ moment(i['date_lastupdate']).fromNow() }}</td>
-                    <td>{{ i['courier_method'] }}</td>
-                    <td>{{ i['courier_order_id'] }}</td>
-                    <td style="color:{{color}}">{{i['status_resumen']}}</td>
+                    <td><small>{{i['order_number']}}</small></td>
+                    <td><small>{{ moment(i['date_creation']).format("DD/MM/YYYY")}}</small></td>
+                    <td><small>{{ moment(i['date_lastupdate']).fromNow() }}</small></td>
+                    <td><small>{{ i['courier_method'] }}</small></td>
+                    <td><small>{{ i['courier_order_id'] }}</small></td>
+                    <td style="color:{{color}}"><small>{{i['status_resumen']}}</small></td>
                     <td><a href="{{ url_for('main.orden', orden_id = i['id']) }}">
-                        <button class="btn btn-primary btn-sm" > Gestionar </button></td>
+                        <button class="btn btn-primary btn-sm" > <small>Gestionar </small></button></td>
                     <td><a href="{{ url_for('main.historia_orden', orden_id = i['id']) }}">
-                        <button class="btn btn-link"> Ver Historia </button></td>
+                        <button class="btn btn-link btn-sm"><small> Historia</small> </button></td>
                 </tr>
             {% endfor %}
         </tbody>

@@ -12,15 +12,15 @@
                 
                 <!-- Listado de articulos que entran-->
                 <div class="row">
-                    <h5> Artículos entrantes </h5> 
-                </div>     
+                    <div class = "page-header mt-2 mb-2"> <h5> Articulos entrantes</h5> </div>
+                </div>    
 
                 {% for i in orden_linea %}
                 <div class="row">
                    
                     <!-- Descripcio + datos articulos -->
                     <div class="col-xs-6 col-sm-6 col-md-8 col-lg-8">
-                        <input type="hidden" id="{{ i['prod_id'] }}" name="prod_Id" value="{{ i['prod_id'] }}">
+                        <input type="hidden" id="{{ i['prod_id'] }}" name="prod_id" value="{{ i['prod_id'] }}">
                         <br> 
                         <strong> {{ i['name'] }} </strong> 
                         <small>
@@ -33,12 +33,14 @@
                             Gestionado <i class="fa fa-check-square-o" aria-hidden="true"></i>
                         {% else %}
                             {{i['gestionado']}} 
-                        {% endif %}<br>
-                        {{i['accion']}} - {{i['accion_cantidad']}}
-                        {% if i['accion'] == 'cambiar' %}
-                            &nbsp; x {{ i['accion_cambiar_por_desc'] }} 
                         {% endif %}
-                        ({{i['motivo']}}) <br>        
+                        <div class="font-weight-light"><small>
+                            {{i['accion']}} - {{i['accion_cantidad']}}
+                            {% if i['accion'] == 'cambiar' %}
+                                &nbsp; x {{ i['accion_cambiar_por_desc'] }} 
+                            {% endif %}
+                            ({{i['motivo']}}) <br>  
+                        </small></div>
                     </div>
 
                     <!-- Precios articulos -->
@@ -49,16 +51,23 @@
                             Promo: {{i.promo_descuento}} ({{i.promo_nombre}})
                             final: {{i.promo_precio_final}}
                         {% endif %}
+                        <br>
+                        {% if orden.status_resumen == 'Aprobado' %}
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="stockradio" name="stockradio">
+                                <label class="custom-control-label" for="stockradio">Volver al stock</label>
+                            </div>
+                        {% endif %}
                     </div>
 
                 </div>
                 {% endfor %} 
                 <hr>
-                
                 <!-- Listado de articulos Saliente  -->
                 <div class="row">
-                    <h5> Artículos salientes</h5> 
-                </div>     
+                    <div class = "page-header mt-2 mb-2"> <h5> Articulos salientes</h5> </div>
+                </div>
+                
                 {% for i in orden_linea %}
                 <div class="row">
                    
@@ -67,7 +76,7 @@
                         <input type="hidden" id="sale_{{ i['prod_id'] }}" name="prod_Id" value="{{ i['prod_id'] }}">
                         {% if i['accion'] == 'cambiar' %}
                             <br>
-                            <strong> {{ i['accion_cambiar_por_desc'] }} </strong> <br>
+                            <strong> {{ i['accion_cambiar_por_desc'] }} </strong> 
                             ({{ i['accion_cambiar_por'] }})
                             <br>
                         {% endif %}
@@ -162,12 +171,12 @@
                 <!-- Barra con Info ed Orden y de Cliente -->
                 <div class="card bg-light">
                     <div class="card-body">
-                        <h6 class="card-title"> <strong>
+                        <h5 class="card-title"> <strong>
                             Estado: {{orden.status_resumen}} 
                             {% if orden.reject_reason != None %}
                                 - {{orden.reject_reason}}
                             {% endif %}
-                        </strong> </h6>    
+                        </strong> </h5>    
                         <input type="hidden" id="ordenId" name="ordenId" value={{orden.id}}>
 
                         <!-- Info Orden -->
@@ -230,8 +239,7 @@
                             
                             <form id="Nota" action="{{ url_for('main.orden', orden_id = orden.id) }}" method="POST"> 
                                 <label for="nota">Notas:</label>
-                                <textarea class="form-control" style="height: 100px" id="nota" name="nota" placeholder="Notas" > {{orden.note}} </textarea>
-                                
+                                <textarea class="form-control" style="height: 100px" id="nota" name="nota" placeholder="Notas" >{{orden.note}}</textarea>
                                 <button  class="btn btn-outline-primary btn-sm mt-2 float-right" type="submit"> Añadir Nota </button>
                             </form>
                             
