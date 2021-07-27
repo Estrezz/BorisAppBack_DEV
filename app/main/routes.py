@@ -185,6 +185,7 @@ def search():
     return redirect(url_for('main.orden', orden_id=req_search.id))
 
 
+
 @bp.route('/gestion_lineas_entrantes/<orden_id>',methods=['GET', 'POST'])  
 def gestion_lineas_entrantes(orden_id):
     if request.method == "POST":
@@ -206,6 +207,20 @@ def gestion_lineas_entrantes(orden_id):
                 accion_stock = "Vuelve al stock"
             devolver_linea(p, variant, accion_cantidad, orden_id, order_line, accion, accion_stock, monto_devuelto)
     return redirect(url_for('main.user', username=current_user.username))
+
+
+@bp.route('/gestion_lineas_saliente/<orden_id>',methods=['GET', 'POST'])  
+def gestion_lineas_salientes(orden_id):
+    if request.method == "POST":
+        productos = request.form.getlist('prod_id_saliente')
+        for p in productos: 
+            nuevaorden = request.form.get("nuevaorden"+str(p))
+            #accion = request.form.get("accion"+str(p))
+            #accion_cantidad = request.form.get("accion_cantidad"+str(p))
+            #order_line = request.form.get("order_line"+str(p))
+            flash('articulo {} - {}'.format(p, nuevaorden))
+    return redirect(url_for('main.user', username=current_user.username))
+
 
 
 @bp.route('/ordenes/<estado>/<subestado>', methods=['GET', 'POST'])
@@ -504,7 +519,7 @@ def buscar_datos_variantes():
     variante = request.form.get('variante')
     empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
     if empresa.platform == 'tiendanube':
-        flash('buscar_datos_variantes_tiendanube({}, {})'.format(prod_id, variante))
+        #flash('buscar_datos_variantes_tiendanube({}, {})'.format(prod_id, variante))
         variante = buscar_datos_variantes_tiendanube(prod_id, variante, empresa)
         #flash('variante variante {} prod {}'.format(variante, prod_id))
     if type(variante) != dict:
