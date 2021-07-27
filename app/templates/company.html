@@ -5,19 +5,17 @@
         <h1>Configurar Perfil</h1>
         <h3><strong> {{ empresa.store_name }} </strong> <br></h3>
 
-    <div class="panel-group">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title pull-left">
-              <a data-toggle="collapse" href="#collapse1">Datos de la Empresa</a>
-            </h4>
-            <div class="panel-title pull-right">
-              <a href="{{ url_for('main.edit_profile_company', formulario='Datos de la tienda') }}">Editar</a>
+      <div id="accordion">
+
+        <!-- Datos de la empresa-->
+        <div class="card">  
+            <div class="card-header" id="headingOne">
+              <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse1" aria-expanded="false"  aria-controls="collapse1">Datos de la Empresa</button>
+              <a href="{{ url_for('main.edit_profile_company', formulario='Datos de la tienda') }}" class="float-right" >Editar</a>
             </div>
-            <div class="clearfix"></div>   
-          </div>
-          <div id="collapse1" class="panel-collapse collapse">
-            <div class="panel-body">
+            
+            <div id="collapse1" class="collapse" data-parent="#accordion" aria-labelledby="headingOne">
+              <div class="card-body">
                 <strong>Contacto</strong><br>
                  Tienda: {{ empresa.store_name }}<br>
                  Teléfono tienda: {{ empresa.store_phone }}<br>
@@ -27,22 +25,20 @@
                  Mail Administración: {{ empresa.admin_email}} <br>
                  <br>
                  Link portal consumidor: <a href='http://frontprod.borisreturns.com/buscar?empresa={{empresa.store_id}}'  target="_blank" rel="noreferrer noopener">Hace click aqui para ver tu portal</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel panel-default">
-            <div class="panel-heading">
-              <h4 class="panel-title pull-left">
-                <a data-toggle="collapse" href="#collapse2">Correo</a>
-              </h4>
-              <div class="panel-title pull-right">
-                <a href="{{ url_for('main.edit_profile_company', formulario='Correo') }}">Editar</a>
               </div>
-              <div class="clearfix"></div>   
             </div>
-            <div id="collapse2" class="panel-collapse collapse">
-              <div class="panel-body">
+
+          </div> <!-- end of Datos de la empresa -->
+
+          <!-- Correo -->
+          <div class="card">  
+            <div class="card-header" id="heading2">
+              <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse2" aria-expanded="false"  aria-controls="collapse2">Correo</button>
+              <a href="{{ url_for('main.edit_profile_company', formulario='Correo') }}" class="float-right">Editar</a>
+            </div>
+            
+            <div id="collapse2" class="collapse" data-parent="#accordion" aria-labelledby="heading2">
+              <div class="card-body">
                 <strong>Empresa de correo</strong><br>
                 Correo Usado: {{ empresa.correo_usado }}<br>
                 APIKEY {{ empresa.correo_apikey }}<br>
@@ -62,20 +58,16 @@
                 {{ empresa.shipping_info }} <br>
               </div>
             </div>
-        </div>
+          </div> <!-- end of correo -->
 
-        <div class="panel panel-default">
-            <div class="panel-heading">
-              <h4 class="panel-title pull-left">
-                <a data-toggle="collapse" href="#collapse3">Parametros</a>
-              </h4>
-              <div class="panel-title pull-right">
-                <a href="{{ url_for('main.edit_profile_company', formulario='Parametros') }}">Editar</a>
-              </div>
-              <div class="clearfix"></div>  
+          <div class="card">  
+            <div class="card-header" id="heading3">
+              <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse3" aria-expanded="false"  aria-controls="collapse3">Parametros</button>
+              <a href="{{ url_for('main.edit_profile_company', formulario='Parametros') }}" class="float-right">Editar</a>
             </div>
-            <div id="collapse3" class="panel-collapse collapse">
-              <div class="panel-body">
+            
+            <div id="collapse3" class="collapse" data-parent="#accordion" aria-labelledby="heading3">
+              <div class="card-body">
                 Plataforma: {{empresa.platform}} <br>
                 Token type: {{empresa.platform_token_type}}<br>
                 Access Token: {{empresa.platform_access_token}}<br>
@@ -90,18 +82,15 @@
             </div>
         </div>
 
-        <div class="panel panel-default">
-            <div class="panel-heading">
-              <h4 class="panel-title pull-left">
-                <a data-toggle="collapse" href="#collapse4">Mails</a>
-              </h4>
-              <div class="panel-title pull-right">
-                <a href="{{ url_for('main.edit_profile_company', formulario='Mails') }}">Editar</a>
-              </div>
-              <div class="clearfix"></div>  
-            </div>
-            <div id="collapse4" class="panel-collapse collapse">
-              <div class="panel-body">
+
+        <div class="card">  
+          <div class="card-header" id="heading4">
+            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse4" aria-expanded="false"  aria-controls="collapse4">Mails</button>
+            <a href="{{ url_for('main.edit_profile_company', formulario='Mails') }}" class="float-right" >Editar</a>
+          </div>
+          
+          <div id="collapse4" class="collapse" data-parent="#accordion" aria-labelledby="heading4">
+            <div class="card-body">
                 <strong>Mail para Comunicaciones:</strong> {{empresa.communication_email}} <br>
                 <br>
                 <strong>Mail CONFIRMACION:<br></strong>
@@ -124,18 +113,14 @@
             </div>
         </div>
 
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title pull-left">
-              <a data-toggle="collapse" href="#collapse5">Mails Front</a>
-            </h4>
-            <div class="panel-title pull-right">
-              <a href="{{ url_for('main.edit_profile_company_front', formulario='Mails Front') }}">Editar</a>
-            </div>
-            <div class="clearfix"></div>  
+        <div class="card">  
+          <div class="card-header" id="heading5">
+            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse5" aria-expanded="false"  aria-controls="collapse5">Mails Front-End</button>
+            <a href="{{ url_for('main.edit_profile_company_front', formulario='Mails Front') }}" class="float-right">Editar</a>
           </div>
-          <div id="collapse5" class="panel-collapse collapse">
-            <div class="panel-body">
+          
+          <div id="collapse5" class="collapse" data-parent="#accordion" aria-labelledby="heading5">
+            <div class="card-body">
               <strong>Mail INICIO DE SOLICITUD:<br></strong>
               Nota para Inicio de Envios Manuales: {{empresa.confirma_manual_note}}<br>
               Nota para Inicio de Envios A coordinar: {{empresa.confirma_coordinar_note}}<br>

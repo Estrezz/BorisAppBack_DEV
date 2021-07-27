@@ -15,29 +15,43 @@
                     <div class = "page-header mt-2 mb-2 text-info font-weight-bold"> <h5> Articulos entrantes</h5> </div>
                 </div>    
 
-                <form id="entrante" action="{{ url_for('main.gestion_lineas_entrantes') }}" method="POST"> 
+                <form id="entrante" action="{{ url_for('main.gestion_lineas_entrantes', orden_id=orden.id) }}" method="POST"> 
                     {% for i in orden_linea %}
                     <div class="card mb-2 ">
                         <div class="card-body">
+                            <!-- graba los datos que se necesitan para poder procesar cada linea asociados al respectivo Id del producto -->
                             <input type="hidden" id="prod_id" name="prod_id" value="{{ i['prod_id'] }}">
+                            <input type="hidden" id="variant{{ i['prod_id'] }}" name="variant{{ i['prod_id'] }}" value="{{ i['variant'] }}">
+                            <input type="hidden" id="accion_cantidad{{ i['prod_id'] }}" name="accion_cantidad{{ i['prod_id'] }}" value="{{ i['accion_cantidad'] }}">
+                            <input type="hidden" id="accion{{ i['prod_id'] }}" name="accion{{ i['prod_id'] }}" value="{{ i['accion'] }}">
+                            <input type="hidden" id="order_line{{ i['prod_id'] }}" name="order_line{{ i['prod_id'] }}" value="{{ i['order_line_number'] }}">
+                            
                             <div class="row">
                             <!-- Descripcio + datos articulos -->
                                 <div class="col-xs-6 col-sm-6 col-md-8 col-lg-8">
                                     <strong> {{ i['name'] }} </strong> 
                                     <br> 
+                                    
+                                    <div class="font-weight-light">
+                                        {% if i['accion'] == 'cambiar' %}
+                                            <span class="badge badge-pill badge-info mr-2">Cambio</span>
+                                            {{i['accion_cantidad']}} x {{ i['accion_cambiar_por_desc'] }} 
+                                        {% endif %}
+                                        {% if i['accion'] == 'devolver' %}
+                                        <span class="badge badge-pill badge-dark mr-2">Devolución</span>
+                                        {{i['accion_cantidad']}}
+                                        {% endif %}
+                                        <br><span class="text-muted">({{i['motivo']}})</span><br>
+                                        
+                                    </div>
+                                    <small>
                                     Estado: 
                                     {% if i['gestionado'] == 'Si' %}
                                         Gestionado <i class="fa fa-check-square-o" aria-hidden="true"></i>
                                     {% else %}
                                         {{i['gestionado']}} 
                                     {% endif %}
-                                    <div class="font-weight-light"><small>
-                                        {{i['accion']}} - {{i['accion_cantidad']}}
-                                        {% if i['accion'] == 'cambiar' %}
-                                            &nbsp; x {{ i['accion_cambiar_por_desc'] }} 
-                                        {% endif %}
-                                        ({{i['motivo']}}) <br>  
-                                    </small></div>
+                                    </small>
                                 </div> <!-- end columna descr Articulos -->
 
                                 <!-- Precios articulos -->
@@ -52,8 +66,10 @@
                                                 {% if (i.gestionado == 'Iniciado' or i.gestionado == 'Cambiado' ) %}
                                                     <input type="text" id="precio{{ i['prod_id'] }}" name="precio{{ i['prod_id'] }}" class="form-control" value="{{i['precio']}}">
                                                 {% else %}
-                                                    <input type="text" id="precio{{ i['prod_id'] }}" name="precio{{ i['prod_id'] }}" class="form-control" value="{{i['precio']}}" disabled>
+                                                    <input type="text" id="precio{{ i['prod_id'] }}" name="precio{{ i['prod_id'] }}" class="form-control" value="{{i['monto_devuelto']}}" disabled>
                                                 {% endif %}
+
+                                                
                                             {% else %}
                                                 <input type="text" id="precio{{ i['prod_id'] }}" name="precio{{ i['prod_id'] }}" class="form-control" value="{{i['precio']}}" disabled>
                                             {% endif %}
@@ -91,26 +107,34 @@
                 </form> <!-- end of formulario articulos entrantes -->
 
                 <hr>
-                <!-- Listado de articulos Saliente  -->
+
+<!-- Listado de ARTICULOS SALIENTES  ----->
                 <div class="row">
-                    <div class = "page-header mt-2 mb-2"> <h5> Articulos salientes</h5> </div>
-                </div>
+                    <div class = "page-header mt-2 mb-2 text-info font-weight-bold"> <h5> Articulos salientes</h5> </div>
+                </div> 
                 
-                {% for i in orden_linea %}
-                <div class="row">
-                   
-                    <!-- Descripcio + datos articulos salientes -->
-                    <div class="col-xs-6 col-sm-6 col-md-8 col-lg-8">
-                        <input type="hidden" id="sale_{{ i['prod_id'] }}" name="prod_Id" value="{{ i['prod_id'] }}">
-                        {% if i['accion'] == 'cambiar' %}
-                            <br>
-                            <strong> {{ i['accion_cambiar_por_desc'] }} </strong> 
-                            ({{ i['accion_cambiar_por'] }})
-                            <br>
+                <form id="salientes" action="" method="POST"> 
+                    {% for i in orden_linea %}
+                        {% if (i['accion'] == 'cambiar' and i['accion_cambiar_por'] != 1 ) %}
+                        <input class="saliente" type="hidden" id="prod_id_saliente" name="prod_id_saliente" value="{{ i['prod_id'] }}" data-variante="{{ i['accion_cambiar_por']}}" data-prod_id="{{ i['prod_id'] }}" data-cambiar_por_prod_id="{{ i['accion_cambiar_por_prod_id'] }}">
+                        <div class="card mb-2 ">
+                            <div class="card-body">
+                                <div class="row">
+                                <!-- Descripcion + datos articulos salientes -->
+                                    <div class="col-xs-6 col-sm-6 col-md-8 col-lg-8">
+                                        <strong> {{ i['accion_cambiar_por_desc'] }} </strong> 
+                                            ({{ i['accion_cambiar_por_prod_id'] }}) <br>
+                                            <small class="text-muted">
+                                            Stock Actual: <span type="text" id="stock{{ i['prod_id'] }}" name="stock{{ i['prod_id'] }}"></span><br>
+                                            Precio: <span type="text" id="saliente_precio{{ i['prod_id'] }}" name="saliente_precio{{ i['prod_id'] }}"></span>                    
+                                            </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         {% endif %}
-                    </div>
-                </div>
-                {% endfor %}
+                    {% endfor %}
+                </form>
                 <hr>
 
 
@@ -288,16 +312,36 @@
             $("#motivo").val(reason)
         }); 
         
-        // dehabilitar todos los Ids que comiencen con precio
-        //$(document).ready(function () {
-        //    $('[id^="precio"]').prop("disabled", true);
+        // habilita la edicion del precio
+        //$(document).on("click", '#boton_precio'+$('#prod_id').val(), function() {
+        //    valor = '#precio'+$('#prod_id').val();
+        //    $(valor).prop("disabled", false);
         //});
 
-        // habilita la edicion del precio
-        $(document).on("click", '#boton_precio'+$('#prod_id').val(), function() {
-            valor = '#precio'+$('#prod_id').val();
-            $(valor).prop("disabled", false);
+
+        $('.saliente').each(function() {
+            //alert($(this).data('variante'));
+            variante = $(this).data('variante')
+            //alert($(this).data('prod_id'));
+            prod_id = $(this).data('prod_id')
+            cambiar_por_prod_id = $(this).data('cambiar_por_prod_id')
+            buscar_variante(prod_id, cambiar_por_prod_id, variante)
         });
+
+
+        function buscar_variante(prod_id, cambiar_por_prod_id, variante) {  
+            $.post('/buscar_variante', {
+                prod_id: cambiar_por_prod_id,
+                variante: variante
+            }).done(function(response) {
+                data = JSON.parse(response);
+                $('#stock'+prod_id).html(data['stock']);
+                $('#saliente_precio'+prod_id).html(data['price']);
+                //alert('precio -'+data['price']);
+            }).fail(function(){
+                alert('no funca')
+            })   
+        }
 
 
     </script>

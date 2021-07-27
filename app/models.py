@@ -164,6 +164,7 @@ class Order_detail(db.Model):
     variant = db.Column(db.Integer)
     accion = db.Column(db.String(10))
     accion_cambiar_por = db.Column(db.Integer)
+    accion_cambiar_por_prod_id = db.Column(db.Integer)
     accion_cambiar_por_desc = db.Column(db.String(120))
     accion_cantidad = db.Column(db.Integer)
     motivo = db.Column(db.String(50))

@@ -5,7 +5,7 @@ import random
 from app import db
 from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log, categories_filter
 from app.main.moova import toready_moova
-from app.main.tiendanube import buscar_producto_tiendanube,  genera_credito_tiendanube
+from app.main.tiendanube import buscar_producto_tiendanube,  genera_credito_tiendanube, devolver_stock_tiendanube
 from app.email import send_email
 from flask import session, flash, current_app,render_template
 from flask_login import current_user
@@ -87,6 +87,7 @@ def crear_pedido(pedido):
             promo_precio_final = float(x['promo_precio_final']),
             accion_cantidad = x['accion_cantidad'],
             accion_cambiar_por = x['accion_cambiar_por'],
+            accion_cambiar_por_prod_id = x['accion_cambiar_por_prod_id'],
             accion_cambiar_por_desc = x['accion_cambiar_por_desc'],
             motivo =  x['motivo'],
             gestionado = 'Iniciado',
@@ -402,3 +403,86 @@ def actualiza_empresa_categorias(empresa):
         return 'Success'
     
 
+
+def devolver_linea(prod_id, variant, cantidad, orden_id, order_line_number, accion, accion_stock, monto_devuelto):
+    linea = Order_detail.query.get(str(order_line_number))
+    orden = Order_header.query.get(orden_id)
+    
+    if accion_stock != 'no_vuelve':
+        empresa = Company.query.get(current_user.store)
+        if empresa.stock_vuelve_config == True:
+            if empresa.platform == 'tiendanube':
+                devolucion = devolver_stock_tiendanube(empresa, prod_id, variant, cantidad)
+                if devolucion == 'Failed':
+                    return 'Failed'
+
+        else: 
+            ## Si la configuracion de stock_vuelve_config es False (el stock no se devuelve fisicamente)
+            ## Envía mail al administrador de la empresa avisando para que lo devuelva por sistema
+            send_email('Se ha devuelto un artículo en BORIS ', 
+                sender=empresa.communication_email,
+                recipients=[empresa.admin_email], 
+                text_body=render_template('email/articulo_devuelto.txt',
+                                         order=orden, linea=linea),
+                html_body=render_template('email/articulo_devuelto.html',
+                                         order=orden, linea=linea), 
+                attachments=None, 
+                sync=False)
+        
+    linea.monto_devuelto = monto_devuelto
+    linea.restock = accion_stock
+    linea.fecha_gestionado = datetime.utcnow()
+    loguear_transaccion('DEVUELTO', str(linea.name)+' '+accion_stock, orden_id, current_user.id, current_user.username)
+    if accion == 'devolver':
+        linea.gestionado = 'Si'
+        db.session.commit()
+    if accion == 'cambiar':
+        if linea.gestionado == 'Cambiado':
+            linea.gestionado = 'Si'
+        else: 
+            linea.gestionado = traducir_estado('DEVUELTO')[1]
+        db.session.commit()
+    finalizar_orden(orden_id)
+    return 'Success'
+
+
+def loguear_transaccion(sub_status, prod, order_id, user_id, username):
+    unaTransaccion = Transaction_log(
+        sub_status = traducir_estado(sub_status)[0],
+        status_client = traducir_estado(sub_status)[2],
+        prod = prod,
+        order_id = order_id,
+        user_id = user_id,
+        username = username
+    )
+    db.session.add(unaTransaccion)
+    db.session.commit()
+    return 'Success'
+
+
+def finalizar_orden(orden_id):
+    orden = Order_header.query.filter_by(id=orden_id).first()
+    customer = Customer.query.get(orden.customer_id)
+    orden_linea = Order_detail.query.filter_by(order=orden_id).all()
+    finalizados = 0
+    for i in orden_linea:
+        if i.gestionado == 'Si':
+            finalizados += 1
+    if finalizados == len(orden_linea):
+        flash('Todas las tareas completas. Se finalizó la Orden {}'.format(orden_id))
+        orden.sub_status = traducir_estado('CERRADO')[0]
+        orden.status_resumen =traducir_estado('CERRADO')[1]
+        orden.status = 'Cerrado'
+        loguear_transaccion('CERRADO', 'Cerrado ',orden_id, current_user.id, current_user.username)
+        #flash('Mail {} para {} - orden {} , orden linea {}'.format(current_app.config['ADMINS'][0], customer.email, orden, orden_linea))
+        company = Company.query.get(current_user.store)
+        send_email('El procesamiento de tu orden ha finalizado', 
+            sender=company.communication_email, 
+            recipients=[customer.email], 
+            text_body=render_template('email/pedido_finalizado.txt',
+                                    company=company, customer=customer, order=orden, linea=orden_linea),
+            html_body=render_template('email/pedido_finalizado.html',
+                                    company=company, customer=customer, order=orden, linea=orden_linea), 
+            attachments=None, 
+            sync=False)
+    return 'Success'

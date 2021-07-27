@@ -1,32 +1,130 @@
 {% extends "base.html" %}
 
 {% block app_content %}
-    <div class='jumbotron'>
-        <h1> 
-            <strong>Orden </strong>#{{orden.order_number}}
-        </h1>
-        <h4>
-            <br> <strong> Cliente </strong>{{customer.name}}  
-            <br>         {{customer.email}}
-            <div class="text-right"> {{orden.status}} - {{orden.sub_status}} </div>
-            {% set link_orden = empresa.store_url+'/admin/orders/'+orden.order_id_anterior|string %}
-            <br> <strong>Ver compra en la Tienda: </strong> 
-            <a href={{link_orden}} target="_blank" rel="noreferrer noopener"> Click Acá </a>
-        </h4>
-        
-    </div>
     <div class='container'>
-        
-        {% for i in historia %}
-            {{i.order_id}}
-            Estado: {{i.sub_status}} - 
-            Fecha: {{ moment(i.fecha).format("DD/MM/YYYY")}} - 
-            Producto: {{i.prod}} - 
-            Actualizado por: {{i.user_id}} - {{i.username}}
-            <br>
-        {% endfor %}
-            
-        
-        
-    </div>
+        <div class="row">
+            <div class="col-md-8">
+
+                <!-- Encabezado conNro de Orden-->
+                <div class="row">
+                    <div class = "page-header"> <h4> Orden #{{orden.order_number}}</h4> </div>
+                </div>
+                <br>
+
+                <div class="card mb-2">
+                    <div class = "card-header "> <h5> Orden </h5> </div>
+                </div>
+                
+                    {% for i in historia %}
+                        Actualizado a: 
+                        <strong>{{i.sub_status}}</strong> - 
+                        por: {{i.username}}
+                        ({{ moment(i.fecha).format("DD/MM/YYYY")}})
+                        <br>
+                    {% endfor %}
+
+                    <br>
+                
+                    <div class="card mb-2">
+                        <div class = "card-header"> <h5> Lineas </h5> </div>
+                    </div>
+                    
+                    {% for linea in lineas %}
+                    <div class="card">
+                        <div class="card-body">
+                            <strong>{{linea.name}} ({{linea.prod_id}})</strong><br> 
+                            {{linea.accion}} - {{linea.accion_cantidad}}
+                            {% if linea.accion == 'cambiar' %}
+                                X {{linea.accion_cambiar_por_desc}}
+                                {% if linea.nuevo_envio != None %}
+                                <br> Nuevo envio: {{linea.nuevo_envio}}
+                                {% endif %}
+                            {% endif %}
+                            <br>
+                            Motivo: {{linea.motivo}}<br>
+                            
+                            
+                                Precio del artículo {{linea.precio}}<br>
+                                {% if linea.promo_precio_final != 0 %}
+                                    Precio Abonado: {{linea.promo_precio_final}}<br>
+                                {% endif %}
+                                
+                                {% if linea.monto_devuelto != None %}
+                                    Monto devuelto: {{ "${:,.2f}".format(linea.monto_devuelto) }}<br>
+                                {% endif %}
+                         
+                    
+                            restock del articulo: {{linea.restock}}<br>
+                        </div>
+                    </div>
+                    {% endfor %}  
+            </div>
+
+            <div class="col-md-4">
+                <!-- Barra con Info ed Orden y de Cliente -->
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title"> <strong>
+                            Estado: {{orden.status_resumen}} 
+                            {% if orden.reject_reason != None %}
+                                - {{orden.reject_reason}}
+                            {% endif %}
+                        </strong> </h5>   
+
+                        <!-- Info Orden -->
+                        <p class="card-text"> <small>
+                            Fecha de creación: {{ moment(orden.date_creation).format("DD/MM/YYYY")}} <br>
+                            Método de Pago: {{orden.payment_method}}<br>
+                            {% if orden.payment_card != None %}
+                                - Tarjeta: {{orden.payment_card}} <br>
+                            {% endif %}
+                            {% set link_orden = empresa.store_url+'/admin/orders/'+orden.order_id_anterior|string %}
+                            Ver compra en la Tienda:
+                            <a href={{link_orden}} target="_blank" rel="noreferrer noopener"> Click Acá </a>
+                            <hr>
+
+                        <!-- Info Envio -->
+                            <strong>
+                                Método de Envío: {{orden.courier_method}} 
+                            </strong><br>
+                            Correo: {{orden.courier_coordinar_empresa}} <br>
+                            Guia: {{orden.courier_coordinar_guia}} <br>
+                            Recogida + entrega:
+                            {% if orden.courier_coordinar_roundtrip == True %}
+                                Si
+                            {% else %}
+                                No
+                            {% endif %}
+                            <br>
+                                     
+                            {% if orden.courier_method == 'Moova' %}
+                                Guia: {{ orden.courier_order_id }} <br>
+                                {% if orden.status_resumen == 'Solicitado' %}
+                                    Costo del Envío: {{orden.courier_precio}}<br>
+                                {% endif %}
+                            {% endif %}
+                            <hr>
+
+                        <!-- Info Cliente -->
+                            <strong>Cliente {{customer.name}}</strong><br>
+                            {{customer.email}} / {{customer.phone}} <br> 
+                            {{orden.customer_address}}&nbsp{{orden.customer_number}}&nbsp{{orden.customer_floor}}<br>
+                            {{orden.customer_locality}}&nbsp({{orden.customer_zipcode}})<br>
+                            {{orden.customer_city}} &nbsp - &nbsp{{orden.customer_province}} <br>
+                            <hr>
+
+                        <!-- Notas -->
+                            Notas:<br>
+                            {{orden.note}}
+                            
+                        </small></p>
+                    </div> <!-- end card body -->
+                </div> <!-- end card -->            
+            </div> <!-- end col-md-4 -->
+
+        </div> <!-- end row -->
+    </div> <!-- end of container -->
+
+   
+
 {% endblock %}

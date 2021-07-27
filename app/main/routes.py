@@ -5,9 +5,9 @@ from flask_login import current_user, login_required
 from app import db
 from app.email import send_email
 from app.main.forms import EditProfileForm, EditProfileCompanyForm, EditMailsCompanyForm, EditCorreoCompanyForm, EditParamsCompanyForm, EditMailsFrontCompanyForm
-from app.main.tiendanube import devolver_stock_tiendanube, generar_envio_tiendanube, autorizar_tiendanube, buscar_codigo_categoria_tiendanube
+from app.main.tiendanube import generar_envio_tiendanube, autorizar_tiendanube, buscar_codigo_categoria_tiendanube, buscar_datos_variantes_tiendanube
 from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log, categories_filter
-from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto, genera_credito, actualiza_empresa, actualiza_empresa_categorias, actualiza_empresa_JSON
+from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto, genera_credito, actualiza_empresa, actualiza_empresa_categorias, actualiza_empresa_JSON, loguear_transaccion, finalizar_orden, devolver_linea
 import json
 from app.main import bp
 
@@ -185,14 +185,26 @@ def search():
     return redirect(url_for('main.orden', orden_id=req_search.id))
 
 
-@bp.route('/gestion_lineas_entrantes',methods=['GET', 'POST'])  
-def gestion_lineas_entrantes():
+@bp.route('/gestion_lineas_entrantes/<orden_id>',methods=['GET', 'POST'])  
+def gestion_lineas_entrantes(orden_id):
     if request.method == "POST":
         productos = request.form.getlist('prod_id')
-        for p in productos:
-            stock = request.form.get("stockradio"+str(p))
-            precio = request.form.get("precio"+str(p))
-            flash('productos: {} {} {}'.format(p, stock, precio ))
+        for p in productos: 
+            variant = request.form.get("variant"+str(p))
+            accion = request.form.get("accion"+str(p))
+            accion_cantidad = request.form.get("accion_cantidad"+str(p))
+            order_line = request.form.get("order_line"+str(p))
+            ## Guarda el valor que se le reconoció al cliente al devolver el producto
+            if request.form.get("precio"+str(p)) != None :
+                monto_devuelto = request.form.get("precio"+str(p))
+            else:
+                monto_devuelto = 0
+            # Asigna accion_stock dependiendo de si se eligió que el stock se reingrese o no
+            if request.form.get("stockradio"+str(p)) == 'None':
+                accion_stock = "No vuelve al stock"
+            else: 
+                accion_stock = "Vuelve al stock"
+            devolver_linea(p, variant, accion_cantidad, orden_id, order_line, accion, accion_stock, monto_devuelto)
     return redirect(url_for('main.user', username=current_user.username))
 
 
@@ -275,16 +287,17 @@ def gestionar_producto(orden_id):
 def historia_orden(orden_id):
     orden = Order_header.query.filter_by(id=orden_id).first()
     historia = Transaction_log.query.filter_by(order_id=orden_id).all()
-    ### cambio_link
+    lineas = Order_detail.query.filter_by(order=orden.id).all()
     empresa = Company.query.get(orden.store)
-    return render_template('historia_orden.html', orden=orden, historia=historia, customer=orden.buyer, empresa=empresa, empresa_name=session['current_empresa'])
+    return render_template('historia_orden.html', orden=orden, historia=historia, lineas=lineas, customer=orden.buyer, empresa=empresa, empresa_name=session['current_empresa'])
 
 
-@bp.route('/producto/historia/<linea_id>', methods=['GET', 'POST'])
-@login_required
-def historia_producto(linea_id):
-    linea = Order_detail.query.get(str(linea_id))
-    return render_template('historia_producto.html', linea=linea, empresa_name=session['current_empresa'])
+### BORRAR ####
+# @bp.route('/producto/historia/<linea_id>', methods=['GET', 'POST'])
+# @login_required
+# def historia_producto(linea_id):
+#    linea = Order_detail.query.get(str(linea_id))
+#    return render_template('historia_producto.html', linea=linea, empresa_name=session['current_empresa'])
 
 
 @bp.route('/webhook', methods=['POST'])
@@ -381,6 +394,8 @@ def tracking_orden():
         return json.dumps(status_tmp), 200
 
 
+
+#### Se escribe nueva version para gestion de lineas en conjunto ###################
 @bp.route('/devolver', methods=['GET', 'POST'])
 @login_required
 def devolver():
@@ -403,9 +418,9 @@ def devolver():
         empresa = Company.query.get(current_user.store)
         if empresa.stock_vuelve_config == True:
             if empresa.platform == 'tiendanube':
-                devolucion = devolver_stock_tiendanube(empresa, prod_id, variant, cantidad)
-                if devolucion == 'Failed':
-                    return redirect(url_for('main.orden', orden_id=orden_id))
+                #devolucion = devolver_stock_tiendanube(empresa, prod_id, variant, cantidad)
+                #if devolucion == 'Failed':
+                return redirect(url_for('main.orden', orden_id=orden_id))
         else: 
             ## Si la configuracion de stock_vuelve_config es False (el stock no se devuelve fisicamente)
             ## Envía mail al administrador de la empresa avisando para que lo devuelva por sistema
@@ -483,46 +498,23 @@ def cambiar():
     return 'Sucesss'
 
 
-def loguear_transaccion(sub_status, prod, order_id, user_id, username):
-    unaTransaccion = Transaction_log(
-        sub_status = traducir_estado(sub_status)[0],
-        status_client = traducir_estado(sub_status)[2],
-        prod = prod,
-        order_id = order_id,
-        user_id = user_id,
-        username = username
-    )
-    db.session.add(unaTransaccion)
-    db.session.commit()
-    return 'Success'
+@bp.route('/buscar_variante', methods=['POST'])
+def buscar_datos_variantes():
+    prod_id = request.form.get('prod_id')
+    variante = request.form.get('variante')
+    empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
+    if empresa.platform == 'tiendanube':
+        flash('buscar_datos_variantes_tiendanube({}, {})'.format(prod_id, variante))
+        variante = buscar_datos_variantes_tiendanube(prod_id, variante, empresa)
+        #flash('variante variante {} prod {}'.format(variante, prod_id))
+    if type(variante) != dict:
+        return json.dumps({'success':False}), 400, {'ContentType':'application/json'} 
+    #flash('variante {}'.format(variante))
+    return json.dumps(variante)
 
 
-def finalizar_orden(orden_id):
-    orden = Order_header.query.filter_by(id=orden_id).first()
-    customer = Customer.query.get(orden.customer_id)
-    orden_linea = Order_detail.query.filter_by(order=orden_id).all()
-    finalizados = 0
-    for i in orden_linea:
-        if i.gestionado == 'Si':
-            finalizados += 1
-    if finalizados == len(orden_linea):
-        flash('Todas las tareas completas. Se finalizó la Orden {}'.format(orden_id))
-        orden.sub_status = traducir_estado('CERRADO')[0]
-        orden.status_resumen =traducir_estado('CERRADO')[1]
-        orden.status = 'Cerrado'
-        loguear_transaccion('CERRADO', 'Cerrado ',orden_id, current_user.id, current_user.username)
-        #flash('Mail {} para {} - orden {} , orden linea {}'.format(current_app.config['ADMINS'][0], customer.email, orden, orden_linea))
-        company = Company.query.get(current_user.store)
-        send_email('El procesamiento de tu orden ha finalizado', 
-            sender=company.communication_email, 
-            recipients=[customer.email], 
-            text_body=render_template('email/pedido_finalizado.txt',
-                                    company=company, customer=customer, order=orden, linea=orden_linea),
-            html_body=render_template('email/pedido_finalizado.html',
-                                    company=company, customer=customer, order=orden, linea=orden_linea), 
-            attachments=None, 
-            sync=False)
-    return 'Success'
+
+
 
 
 #################################################################################

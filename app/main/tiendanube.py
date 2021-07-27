@@ -7,6 +7,18 @@ from app.models import User, Company, Customer, Order_header, Order_detail, Tran
 from flask_login import current_user
 from flask import flash, current_app
 
+def buscar_datos_variantes_tiendanube(prod_id, variant, empresa):
+    url = "https://api.tiendanube.com/v1/"+str(current_user.store)+"/products/"+str(prod_id)+"/variants/"+str(variant)
+    payload={}
+    headers = {
+        'Content-Type': 'application/json',
+        'Authentication': empresa.platform_token_type+' '+empresa.platform_access_token
+    }
+    variante = requests.request("GET", url, headers=headers, data=payload).json()
+    #flash('variante antes antes {} tipo {}'.format(variante, type(variante)))
+    return variante
+
+
 
 def buscar_producto_tiendanube(prod_id, empresa):
     url = "https://api.tiendanube.com/v1/"+str(current_user.store)+"/products/"+str(prod_id)

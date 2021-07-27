@@ -14,15 +14,15 @@
     </ul>
     <br>
 
-    <table id="ordenes" class="table table-condensed table-striped table-responsive-sm" >
-        <thead>
+    <table id="ordenes"  class="table table-striped table-sm" style="font-size: 14px" >
+        <thead >
             <tr>
-                <th><small>Orden</small></th>
-                <th><small>Fecha Creacion</small></th>
-                <th><small>Última modificación</small></th>
-                <th><small>Metodo Envío</small></th>
-                <th><small>Nro. Guía</small></th>
-                <th><small>Estado</small></th>
+                <th>Orden</th>
+                <th>Fecha Creacion</th>
+                <th>Última modificación</th>
+                <th>Metodo Envío</th>
+                <th>Nro. Guía</th>
+                <th>Estado</th>
                 <th></th>
                 <th></th>
             </tr>
@@ -38,16 +38,16 @@
                     {% set color = 'green' %}
                 {% endif %}
                 <tr>
-                    <td><small>{{i['order_number']}}</small></td>
-                    <td><small>{{ moment(i['date_creation']).format("DD/MM/YYYY")}}</small></td>
-                    <td><small>{{ moment(i['date_lastupdate']).fromNow() }}</small></td>
-                    <td><small>{{ i['courier_method'] }}</small></td>
-                    <td><small>{{ i['courier_order_id'] }}</small></td>
-                    <td style="color:{{color}}"><small>{{i['status_resumen']}}</small></td>
+                    <td>{{i['order_number']}}</td>
+                    <td>{{ moment(i['date_creation']).format("DD/MM/YYYY")}}</td>
+                    <td>{{ moment(i['date_lastupdate']).fromNow() }}</td>
+                    <td>{{ i['courier_method'] }}</td>
+                    <td>{{ i['courier_order_id'] }}</td>
+                    <td style="color:{{color}}">{{i['status_resumen']}}</td>
                     <td><a href="{{ url_for('main.orden', orden_id = i['id']) }}">
-                        <button class="btn btn-primary btn-sm" > <small>Gestionar </small></button></td>
+                        <button class="btn btn-primary btn-sm" > Gestionar </button></td>
                     <td><a href="{{ url_for('main.historia_orden', orden_id = i['id']) }}">
-                        <button class="btn btn-link btn-sm"><small> Historia</small> </button></td>
+                        <button class="btn btn-link btn-sm"> Historia </button></td>
                 </tr>
             {% endfor %}
         </tbody>
@@ -62,7 +62,13 @@
     
         $(document).ready( function () {
             $.noConflict();
-            $('#ordenes').DataTable();
+            $('#ordenes').DataTable({
+
+                language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json'
+                }
+                
+            });
         } );
     
     </script>
