@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 73ae64a901fe
+Revision ID: cb7e365313f4
 Revises: 
-Create Date: 2021-05-03 16:02:53.010910
+Create Date: 2021-07-29 15:59:11.437171
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '73ae64a901fe'
+revision = 'cb7e365313f4'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -29,7 +29,7 @@ def upgrade():
     sa.Column('store_country', sa.String(length=20), nullable=True),
     sa.Column('store_url', sa.String(length=120), nullable=True),
     sa.Column('store_plan', sa.String(length=64), nullable=True),
-    sa.Column('store_phone', sa.String(length=15), nullable=True),
+    sa.Column('store_phone', sa.String(length=20), nullable=True),
     sa.Column('store_address', sa.String(length=120), nullable=True),
     sa.Column('admin_email', sa.String(length=120), nullable=True),
     sa.Column('communication_email', sa.String(length=120), nullable=True),
@@ -54,6 +54,17 @@ def upgrade():
     sa.Column('shipping_province', sa.String(length=64), nullable=True),
     sa.Column('shipping_country', sa.String(length=64), nullable=True),
     sa.Column('shipping_info', sa.String(length=120), nullable=True),
+    sa.Column('aprobado_note', sa.String(length=250), nullable=True),
+    sa.Column('rechazado_note', sa.String(length=250), nullable=True),
+    sa.Column('envio_manual_note', sa.String(length=350), nullable=True),
+    sa.Column('envio_coordinar_note', sa.String(length=350), nullable=True),
+    sa.Column('envio_correo_note', sa.String(length=350), nullable=True),
+    sa.Column('cupon_generado_note', sa.String(length=350), nullable=True),
+    sa.Column('finalizado_note', sa.String(length=350), nullable=True),
+    sa.Column('confirma_manual_note', sa.String(length=350), nullable=True),
+    sa.Column('confirma_coordinar_note', sa.String(length=350), nullable=True),
+    sa.Column('confirma_moova_note', sa.String(length=350), nullable=True),
+    sa.Column('start_date', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('store_id')
     )
     op.create_index(op.f('ix_company_platform'), 'company', ['platform'], unique=False)
@@ -63,13 +74,20 @@ def upgrade():
     sa.Column('platform', sa.String(length=64), nullable=True),
     sa.Column('name', sa.String(length=64), nullable=True),
     sa.Column('email', sa.String(length=120), nullable=True),
-    sa.Column('identification', sa.String(length=10), nullable=True),
+    sa.Column('identification', sa.String(length=20), nullable=True),
     sa.Column('phone', sa.String(length=15), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_customer_email'), 'customer', ['email'], unique=False)
     op.create_index(op.f('ix_customer_name'), 'customer', ['name'], unique=False)
     op.create_index(op.f('ix_customer_platform'), 'customer', ['platform'], unique=False)
+    op.create_table('categories_filter',
+    sa.Column('store', sa.String(length=64), nullable=True),
+    sa.Column('category_id', sa.Integer(), nullable=False),
+    sa.Column('category_desc', sa.String(length=100), nullable=True),
+    sa.ForeignKeyConstraint(['store'], ['company.store_id'], ),
+    sa.PrimaryKeyConstraint('category_id')
+    )
     op.create_table('order_header',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('order_number', sa.Integer(), nullable=True),
@@ -86,17 +104,25 @@ def upgrade():
     sa.Column('courier_method', sa.String(length=64), nullable=True),
     sa.Column('courier_order_id', sa.String(length=64), nullable=True),
     sa.Column('courier_precio', sa.String(length=20), nullable=True),
+    sa.Column('courier_coordinar_empresa', sa.String(length=120), nullable=True),
+    sa.Column('courier_coordinar_guia', sa.String(length=64), nullable=True),
+    sa.Column('courier_coordinar_roundtrip', sa.Boolean(), nullable=True),
+    sa.Column('nuevo_envio', sa.String(length=100), nullable=True),
+    sa.Column('nuevo_envio_costo', sa.Float(), nullable=True),
+    sa.Column('nuevo_envio_total', sa.Float(), nullable=True),
     sa.Column('status', sa.String(length=25), nullable=True),
     sa.Column('sub_status', sa.String(length=25), nullable=True),
     sa.Column('status_resumen', sa.String(length=25), nullable=True),
+    sa.Column('reject_reason', sa.String(length=350), nullable=True),
     sa.Column('customer_address', sa.String(length=64), nullable=True),
     sa.Column('customer_number', sa.String(length=10), nullable=True),
-    sa.Column('customer_floor', sa.String(length=10), nullable=True),
+    sa.Column('customer_floor', sa.String(length=64), nullable=True),
     sa.Column('customer_zipcode', sa.String(length=8), nullable=True),
-    sa.Column('customer_locality', sa.String(length=64), nullable=True),
+    sa.Column('customer_locality', sa.String(length=150), nullable=True),
     sa.Column('customer_city', sa.String(length=64), nullable=True),
     sa.Column('customer_province', sa.String(length=64), nullable=True),
     sa.Column('customer_country', sa.String(length=64), nullable=True),
+    sa.Column('note', sa.Text(), nullable=True),
     sa.Column('customer_id', sa.Integer(), nullable=True),
     sa.Column('store', sa.String(length=64), nullable=True),
     sa.ForeignKeyConstraint(['customer_id'], ['customer.id'], ),
@@ -128,6 +154,7 @@ def upgrade():
     sa.Column('variant', sa.Integer(), nullable=True),
     sa.Column('accion', sa.String(length=10), nullable=True),
     sa.Column('accion_cambiar_por', sa.Integer(), nullable=True),
+    sa.Column('accion_cambiar_por_prod_id', sa.Integer(), nullable=True),
     sa.Column('accion_cambiar_por_desc', sa.String(length=120), nullable=True),
     sa.Column('accion_cantidad', sa.Integer(), nullable=True),
     sa.Column('motivo', sa.String(length=50), nullable=True),
@@ -173,6 +200,7 @@ def downgrade():
     op.drop_index(op.f('ix_order_header_order_number'), table_name='order_header')
     op.drop_index(op.f('ix_order_header_courier_order_id'), table_name='order_header')
     op.drop_table('order_header')
+    op.drop_table('categories_filter')
     op.drop_index(op.f('ix_customer_platform'), table_name='customer')
     op.drop_index(op.f('ix_customer_name'), table_name='customer')
     op.drop_index(op.f('ix_customer_email'), table_name='customer')

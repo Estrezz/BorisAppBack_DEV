@@ -56,7 +56,7 @@ def devolver_stock_tiendanube(empresa, prod_id, variant, cantidad):
     return 'Success'
 
 
-def generar_envio_tiendanube(orden, linea, unCliente, unaEmpresa):
+def generar_envio_tiendanube(orden, lineas, unCliente, unaEmpresa):
     url = "https://api.tiendanube.com/v1/"+str(current_user.store)+"/orders/"
     payload={}
     headers = {
@@ -68,13 +68,7 @@ def generar_envio_tiendanube(orden, linea, unCliente, unaEmpresa):
         "status": "open",
         "gateway": "offline",
         "payment_status": "paid",
-        "products": [
-            {
-                "variant_id": linea.accion_cambiar_por,
-                "quantity": linea.accion_cantidad,
-                "price": 0
-            }
-        ],
+        "products": [],
         "inventory_behaviour" : "claim",
         "customer": {
             "email": unCliente.email,
@@ -100,12 +94,74 @@ def generar_envio_tiendanube(orden, linea, unCliente, unaEmpresa):
         "send_confirmation_email" : False,
         "send_fulfillment_email" : False
         }
+    
+    productos_tmp = []
+    for i in lineas:
+        productos_tmp.append ({
+        "variant_id":i.accion_cambiar_por,
+        "quantity": i.accion_cantidad,
+        "price": 0
+        })
+    orden_tmp['products'] = productos_tmp
 
     order = requests.request("POST", url, headers=headers, data=json.dumps(orden_tmp))
     if order.status_code != 201:
         flash('Hubo un problema en la generación de la Orden. Error {}'.format(order.status_code))  
+        #flash('url {} - Json - {}'.format(url, json.dumps(orden_tmp)))
         return 'Failed'
     return 'Success'
+
+
+#def generar_envio_tiendanube(orden, linea, unCliente, unaEmpresa):
+#    url = "https://api.tiendanube.com/v1/"+str(current_user.store)+"/orders/"
+#    payload={}
+#    headers = {
+#        'Content-Type': 'application/json',
+#        'Authentication': unaEmpresa.platform_token_type+' '+unaEmpresa.platform_access_token
+#    }
+#        
+#    orden_tmp = { 
+#        "status": "open",
+#        "gateway": "offline",
+#        "payment_status": "paid",
+#        "products": [
+#            {
+#                "variant_id": linea.accion_cambiar_por,
+#                "quantity": linea.accion_cantidad,
+#                "price": 0
+#            }
+#        ],
+#        "inventory_behaviour" : "claim",
+#        "customer": {
+#            "email": unCliente.email,
+#            "name": unCliente.name,
+#            "phone": unCliente.phone
+#        },
+#        "note": 'Cambio realizado mediante Boris',
+#        "shipping_address": {
+#            "first_name": unCliente.name,
+#            "address": orden.customer_address,
+#            "number": orden.customer_number,
+#            "floor": orden.customer_floor,
+#            "locality": orden.customer_locality,
+#            "city": orden.customer_city,
+#            "province": orden.customer_province,
+#            "zipcode": orden.customer_zipcode,
+#            "country": orden.customer_country,
+#            "phone": unCliente.phone
+#        },
+#        "shipping_pickup_type": "ship",
+#        "shipping": "not-provided",
+#        "shipping_option": "No informado",
+#        "send_confirmation_email" : False,
+#        "send_fulfillment_email" : False
+#        }
+#
+#    order = requests.request("POST", url, headers=headers, data=json.dumps(orden_tmp))
+#    if order.status_code != 201:
+#        flash('Hubo un problema en la generación de la Orden. Error {}'.format(order.status_code))  
+#        return 'Failed'
+#    return 'Success'
 
 
 def autorizar_tiendanube(codigo):

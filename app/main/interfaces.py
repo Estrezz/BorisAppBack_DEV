@@ -446,6 +446,28 @@ def devolver_linea(prod_id, variant, cantidad, orden_id, order_line_number, acci
     return 'Success'
 
 
+## Actualiza el stock fisicamente si la configuracion de stock_vuelve_config = TRUE
+## o Envia mail avisande que debe gestionarse manualmente
+## si es una devolucion SUMA la cantidad al stock existente
+## Si es una extraccion RESTA la cantidad
+def actualizar_stock(lineas, empresa, accion):
+    for l in lineas:
+        linea = Order_detail.query.get(str(l))
+        if accion == 'entrante':
+            cantidad_tmp = linea.accion_cantidad
+        if accion == 'saliente':
+            cantidad_tmp = 0 - linea.accion_cantidad        
+
+        if empresa.platform == 'tiendanube':
+            stock = devolver_stock_tiendanube(empresa, linea.accion_cambiar_por_prod_id, linea.accion_cambiar_por, cantidad_tmp)
+            if stock == 'Failed':
+                flash('No se pude actualizar el stock para el articulo {} '.format(linea.accion_cambiar_por_desc))
+
+    return 'Success'
+        
+
+
+
 def loguear_transaccion(sub_status, prod, order_id, user_id, username):
     unaTransaccion = Transaction_log(
         sub_status = traducir_estado(sub_status)[0],

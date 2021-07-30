@@ -7,7 +7,7 @@ from app.email import send_email
 from app.main.forms import EditProfileForm, EditProfileCompanyForm, EditMailsCompanyForm, EditCorreoCompanyForm, EditParamsCompanyForm, EditMailsFrontCompanyForm
 from app.main.tiendanube import generar_envio_tiendanube, autorizar_tiendanube, buscar_codigo_categoria_tiendanube, buscar_datos_variantes_tiendanube
 from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log, categories_filter
-from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto, genera_credito, actualiza_empresa, actualiza_empresa_categorias, actualiza_empresa_JSON, loguear_transaccion, finalizar_orden, devolver_linea
+from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto, genera_credito, actualiza_empresa, actualiza_empresa_categorias, actualiza_empresa_JSON, loguear_transaccion, finalizar_orden, devolver_linea, actualizar_stock
 import json
 from app.main import bp
 
@@ -29,7 +29,6 @@ def index():
 
 
 @bp.route('/mantenimiento', methods=['GET', 'POST'])
-
 def mantenimiento():
     return render_template('mantenimiento.html', title='Home',  empresa_name=session['current_empresa'])
 
@@ -206,21 +205,75 @@ def gestion_lineas_entrantes(orden_id):
             else: 
                 accion_stock = "Vuelve al stock"
             devolver_linea(p, variant, accion_cantidad, orden_id, order_line, accion, accion_stock, monto_devuelto)
-    return redirect(url_for('main.user', username=current_user.username))
+    return redirect(url_for('main.orden', orden_id=orden_id))
+
 
 
 @bp.route('/gestion_lineas_saliente/<orden_id>',methods=['GET', 'POST'])  
 def gestion_lineas_salientes(orden_id):
     if request.method == "POST":
-        productos = request.form.getlist('prod_id_saliente')
-        for p in productos: 
-            nuevaorden = request.form.get("nuevaorden"+str(p))
-            #accion = request.form.get("accion"+str(p))
-            #accion_cantidad = request.form.get("accion_cantidad"+str(p))
-            #order_line = request.form.get("order_line"+str(p))
-            flash('articulo {} - {}'.format(p, nuevaorden))
-    return redirect(url_for('main.user', username=current_user.username))
+        empresa = Company.query.get(current_user.store)
+        ordenes = request.form.getlist('order_line_saliente')
+        nuevaorden = request.form.get("nuevaorden")
+        envio_nueva_orden = request.form.get("envio_nueva_orden")
+        total_nueva_orden = request.form.get("total_nueva_orden")
 
+        orden = Order_header.query.get(orden_id)
+        #unCliente = orden.buyer
+        #unaEmpresa = orden.pertenece
+        
+        # agrego datos de la nueva orden (forma de envio, costo de envio y total a cobrar)
+        orden.nuevo_envio = nuevaorden
+        orden.nuevo_envio_costo = envio_nueva_orden
+        orden.nuevo_envio_total = total_nueva_orden
+
+        if  nuevaorden == 'manual': 
+                envio_nuevo_metodo = 'Se envía manualmente'
+
+        if  nuevaorden == 'manual_stock': 
+            flash('ordenes {} tipo {}'.format(ordenes, type(ordenes)))
+            envio_nuevo_metodo = 'Se envía manualmente - se descuenta stock'
+            if empresa.stock_vuelve_config == True:
+                actualizar_stock(ordenes, empresa ,'saliente')
+            else:
+                send_email('Se ha generado una orden manual en BORIS ', 
+                    sender=empresa.communication_email,
+                    recipients=[empresa.admin_email], 
+                    text_body=render_template('email/gestion_stock.txt',
+                                            order=orden, envio=envio_nueva_orden, total=total_nueva_orden),
+                    html_body=render_template('email/gestion_stock.html',
+                                            order=orden, envio=envio_nueva_orden, total=total_nueva_orden),
+                    attachments=None, 
+                    sync=False)
+        
+          
+        if  nuevaorden == 'tienda': 
+            envio_nuevo_metodo = 'Se envía mediante nueva orden en Tienda'
+            
+            unCliente = orden.buyer
+            unaEmpresa = orden.pertenece
+            lineas = Order_detail.query.filter(Order_detail.order_line_number.in_(ordenes)).all()
+            ####### genera nueva ordenen tiendanube ###################
+            if unaEmpresa.platform == 'tiendanube':
+                generacion_envio = generar_envio_tiendanube(orden, lineas, unCliente, unaEmpresa)
+                if generacion_envio == 'Failed':
+                    return redirect(url_for('main.orden', orden_id=orden_id))
+
+        # gestiono las lineas de la orden
+        for o in ordenes:
+            linea = Order_detail.query.get(str(o))
+
+            linea.fecha_gestionado = datetime.utcnow()
+            loguear_transaccion('CAMBIADO', str(linea.name)+' '+envio_nuevo_metodo, orden_id, current_user.id, current_user.username)
+            if linea.gestionado == 'Devuelto':
+                linea.gestionado = 'Si'
+            else:
+                linea.gestionado = traducir_estado('CAMBIADO')[1]
+            
+        finalizar_orden(orden_id)
+        db.session.commit()
+        
+    return redirect(url_for('main.orden', orden_id=orden_id))
 
 
 @bp.route('/ordenes/<estado>/<subestado>', methods=['GET', 'POST'])
@@ -411,62 +464,63 @@ def tracking_orden():
 
 
 #### Se escribe nueva version para gestion de lineas en conjunto ###################
-@bp.route('/devolver', methods=['GET', 'POST'])
-@login_required
-def devolver():
-    prod_id = request.args.get('prod_id')
-    variant = request.args.get('variant')
-    cantidad = request.args.get('cantidad')
-    orden_id = request.args.get('orden_id')
-    order_line_number = request.args.get('order_line')
-    accion = request.args.get('accion')
-    accion_stock = request.form['stockradio']
-    linea = Order_detail.query.get(str(order_line_number))
-    orden = Order_header.query.get(orden_id)
+#@bp.route('/devolver', methods=['GET', 'POST'])
+#@login_required
+#def devolver():
+#    prod_id = request.args.get('prod_id')
+#    variant = request.args.get('variant')
+#    cantidad = request.args.get('cantidad')
+#    orden_id = request.args.get('orden_id')
+#    order_line_number = request.args.get('order_line')
+#    accion = request.args.get('accion')
+#    accion_stock = request.form['stockradio']
+#    linea = Order_detail.query.get(str(order_line_number))
+#    orden = Order_header.query.get(orden_id)
+#
+#    if request.form.get('monto') != None :
+#        monto_devuelto = request.form.get('monto')
+#    else:
+#        monto_devuelto = 0
+#    
+#    if accion_stock != 'no_vuelve':
+#        empresa = Company.query.get(current_user.store)
+#        if empresa.stock_vuelve_config == True:
+#            if empresa.platform == 'tiendanube':
+#                #devolucion = devolver_stock_tiendanube(empresa, prod_id, variant, cantidad)
+#                #if devolucion == 'Failed':
+#
+#                return redirect(url_for('main.orden', orden_id=orden_id))
+#        else: 
+#            ## Si la configuracion de stock_vuelve_config es False (el stock no se devuelve fisicamente)
+#            ## Envía mail al administrador de la empresa avisando para que lo devuelva por sistema
+#            send_email('Se ha devuelto un artículo en BORIS ', 
+#                sender=empresa.communication_email,
+#                recipients=[empresa.admin_email], 
+#                text_body=render_template('email/articulo_devuelto.txt',
+#                                         order=orden, linea=linea),
+#                html_body=render_template('email/articulo_devuelto.html',
+#                                         order=orden, linea=linea), 
+#                attachments=None, 
+#                sync=False)
+#        
+#    # linea = Order_detail.query.get(str(order_line_number))
+#    linea.monto_devuelto = monto_devuelto
+#    linea.restock = accion_stock
+#    linea.fecha_gestionado = datetime.utcnow()
+#    loguear_transaccion('DEVUELTO',str(linea.name)+' '+accion_stock, orden_id, current_user.id, current_user.username)
+#    if accion == 'devolver':
+#        linea.gestionado = 'Si'
+#        db.session.commit()
+#    if accion == 'cambiar':
+#        if linea.gestionado == 'Cambiado':
+#            linea.gestionado = 'Si'
+#        else: 
+#            linea.gestionado = traducir_estado('DEVUELTO')[1]
+#        db.session.commit()
+#    finalizar_orden(orden_id)
+#    return redirect(url_for('main.orden', orden_id=orden_id))
 
-    if request.form.get('monto') != None :
-        monto_devuelto = request.form.get('monto')
-    else:
-        monto_devuelto = 0
-    
-    if accion_stock != 'no_vuelve':
-        empresa = Company.query.get(current_user.store)
-        if empresa.stock_vuelve_config == True:
-            if empresa.platform == 'tiendanube':
-                #devolucion = devolver_stock_tiendanube(empresa, prod_id, variant, cantidad)
-                #if devolucion == 'Failed':
-                return redirect(url_for('main.orden', orden_id=orden_id))
-        else: 
-            ## Si la configuracion de stock_vuelve_config es False (el stock no se devuelve fisicamente)
-            ## Envía mail al administrador de la empresa avisando para que lo devuelva por sistema
-            send_email('Se ha devuelto un artículo en BORIS ', 
-                sender=empresa.communication_email,
-                recipients=[empresa.admin_email], 
-                text_body=render_template('email/articulo_devuelto.txt',
-                                         order=orden, linea=linea),
-                html_body=render_template('email/articulo_devuelto.html',
-                                         order=orden, linea=linea), 
-                attachments=None, 
-                sync=False)
-        
-    # linea = Order_detail.query.get(str(order_line_number))
-    linea.monto_devuelto = monto_devuelto
-    linea.restock = accion_stock
-    linea.fecha_gestionado = datetime.utcnow()
-    loguear_transaccion('DEVUELTO',str(linea.name)+' '+accion_stock, orden_id, current_user.id, current_user.username)
-    if accion == 'devolver':
-        linea.gestionado = 'Si'
-        db.session.commit()
-    if accion == 'cambiar':
-        if linea.gestionado == 'Cambiado':
-            linea.gestionado = 'Si'
-        else: 
-            linea.gestionado = traducir_estado('DEVUELTO')[1]
-        db.session.commit()
-    finalizar_orden(orden_id)
-    return redirect(url_for('main.orden', orden_id=orden_id))
-
-
+#### Se escribe nueva version para gestiona orden complata BORRAR ####
 @bp.route('/cambiar', methods=['GET', 'POST'])
 @login_required
 def cambiar():

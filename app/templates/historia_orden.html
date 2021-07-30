@@ -16,8 +16,11 @@
                 </div>
                 
                     {% for i in historia %}
-                        Actualizado a: 
+                        - 
                         <strong>{{i.sub_status}}</strong> - 
+                        {% if i.prod != None %}
+                            {{i.prod}}
+                        {% endif %}
                         por: {{i.username}}
                         ({{ moment(i.fecha).format("DD/MM/YYYY")}})
                         <br>

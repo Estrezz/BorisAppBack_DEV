@@ -3,8 +3,8 @@
 {% block app_content %}
     <div class='container'>
 
-         <!-- Encabezado conNro de Orden-->
-         <div class="row">
+        <!-- Encabezado conNro de Orden-->
+        <div class="row">
             <div class = "page-header"> <h4> Orden #{{orden.order_number}}</h4> </div>
         </div>
         
@@ -69,9 +69,7 @@
                                                     <input type="text" id="precio{{ i['prod_id'] }}" name="precio{{ i['prod_id'] }}" class="form-control" value="{{i['precio']}}">
                                                 {% else %}
                                                     <input type="text" id="precio{{ i['prod_id'] }}" name="precio{{ i['prod_id'] }}" class="form-control" value="{{i['monto_devuelto']}}" disabled>
-                                                {% endif %}
-
-                                                
+                                                {% endif %} 
                                             {% else %}
                                                 <input type="text" id="precio{{ i['prod_id'] }}" name="precio{{ i['prod_id'] }}" class="form-control" value="{{i['precio']}}" disabled>
                                             {% endif %}
@@ -119,6 +117,7 @@
                     {% for i in orden_linea %}
                         {% if (i['accion'] == 'cambiar' and i['accion_cambiar_por'] != 1 ) %}
                         <input class="saliente" type="hidden" id="prod_id_saliente" name="prod_id_saliente" value="{{ i['prod_id'] }}" data-variante="{{ i['accion_cambiar_por']}}" data-prod_id="{{ i['prod_id'] }}" data-cambiar_por_prod_id="{{ i['accion_cambiar_por_prod_id'] }}">
+                        <input type="hidden" id="order_line_saliente" name="order_line_saliente" value="{{ i['order_line_number'] }}">
                         <div class="card mb-2 ">
                             <div class="card-body">
                                 <div class="row">
@@ -133,7 +132,7 @@
                                             <small class="text-muted">
                                             Stock Actual: <span type="text" id="stock{{ i['prod_id'] }}" name="stock{{ i['prod_id'] }}"></span> /
                                             Precio: <span type="text" id="saliente_precio{{ i['prod_id'] }}" name="saliente_precio{{ i['prod_id'] }}"></span>
-                                                    <!-- guarda el precio promocional si existiera -->
+                                                    <!-- guarda el precio promocional y lo muestra si existiera con Jquery-->
                                                     <input type="hidden" id="saliente_precio_promo{{ i['prod_id'] }}" name="saliente_precio_promo{{ i['prod_id'] }}" value=0 >
                                                     <span type="text" id="saliente_precio_promo_desc{{ i['prod_id'] }}" name="saliente_precio_promo_desc{{ i['prod_id'] }}"></span>
                                             </span> 
@@ -155,54 +154,139 @@
                                             {% if orden.status_resumen == 'Aprobado' %}
                                             {% if (i.gestionado == 'Iniciado' or i.gestionado == 'Devuelto' ) %}
                                             <small>
-                                                Generar nueva orden:
-                                                <div class="custom-control custom-radio ml-4">
-                                                <input type="radio" id="nuevaorden1{{ i['prod_id'] }}" name="nuevaorden{{ i['prod_id'] }}" class="custom-control-input" value="Manual">
-                                                <label class="custom-control-label" for="nuevaorden1{{ i['prod_id'] }}">Manual</label>
-                                              </div>
-                                              <div class="custom-control custom-radio ml-4">
-                                                <input type="radio" id="nuevaorden2{{ i['prod_id'] }}" name="nuevaorden{{ i['prod_id'] }}" class="custom-control-input" value="Tienda">
-                                                <label class="custom-control-label" for="nuevaorden2{{ i['prod_id'] }}">Tienda</label>
-                                              </div>
+                                              <!-- campo para mostrar si hay diferencia de precio -->
+                                              <input class="diferencia" type="hidden" id="saliente_diferencia_precio{{ i['prod_id'] }}" name="saliente_diferencia_precio{{ i['prod_id'] }}" value=0 >
+                                              <span class="float-right" type="hidden" id="saliente_diferencia_precio_desc{{ i['prod_id'] }}" name="saliente_diferencia_precio_desc{{ i['prod_id'] }}"></span>
                                             </small>
                                             {% endif %}
                                         {% endif %}
                                         </div>
                                     </div>
-
                                 </div> <!-- end of row Articulos Saliente -->
-                            </div>
-                        </div>
+                            </div> <!-- end of card SALIENTE body -->
+                        </div> <!-- end of card SALIENTE -->
                         {% endif %}
                     {% endfor %}
+                    
+                    <hr>
+                    <!-- Calculo Total a Pagar/ Devolver-->
                     {% if orden.status_resumen == 'Aprobado' %}
-                            <!-- Ver como hacer para que aparezca solo si alguna de las lineas esta no gestionada o devuelta -->
-                            <button class="btn btn-info btn-sm float-right mt-1 mb-1" type="submit"> Procesar</button>
-                            <br>
-                        
+                        <input type="hidden" id="diferencia_total" name="diferencia_total" value=0 />
+
+                        <div class="row">
+                            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                                <!-- Descuentos de la Orden -->
+                               <div class = "page-header mt-2 mb-2 text-info font-weight-bold"> <h6> Descuentos Orden Original</h6> </div>
+
+                                <!-- total descuentos orden -->
+                                {% if orden.gastos_gateway != 0 %} 
+                                    <div class="input-group input-group-sm mb-2 float-right">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="descFormaPago">Desc. Forma de Pago $</span>
+                                        </div>
+                                        <input type="text" id="descuentos_forma_pago" name="descuentos_forma_pago" class="form-control text-right" aria-describedby="descFormaPago" value="{{orden.gastos_gateway}}" disabled>
+                                    </div>
+                                    <br>
+                                {% endif %}
+                            
+                                {% if orden.gastos_cupon != 0 %}
+                                    <div class="input-group input-group-sm mb-2 float-right">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="descCupon">Cupón $</span>
+                                        </div>
+                                        <input type="text" id="descuentos_cupon" name="descuentos_cupon" class="form-control text-right" aria-describedby="descCupon" value="{{orden.gastos_cupon}}" disabled>
+                                    </div>
+                                    <br>
+                                {% endif %}
+                            
+                                {% if orden.gastos_shipping_owner != 0 %} 
+                                    <div class="input-group input-group-sm mb-2 float-right">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="costo_envio_owner">Costo Envío Merchant $</span>
+                                        </div>
+                                        <input type="text" id="descuentos_costo_envio_owner" name="descuentos_costo_envio_owner" class="form-control text-right" aria-describedby="costo_envio_owner" value="{{orden.gastos_shipping_owner}}" disabled>
+                                    </div>
+                                    <br>
+                                {% endif %}
+
+                                {% if orden.gastos_shipping_customer != 0 %} 
+                                    <div class="input-group input-group-sm mb-2 float-right">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="costo_envio_cliente">Costo Envío Cliente $</span>
+                                        </div>
+                                        <input type="text" id="descuentos_costo_envio_cliente" name="descuentos_costo_envio_cliente" class="form-control text-right" aria-describedby="costo_envio_cliente" value="{{orden.gastos_shipping_customer}}" disabled>
+                                    </div>
+                                    <br>
+                                {% endif %}
+
+                                {% if orden.gastos_promocion != 0 %}
+                                    <div class="input-group input-group-sm mb-2 float-right">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="gastos_promo">Desc. Promo $</span>
+                                        </div>
+                                        <input type="text" id="descuentos_promo" name="descuentos_promo" class="form-control text-right" aria-describedby="gastos_promo" value="{{orden.gastos_promocion}}" disabled>
+                                    </div>
+                                    <br>
+                                {% endif %}                                
+                            </div> <!-- end of Column-->
+
+                            <!-- Calculo de valor a pagar/devolver -->
+                            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                                <div class = "page-header mt-2 mb-2 text-info font-weight-bold"> <h6> Diferencia de Precio </h6> </div>
+                                    <!-- Suma total de diferencias de los cambios -->
+                                    <div class="input-group input-group-sm mb-2 float-right">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="totalDiferencia">Total diferencias $</span>
+                                        </div>
+                                        <input type="text" id="diferencia_total_desc" name="diferencia_total_desc" class="form-control text-right" aria-describedby="totalDiferencia" disabled>
+                                    </div>
+                                    <br>
+
+                                    <!-- Costo Envio nueva Orden -->
+                                    <div class="input-group input-group-sm mb-2 float-right">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="nuevaOrdenEnvio">Costo Envio $</span>
+                                        </div>
+                                        <input type="text" id="envio_nueva_orden" name="envio_nueva_orden" class="form-control text-right" aria-describedby="nuevaOrdenEnvio" value="{{orden.nuevo_envio_costo}}">
+                                    </div>
+                                    <br>
+
+                                    <!-- Otros Gastos -->
+                                    <div class="input-group input-group-sm mb-2 float-right">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="nuevaOrdenTotal">Total $</span>
+                                        </div>
+                                        <input type="text" id="total_nueva_orden" name="total_nueva_orden" class="form-control text-right" aria-describedby="nuevaOrdenTotal" value="{{orden.nuevo_envio_total}}">
+                                    </div>
+                                    <br>
+                            </div> <!-- end of column -->
+
+                         <!--end of row-->
+                      
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                        <small>
+                            <div class = "page-header mt-2 mb-2 text-info font-weight-bold"> <h6> Generar nueva Orden </h6> </div>
+                            <div class="custom-control custom-radio ml-4">
+                            <input type="radio" id="nuevaorden_manual" name="nuevaorden" class="custom-control-input" value="manual">
+                            <label class="custom-control-label" for="nuevaorden_manual">Manual</label>
+                          </div>
+                          <div class="custom-control custom-radio ml-4">
+                            <input type="radio" id="nuevaorden_manual_stock" name="nuevaorden" class="custom-control-input" value="manual_stock">
+                            <label class="custom-control-label" for="nuevaorden_manual_stock">Manual (dando de baja stock)</label>
+                          </div>
+                          <div class="custom-control custom-radio ml-4">
+                            <input type="radio" id="nuevaorden_tienda" name="nuevaorden" class="custom-control-input" value="tienda">
+                            <label class="custom-control-label" for="nuevaorden_tienda">Tienda</label>
+                          </div>
+                         </small> 
+                        <button class="btn btn-info btn-sm float-right mt-2 mb-2" type="submit"> Procesar</button>
+                        <br>
+                        </div> <!-- end of column -->
+                    </div>
                     {% endif %}
                 </form>
                 <hr>
 
-
-                <!-- Calculo de diferencia de precio -->
-                <div class="row">
-                        {% if orden.gastos_cupon != 0 %}
-                            Cupon: {{orden.gastos_cupon}}
-                        {% endif %}
-                        {% if orden.gastos_gateway != 0 %} 
-                            Desc. forma de pago: {{orden.gastos_gateway}}
-                        {% endif %}
-                        {% if orden.gastos_shipping_owner != 0 %} 
-                            Costo envío vendedor: {{orden.gastos_shipping_owner}}
-                        {% endif %}
-                        {% if orden.gastos_shipping_customer != 0 %} 
-                            Costo envío Cliente: {{orden.gastos_shipping_customer}}
-                        {% endif %}
-                        {% if orden.gastos_promocion != 0 %}
-                            Dec. Promo: {{orden.gastos_promocion}}
-                        {% endif %}       
-                    </div>
 
 
                 <!-- Botones -->
@@ -354,25 +438,45 @@
 {% block scripts %}
     {{ super() }}
     <script>
+
         $('#bton').on('click', function () {
             var reason = prompt("Motivo del Rechazo ): ");
             $("#motivo").val(reason)
         }); 
+        
+        $('#envio_nueva_orden').keypress(function(e) {
+            if (e.keyCode == '13') {
+                e.preventDefault();}
+                $('#total_nueva_orden').focus()
+        });
+        
+        $('#total_nueva_orden').keypress(function(e) {
+            if (e.keyCode == '13') {
+                e.preventDefault();}
+        });
+
+        
+        $('#envio_nueva_orden').on('change', function() {
+            var total_diferencia = parseFloat($('#diferencia_total_desc').val() );
+            var total_envio = parseFloat($('#envio_nueva_orden').val());
+            $('#total_nueva_orden').val(total_diferencia + total_envio);
+        });
         
         // habilita la edicion del precio
         //$(document).on("click", '#boton_precio'+$('#prod_id').val(), function() {
         //    valor = '#precio'+$('#prod_id').val();
         //    $(valor).prop("disabled", false);
         //});
-
+        
+        var total_diferencia = 0;
+        var contador = 0;
+        var total_salientes = document.querySelectorAll('.saliente').length;
 
         $('.saliente').each(function() {
-            //alert($(this).data('variante'));
-            variante = $(this).data('variante')
-            //alert($(this).data('prod_id'));
-            prod_id = $(this).data('prod_id')
-            cambiar_por_prod_id = $(this).data('cambiar_por_prod_id')
-            buscar_variante(prod_id, cambiar_por_prod_id, variante)
+            variante = $(this).data('variante');
+            prod_id = $(this).data('prod_id');
+            cambiar_por_prod_id = $(this).data('cambiar_por_prod_id');
+            buscar_variante(prod_id, cambiar_por_prod_id, variante);
         });
 
 
@@ -387,13 +491,53 @@
                 if (data['promotional_price'] != null) {
                     $('#saliente_precio_promo'+prod_id).html(data['promotional_price']);
                     $('#saliente_precio_promo_desc'+prod_id).html('(Promo: '+data['promotional_price']+')');
+                    var precio = data['promotional_price'];
+                } else {
+                    var precio = data['price'];
                 }
-                //alert('precio -'+data['price']);
+                // calcula la diferencia de precio entre el precio del articulo y el valor del cambio
+                var diferencia = precio - $('#precio'+prod_id ).val();
+                $('#saliente_diferencia_precio'+prod_id).html(diferencia);
+
+                // acumula el valor de todas las diferencias
+                total_diferencia += diferencia;
+                contador += 1;
+                // Si ya se sumaron todos, pone el valor al final
+                if (contador == total_salientes ) {
+                    $('#diferencia_total').html(total_diferencia);
+                    $('#diferencia_total_desc').val(total_diferencia);
+                    // actualiza total de la orden
+                    var total_total = parseFloat(total_diferencia) + parseFloat($('#envio_nueva_orden').val());
+                    $('#total_nueva_orden').val(total_total)  
+                }
+
+                // Arma texto para mostrar diferencia
+                var texto_diferencia = "";
+                var color ="";
+                var color_back ="";
+                if (diferencia > 0) {
+                    texto_diferencia = '&nbsp; A cobrar '+Math.abs(diferencia)+'$ &nbsp;';
+                    color = 'white';
+                    color_back ="FireBrick";
+                } else if(diferencia == 0) {
+                    texto_diferencia = '&nbsp; No hay diferencia de precio &nbsp;';
+                    color = 'white';
+                    color_back ="OliveDrab";
+                } else {
+                    texto_diferencia = '&nbsp; A devolver '+Math.abs(diferencia)+'$ &nbsp;';
+                    color = 'white';
+                    color_back ="FireBrick";
+                }
+                $('#saliente_diferencia_precio_desc'+prod_id).html(texto_diferencia);
+                $('#saliente_diferencia_precio_desc'+prod_id).css('color', color);
+                $('#saliente_diferencia_precio_desc'+prod_id).css('background-color', color_back);
+                
             }).fail(function(){
-                alert('no funca')
+                alert('No se encontró el articulo')
             })   
         }
 
+        
 
     </script>
 {% endblock %}
