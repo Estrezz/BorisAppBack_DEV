@@ -184,7 +184,7 @@ def search():
     return redirect(url_for('main.orden', orden_id=req_search.id))
 
 
-
+##### Gestiona las lineas entrantes de las solicitudes
 @bp.route('/gestion_lineas_entrantes/<orden_id>',methods=['GET', 'POST'])  
 def gestion_lineas_entrantes(orden_id):
     if request.method == "POST":
@@ -208,7 +208,7 @@ def gestion_lineas_entrantes(orden_id):
     return redirect(url_for('main.orden', orden_id=orden_id))
 
 
-
+##### Gestiona las lineas salientes de las solicitudes
 @bp.route('/gestion_lineas_saliente/<orden_id>',methods=['GET', 'POST'])  
 def gestion_lineas_salientes(orden_id):
     if request.method == "POST":
@@ -226,6 +226,10 @@ def gestion_lineas_salientes(orden_id):
         orden.nuevo_envio = nuevaorden
         orden.nuevo_envio_costo = envio_nueva_orden
         orden.nuevo_envio_total = total_nueva_orden
+
+        if nuevaorden == 'None':
+             flash('Debe especificar un método de creación para la nueva Orden')
+             return redirect(url_for('main.orden', orden_id=orden_id))
 
         if  nuevaorden == 'manual': 
                 envio_nuevo_metodo = 'Se envía manualmente'
@@ -245,7 +249,6 @@ def gestion_lineas_salientes(orden_id):
                                             order=orden, envio=envio_nueva_orden, total=total_nueva_orden),
                     attachments=None, 
                     sync=False)
-        
           
         if  nuevaorden == 'tienda': 
             envio_nuevo_metodo = 'Se envía mediante nueva orden en Tienda'

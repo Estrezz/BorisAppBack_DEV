@@ -66,8 +66,9 @@ def generar_envio_tiendanube(orden, lineas, unCliente, unaEmpresa):
         
     orden_tmp = { 
         "status": "open",
-        "gateway": "offline",
-        "payment_status": "paid",
+        #"gateway": "not-provided",
+        "payment_status": "pending",
+        'total':orden.nuevo_envio_total,
         "products": [],
         "inventory_behaviour" : "claim",
         "customer": {
@@ -107,7 +108,7 @@ def generar_envio_tiendanube(orden, lineas, unCliente, unaEmpresa):
     order = requests.request("POST", url, headers=headers, data=json.dumps(orden_tmp))
     if order.status_code != 201:
         flash('Hubo un problema en la generación de la Orden. Error {}'.format(order.status_code))  
-        #flash('url {} - Json - {}'.format(url, json.dumps(orden_tmp)))
+        flash('url {} - Json - {}'.format(url, json.dumps(orden_tmp)))
         return 'Failed'
     return 'Success'
 
