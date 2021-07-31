@@ -227,7 +227,7 @@ def gestion_lineas_salientes(orden_id):
         orden.nuevo_envio_costo = envio_nueva_orden
         orden.nuevo_envio_total = total_nueva_orden
 
-        if nuevaorden == 'None':
+        if nuevaorden == None:
              flash('Debe especificar un método de creación para la nueva Orden')
              return redirect(url_for('main.orden', orden_id=orden_id))
 
@@ -235,7 +235,6 @@ def gestion_lineas_salientes(orden_id):
                 envio_nuevo_metodo = 'Se envía manualmente'
 
         if  nuevaorden == 'manual_stock': 
-            flash('ordenes {} tipo {}'.format(ordenes, type(ordenes)))
             envio_nuevo_metodo = 'Se envía manualmente - se descuenta stock'
             if empresa.stock_vuelve_config == True:
                 actualizar_stock(ordenes, empresa ,'saliente')
@@ -256,6 +255,9 @@ def gestion_lineas_salientes(orden_id):
             unCliente = orden.buyer
             unaEmpresa = orden.pertenece
             lineas = Order_detail.query.filter(Order_detail.order_line_number.in_(ordenes)).all()
+            for l in lineas:
+                l.accion_cambiar_por_diferencia = request.form.get("saliente_diferencia_precio"+str(l.prod_id))   
+            db.session.commit()    
             ####### genera nueva ordenen tiendanube ###################
             if unaEmpresa.platform == 'tiendanube':
                 generacion_envio = generar_envio_tiendanube(orden, lineas, unCliente, unaEmpresa)
@@ -265,7 +267,6 @@ def gestion_lineas_salientes(orden_id):
         # gestiono las lineas de la orden
         for o in ordenes:
             linea = Order_detail.query.get(str(o))
-
             linea.fecha_gestionado = datetime.utcnow()
             loguear_transaccion('CAMBIADO', str(linea.name)+' '+envio_nuevo_metodo, orden_id, current_user.id, current_user.username)
             if linea.gestionado == 'Devuelto':

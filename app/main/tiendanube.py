@@ -92,6 +92,7 @@ def generar_envio_tiendanube(orden, lineas, unCliente, unaEmpresa):
         "shipping_pickup_type": "ship",
         "shipping": "not-provided",
         "shipping_option": "No informado",
+        "shipping_cost_customer": orden.nuevo_envio_costo,
         "send_confirmation_email" : False,
         "send_fulfillment_email" : False
         }
@@ -101,7 +102,7 @@ def generar_envio_tiendanube(orden, lineas, unCliente, unaEmpresa):
         productos_tmp.append ({
         "variant_id":i.accion_cambiar_por,
         "quantity": i.accion_cantidad,
-        "price": 0
+        "price": i.accion_cambiar_por_diferencia
         })
     orden_tmp['products'] = productos_tmp
 
@@ -109,6 +110,7 @@ def generar_envio_tiendanube(orden, lineas, unCliente, unaEmpresa):
     if order.status_code != 201:
         flash('Hubo un problema en la generación de la Orden. Error {}'.format(order.status_code))  
         flash('url {} - Json - {}'.format(url, json.dumps(orden_tmp)))
+        flash('mensaje {} - {}'.format(order, type(order)))
         return 'Failed'
     return 'Success'
 
