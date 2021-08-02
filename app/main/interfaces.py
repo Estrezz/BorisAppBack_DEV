@@ -268,7 +268,7 @@ def toReject(orden_id, motivo):
                 sync=False)
 
 
-def genera_credito(empresa, monto, cliente, orden, linea):
+def genera_credito(empresa, monto, cliente, orden):
     importe = float(monto)
     codigo_tmp = genera_codigo(8)
     codigo = str(orden.order_number)+codigo_tmp+str(orden.id)
@@ -288,9 +288,9 @@ def genera_credito(empresa, monto, cliente, orden, linea):
                     sender=empresa.communication_email,
                     recipients=[empresa.admin_email], 
                     text_body=render_template('email/cupon_empresa.txt',
-                                            customer=cliente, order=orden, cupon=cupon, monto=importe, linea=linea),
+                                            customer=cliente, order=orden, cupon=cupon, monto=importe),
                     html_body=render_template('email/cupon_empresa.html',
-                                            customer=cliente, order=orden, cupon=cupon, monto=importe, linea=linea), 
+                                            customer=cliente, order=orden, cupon=cupon, monto=importe), 
                     attachments=None, 
                     sync=False)
         return cupon
@@ -300,6 +300,7 @@ def genera_credito(empresa, monto, cliente, orden, linea):
 
 def genera_codigo(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
+    
 
 
 ##################################################################################################

@@ -293,9 +293,8 @@
                     <div class = "page-header mt-2 mb-2 text-info font-weight-bold"> <h5> Cupones </h5> </div>
                 </div> 
                 
-                <form id="cupones" action="{{ url_for('main.gestion_lineas_cupones', orden_id=orden.id) }}" method="POST"> 
+                <form id="cupones" action="" method="POST"> 
                     {% for i in orden_linea %}
-                    
                         {% if (i['accion'] == 'cambiar' and i['accion_cambiar_por'] == 1 ) %}
                         <input class="cupomes" type="hidden" id="prod_id_cupon" name="prod_id_cupon" value="{{ i['prod_id'] }}" data-variante="{{ i['accion_cambiar_por']}}" data-prod_id="{{ i['prod_id'] }}" data-cambiar_por_prod_id="{{ i['accion_cambiar_por_prod_id'] }}">
                         <input type="hidden" id="order_line_cupon" name="order_line_cupon" value="{{ i['order_line_number'] }}">
@@ -324,11 +323,7 @@
                                                 {% if orden.status_resumen == 'Aprobado' %}
                                                     {% if (i.gestionado == 'Iniciado' or i.gestionado == 'Cambiado' ) %}
                                                         <input type="text" id="cupon{{ i['prod_id'] }}" name="cupon{{ i['prod_id'] }}" class="form-control cupones" value="{{i['precio']}}">
-                                                    {% else %}
-                                                        <input type="text" id="cupon{{ i['prod_id'] }}" name="cupon{{ i['prod_id'] }}" class="form-control cupones" value="{{i['precio']}}" disable>
                                                     {% endif %}
-                                                {% else %}
-                                                <input type="text" id="cupon{{ i['prod_id'] }}" name="cupon{{ i['prod_id'] }}" class="form-control cupones" value="{{i['precio']}}" disable>
                                                 {% endif %}
                                             </div>  
                                         </div>
@@ -538,11 +533,8 @@
         //});
         
         var total_diferencia = 0;
-        var total_cupon =0;
         var contador = 0;
-        var contador_cupones =0;
         var total_salientes = document.querySelectorAll('.saliente').length;
-        var total_cupones = document.querySelectorAll('.cupones').length;
 
         $('.saliente').each(function() {
             variante = $(this).data('variante');
@@ -609,14 +601,6 @@
             })   
         }
 
-        $('.cupones').each(function() {
-            total_cupon += $(this).val();
-            contador_cupones += 1;
-            if (contador_cupones == total_cupones) {
-                $('#total_cupon').val(parseFloat(total_cupon));
-            }
-            
-        });
         
 
     </script>

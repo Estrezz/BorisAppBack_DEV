@@ -280,6 +280,38 @@ def gestion_lineas_salientes(orden_id):
     return redirect(url_for('main.orden', orden_id=orden_id))
 
 
+##### Gestiona las lineas salientes de las solicitudes
+@bp.route('/gestion_lineas_cupones/<orden_id>',methods=['GET', 'POST'])  
+def gestion_lineas_cupones(orden_id):
+    if request.method == "POST":
+        total_cupon = request.form.get("total_cupon")
+        if total_cupon != 0:
+            empresa = Company.query.get(current_user.store)
+            orden = Order_header.query.get(orden_id)
+            unCliente = orden.buyer
+            ordenes = request.form.getlist('order_line_cupon')
+
+            credito = genera_credito(empresa, total_cupon, unCliente, orden)
+            envio_nuevo_metodo = 'Se genera cupon: '+credito+' por un total de'+total_cupon
+            if credito == 'Failed':
+                return redirect(url_for('main.orden', orden_id=orden_id))
+        else: 
+            envio_nuevo_metodo = 'No se generó el cupón'
+
+        for o in ordenes:
+            linea = Order_detail.query.get(str(o))
+            linea.fecha_gestionado = datetime.utcnow()
+            loguear_transaccion('CAMBIADO', str(linea.name)+' '+envio_nuevo_metodo, orden_id, current_user.id, current_user.username)
+            if linea.gestionado == 'Devuelto':
+                linea.gestionado = 'Si'
+            else:
+                linea.gestionado = traducir_estado('CAMBIADO')[1]
+            
+        finalizar_orden(orden_id)
+        db.session.commit()
+    return redirect(url_for('main.orden', orden_id=orden_id))
+
+
 @bp.route('/ordenes/<estado>/<subestado>', methods=['GET', 'POST'])
 @login_required
 def ver_ordenes(estado, subestado):
