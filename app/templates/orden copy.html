@@ -4,6 +4,8 @@
     <div class='container'>
 
         <!-- Encabezado conNro de Orden-->
+        {% set ns = namespace() %}
+
         <div class="row">
             <div class = "page-header"> <h4> Orden #{{orden.order_number}}</h4> </div>
         </div>
@@ -12,7 +14,7 @@
             <div class="col-md-8">
 
                
-                <!-- Listado de articulos que entran-->
+                <!-- Listado de ARTICULOS ENTRANTES -->
                 <div class="row">
                     <div class = "page-header mt-2 mb-2 text-info font-weight-bold"> <h5> Articulos entrantes</h5> </div>
                 </div>    
@@ -114,8 +116,14 @@
                 </div> 
                 
                 <form id="salientes" action="{{ url_for('main.gestion_lineas_salientes', orden_id=orden.id) }}" method="POST"> 
+                    <!--Setea la variable saliente_tmp para comprobar si hay articulos salientes 
+                    ns.saliente_acitov para ver si quedan lineas con articulos salientes no procesadas aun-->
+                    {% set ns.saliente_tmp=false %}
+                    {% set ns.saliente_activo=false %}
+
                     {% for i in orden_linea %}
                         {% if (i['accion'] == 'cambiar' and i['accion_cambiar_por'] != 1 ) %}
+                        {% set ns.saliente_tmp = true %}
                         <input class="saliente" type="hidden" id="prod_id_saliente" name="prod_id_saliente" value="{{ i['prod_id'] }}" data-variante="{{ i['accion_cambiar_por']}}" data-prod_id="{{ i['prod_id'] }}" data-cambiar_por_prod_id="{{ i['accion_cambiar_por_prod_id'] }}">
                         <input type="hidden" id="order_line_saliente" name="order_line_saliente" value="{{ i['order_line_number'] }}">
                         <div class="card mb-2 ">
@@ -147,13 +155,13 @@
                                                 {% endif %}
                                             </small>
                                     </div>
-
-                                    
+                    
                                     <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
                                         <div class="float-right">
                                             <input class="diferencia" type="hidden" id="saliente_diferencia_precio{{ i['prod_id'] }}" name="saliente_diferencia_precio{{ i['prod_id'] }}" value=0 >
                                             {% if orden.status_resumen == 'Aprobado' %}
                                             {% if (i.gestionado == 'Iniciado' or i.gestionado == 'Devuelto' ) %}
+                                                {% set ns.saliente_activo = true %}
                                             <small>
                                               <!-- campo para mostrar si hay diferencia de precio -->
                                               <span class="float-right" type="hidden" id="saliente_diferencia_precio_desc{{ i['prod_id'] }}" name="saliente_diferencia_precio_desc{{ i['prod_id'] }}"></span>
@@ -167,127 +175,225 @@
                         </div> <!-- end of card SALIENTE -->
                         {% endif %}
                     {% endfor %}
-                    
-                    <hr>
-                    <!-- Calculo Total a Pagar/ Devolver-->
-                    {% if orden.status_resumen == 'Aprobado' %}
-                        <input type="hidden" id="diferencia_total" name="diferencia_total" value=0 />
+                    {% if ns.saliente_tmp == false %}
+                        <strong> No hay articulos salientes para gestionar </strong> <br>
+                   {% else %}
+             
+                        <!-- Calculo Total a Pagar/ Devolver-->
+                        <!--poraca-->
+                        {% if (orden.status_resumen == 'Aprobado' and ns.saliente_activo == true) %}
+                            <hr>
+                            <input type="hidden" id="diferencia_total" name="diferencia_total" value=0 />
 
-                        <div class="row">
+                            <div class="row">
+                                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                                    <!-- Descuentos de la Orden -->
+                                <div class = "page-header mt-2 mb-2 text-info font-weight-bold"> <h6> Descuentos Orden Original</h6> </div>
+
+                                    <!-- total descuentos orden -->
+                                    {% if orden.gastos_gateway != 0 %} 
+                                        <div class="input-group input-group-sm mb-2 float-right">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" id="descFormaPago">Desc. Forma de Pago $</span>
+                                            </div>
+                                            <input type="text" id="descuentos_forma_pago" name="descuentos_forma_pago" class="form-control text-right" aria-describedby="descFormaPago" value="{{orden.gastos_gateway}}" disabled>
+                                        </div>
+                                        <br>
+                                    {% endif %}
+                                
+                                    {% if orden.gastos_cupon != 0 %}
+                                        <div class="input-group input-group-sm mb-2 float-right">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" id="descCupon">Cupón $</span>
+                                            </div>
+                                            <input type="text" id="descuentos_cupon" name="descuentos_cupon" class="form-control text-right" aria-describedby="descCupon" value="{{orden.gastos_cupon}}" disabled>
+                                        </div>
+                                        <br>
+                                    {% endif %}
+                                
+                                    {% if orden.gastos_shipping_owner != 0 %} 
+                                        <div class="input-group input-group-sm mb-2 float-right">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" id="costo_envio_owner">Costo Envío Merchant $</span>
+                                            </div>
+                                            <input type="text" id="descuentos_costo_envio_owner" name="descuentos_costo_envio_owner" class="form-control text-right" aria-describedby="costo_envio_owner" value="{{orden.gastos_shipping_owner}}" disabled>
+                                        </div>
+                                        <br>
+                                    {% endif %}
+
+                                    {% if orden.gastos_shipping_customer != 0 %} 
+                                        <div class="input-group input-group-sm mb-2 float-right">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" id="costo_envio_cliente">Costo Envío Cliente $</span>
+                                            </div>
+                                            <input type="text" id="descuentos_costo_envio_cliente" name="descuentos_costo_envio_cliente" class="form-control text-right" aria-describedby="costo_envio_cliente" value="{{orden.gastos_shipping_customer}}" disabled>
+                                        </div>
+                                        <br>
+                                    {% endif %}
+
+                                    {% if orden.gastos_promocion != 0 %}
+                                        <div class="input-group input-group-sm mb-2 float-right">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" id="gastos_promo">Desc. Promo $</span>
+                                            </div>
+                                            <input type="text" id="descuentos_promo" name="descuentos_promo" class="form-control text-right" aria-describedby="gastos_promo" value="{{orden.gastos_promocion}}" disabled>
+                                        </div>
+                                        <br>
+                                    {% endif %}                                
+                                </div> <!-- end of Column-->
+
+                                <!-- Calculo de valor a pagar/devolver -->
+                                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                                    <div class = "page-header mt-2 mb-2 text-info font-weight-bold"> <h6> Diferencia de Precio </h6> </div>
+                                        <!-- Suma total de diferencias de los cambios -->
+                                        <div class="input-group input-group-sm mb-2 float-right">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" id="totalDiferencia">Total diferencias $</span>
+                                            </div>
+                                            <input type="text" id="diferencia_total_desc" name="diferencia_total_desc" class="form-control text-right" aria-describedby="totalDiferencia" disabled>
+                                        </div>
+                                        <br>
+
+                                        <!-- Costo Envio nueva Orden -->
+                                        <div class="input-group input-group-sm mb-2 float-right">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" id="nuevaOrdenEnvio">Costo Envio $</span>
+                                            </div>
+                                            <input type="text" id="envio_nueva_orden" name="envio_nueva_orden" class="form-control text-right" aria-describedby="nuevaOrdenEnvio" value="{{orden.nuevo_envio_costo}}">
+                                        </div>
+                                        <br>
+
+                                        <!-- Otros Gastos -->
+                                        <div class="input-group input-group-sm mb-2 float-right">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" id="nuevaOrdenTotal">Total $</span>
+                                            </div>
+                                            <input type="text" id="total_nueva_orden" name="total_nueva_orden" class="form-control text-right" aria-describedby="nuevaOrdenTotal" value="{{orden.nuevo_envio_total}}">
+                                        </div>
+                                        <br>
+                                </div> <!-- end of column -->
+
+                            <!--end of row-->
+                        
                             <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                                <!-- Descuentos de la Orden -->
-                               <div class = "page-header mt-2 mb-2 text-info font-weight-bold"> <h6> Descuentos Orden Original</h6> </div>
-
-                                <!-- total descuentos orden -->
-                                {% if orden.gastos_gateway != 0 %} 
-                                    <div class="input-group input-group-sm mb-2 float-right">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text" id="descFormaPago">Desc. Forma de Pago $</span>
-                                        </div>
-                                        <input type="text" id="descuentos_forma_pago" name="descuentos_forma_pago" class="form-control text-right" aria-describedby="descFormaPago" value="{{orden.gastos_gateway}}" disabled>
-                                    </div>
-                                    <br>
-                                {% endif %}
-                            
-                                {% if orden.gastos_cupon != 0 %}
-                                    <div class="input-group input-group-sm mb-2 float-right">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text" id="descCupon">Cupón $</span>
-                                        </div>
-                                        <input type="text" id="descuentos_cupon" name="descuentos_cupon" class="form-control text-right" aria-describedby="descCupon" value="{{orden.gastos_cupon}}" disabled>
-                                    </div>
-                                    <br>
-                                {% endif %}
-                            
-                                {% if orden.gastos_shipping_owner != 0 %} 
-                                    <div class="input-group input-group-sm mb-2 float-right">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text" id="costo_envio_owner">Costo Envío Merchant $</span>
-                                        </div>
-                                        <input type="text" id="descuentos_costo_envio_owner" name="descuentos_costo_envio_owner" class="form-control text-right" aria-describedby="costo_envio_owner" value="{{orden.gastos_shipping_owner}}" disabled>
-                                    </div>
-                                    <br>
-                                {% endif %}
-
-                                {% if orden.gastos_shipping_customer != 0 %} 
-                                    <div class="input-group input-group-sm mb-2 float-right">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text" id="costo_envio_cliente">Costo Envío Cliente $</span>
-                                        </div>
-                                        <input type="text" id="descuentos_costo_envio_cliente" name="descuentos_costo_envio_cliente" class="form-control text-right" aria-describedby="costo_envio_cliente" value="{{orden.gastos_shipping_customer}}" disabled>
-                                    </div>
-                                    <br>
-                                {% endif %}
-
-                                {% if orden.gastos_promocion != 0 %}
-                                    <div class="input-group input-group-sm mb-2 float-right">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text" id="gastos_promo">Desc. Promo $</span>
-                                        </div>
-                                        <input type="text" id="descuentos_promo" name="descuentos_promo" class="form-control text-right" aria-describedby="gastos_promo" value="{{orden.gastos_promocion}}" disabled>
-                                    </div>
-                                    <br>
-                                {% endif %}                                
-                            </div> <!-- end of Column-->
-
-                            <!-- Calculo de valor a pagar/devolver -->
-                            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                                <div class = "page-header mt-2 mb-2 text-info font-weight-bold"> <h6> Diferencia de Precio </h6> </div>
-                                    <!-- Suma total de diferencias de los cambios -->
-                                    <div class="input-group input-group-sm mb-2 float-right">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text" id="totalDiferencia">Total diferencias $</span>
-                                        </div>
-                                        <input type="text" id="diferencia_total_desc" name="diferencia_total_desc" class="form-control text-right" aria-describedby="totalDiferencia" disabled>
-                                    </div>
-                                    <br>
-
-                                    <!-- Costo Envio nueva Orden -->
-                                    <div class="input-group input-group-sm mb-2 float-right">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text" id="nuevaOrdenEnvio">Costo Envio $</span>
-                                        </div>
-                                        <input type="text" id="envio_nueva_orden" name="envio_nueva_orden" class="form-control text-right" aria-describedby="nuevaOrdenEnvio" value="{{orden.nuevo_envio_costo}}">
-                                    </div>
-                                    <br>
-
-                                    <!-- Otros Gastos -->
-                                    <div class="input-group input-group-sm mb-2 float-right">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text" id="nuevaOrdenTotal">Total $</span>
-                                        </div>
-                                        <input type="text" id="total_nueva_orden" name="total_nueva_orden" class="form-control text-right" aria-describedby="nuevaOrdenTotal" value="{{orden.nuevo_envio_total}}">
-                                    </div>
-                                    <br>
-                            </div> <!-- end of column -->
-
-                         <!--end of row-->
-                      
-                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                        <small>
-                            <div class = "page-header mt-2 mb-2 text-info font-weight-bold"> <h6> Generar nueva Orden </h6> </div>
+                            <small>
+                                <div class = "page-header mt-2 mb-2 text-info font-weight-bold"> <h6> Generar nueva Orden </h6> </div>
+                                <div class="custom-control custom-radio ml-4">
+                                <input type="radio" id="nuevaorden_manual" name="nuevaorden" class="custom-control-input" value="manual">
+                                <label class="custom-control-label" for="nuevaorden_manual">Manual</label>
+                            </div>
                             <div class="custom-control custom-radio ml-4">
-                            <input type="radio" id="nuevaorden_manual" name="nuevaorden" class="custom-control-input" value="manual">
-                            <label class="custom-control-label" for="nuevaorden_manual">Manual</label>
-                          </div>
-                          <div class="custom-control custom-radio ml-4">
-                            <input type="radio" id="nuevaorden_manual_stock" name="nuevaorden" class="custom-control-input" value="manual_stock">
-                            <label class="custom-control-label" for="nuevaorden_manual_stock">Manual (dando de baja stock)</label>
-                          </div>
-                          <div class="custom-control custom-radio ml-4">
-                            <input type="radio" id="nuevaorden_tienda" name="nuevaorden" class="custom-control-input" value="tienda">
-                            <label class="custom-control-label" for="nuevaorden_tienda">Tienda</label>
-                          </div>
-                         </small> 
-                        <button class="btn btn-info btn-sm float-right mt-2 mb-2" type="submit"> Procesar</button>
-                        <br>
-                        </div> <!-- end of column -->
-                    </div>
+                                <input type="radio" id="nuevaorden_manual_stock" name="nuevaorden" class="custom-control-input" value="manual_stock">
+                                <label class="custom-control-label" for="nuevaorden_manual_stock">Manual (dando de baja stock)</label>
+                            </div>
+                            <div class="custom-control custom-radio ml-4">
+                                <input type="radio" id="nuevaorden_tienda" name="nuevaorden" class="custom-control-input" value="tienda">
+                                <label class="custom-control-label" for="nuevaorden_tienda">Tienda</label>
+                            </div>
+                            </small> 
+                            <button class="btn btn-info btn-sm float-right mt-2 mb-2" type="submit"> Procesar</button>
+                            <br>
+                            </div> <!-- end of column -->
+                        </div>
+                        {% endif %}
                     {% endif %}
                 </form>
+
                 <hr>
 
+                
+                <!-- Listado de ARTICULOS c/Cupon  ----->
+                <div class="row">
+                    <div class = "page-header mt-2 mb-2 text-info font-weight-bold"> <h5> Cupones </h5> </div>
+                </div> 
+                <!--setea la variable ns.cupontmp en false apra saber si hay alguna linea con Cupon -->
+                {% set ns.cupontmp=false %}
+                <!--setea la variable ns.cupon_activo en false para comprobar luego si hay alguna linea con cupon 
+                    PENDIENTE  de gestionar -->
+                {% set ns.cupon_activo=false %}
+                
 
+                <form id="cupones" action="{{ url_for('main.gestion_lineas_cupones', orden_id=orden.id) }}" method="POST"> 
+                    {% for i in orden_linea %}
+                        {% if (i['accion'] == 'cambiar' and i['accion_cambiar_por'] == 1 ) %}
+                        {% set ns.cupontmp = true %}
+                        <input class="cupomes" type="hidden" id="prod_id_cupon" name="prod_id_cupon" value="{{ i['prod_id'] }}" data-variante="{{ i['accion_cambiar_por']}}" data-prod_id="{{ i['prod_id'] }}" data-cambiar_por_prod_id="{{ i['accion_cambiar_por_prod_id'] }}">
+                        <input type="hidden" id="order_line_cupon" name="order_line_cupon" value="{{ i['order_line_number'] }}">
+                        <div class="card mb-2 ">
+                            <div class="card-body">
+                                <div class="row">
+                                <!-- Descripcion + datos articulos copn cupon  -->
+                                    <div class="col-xs-6 col-sm-6 col-md-8 col-lg-8">
+                                        <strong> Cupón  x {{ i['name'] }} </strong> <br>
+                                        <small>
+                                            Estado: 
+                                            {% if i['gestionado'] == 'Si' %}
+                                                Gestionado <i class="fa fa-check-square-o" aria-hidden="true"></i>
+                                            {% else %}
+                                                {{i['gestionado']}} 
+                                            {% endif %}
+                                        </small>
+                                    </div>
+
+                                    <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
+                                        <div class="float-right">
+                                            <div class="input-group input-group-sm">
+                                                <div class="input-group-prepend">
+                                                  <span class="input-group-text">$</span>
+                                                </div>
+                                                {% if orden.status_resumen == 'Aprobado' %}
+                                                    <!-- setea el valor por defecto del monto del cupon para el articulo -->
+                                                    {% if i.monto_devuelto != 0 %}
+                                                        {% set valor_cupon_default = i.monto_devuelto %}
+                                                    {% else %}
+                                                        {% set valor_cupon_default = i.precio %}
+                                                    {% endif %}
+
+                                                    {% if (i.gestionado == 'Iniciado' or i.gestionado == 'Devuelto' ) %}
+                                                        <!-- setea la variable ns.cupon_activa para indicar que hay cupones pendientes de gestion-->
+                                                        {% set ns.cupon_activo = true %}
+                                                        <input type="text" id="cupon{{ i['prod_id'] }}" name="cupon{{ i['prod_id'] }}" class="form-control cupones" value="{{valor_cupon_default}}">
+                                                    {% else %}
+                                                        <input type="text" id="cupon{{ i['prod_id'] }}" name="cupon{{ i['prod_id'] }}" class="form-control cupones" value="{{i['precio']}}" disabled>
+                                                    {% endif %}
+                                                {% else %}
+                                                <input type="text" id="cupon{{ i['prod_id'] }}" name="cupon{{ i['prod_id'] }}" class="form-control cupones" value="{{i['precio']}}" disabled>
+                                                {% endif %}
+                                            </div>  
+                                        </div>
+                                    </div>
+
+                                </div> <!--end of row card (cupones)--> 
+                            </div> <!--end od card body (cupones)-->
+                        </div> <!-- end of card (cupones)-->
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if ns.cupontmp == false %}
+                        <strong> No hay cupones para gestionar </strong> <br>
+                    {% else %}
+                        <div class="row">
+                        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            {% if ns.cupon_activo == true %}
+                                <div class="input-group input-group-sm mb-2 float-right">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" id="cuponTotal">Total Cupones $</span>
+                                    </div>            
+                                        <input type="text" id="total_cupon" name="total_cupon" class="form-control text-right" aria-describedby="nuevaOrdenTotal" value=0>
+                                </div>
+                                
+                                <button class="btn btn-info btn-sm float-right mt-2 mb-2" type="submit"> Generar cupón</button>
+                            {% else %}
+                                <br><br>
+                            {% endif %}
+
+                            <br>
+                        </div>
+                        </div>
+                    {% endif %}
+                </form>
 
                 <!-- Botones -->
 
@@ -333,21 +439,7 @@
                     {% endif %}
                 {% endif %}
                 
-                <!-- Articulo RECIBIDO y APROBADO - Solicitud lista para getsionarse o gestionandose -->
-                {% if orden.status == 'En Proceso' %}
-                            La solicitud se está gestionando
-                            {% if orden.status_resumen == 'Aprobado' %}
-                                y fue aprobada
-                            {% endif %}
-                            {% if orden.status_resumen == 'Rechazado' %}
-                                y No fue aprobada
-                            {% endif %}
-                {% endif %}
-
-                <!-- Solicitud ya gestionada o Rechazada -->
-                {% if orden.status == 'Cerrado' %}
-                            La solicitud ya fue gestionada
-                {% endif %}
+              
             </div>
    
             <div class="col-md-4">
@@ -469,8 +561,11 @@
         //});
         
         var total_diferencia = 0;
+        var total_cupon =0;
         var contador = 0;
+        var contador_cupones =0;
         var total_salientes = document.querySelectorAll('.saliente').length;
+        var total_cupones = document.querySelectorAll('.cupones').length;
 
         $('.saliente').each(function() {
             variante = $(this).data('variante');
@@ -537,6 +632,14 @@
             })   
         }
 
+        $('.cupones').each(function() {
+            total_cupon += $(this).val();
+            contador_cupones += 1;
+            if (contador_cupones == total_cupones) {
+                $('#total_cupon').val(parseFloat(total_cupon));
+            }
+            
+        });
         
 
     </script>

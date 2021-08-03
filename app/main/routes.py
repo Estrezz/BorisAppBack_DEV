@@ -285,18 +285,18 @@ def gestion_lineas_salientes(orden_id):
 def gestion_lineas_cupones(orden_id):
     if request.method == "POST":
         total_cupon = request.form.get("total_cupon")
-        if total_cupon != 0:
+        ordenes = request.form.getlist('order_line_cupon')
+        if float(total_cupon) != 0:
             empresa = Company.query.get(current_user.store)
             orden = Order_header.query.get(orden_id)
             unCliente = orden.buyer
-            ordenes = request.form.getlist('order_line_cupon')
-
+            
             credito = genera_credito(empresa, total_cupon, unCliente, orden)
             envio_nuevo_metodo = 'Se genera cupon: '+credito+' por un total de'+total_cupon
             if credito == 'Failed':
                 return redirect(url_for('main.orden', orden_id=orden_id))
         else: 
-            envio_nuevo_metodo = 'No se generó el cupón'
+            envio_nuevo_metodo = 'Cupón cancelado - No se generó'
 
         for o in ordenes:
             linea = Order_detail.query.get(str(o))
@@ -353,10 +353,10 @@ def gestionar_ordenes(orden_id):
     # flash ('Accion {} - orden {} CIA {}'.format(accion, orden.courier, current_user.empleado))
     if accion == 'toReady':
         # if request.form['coordinar_empresa']:
-        if request.form.get('coordinar_empresa'):
+        if request.form.get('coordinar_empresa') or request.form.get('coordinar_guia') or request.form.get('coordinar_roundtrip'):
             orden.courier_coordinar_empresa = request.form['coordinar_empresa']
             orden.courier_coordinar_guia = request.form.get('coordinar_guia')
-            if request.form.get('coordinar_roundtrip') == "True":
+            if request.form.get('coordinar_roundtrip') == "on":
                 orden.courier_coordinar_roundtrip = True
             else:
                 orden.courier_coordinar_roundtrip = False
