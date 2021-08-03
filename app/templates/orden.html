@@ -18,7 +18,7 @@
                 <div class="row">
                     <div class = "page-header mt-2 mb-2 text-info font-weight-bold"> <h5> Articulos entrantes</h5> </div>
                 </div>    
-
+                {% set ns.entrantes_activos=false %}
                 <form id="entrante" action="{{ url_for('main.gestion_lineas_entrantes', orden_id=orden.id) }}" method="POST"> 
                     {% for i in orden_linea %}
                     <div class="card mb-2 ">
@@ -68,6 +68,7 @@
                                             </div>
                                             {% if orden.status_resumen == 'Aprobado' %}
                                                 {% if (i.gestionado == 'Iniciado' or i.gestionado == 'Cambiado' ) %}
+                                                    {% set ns.entrantes_activos=true %}
                                                     <input type="text" id="precio{{ i['prod_id'] }}" name="precio{{ i['prod_id'] }}" class="form-control" value="{{i['precio']}}">
                                                 {% else %}
                                                     <input type="text" id="precio{{ i['prod_id'] }}" name="precio{{ i['prod_id'] }}" class="form-control" value="{{i['monto_devuelto']}}" disabled>
@@ -88,7 +89,7 @@
                                         {% if orden.status_resumen == 'Aprobado' %}
                                             {% if (i.gestionado == 'Iniciado' or i.gestionado == 'Cambiado' ) %}
                                                 <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" class="custom-control-input" id="stockradio{{ i['prod_id'] }}" name="stockradio{{ i['prod_id'] }}">
+                                                    <input type="checkbox" class="custom-control-input" id="stockradio{{ i['prod_id'] }}" name="stockradio{{ i['prod_id'] }}" checked>
                                                     <label class="custom-control-label" for="stockradio{{ i['prod_id'] }}"><small>Restock</small></label>
                                                 </div>
                                             {% endif %}
@@ -101,10 +102,11 @@
                     {% endfor %}
 
                     {% if orden.status_resumen == 'Aprobado' %}
+                        {% if ns.entrantes_activos == true %}
                             <!-- Ver como hacer para que aparezca solo si alguna de las lineas esta no gestionada o devuelta -->
                             <button class="btn btn-info btn-sm float-right mt-1 mb-1" type="submit"> Ingresar Articulos </button>
                             <br>
-                        
+                        {% endif %}
                     {% endif %}
                 </form> <!-- end of formulario articulos entrantes -->
 
