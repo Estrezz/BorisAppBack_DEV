@@ -226,6 +226,9 @@ def gestion_lineas_salientes(orden_id):
         orden.nuevo_envio = nuevaorden
         orden.nuevo_envio_costo = envio_nueva_orden
         orden.nuevo_envio_total = total_nueva_orden
+        orden.courier_coordinar_empresa = request.form.get("empresa_coordinada")
+        orden.courier_coordinar_guia = request.form.get("guia_coordinada")
+        
 
         if nuevaorden == None:
              flash('Debe especificar un método de creación para la nueva Orden')
@@ -686,12 +689,12 @@ def cargar_empresa():
         )
         db.session.add(otraEmpresa)
 
-    #unUsuario = User(
-    #    username = 'Webhook',
-    #    email = 'webhook@borisreturns.com',
-    #    store = '1',
-    #)
-    # db.session.add(unUsuario)
+    unUsuario = User(
+        username = 'Webhook',
+        email = 'webhook@borisreturns.com',
+        store = '1',
+    )
+    db.session.add(unUsuario)
 
     db.session.commit()
 
