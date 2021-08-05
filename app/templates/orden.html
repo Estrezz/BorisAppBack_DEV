@@ -669,8 +669,9 @@
             })   
         }
 
+
         $('.cupones').each(function() {
-            total_cupon += $(this).val();
+            total_cupon += parseFloat($(this).val());
             contador_cupones += 1;
             if (contador_cupones == total_cupones) {
                 $('#total_cupon').val(parseFloat(total_cupon));
