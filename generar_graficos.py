@@ -18,7 +18,7 @@ with app.app_context():
     companies = Company.query.all()
     with open('logs/app/datos.csv', 'w+') as f:
         writer = csv.writer(f)
-        header = ['Plataforma', 'Tienda_Id', 'Tienda_Nombre', 'Solicitud_Nro', 'Solicitud_Id', 'Solicitud_Fecha_Creación' ]
+        header = ['Plataforma', 'Tienda_Id', 'Tienda_Nombre', 'Solicitud_Nro', 'Solicitud_Id', 'Solicitud_Fecha_Creación','Estado','Sub_Estado','Estado_Descripcion','Codigo_Postal','Ciudad','Provincia','Correo_coordinar','Roundtrip','Metodo_Envio', 'Metodo_Pago','Tarjeta','Accion','Motivo','Cambiar_por', 'Cambiar_por:descripcion','Linea_Estado','Linea_Fecha_estado','Monto_a_devolver','Monto_devuelto','Produto_id', 'Producto_descripcion', 'Cliente_Documento','Cliente_Mail','Cliente' ]
         writer.writerow(header)
         for x in companies:
             orden = Order_header.query.filter_by(store = x.store_id).all()
@@ -35,13 +35,15 @@ with app.app_context():
                         i.courier_coordinar_empresa, i.courier_coordinar_roundtrip, i.courier_method,
                         i.payment_method, i.payment_card,
                         ### detail
-                        l.accion, l.motivo, l.accion_cambiar_por, l.gestionado,
+                        l.accion, l.motivo, l.accion_cambiar_por, l.accion_cambiar_por_desc, l.gestionado,
                         l.fecha_gestionado, l.monto_a_devolver, l.monto_devuelto,
+                        l.prod_id, l.name,
+                        #### falta info de los productos producto y desc de cambiar por
                         #### CLiente
                         cliente.identification, cliente.email, cliente.name  ]
             
-                # write a row to the csv file
-                writer.writerow(row)
+                    # write a row to the csv file
+                    writer.writerow(row)
 
                 # close the file
     f.close()

@@ -316,7 +316,7 @@
                                                 <input type="text" class="form-control" id="guia_coordinada" name="guia_coordinada">
                                             </div>
                                             
-                                            <p><button type="submit" class="btn btn-info btn-sm float-right mt-2 mb-2">Guardar</button></p>
+                                            <p><button id="modalButton" type="submit" class="btn btn-info btn-sm float-right mt-2 mb-2">Guardar</button></p>
                                         </div>
 
                                         <div class="modal-footer">
@@ -542,7 +542,9 @@
 
                         <!-- Info Cliente -->
                             <strong>Cliente {{customer.name}}</strong><br>
-                            {{customer.email}} / {{customer.phone}} <br> 
+                            <a href="mailto:{{customer.email}}">{{customer.email}}</a> /
+                            <a href="https://wa.me/{{customer.phone}}" target="_blank">{{customer.phone}}</a>
+                            <br> 
                             {{orden.customer_address}}&nbsp{{orden.customer_number}}&nbsp{{orden.customer_floor}}<br>
                             {{orden.customer_locality}}&nbsp({{orden.customer_zipcode}})<br>
                             {{orden.customer_city}} &nbsp - &nbsp{{orden.customer_province}} <br>
@@ -589,6 +591,19 @@
             var total_diferencia = parseFloat($('#diferencia_total_desc').val() );
             var total_envio = parseFloat($('#envio_nueva_orden').val());
             $('#total_nueva_orden').val(total_diferencia + total_envio);
+        });
+
+        $("#modalButton").on("click", function(e){
+            e.preventDefault(); // prevent de default action, which is to submit
+            // save your value where you want
+            //data.select = $("#exampleSelect").value();
+            //alert('se cierra modal');
+            jQuery.noConflict();
+            $('#coordinar_datos').modal('hide');
+            alert('se cerro ?');
+            // or call the save function here
+            // save();
+            $(this).prev().click();
         });
         
         // habilita la edicion del precio
@@ -678,6 +693,8 @@
             }
             
         });
+
+        
         
 
     </script>
