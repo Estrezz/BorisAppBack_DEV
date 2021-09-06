@@ -25,7 +25,6 @@
                 <th>Estado</th>
                 <th></th>
                 <th></th>
-                <th></th>
             </tr>
         </thead>
 
@@ -49,8 +48,6 @@
                         <button class="btn btn-primary btn-sm" > Gestionar </button></td>
                     <td><a href="{{ url_for('main.historia_orden', orden_id = i['id']) }}">
                         <button class="btn btn-link btn-sm"> Historia </button></td>
-                    <td><a href="{{ url_for('main.mantener_orden', orden_id = i['id']) }}">
-                        <button class="btn btn-link btn-sm"> Eliminar </button></td>
                 </tr>
             {% endfor %}
         </tbody>

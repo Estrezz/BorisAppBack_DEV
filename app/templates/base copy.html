@@ -39,7 +39,12 @@
                 </div>
 
                 <ul class="navbar-nav navbar-right">    
-                    
+                    <li>
+                        <form class="form-inline" action="{{ url_for('main.search') }}">
+                            <input type="search" class="form-control" name="search" placeholder="Nro. de Orden">
+                            <button type="submit" class="btn btn-dark">Buscar</button>
+                        </form>        
+                    </li>
                     {% if current_user.is_anonymous %}
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.login') }}"> Login </a></li>
                         <li class="nav-item"> <a class="nav-link" href="{{ url_for('auth.alta_usuario') }}"> Alta de Usuarios </a></li>

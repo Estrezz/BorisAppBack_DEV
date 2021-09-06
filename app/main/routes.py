@@ -333,6 +333,30 @@ def ver_ordenes(estado, subestado):
     return render_template('ordenes.html', title='Ordenes', ordenes=ordenes, estado=estado, subestado=subestado,  resumen=resumen, empresa_name=session['current_empresa'])
 
 
+@bp.route('/orden/mantenimiento/<orden_id>', methods=['GET', 'POST'])
+@login_required
+def mantener_orden(orden_id):
+    orden = Order_header.query.filter_by(id=orden_id).first()
+    lineas = Order_detail.query.filter_by(order=orden.id).all()
+    return render_template('mantener_orden.html', orden=orden, lineas=lineas, empresa_name=session['current_empresa'])
+
+
+@bp.route('/orden/eliminar/<orden_id>', methods=['GET', 'POST'])
+@login_required
+def eliminar_orden(orden_id):
+    orden = Order_header.query.filter_by(id=orden_id).first()
+    eliminar = request.form.get("bton")
+    confirmacion = request.form.get("confirmacion")
+    if eliminar == 'OK' and confirmacion == 'eliminar':
+        flash('Se eliminó la orden {}'.format(orden.order_number))
+        Transaction_log.query.filter_by(order_id=orden_id).delete()
+        Order_detail.query.filter_by(order=orden_id).delete()
+        Order_header.query.filter_by(id=orden_id).delete()
+        db.session.commit()
+    else: 
+        flash('se canceló la eliminación de la orden')
+    return redirect(url_for('main.ver_ordenes', estado='all', subestado='all'))
+
 @bp.route('/orden/<orden_id>', methods=['GET', 'POST'])
 @login_required
 def orden(orden_id):

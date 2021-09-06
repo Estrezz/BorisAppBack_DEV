@@ -515,7 +515,7 @@
                                         <div class="form-group">
                                             <div class="form-check">   
                                                 <input class="form-check-input" type="checkbox" id="coordinar_roundtrip" name="coordinar_roundtrip">
-                                                <label class="form-check-label" for="coordinar_roundtrip"> Recogida + Entrega </label>
+                                                <label class="form-check-label" for="coordinar_roundtrip"> Retiro + Entrega </label>
                                             </div>
                                         </div>
                                         <input type="submit" id="submit-form" class="d-none" />
@@ -523,7 +523,7 @@
                                 {% else %}
                                     Correo: {{orden.courier_coordinar_empresa}} <br>
                                     Guia: {{orden.courier_coordinar_guia}} <br>
-                                    Recogida + entrega:
+                                    Retiro + entrega:
                                     {% if orden.courier_coordinar_roundtrip == True %}
                                         Si
                                     {% else %}
