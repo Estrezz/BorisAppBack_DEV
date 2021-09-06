@@ -496,6 +496,7 @@ def finalizar_orden(orden_id):
         orden.sub_status = traducir_estado('CERRADO')[0]
         orden.status_resumen =traducir_estado('CERRADO')[1]
         orden.status = 'Cerrado'
+        orden.date_closed = datetime.utcnow()
         loguear_transaccion('CERRADO', 'Cerrado ',orden_id, current_user.id, current_user.username)
         #flash('Mail {} para {} - orden {} , orden linea {}'.format(current_app.config['ADMINS'][0], customer.email, orden, orden_linea))
         company = Company.query.get(current_user.store)

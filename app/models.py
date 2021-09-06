@@ -107,6 +107,7 @@ class Order_header(db.Model):
     order_number = db.Column(db.Integer, index=True)
     order_id_anterior = db.Column(db.Integer)
     date_creation = db.Column(db.DateTime)
+    date_closed = db.Column(db.DateTime)
     date_lastupdate = db.Column(db.DateTime)
     gastos_cupon = db.Column(db.Float)
     gastos_gateway = db.Column(db.Float)
