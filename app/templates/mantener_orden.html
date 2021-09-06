@@ -6,36 +6,44 @@
     <div class="card-body">
         <h5 class="card-title"> <strong>
             Eliminar Orden #{{orden.order_number}}<br>
-            (CUIDADO!!! - Esta acción no puede ser revertida!!!!)
         </strong> </h5>    
+        <p style = "color:FireBrick;" > 
+            <i class="bi bi-exclamation-triangle"></i> Esta acción no se puede revertir <i class="bi bi-exclamation-triangle"></i>
+        </p>
+       
         
         <p class="card-text"> <small>
-            Vas a eliminar la orden #{{orden.order_number}} <br>
-            Fecha de creación: {{ moment(orden.date_creation).format("DD/MM/YYYY")}} <br>
-            Estado: {{orden.status_resumen}} <br><br>
+            <strong>Vas a eliminar la orden #{{orden.order_number}} 
+                (Estado: {{orden.status_resumen}} )
+            </strong> <br>
+            Fecha de creación: {{ moment(orden.date_creation).format("DD/MM/YYYY")}} 
+            <br><br>
 
-            
+            <!-- Info Cliente -->
+            <strong>Cliente {{customer.name}}</strong><br>
+            {{customer.email}} / {{customer.phone}} <br> 
+            <br>
+
+            <strong>Líneas</strong><br>
             {% for linea in lineas %}
-                            <strong>{{linea.name}} ({{linea.prod_id}})</strong><br> 
-                            {{linea.accion}} - {{linea.accion_cantidad}}
-                            {% if linea.accion == 'cambiar' %}
-                                X {{linea.accion_cambiar_por_desc}}
-                                {% if linea.nuevo_envio != None %}
-                                <br> Nuevo envio: {{linea.nuevo_envio}}
-                                {% endif %}
-                            {% endif %}
-                            <br>
-                            Motivo: {{linea.motivo}}<br>
+                <strong>{{linea.name}} ({{linea.prod_id}})</strong> &nbsp;
+                {{linea.accion}} - {{linea.accion_cantidad}}
+                {% if linea.accion == 'cambiar' %}
+                    por {{linea.accion_cambiar_por_desc}}
+                    {% if linea.nuevo_envio != None %}
+                        <br> Nuevo envio: {{linea.nuevo_envio}}
+                    {% endif %}
+                {% endif %}
+                <br>
             {% endfor %}
 
         </small> </p>
         <br><br>
         <div class=row>
             <div class="col"> </div>
-            <div class="col-8">
+            <div class="col-10">
                 <form id="eliminar_orden" action="{{ url_for('main.eliminar_orden', orden_id=orden.id) }}"method="POST"> 
-                    Para eliminar la orden, escribí "eliminar" en el recuadro y presioná Confirmar <br>
-                    <input name=confirmacion class="form-control form-control-sm" type="text" placeholder="Para eliminar la orden, escribí la palabara -eliminar- en este recuadro y presioná Confirmar">
+                    <input name=confirmacion class="form-control form-control-sm" type="text" placeholder="Para eliminar la orden, escribí la palabara -eliminar- en este recuadro y presioná Eliminar">
                     <br>
                     <button name="bton" class="btn btn-primary float-right" type="submit" value="NOK" > No Eliminar </button>
                     <button name="bton" class="btn btn-danger float-left" type="submit" value="OK"> Eliminar </button>

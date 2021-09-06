@@ -338,7 +338,7 @@ def ver_ordenes(estado, subestado):
 def mantener_orden(orden_id):
     orden = Order_header.query.filter_by(id=orden_id).first()
     lineas = Order_detail.query.filter_by(order=orden.id).all()
-    return render_template('mantener_orden.html', orden=orden, lineas=lineas, empresa_name=session['current_empresa'])
+    return render_template('mantener_orden.html', orden=orden, lineas=lineas, customer=orden.buyer, empresa_name=session['current_empresa'])
 
 
 @bp.route('/orden/eliminar/<orden_id>', methods=['GET', 'POST'])
@@ -354,7 +354,7 @@ def eliminar_orden(orden_id):
         Order_header.query.filter_by(id=orden_id).delete()
         db.session.commit()
     else: 
-        flash('se canceló la eliminación de la orden')
+        flash('Se canceló la eliminación de la orden')
     return redirect(url_for('main.ver_ordenes', estado='all', subestado='all'))
 
 @bp.route('/orden/<orden_id>', methods=['GET', 'POST'])
