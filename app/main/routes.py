@@ -34,6 +34,14 @@ def mantenimiento():
     return render_template('mantenimiento.html', title='Home',  empresa_name=session['current_empresa'])
 
 
+@bp.route('/verautorizado', methods=['GET', 'POST'])
+def ver_autorizado():
+    autorizacion = Company.query.filter_by(store_id=current_user.store).first_or_404()
+    usuario = re.sub('[\s+]', '', autorizacion.store_name[0:8].strip())
+    return render_template('autorizado.html', codigo='OK', usuario=usuario, store=autorizacion)
+    
+
+
 @bp.route('/user/<username>')
 @login_required
 def user(username):

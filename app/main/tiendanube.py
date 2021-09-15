@@ -278,7 +278,6 @@ def inicializa_tiendanube(empresa) :
     unUsuario.set_password(nombre)
     db.session.add(unUsuario)
     db.session.commit()
-
     return 'Success'
 
 

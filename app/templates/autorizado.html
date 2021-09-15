@@ -2,7 +2,7 @@
 
 {% block app_content %}
     <div class='container'>
-        <div class="row">
+       
             {% if codigo == 'error' %}
                 <br>
                 Se produjo un error en la autorización <br>
@@ -17,18 +17,23 @@
             <h1> Bienvenido  {{ store.store_name }} <br>
                 Gracias por Instalar Boris </h1><br>
                 <br>
-                Para poder ingresar en consola de gestión entra en:
+                <p>
+                Te enviamos un mail a {{store.admin_email}} con los datos de tu usuario y contraseña<br>
+                <br>
+                Para poder ingresar en tu consola de gestión entra en:<br>
                 <a href="http://backprod.borisreturns.com">http://backprod.borisreturns.com</a>
                 con el usuario y contraseña : {{usuario}} 
-                <br> Para terminar con la configuración podés seguir las intrucciones en nuestra página
+                <br>
+                <br> Si queres saber cómo podes personalizar el portal y el comportamiento de Boris, podés seguir las intrucciones en nuestra página:<br>
                  <a href="http://www.borisreturns.com/instalacion">http://www.borisreturns.com/instalacion</a>
                  <br>
+                </p>
             {% else %}
                 Se produjo un error en la autorización <br>
                 por favor ponete en contacto con nosotros <br>
                 Opcion de codigo -- {{codigo}}
             {% endif %}
             
-        </div>
+       
     </div>
 {% endblock %}
