@@ -498,8 +498,8 @@ def autorizar(plataforma):
             send_email('Bienvenido a BORIS!', 
                 sender=current_app.config['ADMINS'][0],  
                 recipients=[current_app.config['ADMINS'][0],autorizacion.admin_email],
-                text_body=render_template('bienvenido.txt', codigo='OK', usuario=usuario, store=autorizacion),
-                html_body=render_template('bienvenido.html', codigo='OK', usuario=usuario, store=autorizacion), 
+                text_body=render_template('email/bienvenido.txt', codigo='OK', usuario=usuario, store=autorizacion),
+                html_body=render_template('email/bienvenido.html', codigo='OK', usuario=usuario, store=autorizacion), 
                 attachments=None, 
                 sync=False)
             return render_template('autorizado.html', codigo='OK', usuario=usuario, store=autorizacion)
