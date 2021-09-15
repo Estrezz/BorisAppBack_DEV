@@ -69,12 +69,12 @@
                                             {% if orden.status_resumen == 'Aprobado' %}
                                                 {% if (i.gestionado == 'Iniciado' or i.gestionado == 'Cambiado' ) %}
                                                     {% set ns.entrantes_activos=true %}
-                                                    <input type="text" id="precio{{ i['prod_id'] }}" name="precio{{ i['prod_id'] }}" class="form-control" value="{{i['precio']}}">
+                                                    <input type="text" id="precio{{ i['prod_id'] }}" name="precio{{ i['prod_id'] }}" class="form-control" value="{{i['precio'] * i['accion_cantidad']}}">
                                                 {% else %}
                                                     <input type="text" id="precio{{ i['prod_id'] }}" name="precio{{ i['prod_id'] }}" class="form-control" value="{{i['monto_devuelto']}}" disabled>
                                                 {% endif %} 
                                             {% else %}
-                                                <input type="text" id="precio{{ i['prod_id'] }}" name="precio{{ i['prod_id'] }}" class="form-control" value="{{i['precio']}}" disabled>
+                                                <input type="text" id="precio{{ i['prod_id'] }}" name="precio{{ i['prod_id'] }}" class="form-control" value="{{i['precio'] * i['accion_cantidad']}}" disabled>
                                             {% endif %}
                                         </div>
                                         

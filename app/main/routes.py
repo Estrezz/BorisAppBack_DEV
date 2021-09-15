@@ -200,7 +200,7 @@ def gestion_lineas_entrantes(orden_id):
             else:
                 monto_devuelto = 0
             # Asigna accion_stock dependiendo de si se eligió que el stock se reingrese o no
-            if request.form.get("stockradio"+str(p)) == 'None':
+            if request.form.get("stockradio"+str(p)) == None:
                 accion_stock = "No vuelve al stock"
             else: 
                 accion_stock = "Vuelve al stock"

@@ -245,7 +245,7 @@ def inicializa_tiendanube(empresa) :
     "where" : "store"
     }
     script_2= {
-    "src": "https://frontprod.borisreturns.com/static/politica_boris.js",
+    "src": "https://frontprod.borisreturns.com/static/boris_politica_devolucion.js",
     "event" : "onload",
     "where" : "store"
     }
@@ -276,16 +276,6 @@ def inicializa_tiendanube(empresa) :
     db.session.add(unUsuario)
     db.session.commit()
 
-    ### Crea carpeta para mails
-    #if not os.path.exists('app/templates/email/'+str(empresa.store_id)):
-    #    os.mkdir('app/templates/email/'+str(empresa.store_id))
-    #    source_dir = 'app/templates/email_models'
-    #    target_dir = 'app/templates/email/'+str(empresa.store_id)
-    
-    #    file_names = os.listdir(source_dir)
-    
-    #    for file_name in file_names:
-    #        shutil.move(os.path.join(source_dir, file_name), target_dir)
     return 'Success'
 
 

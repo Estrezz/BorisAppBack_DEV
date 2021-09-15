@@ -409,7 +409,7 @@ def devolver_linea(prod_id, variant, cantidad, orden_id, order_line_number, acci
     linea = Order_detail.query.get(str(order_line_number))
     orden = Order_header.query.get(orden_id)
     
-    if accion_stock != 'no_vuelve':
+    if accion_stock != 'No vuelve al stock':
         empresa = Company.query.get(current_user.store)
         if empresa.stock_vuelve_config == True:
             if empresa.platform == 'tiendanube':
