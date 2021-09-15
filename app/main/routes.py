@@ -495,11 +495,11 @@ def autorizar(plataforma):
         #### actualiza los datos de la empresa en FRONT #####
         actualizado = actualiza_empresa(autorizacion)
         if actualizado != 'Failed':
-            send_email('Se ha creado una nueva empresa', 
+            send_email('Bienvenido a BORIS!', 
                 sender=current_app.config['ADMINS'][0],  
-                recipients=[current_app.config['ADMINS'][0]],
-                text_body=render_template('autorizado.txt', codigo='OK', usuario=usuario, store=autorizacion),
-                html_body=render_template('autorizado.html', codigo='OK', usuario=usuario, store=autorizacion), 
+                recipients=[current_app.config['ADMINS'][0],autorizacion.admin_email],
+                text_body=render_template('bienvenido.txt', codigo='OK', usuario=usuario, store=autorizacion),
+                html_body=render_template('bienvenido.html', codigo='OK', usuario=usuario, store=autorizacion), 
                 attachments=None, 
                 sync=False)
             return render_template('autorizado.html', codigo='OK', usuario=usuario, store=autorizacion)

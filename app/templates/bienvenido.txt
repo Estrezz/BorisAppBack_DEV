@@ -13,7 +13,7 @@
             Bienvenido  {{ store.store_name }}
                 Gracias por Instalar Boris 
                 Para poder ingresar en tu panel entra en: http://backprod.borisreturns.com
-                con el usuario y contraseña : {{store.store_name[0:8]}} 
+                con el usuario y contraseña : {{usuario}} 
                 
                 Para terminar con la configuración podés seguir las intrucciones en nuestra página
                 http://www.borisreturns.com/instalacion

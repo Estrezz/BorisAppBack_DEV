@@ -25,8 +25,8 @@ class EditProfileCompanyForm(FlaskForm):
 
 class EditParamsCompanyForm(FlaskForm):
     platform = StringField('Plataforma utilizada')
-    platform_token_type = StringField('Token type', render_kw={'readonly': True})
-    platform_access_token = StringField('Access Token', render_kw={'readonly': True})
+    #platform_token_type = StringField('Token type', render_kw={'readonly': True})
+    #platform_access_token = StringField('Access Token', render_kw={'readonly': True})
     store_main_language = StringField('Idioma Principal', render_kw={'readonly': True})
     store_main_currency = StringField('Moneda Principal', render_kw={'readonly': True})
     stock_vuelve_config = BooleanField('Al devolver el stock se ingresa físicamente:')
