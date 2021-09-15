@@ -9,6 +9,7 @@ from app.main.tiendanube import generar_envio_tiendanube, autorizar_tiendanube, 
 from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log, categories_filter
 from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto, genera_credito, actualiza_empresa, actualiza_empresa_categorias, actualiza_empresa_JSON, loguear_transaccion, finalizar_orden, devolver_linea, actualizar_stock
 import json
+import re
 from app.main import bp
 
 
@@ -488,7 +489,8 @@ def autorizar(plataforma):
     #### Autoriza permisos en Tiendanube y asigna TOKEN
     ##### graba datos de la empresa en autorizacion
     autorizacion = autorizar_tiendanube(codigo)
-  
+    usuario = re.sub('[\s+]', '', autorizacion.store_name[0:8].strip())
+
     if autorizacion != 'Failed': 
         #### actualiza los datos de la empresa en FRONT #####
         actualizado = actualiza_empresa(autorizacion)
@@ -496,11 +498,11 @@ def autorizar(plataforma):
             send_email('Se ha creado una nueva empresa', 
                 sender=current_app.config['ADMINS'][0],  
                 recipients=[current_app.config['ADMINS'][0]],
-                text_body=render_template('autorizado.txt', codigo='OK', store=autorizacion),
-                html_body=render_template('autorizado.html', codigo='OK', store=autorizacion), 
+                text_body=render_template('autorizado.txt', codigo='OK', usuario=usuario, store=autorizacion),
+                html_body=render_template('autorizado.html', codigo='OK', usuario=usuario, store=autorizacion), 
                 attachments=None, 
                 sync=False)
-            return render_template('autorizado.html', codigo='OK', store=autorizacion)
+            return render_template('autorizado.html', codigo='OK', usuario=usuario, store=autorizacion)
         else:
             return render_template('autorizado.html', codigo='error_al_actualizar', store=actualizado )         
     else:

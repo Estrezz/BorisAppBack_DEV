@@ -2,6 +2,7 @@ import requests
 import json
 import os
 import shutil
+import re
 from app import db
 from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log
 from flask_login import current_user
@@ -267,12 +268,14 @@ def inicializa_tiendanube(empresa) :
 
 
     ### Crea usuario para Backoffice
+    nombre = re.sub('[\s+]', '', empresa.store_name[0:8].strip())
     unUsuario = User(
-        username=empresa.store_name[0:8], 
+        #username=empresa.store_name[0:8],
+        username=nombre, 
         email=empresa.admin_email, 
         store=empresa.store_id
         )
-    unUsuario.set_password(empresa.store_name[0:8])
+    unUsuario.set_password(nombre)
     db.session.add(unUsuario)
     db.session.commit()
 
