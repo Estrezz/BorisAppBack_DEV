@@ -234,7 +234,10 @@ def gestion_lineas_salientes(orden_id):
         # agrego datos de la nueva orden (forma de envio, costo de envio y total a cobrar)
         orden.nuevo_envio = nuevaorden
         orden.nuevo_envio_costo = envio_nueva_orden
-        orden.nuevo_envio_total = total_nueva_orden
+        if float(total_nueva_orden) < 0:
+            monto_total = 0
+        else: 
+            orden.nuevo_envio_total = total_nueva_orden
         orden.courier_coordinar_empresa = request.form.get("empresa_coordinada")
         orden.courier_coordinar_guia = request.form.get("guia_coordinada")
         

@@ -110,8 +110,10 @@ def generar_envio_tiendanube(orden, lineas, unCliente, unaEmpresa):
     order = requests.request("POST", url, headers=headers, data=json.dumps(orden_tmp))
     if order.status_code != 201:
         flash('Hubo un problema en la generación de la Orden. Error {}'.format(order.status_code))  
-        flash('url {} - Json - {}'.format(url, json.dumps(orden_tmp)))
-        flash('mensaje {} - {}'.format(order, type(order)))
+        if order.status_code == 422:
+            flash('No hay stock suficiente para generar la orden')
+        else:
+            flash('Código {} - {}'.format(order.status_code, order.content))
         return 'Failed'
     return 'Success'
 
