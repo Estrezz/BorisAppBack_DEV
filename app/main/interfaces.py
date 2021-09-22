@@ -462,11 +462,10 @@ def actualizar_stock(lineas, empresa, accion):
         if empresa.platform == 'tiendanube':
             stock = devolver_stock_tiendanube(empresa, linea.accion_cambiar_por_prod_id, linea.accion_cambiar_por, cantidad_tmp)
             if stock == 'Failed':
-                flash('No se pude actualizar el stock para el articulo {} '.format(linea.accion_cambiar_por_desc))
+                flash('No se pudo actualizar el stock para el articulo {} '.format(linea.accion_cambiar_por_desc))
 
     return 'Success'
         
-
 
 
 def loguear_transaccion(sub_status, prod, order_id, user_id, username):

@@ -288,7 +288,7 @@ def gestion_lineas_salientes(orden_id):
         for o in ordenes:
             linea = Order_detail.query.get(str(o))
             linea.fecha_gestionado = datetime.utcnow()
-            loguear_transaccion('CAMBIADO', str(linea.accion_cambiar_por_desc)+' '+envio_nuevo_metodo, orden_id, current_user.id, current_user.username)
+            loguear_transaccion('CAMBIADO', str(linea.name)+' '+envio_nuevo_metodo, orden_id, current_user.id, current_user.username)
             if linea.gestionado == 'Devuelto':
                 linea.gestionado = 'Si'
             else:
