@@ -14,17 +14,22 @@
                 por favor ponete en contacto con nosotros <br>
             {% endif %}
             {% if codigo == 'OK' %}
-            <h1> Bienvenido  {{ store.store_name }} <br>
-                Gracias por Instalar Boris </h1><br>
+            <h2> Bienvenido  {{ store.store_name }}! <br></h2>
+                <h3>Gracias por instalar Boris </h3><br>
+                <p>Te enviamos un mail a {{store.admin_email}} con los datos para que puedas terminar la instación <br></p>
+                <br>
+                <h3>IMPORTANTE! </h3>
+                <h5>Para finalizar la integración de BORIS con tu tienda, 
+                    tenés que añadir un botón en la página de tu tienda donde tengas la 
+                    Política de Cambios y Devoluciones. Para hacerlo podés seguir las intrucciones que 
+                    vas a ver encontrar en <a href="http://www.borisreturns.com/instalacion">http://www.borisreturns.com/instalacion</a>  </h5>
                 <br>
                 <p>
-                Te enviamos un mail a {{store.admin_email}} con los datos de tu usuario y contraseña<br>
-                <br>
-                Para poder ingresar en tu consola de gestión entra en:<br>
+                Para poder ingresar en tu <strong>consola de gestión</strong> entra en:<br>
                 <a href="http://backprod.borisreturns.com">http://backprod.borisreturns.com</a>
                 con el usuario y contraseña : {{usuario}} 
                 <br>
-                <br> Si queres saber cómo podes personalizar el portal y el comportamiento de Boris, podés seguir las intrucciones en nuestra página:<br>
+                <br> Si queres saber cómo podes <strong>personalizar el portal</strong> y el comportamiento de Boris, podés seguir las intrucciones en nuestra página:<br>
                  <a href="http://www.borisreturns.com/instalacion">http://www.borisreturns.com/instalacion</a>
                  <br>
                 </p>
