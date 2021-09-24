@@ -644,7 +644,7 @@
             }).done(function(response) {
                 data = JSON.parse(response);
                 $('#stock'+prod_id).html(data['stock']);
-                $('#saliente_precio'+prod_id).html(data['price'] * $('#accion_cantidad'+prod_id));
+                $('#saliente_precio'+prod_id).html(data['price']);
                 if (data['promotional_price'] != null) {
                     $('#saliente_precio_promo'+prod_id).html(data['promotional_price']);
                     $('#saliente_precio_promo_desc'+prod_id).html('(Promo: '+data['promotional_price']+')');
@@ -653,7 +653,7 @@
                     var precio = data['price'];
                 }
                 // calcula la diferencia de precio entre el precio del articulo y el valor del cambio
-                var diferencia = precio - $('#precio'+prod_id ).val();
+                var diferencia = precio - $('#precio'+prod_id ).val() * $('#accion_cantidad'+prod_id).val();
                 $('#saliente_diferencia_precio'+prod_id).val(diferencia);
 
                 // acumula el valor de todas las diferencias
