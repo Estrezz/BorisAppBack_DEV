@@ -65,7 +65,14 @@ def generar_envio_tiendanube(orden, lineas, unCliente, unaEmpresa):
         'Content-Type': 'application/json',
         'Authentication': unaEmpresa.platform_token_type+' '+unaEmpresa.platform_access_token
     }
-        
+
+    if (orden.customer_address == ''  or orden.customer_number == ''):
+        orden.customer_address = 'null'
+        orden.customer_number = 'null'
+        tipoenvio = 'pickup'
+    else:
+        tipoenvio = 'ship'
+
     orden_tmp = { 
         "status": "open",
         #"gateway": "not-provided",
@@ -91,7 +98,7 @@ def generar_envio_tiendanube(orden, lineas, unCliente, unaEmpresa):
             "country": orden.customer_country,
             "phone": unCliente.phone
         },
-        "shipping_pickup_type": "ship",
+        "shipping_pickup_type": tipoenvio,
         "shipping": "not-provided",
         "shipping_option": "No informado",
         "shipping_cost_customer": orden.nuevo_envio_costo,
@@ -111,9 +118,9 @@ def generar_envio_tiendanube(orden, lineas, unCliente, unaEmpresa):
     order = requests.request("POST", url, headers=headers, data=json.dumps(orden_tmp))
     if order.status_code != 201:
         flash('Hubo un problema en la generación de la Orden. Error {}'.format(order.status_code))  
+        flash(json.dumps(orden_tmp))
+
         if order.status_code == 422:
-            flash('No hay stock suficiente para generar la orden')
-        else:
             flash('Código {} - {}'.format(order.status_code, order.content))
         return 'Failed'
     return 'Success'
