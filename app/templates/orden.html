@@ -653,7 +653,7 @@
                     var precio = data['price'];
                 }
                 // calcula la diferencia de precio entre el precio del articulo y el valor del cambio
-                var diferencia = (float(precio) * $('#accion_cantidad'+prod_id).val()) - ($('#precio'+prod_id ).val() * $('#accion_cantidad'+prod_id).val());
+                var diferencia = (precio * $('#accion_cantidad'+prod_id).val()) - ($('#precio'+prod_id ).val() * $('#accion_cantidad'+prod_id).val());
                 alert('difenrecia'+diferencia);
                 alert('original'+str(precio * $('#accion_cantidad'+prod_id).val()));
                 $('#saliente_diferencia_precio'+prod_id).val(diferencia);
