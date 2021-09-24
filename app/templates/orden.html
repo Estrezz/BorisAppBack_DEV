@@ -654,8 +654,8 @@
                 }
                 // calcula la diferencia de precio entre el precio del articulo y el valor del cambio
                 var cantidad = $('#accion_cantidad'+prod_id).val();
-                var diferencia = (precio * cantidad) - ($('#precio'+prod_id ).val() * cantidad);
-                alert('difenrecia'+diferencia);
+                var diferencia = (precio * cantidad) - ($('#precio'+prod_id ).val());
+                
                 $('#saliente_diferencia_precio'+prod_id).val(diferencia);
 
                 // acumula el valor de todas las diferencias
