@@ -2,135 +2,630 @@
 
 {% block app_content %}
     <div class='container'>
-        <h1>Configurar Perfil</h1>
-        <h3><strong> {{ empresa.store_name }} </strong> <br></h3>
+        <h3>Configurar Perfil</h3>
+        <h4><strong> {{ empresa.store_name }} </strong> <br></h4>
+        <br>
 
-      <div id="accordion">
+        <div class="card overflow-hidden">
+          <div class="row no-gutters row-bordered row-border-light">
+            <div class="col-md-3 pt-0">
+              <div class="list-group list-group-flush ">
 
-        <!-- Datos de la empresa-->
-        <div class="card">  
-            <div class="card-header" id="headingOne">
-              <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse1" aria-expanded="false"  aria-controls="collapse1">Datos de la Empresa</button>
-              <a href="{{ url_for('main.edit_profile_company', formulario='Datos de la tienda') }}" class="float-right" >Editar</a>
-            </div>
-            
-            <div id="collapse1" class="collapse" data-parent="#accordion" aria-labelledby="headingOne">
-              <div class="card-body">
-                <strong>Contacto</strong><br>
-                 Tienda: {{ empresa.store_name }}<br>
-                 Teléfono tienda: {{ empresa.store_phone }}<br>
-                 Nombre Contacto: {{ empresa.contact_name }}<br>
-                 Teléfono Contacto: {{ empresa.contact_phone }}<br>
-                 Mail: {{ empresa.contact_email }}<br>
-                 Mail Administración: {{ empresa.admin_email}} <br>
-                 <br>
-                 Link portal consumidor: <a href='http://frontprod.borisreturns.com/buscar?empresa={{empresa.store_id}}'  target="_blank" rel="noreferrer noopener">Hace click aqui para ver tu portal</a>
+                {% if pestaña == 'tienda' %}
+                  <a class="list-group-item list-group-item-action active" data-toggle="list" href="#empresa">Datos del Merchant</a>
+                {% else %}
+                  <a class="list-group-item list-group-item-action" data-toggle="list" href="#empresa">Datos del Merchant</a>
+                {% endif %}
+
+                {% if pestaña == 'carrier' %}
+                  <a class="list-group-item list-group-item-action active" data-toggle="list" href="#correo">Datos para Envios</a>
+                {% else %}
+                  <a class="list-group-item list-group-item-action" data-toggle="list" href="#correo">Datos para Envios</a>
+                {% endif %}
+
+                {% if pestaña == 'mailsback' %}
+                  <a class="list-group-item list-group-item-action active" data-toggle="list" href="#mails_backoffice">Mails Backoffice</a>
+                {% else %}
+                  <a class="list-group-item list-group-item-action" data-toggle="list" href="#mails_backoffice">Mails Backoffice</a>
+                {% endif %}
+
+                {% if pestaña == 'motivos' %}
+                  <a class="list-group-item list-group-item-action active" data-toggle="list" href="#motivos">Motivos</a>
+                {% else %}
+                <a class="list-group-item list-group-item-action" data-toggle="list" href="#motivos">Motivos</a>
+                {% endif %}
+
+                {% if pestaña == 'portal' %}
+                  <a class="list-group-item list-group-item-action active" data-toggle="list" href="#portal">Cofiguracion Portal</a>
+                {% else %}
+                <a class="list-group-item list-group-item-action" data-toggle="list" href="#portal">Cofiguracion Portal</a>
+                {% endif %}
+
+                {% if pestaña == 'envios' %}
+                  <a class="list-group-item list-group-item-action active" data-toggle="list" href="#envios">Metodos de Envío</a>
+                {% else %}
+                <a class="list-group-item list-group-item-action" data-toggle="list" href="#envios">Metodos de Envío</a>
+                {% endif %}
+
+                {% if pestaña == 'mailsportal' %}
+                  <a class="list-group-item list-group-item-action active" data-toggle="list" href="#mails_portal">Mails Portal</a>
+                {% else %}
+                <a class="list-group-item list-group-item-action" data-toggle="list" href="#mails_portal">Mails Portal</a>
+                {% endif %}
+
               </div>
             </div>
 
-          </div> <!-- end of Datos de la empresa -->
+            <div class="col-md-9">
+              <div class="tab-content">
 
-          <!-- Correo -->
-          <div class="card">  
-            <div class="card-header" id="heading2">
-              <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse2" aria-expanded="false"  aria-controls="collapse2">Correo</button>
-              <a href="{{ url_for('main.edit_profile_company', formulario='Correo') }}" class="float-right">Editar</a>
-            </div>
-            
-            <div id="collapse2" class="collapse" data-parent="#accordion" aria-labelledby="heading2">
-              <div class="card-body">
-                <strong>Empresa de correo</strong><br>
-                Correo Usado: {{ empresa.correo_usado }}<br>
-                APIKEY {{ empresa.correo_apikey }}<br>
-                ID {{ empresa.correo_id }}<br>
-                <br>
-                    <strong>Entorno de Test <br></strong>
-                    Test correo {{empresa.correo_test}}<br>
-                    APIKEY_TEST {{ empresa.correo_apikey_test }}<br>
-                    ID_TEST {{ empresa.correo_id_test }}<br>
-                <br>
-                <strong>Direccion de Envio</strong><br>
-                {{ empresa.shipping_address}} {{empresa.shipping_number}} {{ empresa.shipping_floor }} <br>
-                {{ empresa.shipping_city }} ({{ empresa.shipping_zipcode }}) <br>
-                {{ empresa.shipping_province}} <br>
-                {{ empresa.shipping_country }} <br>
-                Informacion para envíos :<br>
-                {{ empresa.shipping_info }} <br>
+                <!---------------- Datos Empresa / contacto -------------------------------->
+                {% if pestaña == 'tienda' %}
+                  <div class="tab-pane fade active show" id="empresa">
+                {% else %}
+                  <div class="tab-pane fade" id="empresa">
+                {% endif %}
+
+                  <div class="card-body">
+
+                    <form id="store_info" action="{{ url_for('main.edit_storeinfo') }}" method="POST"> 
+                      <!---------------- Datos Tienda ------------------------------------------------->
+                      <div class = "page-header text-info font-weight-bold"> 
+                        <h4> Datos del Mechant </h4>
+                      </div>
+                      <br>
+                      <div class="card">
+                        <div class="card-body">
+                          <small>
+                            <div class = "text-info"> 
+                              <h5> Datos de la Tienda </h5>
+                            </div>
+                            <div class="form-group">
+                              <label for="store_name">Tienda</label>
+                              <input type="text" class="form-control form-control-sm" name="store_name" id="store_name" value="{{ empresa.store_name or ''}}">
+                            </div>
+                            <div class="form-group">
+                              <label for="store_address">Dirección</label>
+                              <input type="text" class="form-control form-control-sm" name="store_address" id="store_address" value="{{ empresa.store_address or ''}}" placeholder="Dirección">
+                            </div>
+                            <div class="form-row">
+                              <div class="form-group col-md-6">
+                                <label for="admin_email">Mail Administración</label>
+                                <input type="email" class="form-control form-control-sm" name="admin_email" id="admin_email" value="{{empresa.admin_email or ''}}" placeholder="Email Administración">
+                              </div>
+                              <div class="form-group col-md-6">
+                                <label for="store_phone">Teléfono</label>
+                                <input type="text" class="form-control form-control-sm" name="store_phone" id="store_phone" value="{{empresa.store_phone or ''}}" placeholder="Teléfono Tienda">
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <div class="form-check col-auto">
+                                {% if empresa.stock_vuelve_config == true %}
+                                  <input class="form-check-input ml-2" type="checkbox" name ="stock_vuelve_config" id="stock_vuelve_config" checked>
+                                {% else %}
+                                  <input class="form-check-input ml-2" type="checkbox" name ="stock_vuelve_config" id="stock_vuelve_config" >
+                                {% endif %}
+                                <label class="form-check-label ml-4" for="stock_vuelve_config">
+                                  El stock se gestiona directamente en la Tienda? 
+                                </label>
+                              </div>
+                            </div>
+                          </small>
+                      
+                          <!---------------- Datos Tienda - Solo lectura -------------------------------->
+                          <div class="alert alert-secondary mt-3"> 
+                            <p> <small>
+                              <strong>Plataforma/ID:</strong> {{empresa.platform}}/{{empresa.store_id}}<br>
+                              <strong>URL: </strong>{{empresa.store_url}}<br>
+                              <strong>Pais:</strong> {{empresa.store_country or ''}} &nbsp;&nbsp; <strong>Idioma:</strong> {{empresa.store_main_language or ''}}
+                              &nbsp;&nbsp; <strong>Moneda:</strong> {{empresa.store_main_currency or ''}}
+                            </small></p> 
+                          </div>
+                          <hr>
+                          <br>
+
+                          <!---------------- Datos del contacto -------------------------------->
+                          <div class = "text-info "> 
+                            <h5> Datos del Contacto </h5>
+                          </div>
+                          <small>
+                            <div class="form-group">
+                              <label for="contact_name">Nombre</label>
+                              <input type="text" class="form-control form-control-sm" name="contact_name" id="contact_name" value="{{empresa.contact_name or ''}}" placeholder="Nombre del contacto">
+                            </div>
+                            <div class="form-row">
+                              <div class="form-group col-md-6">
+                                <label for="contact_email">Mail Contacto</label>
+                                <input type="email" class="form-control form-control-sm" name="contact_email" id="contact_email" value="{{empresa.contact_email or ''}}" placeholder="Email Contacto">
+                              </div>
+                              <div class="form-group col-md-6">
+                                <label for="contact_phone">Telefono</label>
+                                <input type="text" class="form-control form-control-sm" name="contact_phone" id="contact_phone" value="{{empresa.contact_phone or ''}}" placeholder="Telefono Contacto">
+                              </div>
+                            </div>
+                          </small>
+                          <br>
+                          <button name="boton" type="submit" class="btn btn-primary mt-2" value="guardar"> Guardar Cambios </button>
+                          <button name="boton" type="submit" class="btn btn-danger mt-2 float-right" value="cancelar"> Salir </button>
+                   
+                        </div>
+                      </div> <!--end card Merchant body-->
+
+                    </form>
+                  </div>
+                </div>
+
+
+                <!---------------- Datos Empresa de CORREO -------------------------------->
+                {% if pestaña == 'carrier' %}
+                  <div class="tab-pane fade active show" id="correo">
+                {% else %}
+                  <div class="tab-pane fade" id="correo">
+                {% endif %}
+
+                  <div class="card-body">
+                    <form id="carrier_info" action="{{ url_for('main.edit_carrierinfo') }}" method="POST"> 
+                      <div class = "page-header text-info font-weight-bold"> 
+                        <h4> Datos para los envíos</h4>
+                      </div>
+                      <br>
+                      <div class="card">
+                        <div class="card-body">
+                          <div class = "text-info"> 
+                            <h5> Empresa de Correo</h5>
+                          </div>
+                          <small>
+                          <div class="form-group">
+                            <label for="correo_usado">Empresa de Correo utilizada</label>
+                            <input type="text" class="form-control form-control-sm" name="correo_usado" id="correo_usado" value="{{ empresa.correo_usado or ''}}" placeholder="Empresa utilizada para envíos">
+                          </div>
+                          <div class="form-group row">
+                            <div class="form-check col-md-8">
+                              {% if empresa.correo_test == true %}
+                                <input class="form-check-input ml-2" type="checkbox" name ="correo_test" id="correo_test" checked>
+                              {% else %}
+                                <input class="form-check-input ml-2" type="checkbox" name ="correo_test" id="correo_test" >
+                              {% endif %}
+                              <label class="form-check-label ml-4" for="correo_test">
+                                Usar entorno de test para Correo? 
+                              </label>
+                            </div>
+                          </div>
+                          <hr>
+                          <br>
+                          <div class = "text-info"> 
+                            <h5> Dirección para recibir productos</h5>
+                          </div>
+                          <div class="form-row">
+                            <div class="form-group col-md-6">
+                              <label for="shipping_address">Calle</label>
+                              <input type="text" class="form-control form-control-sm" name="shipping_address" id="shipping_address" value="{{empresa.shipping_address or ''}}" placeholder="Dirección">
+                            </div>
+                            <div class="form-group col-md-2">
+                              <label for="shipping_number">Número</label>
+                              <input type="text" class="form-control form-control-sm" name="shipping_number" id="shipping_number" value="{{empresa.shipping_number or ''}}" placeholder="Número">
+                            </div>
+                            <div class="form-group col-md-2">
+                              <label for="shipping_floor">Piso</label>
+                              <input type="text" class="form-control form-control-sm" name="shipping_floor" id="shipping_floor" value="{{empresa.shipping_floor or ''}}" placeholder="Piso">
+                            </div>
+                            <div class="form-group col-md-2">
+                              <label for="shipping_zipcode ">Cod. Postal</label>
+                              <input type="text" class="form-control form-control-sm" name="shipping_zipcode " id="shipping_zipcode " value="{{empresa.shipping_zipcode or ''}}" placeholder="Cod. Postal">
+                            </div>
+                            <div class="form-row">
+                              <div class="form-group col-md-6">
+                                <label for="shipping_city">Ciudad</label>
+                                <input type="text" class="form-control form-control-sm" name="shipping_city" id="shipping_city" value="{{empresa.shipping_city or ''}}" placeholder="Ciudad">
+                              </div>
+                              <div class="form-group col-md-4">
+                                <label for="shipping_province">Provincia</label>
+                                <input type="text" class="form-control form-control-sm" name="shipping_province" id="shipping_province" value="{{empresa.shipping_province or ''}}" placeholder="Provincia">
+                              </div>
+                              <div class="form-group col-md-2">
+                                <label for="shipping_country">Pais</label>
+                                <input type="text" class="form-control form-control-sm" name="shipping_country" id="shipping_country" value="{{empresa.shipping_country or ''}}" placeholder="Pais">
+                              </div>
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label for="shipping_info">Nota para Envíos</label>
+                            <input type="text" class="form-control form-control-sm" name="shipping_info" id="shipping_info" value="{{ empresa.shipping_info or ''}}">
+                          </div>
+                          </small>
+                          <br>
+                          <button name="boton" type="submit" class="btn btn-primary mt-2" value="guardar"> Guardar Cambios </button>
+                          <button name="boton" type="submit" class="btn btn-danger mt-2 float-right" value="cancelar"> Salir </button>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+
+
+                <!---------------- Configuracion del Portal  -------------------------------->
+                {% if pestaña == 'portal' %}
+                  <div class="tab-pane fade active show" id="portal">
+                {% else %}
+                  <div class="tab-pane fade" id="portal">
+                {% endif %}
+                  <div class="card-body">
+                    <form id="portal_info" action="{{ url_for('main.edit_portalinfo') }}" method="POST"> 
+                      <div class = "page-header text-info font-weight-bold"> 
+                        <h4> Configuración del Portal para clientes</h4>
+                      </div>
+                      <br>
+                      <div class="card">
+                        <div class="card-body">
+                          <small>
+                          <p class="float-right">
+                          Link portal consumidor: <a href='http://frontprod.borisreturns.com/buscar?empresa={{empresa.store_id}}'  target="_blank" rel="noreferrer noopener">Hace click aqui para ver tu portal</a>
+                          </p>  
+                          <br>
+                          <div class = "text-info mt-2"> 
+                            <h5>Imagenes</h5>
+                          </div>
+                          <div class="form-group">
+                            <label for="param_logo">Logo</label>
+                            <input type="text" class="form-control form-control-sm" name="param_logo" id="param_logo" value="{{ empresa.param_logo or ''}}" placeholder="Logo">
+                          </div>
+                          <div class="form-group">
+                            <label for="param_fondo">Imagen fondo</label> <small class="text-muted">(para futuras versiones)</small>
+                            <input type="text" class="form-control form-control-sm" name="param_fondo" id="param_fondo" value="{{ empresa.param_fondo or '' }}" placeholder="Imagen para el fondo">
+                          </div>
+                          <hr> 
+                          <div class = "text-info "> 
+                            <h5>Política de Cambios y Devoluciones</h5>
+                          </div>
+                          <div class="form-row">
+                            <div class="form-group col-md-6">
+                              <label for="ventana_cambios">Dias para realizar cambios</label> 
+                              <input type="text" class="form-control form-control-sm" name="ventana_cambios" id="ventana_cambios" value="{{ configuracion.ventana_cambios }}">
+                            </div>
+                            <div class="form-group col-md-6">
+                              <label for="ventana_devolucion">Dias para realizar Devoluciones</label> 
+                              <input type="integer" class="form-control form-control-sm" name="ventana_devolucion" id="ventana_devolucion" value="{{ configuracion.ventana_devolucion }}">
+                            </div>
+                            <br> 
+                          </div>
+                          <hr>
+                          <div class = "text-info"> 
+                            <h5>Opciones para cambios</h5>
+                          </div>
+                          <div class="form-group row">
+                            <div class="form-check col-md-6">
+                              {% if configuracion.cambio_otra_cosa == true %}
+                                <input class="form-check-input ml-2" type="checkbox" name ="cambio_otra_cosa" id="cambio_otra_cosa" checked>
+                              {% else %}
+                                <input class="form-check-input ml-2" type="checkbox" name ="cambio_otra_cosa" id="cambio_otra_cosa" >
+                              {% endif %}
+                              <label class="form-check-label ml-5" for="cambio_otra_cosa">
+                                Habilitar cambio por Otro Producto 
+                              </label>
+                            </div>
+                            <div class="form-check col-md-6">
+                              {% if configuracion.cambio_cupon == true %}
+                                <input class="form-check-input" type="checkbox" name ="cambio_cupon" id="cambio_cupon" checked>
+                              {% else %}
+                                <input class="form-check-input" type="checkbox" name ="cambio_cupon" id="cambio_cupon" >
+                              {% endif %}
+                              <label class="form-check-label" for="cambio_cupon">
+                                Habilitar cambio por Cupón
+                              </label>
+                            </div>
+                          </div>
+                          </small>
+                          <br>
+                          <button name="boton" type="submit" class="btn btn-primary mt-2" value="guardar"> Guardar Cambios </button>
+                         <button name="boton" type="submit" class="btn btn-danger mt-2 float-right" value="cancelar"> Salir </button>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+
+
+                <!---------------- Motivos -------------------------------->
+                {% if pestaña == 'motivos' %}
+                  <div class="tab-pane fade  active show" id="motivos">
+                {% else %}
+                  <div class="tab-pane fade" id="motivos">
+                {% endif %}
+                    <div class="card-body">
+                      <div class = "page-header text-info font-weight-bold"> 
+                        <h4> Motivos  </h4>
+                      </div>
+                      <br>
+                      <div class="card">
+                        <div class="card-body">
+                          <small>
+                          <!-- Formulario para agregar motivos -->
+                          <div class = "text-info"> 
+                            <h5> Agregar un motivo nuevo: </h5>
+                          </div>
+                          <form id="motivos_add" action="{{ url_for('main.add_motivo') }}" method="POST"> 
+                            <div class="form-row align-items-center">
+                              <div class="form-group col-md-8">
+                                  <label for="nuevo_motivo">Motivo</label> 
+                                  <input type="text" class="form-control form-control-sm" name="nuevo_motivo" id="nuevo_motivo" >
+                              </div>
+                              <div class="form-group col-md-2">  
+                                <label for="tipo_nuevo_motivo">Tipo</label> 
+                                <select class="custom-select custom-select-sm" name="tipo_nuevo_motivo" id="tipo_nuevo_motivo" >
+                                  <option selected disabled>Tipo</option>                  
+                                  <option value="Talle">Talle</option>
+                                  <option value="Calce">Calce</option>
+                                  <option value="Calidad">Calidad</option>
+                                  <option value="Expectativa">Expectativa</option>
+                                  <option value="Otros">Otros</option>
+                                </select> 
+                              </div> 
+                              <div class="form-group col-md-2"> 
+                                <br>
+                                <button name="agregar" type="submit" class="btn btn-primary btn-sm mt-2" value="agregar"> Agregar </button>
+                              </div>
+                            </div>
+                          </form>
+                          <!-- FIN Formulario para agregar motivos -->
+
+                          <hr>
+                          <div class = "text-info"> 
+                            <h5> Motivos </h5>
+                          </div>
+                          
+                          
+                          {% for m in motivos %}
+                          <form id="motivos_info" action="{{ url_for('main.editar_motivo', id=m.id_motivo) }}" method="POST"> 
+                            <input type="hidden" id="motivos" name="motivos" value="{{ m.id_motivo }}">
+                            <div class="form-row align-items-center">
+                                <div class="form-group col-md-6">
+                                  <label for="motivo">Motivo</label> 
+                                  <input type="text" class="form-control form-control-sm" name="motivo" id="motivo" value="{{m.motivo}}">
+                                </div>
+                                <div class="form-group col-md-2">                          
+                                  <label for="tipo_motivo">Tipo</label> 
+                                  <select class="custom-select custom-select-sm" name="tipo_motivo" id="tipo_motivo" >
+                                    {% if (m.tipo_motivo == none) or (m.tipo_motivo == '')%}
+                                      <option selected disabled>Tipo</option>
+                                    {% else %}
+                                      <option disabled>Tipo</option>
+                                    {% endif %}
+
+                                    {% if m.tipo_motivo == 'Talle' %}
+                                      <option selected value="Talle">Talle</option>
+                                    {% else %}
+                                      <option value="Talle">Talle</option>
+                                    {% endif %}
+
+                                    {% if m.tipo_motivo == 'Calce' %}
+                                      <option selected value="Calce">Calce</option>
+                                    {% else %}
+                                      <option value="Calce">Calce</option>
+                                    {% endif %}
+
+                                    {% if m.tipo_motivo == 'Calidad' %}
+                                      <option selected value="Calidad">Calidad</option>
+                                    {% else %}
+                                      <option value="Calidad">Calidad</option>
+                                    {% endif %}
+
+                                    {% if m.tipo_motivo == 'Expectativa' %}
+                                      <option selected value="Expectativa">Expectativa</option>
+                                    {% else %}
+                                      <option value="Expectativa">Expectativa</option>
+                                    {% endif %}
+
+                                    {% if m.tipo_motivo == 'Otros' %}
+                                      <option selected value="Otros">Otros</option>
+                                    {% else %}
+                                      <option value="Otros">Otros</option>
+                                    {% endif %}
+                                  </select>                              
+                                </div>
+
+                                <div class="form-group col-md-4">
+                                  <br>
+                                  <button name="boton" type="submit" class="btn btn-outline-info btn-sm mt-2" value="update"> Actualizar </button>
+                                  <button name="boton" type="submit" class="btn btn-sm btn-outline-danger mt-2 ml-4" value="eliminar"> Eliminar </button>
+                                </div>
+                                
+                              </div>
+                            </form>
+                            {% endfor %}
+
+                            </small>
+                          </div>
+                        </div>
+                    </div>
+                  </div>
+                <!-- END OF MOTIVOS -->
+
+
+
+                <!---------------- Metodos de Envio  -------------------------------->
+                {% if pestaña == 'envios' %}
+                  <div class="tab-pane fade  active show" id="envios">
+                {% else %}
+                  <div class="tab-pane fade" id="envios">
+                {% endif %}
+                  <div class="card-body">
+                    <form id="envios_info" action="{{ url_for('main.edit_enviosinfo') }}" method="POST"> 
+                      <div class = "page-header text-info font-weight-bold"> 
+                        <h4> Métodos de Envío </h4>
+                      </div>
+                      <br>
+                      {% for e in envios %}
+                      <input type="hidden" id="metodos_envio" name="metodos_envio" value="{{ e.metodo_envio }}">
+                      <div class="card mb-4">
+                        <div class="card-body">
+                          <div class="form-group row">
+                            <div class="form-check col-md-9">
+                              <h5 class="text-info" style="text-transform:uppercase">{{e.metodo_envio}}</h5>
+                            </div>
+                            <div class="form-check col-md-3">
+                              {% if e.habilitado == true %}
+                                <input class="form-check-input" type="checkbox" name ="habilitado{{ e.metodo_envio }}" id="habilitado{{ e.metodo_envio }}" checked>
+                              {% else %}
+                                <input class="form-check-input" type="checkbox" name ="habilitado{{ e.metodo_envio }}" id="habilitado{{ e.metodo_envio }}" >
+                              {% endif %}
+                              <label class="form-check-label" for="habilitado{{ e.metodo_envio }}">Habilitado</label>
+                            </div>
+                          </div>
+                          <hr>
+                          <small>
+                          <strong>Botón en el portal:</strong><br>
+                          <div class="form-group">
+                            <label for="titulo_boton{{ e.metodo_envio }}">Título</label> 
+                            <input type="text" class="form-control form-control-sm" name="titulo_boton{{ e.metodo_envio }}" id="titulo_boton{{ e.metodo_envio }}" value="{{ e.titulo_boton or ''}}">
+                          </div>
+                          <div class="form-group">
+                            <label for="descripcion_boton{{ e.metodo_envio }}">Descripción</label> 
+                            <textarea class="form-control form-control-sm" name="descripcion_boton{{ e.metodo_envio }}" id="descripcion_boton{{ e.metodo_envio }}" value="{{ e.descripcion_boton or ''}}">{{ e.descripcion_boton or ''}}</textarea> 
+                          </div> 
+                          </small>
+                        </div>
+                      </div>
+                      {% endfor %}
+                      <br>
+                      <button name="boton" type="submit" class="btn btn-primary mt-2" value="guardar"> Guardar Cambios </button>
+                      <button name="boton" type="submit" class="btn btn-danger mt-2 float-right" value="cancelar"> Salir </button>
+                    </form>
+                   </div>
+                  </div>   
+                  
+                  <!---------------- Mails Portal -------------------------------->
+                  {% if pestaña == 'mailsportal' %}
+                    <div class="tab-pane fade active show" id="mails_portal">
+                  {% else %}
+                    <div class="tab-pane fade" id="mails_portal">
+                  {% endif %}
+                    <div class="card-body">
+                      <form id="mailsportal_info" action="{{ url_for('main.edit_mailsportalinfo') }}" method="POST"> 
+                        <div class = "page-header text-info font-weight-bold"> 
+                          <h4> Mails desde el Portal </h4>
+                        </div>
+                        <br>
+                        <div class="card">
+                          <div class="card-body">
+                            <div class = "text-info"> 
+                              <h5> Mail Inicio de Solicitud: </h5>
+                            </div>
+                                                
+                            <small>
+                              <div class="form-group">
+                                <label for="confirma_manual_note">Nota para Inicio de Envios Manuales:</label> 
+                                <textarea class="form-control form-control-sm" name="confirma_manual_note" id="confirma_manual_note" value="{{ empresa.confirma_manual_note }}">{{ empresa.confirma_manual_note or ''}}</textarea> 
+                              </div> 
+                              
+                              <div class="form-group">
+                                <label for="confirma_coordinar_note">Nota para Inicio de Envios a coordinar:</label> 
+                                <textarea class="form-control form-control-sm" name="confirma_coordinar_note" id="confirma_coordinar_note">{{ empresa.confirma_coordinar_note or ''}}</textarea> 
+                              </div> 
+                              
+                              <div class="form-group">
+                                <label for="confirma_coordinar_note">Nota para Inicio de Envios por Correo:</label> 
+                                <textarea class="form-control form-control-sm" name="confirma_moova_note" id="confirma_moova_note" >{{ empresa.confirma_moova_note or ''}}</textarea> 
+                              </div> 
+                            </small>
+                            <br>
+                            <button name="boton" type="submit" class="btn btn-primary mt-2" value="guardar"> Guardar Cambios </button>
+                            <button name="boton" type="submit" class="btn btn-danger mt-2 float-right" value="cancelar"> Salir </button>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+
+                  <!---------------- Mails Backoffice  -------------------------------->
+                  {% if pestaña == 'mailsback' %}
+                    <div class="tab-pane fade active show" id="mails_backoffice">
+                  {% else %}
+                    <div class="tab-pane fade" id="mails_backoffice">
+                  {% endif %}
+                    <div class="card-body">
+                      <form id="mailsback_info" action="{{ url_for('main.edit_mailsbackinfo') }}" method="POST"> 
+                        <div class = "page-header text-info font-weight-bold"> 
+                          <h4> Mails desde el Backoffice </h4>
+                        </div>
+                        <br>
+                        <div class="card">
+                          <div class="card-body">
+                            <small>
+                              <div class="form-group">
+                                <label for="communication_email">Dirección de mail para las Comunicaciones:</label> 
+                                <input type="email" class="form-control form-control-sm" name="communication_email" id="communication_email" value="{{ empresa.communication_email or ''}}">
+                              </div>
+                              <hr>
+                              
+                              <div class = "text-info mt-2"> 
+                                <h5> Mail CONFIRMACION: </h5>
+                              </div>                             
+                              <div class="form-group">
+                                  <label for="envio_manual_note">Nota para envios Manuales:</label> 
+                                  <textarea class="form-control form-control-sm" name="envio_manual_note" id="envio_manual_note" >{{ empresa.envio_manual_note or ''}}</textarea> 
+                              </div> 
+                              <div class="form-group">
+                                <label for="envio_coordinar_note">Nota para envios a coordinar:</label> 
+                                <textarea class="form-control form-control-sm" name="envio_coordinar_note" id="envio_coordinar_note" >{{ empresa.envio_coordinar_note or '' }}</textarea> 
+                              </div> 
+                              <div class="form-group">
+                                <label for="envio_correo_note">Nota para envios por Correo:</label> 
+                                <textarea class="form-control form-control-sm" name="envio_correo_note" id="envio_correo_note" >{{ empresa.envio_correo_note or '' }}</textarea> 
+                              </div> 
+                              <hr>
+                              
+                              <div class = "text-info mt-2"> 
+                                <h5>Mail APROBACION: </h5>
+                              </div>
+                              <div class="form-group">
+                                <label for="aprobado_note">Nota para solicitudes recibidas y aprobadas:</label> 
+                                <textarea class="form-control form-control-sm" name="aprobado_note" id="aprobado_note" >{{ empresa.aprobado_note or '' }}</textarea> 
+                              </div> 
+                              <hr>
+                              
+                              <div class = "text-info mt-2"> 
+                                <h5>Mail RECHAZO: </h5>
+                              </div>
+                              <div class="form-group">
+                                <label for="rechazado_note">Nota para solicitudes rechazadaa al recibir:</label> 
+                                <textarea class="form-control form-control-sm" name="rechazado_note" id="rechazado_note" >{{ empresa.rechazado_note or '' }}</textarea> 
+                              </div> 
+                              <hr>
+                               
+                              <div class = "text-info mt-2"> 
+                                <h5> Mail GENERACIÓN CUPÓN: </h5>
+                              </div>  
+                              <div class="form-group">
+                                <label for="cupon_generado_note">Nota para la generación de cupón:</label> 
+                                <textarea class="form-control form-control-sm" name="cupon_generado_note" id="cupon_generado_note" >{{ empresa.cupon_generado_note or ''}}</textarea> 
+                              </div> 
+                              <hr>
+                              
+                                
+                              <div class = "text-info mt-2"> 
+                                <h5> Mail FINALIZACION: </h5>
+                              </div>  
+                              <div class="form-group">
+                                <label for="finalizado_note">Nota para el final del procesamiento:</label> 
+                                <textarea class="form-control form-control-sm" name="finalizado_note" id="finalizado_note" >{{ empresa.finalizado_note or '' }}</textarea> 
+                              </div> 
+                            </small>
+
+                            <button name="boton" type="submit" class="btn btn-primary mt-2" value="guardar"> Guardar Cambios </button>
+                            <button name="boton" type="submit" class="btn btn-danger mt-2 float-right" value="cancelar"> Salir </button>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div> 
+
+
+                  
+
               </div>
             </div>
-          </div> <!-- end of correo -->
-
-          <div class="card">  
-            <div class="card-header" id="heading3">
-              <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse3" aria-expanded="false"  aria-controls="collapse3">Parametros</button>
-              <a href="{{ url_for('main.edit_profile_company', formulario='Parametros') }}" class="float-right">Editar</a>
-            </div>
-            
-            <div id="collapse3" class="collapse" data-parent="#accordion" aria-labelledby="heading3">
-              <div class="card-body">
-                Plataforma: {{empresa.platform}} <br>
-                <!-- 
-                Token type: {{empresa.platform_token_type}}<br>
-                Access Token: {{empresa.platform_access_token}}<br>
-                -->
-                Store_id: {{empresa.store_id}}<br>
-                Idioma: {{empresa.store_main_language}}<br>
-                Pais: {{empresa.store_country}}<br>
-                Moneda: {{empresa.store_main_currency}}<br>
-                Logo: {{ empresa.param_logo }} <br>
-                Fondo: {{ empresa.param_fondo }} <br>
-                Archivo Config: {{ empresa.param_config }} <br>
-              </div>
-            </div>
+          </div>
         </div>
-
-
-        <div class="card">  
-          <div class="card-header" id="heading4">
-            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse4" aria-expanded="false"  aria-controls="collapse4">Mails</button>
-            <a href="{{ url_for('main.edit_profile_company', formulario='Mails') }}" class="float-right" >Editar</a>
-          </div>
-          
-          <div id="collapse4" class="collapse" data-parent="#accordion" aria-labelledby="heading4">
-            <div class="card-body">
-                <strong>Mail para Comunicaciones:</strong> {{empresa.communication_email}} <br>
-                <br>
-                <strong>Mail CONFIRMACION:<br></strong>
-                Nota para Envios Manuales: {{empresa.envio_manual_note}}<br>
-                Nota para Envios A coordinar: {{empresa.envio_coordinar_note}}<br>
-                Nota para Envios x Correo: {{empresa.envio_correo_note}}<br>
-                <br>
-                <strong>Mail APROBACION:<br></strong>
-                Nota para solicitudes recibidas y aprobadas: {{empresa.aprobado_note}}<br>
-                <br>
-                <strong>Mail RECHAZO:<br></strong>
-                Nota para solicitudes rechazadaa al recibir: {{empresa.rechazado_note}}<br>
-                <br>
-                <strong>Mail GENERACIÓN CUPÓN:<br></strong>
-                    Nota para la generación de cupón: {{empresa.cupon_generado_note}}<br>  
-                <br>
-                 <strong>Mail FINALIZACION:<br></strong>
-                    Nota para el final del procesamiento: {{empresa.finalizado_note}}<br>  
-              </div>
-            </div>
-        </div>
-
-        <div class="card">  
-          <div class="card-header" id="heading5">
-            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse5" aria-expanded="false"  aria-controls="collapse5">Mails Front-End</button>
-            <a href="{{ url_for('main.edit_profile_company_front', formulario='Mails Front') }}" class="float-right">Editar</a>
-          </div>
-          
-          <div id="collapse5" class="collapse" data-parent="#accordion" aria-labelledby="heading5">
-            <div class="card-body">
-              <strong>Mail INICIO DE SOLICITUD:<br></strong>
-              Nota para Inicio de Envios Manuales: {{empresa.confirma_manual_note}}<br>
-              Nota para Inicio de Envios A coordinar: {{empresa.confirma_coordinar_note}}<br>
-              Nota para Inicio de Envios x Correo: {{empresa.confirma_moova_note}}<br>
-              <br>
-            </div>
-          </div>
-      </div>
       </div>
                
                

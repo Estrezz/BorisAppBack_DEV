@@ -200,9 +200,41 @@ class Transaction_log(db.Model):
 
 
 class  categories_filter(db.Model):
-    store = db.Column(db.String(64), db.ForeignKey('company.store_id'))
+    store = db.Column(db.String(64), db.ForeignKey('company.store_id'), primary_key=True)
     category_id = db.Column(db.Integer, primary_key=True)
     category_desc = db.Column(db.String(100))
 
     def __repr__(self):
         return '<Categoria {} {} >'.format(self.category_id, self.category_desc)
+
+
+class  CONF_motivos(db.Model):
+    store = db.Column(db.String(64), db.ForeignKey('company.store_id'), primary_key=True)
+    id_motivo = db.Column(db.Integer, primary_key=True)
+    motivo = db.Column(db.String(35))
+    tipo_motivo = db.Column(db.String(35))
+
+    def __repr__(self):
+        return '<Motivo {} {} >'.format(self.store, self.motivo, self.tipo_motivo)
+
+
+class  CONF_boris(db.Model):
+    store = db.Column(db.String(64), db.ForeignKey('company.store_id'), primary_key=True)
+    ventana_cambios = db.Column(db.Integer)
+    ventana_devolucion = db.Column(db.Integer)
+    cambio_otra_cosa = db.Column(db.Boolean)
+    cambio_cupon = db.Column(db.Boolean)
+
+    def __repr__(self):
+        return '<configuracion {} {} >'.format(self.store, self.ventana_cambios, self.ventana_devolucion)
+
+
+class  CONF_envios(db.Model):
+    store = db.Column(db.String(64), db.ForeignKey('company.store_id'), primary_key=True)
+    metodo_envio = db.Column(db.String(200), primary_key=True)
+    habilitado = db.Column(db.Boolean)
+    titulo_boton = db.Column(db.String(100))
+    descripcion_boton = db.Column(db.String(200))
+
+    def __repr__(self):
+        return '<Envio {} {} >'.format(self.store, self.metodo_envio, self.habilitado)

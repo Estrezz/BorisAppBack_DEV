@@ -359,11 +359,11 @@ def actualiza_empresa(empresa):
 
 ######################################################################################################
 ####################### Actualiza el JSON de configuracion del FRONT #################################
-def actualiza_empresa_JSON(empresa, clave, valor):
+def actualiza_empresa_JSON(empresa, clave, valor,key):
     if current_app.config['SERVER_ROLE'] == 'DEV':
-        url="https://front.borisreturns.com/empresa_json?clave="+clave
+        url="https://front.borisreturns.com/empresa_json?clave="+clave+"&key="+key
     if current_app.config['SERVER_ROLE'] == 'PROD':
-        url="https://frontprod.borisreturns.com/empresa_json?clave="+clave
+        url="https://frontprod.borisreturns.com/empresa_json?clave="+clave+"&key="+key
     
     headers = {
         'Content-Type': 'application/json'
@@ -377,7 +377,19 @@ def actualiza_empresa_JSON(empresa, clave, valor):
         return 'Failed'
     else: 
         return 'Success'
-    
+
+
+############# Devuelve el nombre de la clave del titulo y descripcion de los botones correspondientes a los metodos de envios en el JSON de configuracion #################
+def devolver_datos_boton(metodo_envio):
+    boton = []
+    if str.upper(metodo_envio) == "MANUAL":
+        boton = ["boton_envio_manual", "boton_envio_manual_desc"]
+    if str.upper(metodo_envio) == "COORDINAR":
+        boton = ["boton_envio_coordinar", "boton_envio_coordinar_desc"]
+    if str.upper(metodo_envio) == "RETIRO":
+        boton = ["boton_envio_retiro", "boton_envio_retiro_desc"]
+    return boton
+
 ############# Envia datos de las categorias filtradas al FRONT para dar de alta o actualizar #################
 def actualiza_empresa_categorias(empresa):
     categorias_tmp = categories_filter.query.filter_by(store=empresa.store_id).all()

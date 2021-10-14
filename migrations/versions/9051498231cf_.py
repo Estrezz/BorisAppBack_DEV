@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: cb7e365313f4
+Revision ID: 9051498231cf
 Revises: 
-Create Date: 2021-07-29 15:59:11.437171
+Create Date: 2021-10-12 17:57:40.278983
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'cb7e365313f4'
+revision = '9051498231cf'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -81,18 +81,45 @@ def upgrade():
     op.create_index(op.f('ix_customer_email'), 'customer', ['email'], unique=False)
     op.create_index(op.f('ix_customer_name'), 'customer', ['name'], unique=False)
     op.create_index(op.f('ix_customer_platform'), 'customer', ['platform'], unique=False)
+    op.create_table('CONF_boris',
+    sa.Column('store', sa.String(length=64), nullable=False),
+    sa.Column('ventana_cambios', sa.Integer(), nullable=True),
+    sa.Column('ventana_devolucion', sa.Integer(), nullable=True),
+    sa.Column('cambio_otra_cosa', sa.Boolean(), nullable=True),
+    sa.Column('cambio_cupon', sa.Boolean(), nullable=True),
+    sa.ForeignKeyConstraint(['store'], ['company.store_id'], ),
+    sa.PrimaryKeyConstraint('store')
+    )
+    op.create_table('CONF_envios',
+    sa.Column('store', sa.String(length=64), nullable=False),
+    sa.Column('metodo_envio', sa.String(length=200), nullable=False),
+    sa.Column('habilitado', sa.Boolean(), nullable=True),
+    sa.Column('titulo_boton', sa.String(length=100), nullable=True),
+    sa.Column('descripcion_boton', sa.String(length=200), nullable=True),
+    sa.ForeignKeyConstraint(['store'], ['company.store_id'], ),
+    sa.PrimaryKeyConstraint('store', 'metodo_envio')
+    )
+    op.create_table('CONF_motivos',
+    sa.Column('store', sa.String(length=64), nullable=False),
+    sa.Column('id_motivo', sa.Integer(), nullable=False),
+    sa.Column('motivo', sa.String(length=35), nullable=True),
+    sa.Column('tipo_motivo', sa.String(length=35), nullable=True),
+    sa.ForeignKeyConstraint(['store'], ['company.store_id'], ),
+    sa.PrimaryKeyConstraint('store', 'id_motivo')
+    )
     op.create_table('categories_filter',
-    sa.Column('store', sa.String(length=64), nullable=True),
+    sa.Column('store', sa.String(length=64), nullable=False),
     sa.Column('category_id', sa.Integer(), nullable=False),
     sa.Column('category_desc', sa.String(length=100), nullable=True),
     sa.ForeignKeyConstraint(['store'], ['company.store_id'], ),
-    sa.PrimaryKeyConstraint('category_id')
+    sa.PrimaryKeyConstraint('store', 'category_id')
     )
     op.create_table('order_header',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('order_number', sa.Integer(), nullable=True),
     sa.Column('order_id_anterior', sa.Integer(), nullable=True),
     sa.Column('date_creation', sa.DateTime(), nullable=True),
+    sa.Column('date_closed', sa.DateTime(), nullable=True),
     sa.Column('date_lastupdate', sa.DateTime(), nullable=True),
     sa.Column('gastos_cupon', sa.Float(), nullable=True),
     sa.Column('gastos_gateway', sa.Float(), nullable=True),
@@ -115,10 +142,10 @@ def upgrade():
     sa.Column('status_resumen', sa.String(length=25), nullable=True),
     sa.Column('reject_reason', sa.String(length=350), nullable=True),
     sa.Column('customer_address', sa.String(length=64), nullable=True),
-    sa.Column('customer_number', sa.String(length=10), nullable=True),
+    sa.Column('customer_number', sa.String(length=35), nullable=True),
     sa.Column('customer_floor', sa.String(length=64), nullable=True),
     sa.Column('customer_zipcode', sa.String(length=8), nullable=True),
-    sa.Column('customer_locality', sa.String(length=150), nullable=True),
+    sa.Column('customer_locality', sa.String(length=250), nullable=True),
     sa.Column('customer_city', sa.String(length=64), nullable=True),
     sa.Column('customer_province', sa.String(length=64), nullable=True),
     sa.Column('customer_country', sa.String(length=64), nullable=True),
@@ -201,6 +228,9 @@ def downgrade():
     op.drop_index(op.f('ix_order_header_courier_order_id'), table_name='order_header')
     op.drop_table('order_header')
     op.drop_table('categories_filter')
+    op.drop_table('CONF_motivos')
+    op.drop_table('CONF_envios')
+    op.drop_table('CONF_boris')
     op.drop_index(op.f('ix_customer_platform'), table_name='customer')
     op.drop_index(op.f('ix_customer_name'), table_name='customer')
     op.drop_index(op.f('ix_customer_email'), table_name='customer')
