@@ -199,22 +199,25 @@ def edit_portalinfo():
 
             if configuracion.ventana_cambios != ventana_cambios:
                 configuracion.ventana_cambios = ventana_cambios
-                status = actualiza_empresa_JSON(empresa, 'ventana_cambio', ventana_cambios, 'politica')
-                flash('status {} - {}'.format(status, ventana_cambios))
+                status = actualiza_empresa_JSON(empresa, 'ventana_cambio', int(ventana_cambios), 'politica')
 
             if configuracion.ventana_devolucion != ventana_devolucion:
                 configuracion.ventana_devolucion = ventana_devolucion
-                actualiza_empresa_JSON(empresa, 'ventana_devolucion', ventana_devolucion, 'politica')
+                actualiza_empresa_JSON(empresa, 'ventana_devolucion', int(ventana_devolucion), 'politica')
 
             if cambio_otra_cosa == 'on':
                 configuracion.cambio_otra_cosa = True
+                actualiza_empresa_JSON(empresa, 'otracosa', 'Si', 'otros')
             else:
                 configuracion.cambio_otra_cosa = False
+                actualiza_empresa_JSON(empresa, 'otracosa', 'No', 'otros')
 
             if cambio_cupon == 'on':
                 configuracion.cambio_cupon = True
+                actualiza_empresa_JSON(empresa, 'cupon', 'Si', 'otros')
             else:
                 configuracion.cambio_cupon = False
+                actualiza_empresa_JSON(empresa, 'cupon', 'No', 'otros')
             
             db.session.commit()
 
