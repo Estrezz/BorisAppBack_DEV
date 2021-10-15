@@ -172,13 +172,41 @@
                       <div class="card">
                         <div class="card-body">
                           <div class = "text-info"> 
-                            <h5> Empresa de Correo</h5>
+                            <h5> Empresa de Correo
+                            <small class="text-muted">&nbsp;(Utilizar solo para empresas de correo integradas con BORIS)</small></h5>
                           </div>
                           <small>
                           <div class="form-group">
                             <label for="correo_usado">Empresa de Correo utilizada</label>
                             <input type="text" class="form-control form-control-sm" name="correo_usado" id="correo_usado" value="{{ empresa.correo_usado or ''}}" placeholder="Empresa utilizada para envíos">
                           </div>
+                          <fieldset class="form-group">
+                            <div class="row">
+                              <legend class="col-form-label col-sm-2 pt-0">Costo del envío</legend>
+                              <div class="col-sm-10">
+                                <div class="form-check">
+                                  {% if (empresa.correo_cost == 'customer') or (empresa.correo_cost == None) %}
+                                    <input class="form-check-input" type="radio" name="shipping" id="shipping_customer" value="customer" checked>
+                                  {% else %}
+                                    <input class="form-check-input" type="radio" name="shipping" id="shipping_customer" value="customer">
+                                  {% endif %}
+                                  <label class="form-check-label" for="shipping_customer">
+                                    A cargo del Cliente 
+                                  </label>
+                                </div>
+                                <div class="form-check">
+                                  {% if empresa.correo_cost == 'company' %}
+                                    <input class="form-check-input" type="radio" name="shipping" id="shipping_company" value="company" checked>
+                                  {% else %}
+                                    <input class="form-check-input" type="radio" name="shipping" id="shipping_company" value="company">
+                                  {% endif %}
+                                  <label class="form-check-label" for="shipping_company">
+                                    A cargo del Merchant
+                                  </label>
+                                </div> 
+                              </div>
+                            </div>
+                          </fieldset>
                           <div class="form-group row">
                             <div class="form-check col-md-8">
                               {% if empresa.correo_test == true %}
@@ -274,13 +302,13 @@
                             <input type="text" class="form-control form-control-sm" name="param_fondo" id="param_fondo" value="{{ empresa.param_fondo or '' }}" placeholder="Imagen para el fondo">
                           </div>
                           <hr> 
-                          <div class = "text-info "> 
+                          <div class = "text-info mt-2"> 
                             <h5>Política de Cambios y Devoluciones</h5>
                           </div>
                           <div class="form-row">
                             <div class="form-group col-md-6">
                               <label for="ventana_cambios">Dias para realizar cambios</label> 
-                              <input type="text" class="form-control form-control-sm" name="ventana_cambios" id="ventana_cambios" value="{{ configuracion.ventana_cambios }}">
+                              <input type="integer" class="form-control form-control-sm" name="ventana_cambios" id="ventana_cambios" value="{{ configuracion.ventana_cambios }}">
                             </div>
                             <div class="form-group col-md-6">
                               <label for="ventana_devolucion">Dias para realizar Devoluciones</label> 
@@ -289,7 +317,7 @@
                             <br> 
                           </div>
                           <hr>
-                          <div class = "text-info"> 
+                          <div class = "text-info mt-2"> 
                             <h5>Opciones para cambios</h5>
                           </div>
                           <div class="form-group row">
@@ -314,6 +342,24 @@
                               </label>
                             </div>
                           </div>
+                          <hr> 
+                          <div class = "text-info mt-2"> 
+                            <h5>Textos</h5>
+                          </div>
+                         
+                            <div class="form-group ">
+                              <label for="cambio_opcion">Accion cambios</label> 
+                              <input type="text" class="form-control form-control-sm" name="cambio_opcion" id="cambio_opcion" value="{{ configuracion.cambio_opcion or ''}}">
+                            </div>
+                            <div class="form-group ">
+                              <label for="cambio_opcion_cupon">Cambio por cupon</label> 
+                              <input type="text" class="form-control form-control-sm" name="cambio_opcion_cupon" id="cambio_opcion_cupon" value="{{ configuracion.cambio_opcion_cupon or ''}}">
+                            </div>
+                            <div class="form-group ">
+                              <label for="cambio_opcion_otra_cosa">Cambio por otra producto</label> 
+                              <input type="text" class="form-control form-control-sm" name="cambio_opcion_otra_cosa" id="cambio_opcion_otra_cosa" value="{{ configuracion.cambio_opcion_otra_cosa or ''}}">
+                            </div>
+                          
                           </small>
                           <br>
                           <button name="boton" type="submit" class="btn btn-primary mt-2" value="guardar"> Guardar Cambios </button>
@@ -354,6 +400,7 @@
                                 <select class="custom-select custom-select-sm" name="tipo_nuevo_motivo" id="tipo_nuevo_motivo" >
                                   <option selected disabled>Tipo</option>                  
                                   <option value="Talle">Talle</option>
+                                  <option value="Calce">Color</option>
                                   <option value="Calce">Calce</option>
                                   <option value="Calidad">Calidad</option>
                                   <option value="Expectativa">Expectativa</option>
@@ -395,6 +442,12 @@
                                       <option selected value="Talle">Talle</option>
                                     {% else %}
                                       <option value="Talle">Talle</option>
+                                    {% endif %}
+
+                                    {% if m.tipo_motivo == 'Color' %}
+                                      <option selected value="Color">Color</option>
+                                    {% else %}
+                                      <option value="Color">Color</option>
                                     {% endif %}
 
                                     {% if m.tipo_motivo == 'Calce' %}

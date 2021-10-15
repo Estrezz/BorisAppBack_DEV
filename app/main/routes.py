@@ -87,7 +87,8 @@ def edit_storeinfo():
         accion = request.form.get('boton')
 
         if accion == "cancelar":
-            return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, motivos=motivos, pestaña='tienda', empresa_name=session['current_empresa'])
+            #return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, motivos=motivos, pestaña='tienda', empresa_name=session['current_empresa'])
+            return redirect(url_for('main.company', empresa_id=current_user.store ))
             
         if accion == "guardar":
             store_name =  request.form.get('store_name')
@@ -134,7 +135,7 @@ def edit_carrierinfo():
         accion = request.form.get('boton')
 
         if accion == "cancelar":
-            return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, motivos=motivos, pestaña='tienda', empresa_name=session['current_empresa'])
+            return redirect(url_for('main.company', empresa_id=current_user.store ))
             
         if accion == "guardar":
             correo_usado =  request.form.get('correo_usado')
@@ -147,6 +148,8 @@ def edit_carrierinfo():
             shipping_country = request.form.get('shipping_country')
             shipping_info = request.form.get('shipping_info')
             correo_test = request.form.get('correo_test')
+            correo_cost = request.form.get('shipping')
+
             empresa.correo_usado = correo_usado
             empresa.shipping_address = shipping_address
             empresa.shipping_number = shipping_number
@@ -160,6 +163,11 @@ def edit_carrierinfo():
             empresa.shipping_province = shipping_province
             empresa.shipping_country = shipping_country
             empresa.shipping_info = shipping_info
+
+            if empresa.correo_cost != correo_cost:
+                empresa.correo_cost = correo_cost
+                actualiza_empresa_JSON(empresa, 'shipping', correo_cost, 'otros')
+
             db.session.commit()
 
             status = actualiza_empresa(empresa)
@@ -167,7 +175,7 @@ def edit_carrierinfo():
                 flash('Los datos se actualizaron correctamente')
             else:
                 flash('Se produjo un error {}'. format(status))
-
+            
     return render_template('company.html', empresa=empresa, configuracion=configuracion,  envios=envios, motivos=motivos, pestaña='carrier', empresa_name=session['current_empresa'])
 
 
@@ -184,7 +192,7 @@ def edit_portalinfo():
         accion = request.form.get('boton')
 
         if accion == "cancelar":
-            return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, motivos=motivos, pestaña='tienda', empresa_name=session['current_empresa'])
+            return redirect(url_for('main.company', empresa_id=current_user.store ))
             
         if accion == "guardar":
             param_logo = request.form.get('param_logo')
@@ -193,6 +201,10 @@ def edit_portalinfo():
             ventana_devolucion = request.form.get('ventana_devolucion')
             cambio_otra_cosa = request.form.get('cambio_otra_cosa')
             cambio_cupon = request.form.get('cambio_cupon')
+            cambio_opcion_otra_cosa = request.form.get('cambio_opcion_otra_cosa')
+            cambio_opcion_cupon = request.form.get('cambio_opcion_cupon')
+            cambio_opcion = request.form.get('cambio_opcion')
+            
 
             empresa.param_logo = param_logo
             empresa.param_fondo = param_fondo
@@ -219,6 +231,18 @@ def edit_portalinfo():
                 configuracion.cambio_cupon = False
                 actualiza_empresa_JSON(empresa, 'cupon', 'No', 'otros')
             
+            if configuracion.cambio_opcion != cambio_opcion :
+                configuracion.cambio_opcion = cambio_opcion
+                actualiza_empresa_JSON(empresa, 'elegir_opcion_cambio', cambio_opcion, 'textos')
+            
+            if configuracion.cambio_opcion_cupon != cambio_opcion_cupon :
+                configuracion.cambio_opcion_cupon = cambio_opcion_cupon
+                actualiza_empresa_JSON(empresa, 'elegir_opcion_cambio_cupon', cambio_opcion_cupon, 'textos')
+
+            if configuracion.cambio_opcion_otra_cosa != cambio_opcion_otra_cosa :
+                configuracion.cambio_opcion_otra_cosa = cambio_opcion_otra_cosa
+                actualiza_empresa_JSON(empresa, 'elegir_opcion_cambio_otra_cosa', cambio_opcion_otra_cosa, 'textos')
+
             db.session.commit()
 
             status = actualiza_empresa(empresa)
@@ -261,6 +285,14 @@ def add_motivo():
     db.session.add(unMotivo)
     db.session.commit()
 
+    ###### actualiza el JSON del Front
+    empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
+    motivos_tmp = CONF_motivos.query.filter_by(store=current_user.store).all()
+    motivos=[]
+    for m in motivos_tmp:
+        motivos.append(m.motivo)
+        actualiza_empresa_JSON(empresa, 'motivos', motivos, 'otros')
+    
     return redirect(url_for('main.edit_motivosinfo'))
 
 
@@ -282,6 +314,14 @@ def editar_motivo(id):
 
         db.session.commit()
 
+        ###### actualiza el JSON del Front
+        empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
+        motivos_tmp = CONF_motivos.query.filter_by(store=current_user.store).all()
+        motivos=[]
+        for m in motivos_tmp:
+            motivos.append(m.motivo)
+            actualiza_empresa_JSON(empresa, 'motivos', motivos, 'otros')
+
     return redirect(url_for('main.edit_motivosinfo'))
 
 
@@ -298,7 +338,7 @@ def edit_enviosinfo():
         accion = request.form.get('boton')
 
         if accion == "cancelar":
-            return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, motivos=motivos, pestaña='tienda', empresa_name=session['current_empresa'])
+            return redirect(url_for('main.company', empresa_id=current_user.store ))
             
         if accion == "guardar":
             metodos = []
@@ -346,7 +386,7 @@ def edit_mailsportalinfo():
         accion = request.form.get('boton')
 
         if accion == "cancelar":
-            return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, motivos=motivos, pestaña='tienda', empresa_name=session['current_empresa'])
+            return redirect(url_for('main.company', empresa_id=current_user.store ))
             
         if accion == "guardar":
             confirma_manual_note = request.form.get('confirma_manual_note')
@@ -383,7 +423,7 @@ def edit_mailsbackinfo():
         accion = request.form.get('boton')
 
         if accion == "cancelar":
-            return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, motivos=motivos, pestaña='tienda', empresa_name=session['current_empresa'])
+            return redirect(url_for('main.company', empresa_id=current_user.store ))
             
         if accion == "guardar":
             communication_email = request.form.get('communication_email')

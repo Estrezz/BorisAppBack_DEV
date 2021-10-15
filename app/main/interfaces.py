@@ -357,8 +357,12 @@ def actualiza_empresa(empresa):
         return 'Success'
 
 
-######################################################################################################
-####################### Actualiza el JSON de configuracion del FRONT #################################
+####################################################################################################
+#  Actualiza el JSON de configuracion del FRONT                                                    #
+#  EL valor de Key depende de la clave que quiera actualizarse. Puede ser:                         #
+#  textos / politica / provincia_codigos_postales u otros () para los que                          #
+#  tienen un solo nivel de clave                                                                   #
+####################################################################################################
 def actualiza_empresa_JSON(empresa, clave, valor,key):
     if current_app.config['SERVER_ROLE'] == 'DEV':
         url="https://front.borisreturns.com/empresa_json?clave="+clave+"&key="+key
