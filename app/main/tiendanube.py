@@ -3,6 +3,7 @@ import json
 import os
 import shutil
 import re
+from datetime import datetime
 from app import db
 from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log
 from flask_login import current_user
@@ -126,58 +127,6 @@ def generar_envio_tiendanube(orden, lineas, unCliente, unaEmpresa):
     return 'Success'
 
 
-#def generar_envio_tiendanube(orden, linea, unCliente, unaEmpresa):
-#    url = "https://api.tiendanube.com/v1/"+str(current_user.store)+"/orders/"
-#    payload={}
-#    headers = {
-#        'Content-Type': 'application/json',
-#        'Authentication': unaEmpresa.platform_token_type+' '+unaEmpresa.platform_access_token
-#    }
-#        
-#    orden_tmp = { 
-#        "status": "open",
-#        "gateway": "offline",
-#        "payment_status": "paid",
-#        "products": [
-#            {
-#                "variant_id": linea.accion_cambiar_por,
-#                "quantity": linea.accion_cantidad,
-#                "price": 0
-#            }
-#        ],
-#        "inventory_behaviour" : "claim",
-#        "customer": {
-#            "email": unCliente.email,
-#            "name": unCliente.name,
-#            "phone": unCliente.phone
-#        },
-#        "note": 'Cambio realizado mediante Boris',
-#        "shipping_address": {
-#            "first_name": unCliente.name,
-#            "address": orden.customer_address,
-#            "number": orden.customer_number,
-#            "floor": orden.customer_floor,
-#            "locality": orden.customer_locality,
-#            "city": orden.customer_city,
-#            "province": orden.customer_province,
-#            "zipcode": orden.customer_zipcode,
-#            "country": orden.customer_country,
-#            "phone": unCliente.phone
-#        },
-#        "shipping_pickup_type": "ship",
-#        "shipping": "not-provided",
-#        "shipping_option": "No informado",
-#        "send_confirmation_email" : False,
-#        "send_fulfillment_email" : False
-#        }
-#
-#    order = requests.request("POST", url, headers=headers, data=json.dumps(orden_tmp))
-#    if order.status_code != 201:
-#        flash('Hubo un problema en la generación de la Orden. Error {}'.format(order.status_code))  
-#        return 'Failed'
-#    return 'Success'
-
-
 def autorizar_tiendanube(codigo):
     url = "https://www.tiendanube.com/apps/authorize/token"
     data = {
@@ -199,9 +148,17 @@ def autorizar_tiendanube(codigo):
             unaEmpresa = Company.query.filter_by(store_id=store).first()
             unaEmpresa.platform_token_type = respuesta['token_type']
             unaEmpresa.platform_access_token = respuesta['access_token']
+            unaEmpresa.start_date = datetime.utcnow(),
+            inicializa_tiendanube(unaEmpresa, 'existente')
             
         else: 
             empresa = traer_datos_tiendanube(store, respuesta['token_type'],respuesta['access_token'] )
+            if empresa['type']:
+                tipo_empresa = empresa['type']
+            else: 
+                tipo_empresa = 'desconocido'
+
+            #### carga los datos de la Empresa ######################################
             unaEmpresa = Company(
                 store_id = store,
                 platform = 'tiendanube',
@@ -222,11 +179,15 @@ def autorizar_tiendanube(codigo):
                 shipping_country = 'ARG',
                 communication_email = 'info@borisreturns.com',
                 correo_usado = 'Ninguno',
+                correo_cost = 'customer',
+                start_date = datetime.utcnow(),
+                demo_store = 0,
+                rubro_tienda = tipo_empresa,
                 correo_test = True
             )
             db.session.add(unaEmpresa)
-            inicializa_tiendanube(unaEmpresa)
-            
+            inicializa_tiendanube(unaEmpresa, 'nueva')
+
         db.session.commit()
         return unaEmpresa
     return 'Failed'
@@ -242,8 +203,11 @@ def traer_datos_tiendanube(store, token_type, access_token):
     empresa = requests.request("GET", url, headers=headers, data=payload).json()
     return empresa
 
-
-def inicializa_tiendanube(empresa) :
+###################################################################################################3
+# Iniciliaza una tienda cargando los scripts
+# Si es una nueva tienda (tipo = 'nueva'  - crea el usuario en el Backoffica
+###################################################################################################3
+def inicializa_tiendanube(empresa, tipo) :
     ### Carga scripts en la tienda
     url = "https://api.tiendanube.com/v1/"+str(empresa.store_id)+"/scripts"
     payload={}
@@ -279,16 +243,16 @@ def inicializa_tiendanube(empresa) :
 
 
     ### Crea usuario para Backoffice
-    nombre = re.sub('[\s+]', '', empresa.store_name[0:8].strip())
-    unUsuario = User(
-        #username=empresa.store_name[0:8],
-        username=nombre, 
-        email=empresa.admin_email, 
-        store=empresa.store_id
-        )
-    unUsuario.set_password(nombre)
-    db.session.add(unUsuario)
-    db.session.commit()
+    if tipo == 'nueva':
+        nombre = re.sub('[\s+]', '', empresa.store_name[0:8].strip())
+        unUsuario = User(
+            username=nombre, 
+            email=empresa.admin_email, 
+            store=empresa.store_id
+            )
+        unUsuario.set_password(nombre)
+        db.session.add(unUsuario)
+        db.session.commit()
     return 'Success'
 
 
@@ -325,3 +289,7 @@ def buscar_codigo_categoria_tiendanube(empresa):
     for x  in categorias_tmp:
         categorias[x['id']]=(x['name']['es'])
     return categorias
+
+
+
+               

@@ -3,7 +3,7 @@ import json
 import string
 import random
 from app import db
-from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log, categories_filter
+from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log, categories_filter, CONF_motivos
 from app.main.moova import toready_moova
 from app.main.tiendanube import buscar_producto_tiendanube,  genera_credito_tiendanube, devolver_stock_tiendanube
 from app.email import send_email
@@ -525,3 +525,71 @@ def finalizar_orden(orden_id):
             attachments=None, 
             sync=False)
     return 'Success'
+
+
+### Inicializa las basea de configuraciones para generar el JSON ################
+def incializa_configuracion(unaEmpresa):
+    if Company.query.filter_by(store_id=unaEmpresa.store_id).first():
+        return 'Ya existe'
+    else: 
+        inicializa_motivos(unaEmpresa.store_id)
+
+### Inicializa la base de motivos #############################################
+def inicializa_motivos(unaEmpresa):
+    store_id = unaEmpresa.store_id
+
+    motivoUno = CONF_motivos(
+                store = store_id,
+                id_motivo = 1,
+                motivo = 'No calza bien',
+                tipo_motivo = 'Calce'
+    )
+    db.session.add(motivoUno)
+
+    motivoDos = CONF_motivos(
+                store = store_id,
+                id_motivo = 2,
+                motivo = 'Es grande',
+                tipo_motivo = 'Talle'
+    )
+    db.session.add(motivoDos)
+
+    motivoTres = CONF_motivos(
+                store = store_id,
+                id_motivo = 3,
+                motivo = 'Es chico',
+                tipo_motivo = 'Talle'
+    )
+    db.session.add(motivoTres)
+
+    motivoCuatro = CONF_motivos(
+                store = store_id,
+                id_motivo = 4,
+                motivo = 'Mala calidad',
+                tipo_motivo = 'Calidad'
+    )
+    db.session.add(motivoCuatro)
+
+    motivoCinco = CONF_motivos(
+                store = store_id,
+                id_motivo = 5,
+                motivo = 'No gusta color',
+                tipo_motivo = 'Color'
+    )
+    db.session.add(motivoCinco)
+
+    motivoSeis = CONF_motivos(
+                store = store_id,
+                id_motivo = 6,
+                motivo = 'No es lo que esperaba',
+                tipo_motivo = 'Expectativa'
+    )
+    db.session.add(motivoSeis)
+
+    db.session.commit()
+
+    motivos_tmp = CONF_motivos.query.filter_by(store=store_id).all()
+    motivos=[]
+    for m in motivos_tmp:
+        motivos.append(m.motivo)
+        actualiza_empresa_JSON(unaEmpresa, 'motivos', motivos, 'otros')

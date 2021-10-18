@@ -55,7 +55,7 @@ class Company(db.Model):
     confirma_manual_note = db.Column(db.String(350))
     confirma_coordinar_note = db.Column(db.String(350))
     confirma_moova_note = db.Column(db.String(350))
-    start_date = db.Column(db.DateTime)
+    start_date = db.Column(db.DateTime, default=datetime.utcnow)
     demo_store = db.Column(db.Boolean)
     rubro_tienda = db.Column(db.String(64))
     users = db.relationship('User', backref='empleado', lazy='dynamic')
