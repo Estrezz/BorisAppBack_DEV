@@ -56,6 +56,8 @@ class Company(db.Model):
     confirma_coordinar_note = db.Column(db.String(350))
     confirma_moova_note = db.Column(db.String(350))
     start_date = db.Column(db.DateTime)
+    demo_store = db.Column(db.Boolean)
+    rubro_tienda = db.Column(db.String(64))
     users = db.relationship('User', backref='empleado', lazy='dynamic')
     categories_filter = db.relationship('categories_filter', backref='filtroCategorias', lazy='dynamic')
     orders = db.relationship('Order_header', backref='pertenece', lazy='dynamic')
