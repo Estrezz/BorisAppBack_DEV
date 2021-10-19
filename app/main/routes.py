@@ -67,7 +67,11 @@ def edit_profile():
 @login_required
 def company(empresa_id):
     empresa = Company.query.filter_by(store_id=empresa_id).first_or_404()
-    configuracion = CONF_boris.query.filter_by(store=empresa_id).first_or_404()
+    if CONF_boris.query.filter_by(store=empresa_id).first():
+        configuracion = CONF_boris.query.filter_by(store=empresa_id).first_or_404()
+    else: 
+        (flash('No se encuentran los datos de Configuracion - ponerse en contacto con soporte@borisreturns.com'))
+        return redirect(url_for('main.ver_ordenes', estado='all', subestado='all'))
     envios = CONF_envios.query.filter_by(store=current_user.store).all()
     motivos = CONF_motivos.query.filter_by(store=current_user.store).all()
 
@@ -764,14 +768,6 @@ def historia_orden(orden_id):
     return render_template('historia_orden.html', orden=orden, historia=historia, lineas=lineas, customer=orden.buyer, empresa=empresa, empresa_name=session['current_empresa'])
 
 
-### BORRAR ####
-# @bp.route('/producto/historia/<linea_id>', methods=['GET', 'POST'])
-# @login_required
-# def historia_producto(linea_id):
-#    linea = Order_detail.query.get(str(linea_id))
-#    return render_template('historia_producto.html', linea=linea, empresa_name=session['current_empresa'])
-
-
 @bp.route('/webhook', methods=['POST'])
 def webhook():
     if request.method == 'POST':
@@ -795,16 +791,58 @@ def webhook():
         db.session.commit()
         return '', 200
     else:
-        abort(400)
+        #abort(400)
+        return "Error al actualizar estado del pedido", 400
 
 
 @bp.route('/pedidos', methods=['POST'])
 def recibir_pedidos():
     if request.method == 'POST':
         pedido = request.json
-        nuevo_pedido = crear_pedido(pedido)
+        
+        ############# controlar si ya exste transaccion ###########################
+        if Order_header.query.filter_by(order_number=pedido['orden_nro']).first():
+            orden = Order_header.query.filter_by(order_number=pedido['orden_nro']).first()
+            lineas = Order_detail.query.filter_by(order=orden.id).all()
+            
+            ### comprueba cantidad de articulos ###
+            if len(lineas) == len(pedido['producto']):
+                cantidad = 'misma'
+            else: 
+                cantidad = 'diferente'
+            
+            #### compruebo si son iguales ##########
+            iguales = 'Si'
+            accion = 'igual'
+            for l in lineas:
+                #if not any(d['id'] == l.prod_id for d in pedido['producto']):
+                for p in pedido['producto']:
+                    if l.prod_id == p['id']:
+                        if l.accion == p['accion']:
+                            continue
+                        else:
+                            accion = 'distinta'
+                            break
+                    else:
+                        iguales = 'No'
+                        break
+            print('cantidad ', cantidad, 'iguales ', iguales, 'accion ', accion)
+            if (cantidad == 'misma' and iguales == 'Si' and accion == 'igual'):
+                return "Solicitud duplicada", 409
+            if (cantidad == 'misma' and iguales == 'Si' and accion == 'distinta'):
+                return "Cambio de accion", 409
+            if (cantidad == 'misma' and iguales == 'No'):
+                return "Cambio de producto", 409
+            if cantidad == 'diferente':
+                return "Agrega / quita artículos", 409
+            return str('cantidad '+ cantidad + 'iguales '+ iguales + 'accion ' + accion), 409
 
+
+
+
+        nuevo_pedido = crear_pedido(pedido)
         usuario = User.query.filter_by(username = 'Webhook').first()
+
         unaTransaccion = Transaction_log(
             sub_status = traducir_estado(pedido['correo']['correo_status'])[0],
             status_client = traducir_estado(pedido['correo']['correo_status'])[2],
@@ -816,7 +854,8 @@ def recibir_pedidos():
         db.session.commit()
         return '', 200
     else:
-        abort(400)
+        #abort(400)
+        return "Error al cargar la solicitud", 400
 
 
 @bp.route('/autorizar/<plataforma>', methods=['GET', 'POST'])
@@ -836,7 +875,7 @@ def autorizar(plataforma):
         actualizado = actualiza_empresa(autorizacion)
 
         if actualizado != 'Failed':
-            ##### inicializa bases para generacion del JSON ##############################3
+            ##### inicializa las bases con los datos por default del JSON del Front ##############################3
             incializa_configuracion(autorizacion)
 
             send_email('Bienvenido a BORIS!', 
@@ -872,62 +911,7 @@ def tracking_orden():
 
 
 
-#### Se escribe nueva version para gestion de lineas en conjunto ###################
-#@bp.route('/devolver', methods=['GET', 'POST'])
-#@login_required
-#def devolver():
-#    prod_id = request.args.get('prod_id')
-#    variant = request.args.get('variant')
-#    cantidad = request.args.get('cantidad')
-#    orden_id = request.args.get('orden_id')
-#    order_line_number = request.args.get('order_line')
-#    accion = request.args.get('accion')
-#    accion_stock = request.form['stockradio']
-#    linea = Order_detail.query.get(str(order_line_number))
-#    orden = Order_header.query.get(orden_id)
-#
-#    if request.form.get('monto') != None :
-#        monto_devuelto = request.form.get('monto')
-#    else:
-#        monto_devuelto = 0
-#    
-#    if accion_stock != 'no_vuelve':
-#        empresa = Company.query.get(current_user.store)
-#        if empresa.stock_vuelve_config == True:
-#            if empresa.platform == 'tiendanube':
-#                #devolucion = devolver_stock_tiendanube(empresa, prod_id, variant, cantidad)
-#                #if devolucion == 'Failed':
-#
-#                return redirect(url_for('main.orden', orden_id=orden_id))
-#        else: 
-#            ## Si la configuracion de stock_vuelve_config es False (el stock no se devuelve fisicamente)
-#            ## Envía mail al administrador de la empresa avisando para que lo devuelva por sistema
-#            send_email('Se ha devuelto un artículo en BORIS ', 
-#                sender=empresa.communication_email,
-#                recipients=[empresa.admin_email], 
-#                text_body=render_template('email/articulo_devuelto.txt',
-#                                         order=orden, linea=linea),
-#                html_body=render_template('email/articulo_devuelto.html',
-#                                         order=orden, linea=linea), 
-#                attachments=None, 
-#                sync=False)
-#        
-#    # linea = Order_detail.query.get(str(order_line_number))
-#    linea.monto_devuelto = monto_devuelto
-#    linea.restock = accion_stock
-#    linea.fecha_gestionado = datetime.utcnow()
-#    loguear_transaccion('DEVUELTO',str(linea.name)+' '+accion_stock, orden_id, current_user.id, current_user.username)
-#    if accion == 'devolver':
-#        linea.gestionado = 'Si'
-#        db.session.commit()
-#    if accion == 'cambiar':
-#        if linea.gestionado == 'Cambiado':
-#            linea.gestionado = 'Si'
-#        else: 
-#            linea.gestionado = traducir_estado('DEVUELTO')[1]
-#        db.session.commit()
-#    finalizar_orden(orden_id)
-#    return redirect(url_for('main.orden', orden_id=orden_id))
+
 
 #### Se escribe nueva version para gestiona orden complata BORRAR ####
 @bp.route('/cambiar', methods=['GET', 'POST'])

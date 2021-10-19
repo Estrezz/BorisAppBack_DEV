@@ -3,7 +3,7 @@ import json
 import string
 import random
 from app import db
-from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log, categories_filter, CONF_motivos
+from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log, categories_filter, CONF_motivos, CONF_boris, CONF_envios
 from app.main.moova import toready_moova
 from app.main.tiendanube import buscar_producto_tiendanube,  genera_credito_tiendanube, devolver_stock_tiendanube
 from app.email import send_email
@@ -532,9 +532,15 @@ def incializa_configuracion(unaEmpresa):
     if Company.query.filter_by(store_id=unaEmpresa.store_id).first():
         return 'Ya existe'
     else: 
-        inicializa_motivos(unaEmpresa.store_id)
+        inicializa_motivos(unaEmpresa)
+        inicializa_parametros(unaEmpresa)
+        inicializa_envios(unaEmpresa)
 
-### Inicializa la base de motivos #############################################
+
+###########################################################################################
+# Inicializa la base de motivos con los motivos por default
+# PARA MODIFICAR EL DEFAULT HAY QUE MODIFICAR TAMBIEN EL JSON QUE SE GENERA EN EL FRONT
+# #########################################################################################
 def inicializa_motivos(unaEmpresa):
     store_id = unaEmpresa.store_id
 
@@ -588,8 +594,48 @@ def inicializa_motivos(unaEmpresa):
 
     db.session.commit()
 
-    motivos_tmp = CONF_motivos.query.filter_by(store=store_id).all()
-    motivos=[]
-    for m in motivos_tmp:
-        motivos.append(m.motivo)
-        actualiza_empresa_JSON(unaEmpresa, 'motivos', motivos, 'otros')
+
+def inicializa_parametros(unaEmpresa):
+    unParametro = CONF_boris(
+                store = unaEmpresa.store_id,
+                ventana_cambios = 30,
+                ventana_devolucion = 30,
+                cambio_otra_cosa = 1,
+                cambio_cupon = 0,
+                cambio_opcion = 'Seleccioná si queres cambiarlo por una variante del mismo articulo o elegí otro producto',
+                cambio_opcion_cupon = 'Seleccioná esta opción para obtener un cupón de crédito en nuestra tienda',
+                cambio_opcion_otra_cosa = 'Elegí en nuestra tienda el artículo que querés, ingresa el nombre y presion buscar'
+        )
+    db.session.add(unParametro)
+    db.session.commit()
+
+
+def inicializa_envios(unaEmpresa):
+    manual = CONF_envios(
+        store = unaEmpresa.store_id,
+        metodo_envio = 'manual',
+        habilitado = 1,
+        titulo_boton = 'Traer la orden a nuestro local',
+        descripcion_boton = 'Acercanos el/los productos a nuestros locales/depósito'
+    )
+    db.session.add(manual)
+
+    coordinar = CONF_envios(
+        store = unaEmpresa.store_id,
+        metodo_envio = 'coordinar',
+        habilitado = 1,
+        titulo_boton = 'Coordinar método de retiro',
+        descripcion_boton = 'Coordiná con nosotros el método de envío que te quede mas cómodo'
+    )
+    db.session.add(coordinar)
+
+    retiro = CONF_envios(
+        store = unaEmpresa.store_id,
+        metodo_envio = 'retiro',
+        habilitado = 0,
+        titulo_boton = 'Retirar en tu domicilio',
+        descripcion_boton = 'Un servicio de correo pasara a buscar los productos por tu domicilio'
+    )
+    db.session.add(retiro)
+
+    db.session.commit()
