@@ -811,11 +811,10 @@ def recibir_pedidos():
             else: 
                 cantidad = 'diferente'
             
-            #### compruebo si son iguales ##########
+            #### compruebo si son iguales (prodcutos / acciones ##########
             iguales = 'Si'
             accion = 'igual'
             for l in lineas:
-                #if not any(d['id'] == l.prod_id for d in pedido['producto']):
                 for p in pedido['producto']:
                     if l.prod_id == p['id']:
                         if l.accion == p['accion']:
@@ -826,7 +825,6 @@ def recibir_pedidos():
                     else:
                         iguales = 'No'
                         break
-            print('cantidad ', cantidad, 'iguales ', iguales, 'accion ', accion)
             if (cantidad == 'misma' and iguales == 'Si' and accion == 'igual'):
                 return "Solicitud duplicada", 409
             if (cantidad == 'misma' and iguales == 'Si' and accion == 'distinta'):
@@ -836,9 +834,6 @@ def recibir_pedidos():
             if cantidad == 'diferente':
                 return "Agrega / quita artículos", 409
             return str('cantidad '+ cantidad + 'iguales '+ iguales + 'accion ' + accion), 409
-
-
-
 
         nuevo_pedido = crear_pedido(pedido)
         usuario = User.query.filter_by(username = 'Webhook').first()
