@@ -42,7 +42,7 @@ with app.app_context():
                         cambio_otracosa_tmp = 1
                     else: 
                         cambio_otracosa_tmp = 0
-                    cambio_opcion_otracosa_tmp = table['textos']['otracosa']
+                    cambio_opcion_otracosa_tmp = table['textos']['elegir_opcion_otra_cosa']
                 else: 
                     cambio_otracosa_tmp = 0
                     cambio_opcion_otracosa_tmp = 'Elegí en nuestra tienda el artículo que querés, ingresa el nombre y presion buscar'
