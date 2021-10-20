@@ -19,7 +19,12 @@ with app.app_context():
         if CONF_boris.query.filter_by(store=x.store_id).first():
             print ('Finalizado '+str(x.store_id)+' '+x.store_name+' - Ya tenia CONFIG')   
         else :
-            with open('logs/tmp/'+str(x.store_id)+'.json', 'r') as f:
+            if x.store_id == '138327':
+                file = 'Abundancia.JSON'
+            else:
+                file = str(x.store_id)+'.json'
+                
+            with open('logs/tmp/'+file, 'r') as f:
                 table = json.loads(f.read())
 
                 ##### Otros #########
