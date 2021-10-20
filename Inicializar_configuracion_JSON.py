@@ -12,7 +12,7 @@ with app.app_context():
     companies = Company.query.all()
    
     for x in companies:
-        if x.store_id == 1:
+        if x.store_id == '1':
             continue
         print ('Comenzando '+str(x.store_id)+' '+x.store_name)
 
