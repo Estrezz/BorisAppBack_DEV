@@ -21,8 +21,14 @@ with app.app_context():
         else :
             if x.store_id == '138327':
                 file = 'Abundancia.JSON'
-            else:
-                file = str(x.store_id)+'.json'
+            else :
+                if x.store_id == '1447373':
+                    file = 'boris.json'
+                else:
+                    if x.store_id == '1631829':
+                        file = 'Leila.JSON'
+                    else:
+                        file = str(x.store_id)+'.json'
                 
             with open('logs/tmp/'+file, 'r') as f:
                 table = json.loads(f.read())
