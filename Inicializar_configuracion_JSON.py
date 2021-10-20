@@ -12,6 +12,8 @@ with app.app_context():
     companies = Company.query.all()
    
     for x in companies:
+        if x.store_id == 1:
+            continue
         print ('Comenzando '+str(x.store_id)+' '+x.store_name)
 
         if CONF_boris.query.filter_by(store=x.store_id).first():
