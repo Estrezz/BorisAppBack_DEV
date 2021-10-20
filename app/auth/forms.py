@@ -31,13 +31,13 @@ class AltaForm(FlaskForm):
 
 
 class ResetPasswordRequestForm(FlaskForm):
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    submit = SubmitField('Request Password Reset')
+    email = StringField('Mail', validators=[DataRequired(), Email()])
+    submit = SubmitField('Resetear contraseña')
 
 
 class ResetPasswordForm(FlaskForm):
-    password = PasswordField('Password', validators=[DataRequired()])
+    password = PasswordField('Contraseña', validators=[DataRequired()])
     password2 = PasswordField(
-        'Repeat Password', validators=[DataRequired(),
+        'Repetir Contraseña', validators=[DataRequired(),
                                            EqualTo('password')])
-    submit = SubmitField('Request Password Reset')
+    submit = SubmitField('Resetear Contraseña')
