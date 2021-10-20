@@ -563,7 +563,7 @@
                         <!-- Notas --> 
                             <form id="Nota" action="{{ url_for('main.orden', orden_id = orden.id) }}" method="POST"> 
                                 <label for="nota">Notas:</label>
-                                <textarea class="form-control" style="height: 100px" id="nota" name="nota" placeholder="Notas" >{{orden.note}}</textarea>
+                                <textarea class="form-control" style="height: 100px" id="nota" name="nota" placeholder="Notas" >{{orden.note or ''}}</textarea>
                                 <button  class="btn btn-outline-primary btn-sm mt-2 float-right" type="submit"> Añadir Nota </button>
                             </form>
                             
