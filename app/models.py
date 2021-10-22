@@ -240,7 +240,7 @@ class  CONF_envios(db.Model):
     metodo_envio = db.Column(db.String(200), primary_key=True)
     habilitado = db.Column(db.Boolean)
     titulo_boton = db.Column(db.String(100))
-    descripcion_boton = db.Column(db.String(200))
+    descripcion_boton = db.Column(db.String(250))
 
     def __repr__(self):
         return '<Envio {} {} >'.format(self.store, self.metodo_envio, self.habilitado)

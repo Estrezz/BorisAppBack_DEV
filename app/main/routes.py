@@ -369,11 +369,8 @@ def edit_enviosinfo():
             
             db.session.commit()
            
-            status = actualiza_empresa_JSON(empresa, 'envio', metodos, 'otros')
-            flash('status {}'.format(status))
-
-        #### falta actualizar JSON del portal
-
+            actualiza_empresa_JSON(empresa, 'envio', metodos, 'otros')
+            
     return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, motivos=motivos,pestaña='envios', empresa_name=session['current_empresa'])
 
 

@@ -3,9 +3,15 @@
 {% block app_content %}
     <div class='container'>
         <h3>Configurar Perfil</h3>
-        <h4><strong> {{ empresa.store_name }} </strong> <br></h4>
+        <div class='row'>
+          <div class="col-6">
+          <h4><strong> {{ empresa.store_name }} </strong> <br></h4>
+          </div>
+          <div class="col-6">
+          <small class="float-right">Si necesitas ayuda para configurar tu tienda, podés hacer click <a href="http://www.borisreturns.com/faq" target="_blank">acá</a></small>
+          </div>
+        </div>
         <br>
-
         <div class="card overflow-hidden">
           <div class="row no-gutters row-bordered row-border-light">
             <div class="col-md-3 pt-0">
@@ -23,11 +29,7 @@
                   <a class="list-group-item list-group-item-action" data-toggle="list" href="#correo">Datos para Envios</a>
                 {% endif %}
 
-                {% if pestaña == 'mailsback' %}
-                  <a class="list-group-item list-group-item-action active" data-toggle="list" href="#mails_backoffice">Mails Backoffice</a>
-                {% else %}
-                  <a class="list-group-item list-group-item-action" data-toggle="list" href="#mails_backoffice">Mails Backoffice</a>
-                {% endif %}
+               
 
                 {% if pestaña == 'motivos' %}
                   <a class="list-group-item list-group-item-action active" data-toggle="list" href="#motivos">Motivos</a>
@@ -42,15 +44,21 @@
                 {% endif %}
 
                 {% if pestaña == 'envios' %}
-                  <a class="list-group-item list-group-item-action active" data-toggle="list" href="#envios">Metodos de Envío</a>
+                  <a class="list-group-item list-group-item-action active" data-toggle="list" href="#envios">Métodos de Retiro</a>
                 {% else %}
-                <a class="list-group-item list-group-item-action" data-toggle="list" href="#envios">Metodos de Envío</a>
+                <a class="list-group-item list-group-item-action" data-toggle="list" href="#envios">Métodos de Retiro</a>
                 {% endif %}
 
                 {% if pestaña == 'mailsportal' %}
                   <a class="list-group-item list-group-item-action active" data-toggle="list" href="#mails_portal">Mails Portal</a>
                 {% else %}
                 <a class="list-group-item list-group-item-action" data-toggle="list" href="#mails_portal">Mails Portal</a>
+                {% endif %}
+
+                {% if pestaña == 'mailsback' %}
+                  <a class="list-group-item list-group-item-action active" data-toggle="list" href="#mails_backoffice">Mails Backoffice</a>
+                {% else %}
+                  <a class="list-group-item list-group-item-action" data-toggle="list" href="#mails_backoffice">Mails Backoffice</a>
                 {% endif %}
 
               </div>
@@ -296,6 +304,7 @@
                           <div class="form-group">
                             <label for="param_logo">Logo</label>
                             <input type="text" class="form-control form-control-sm" name="param_logo" id="param_logo" value="{{ empresa.param_logo or ''}}" placeholder="Logo">
+                            <small>Si queres cambiar el logo de tu tienda, nos lo tenes que enviar por mail a soporte@borisreturns.com para que podamos publicarlo, luego te enviaremos el link para que pudas modificarlo</small>
                           </div>
                           <div class="form-group">
                             <label for="param_fondo">Imagen fondo</label> <small class="text-muted">(para futuras versiones)</small>
@@ -506,7 +515,7 @@
                   <div class="card-body">
                     <form id="envios_info" action="{{ url_for('main.edit_enviosinfo') }}" method="POST"> 
                       <div class = "page-header text-info font-weight-bold"> 
-                        <h4> Métodos de Envío </h4>
+                        <h4> Métodos de Retiro </h4>
                       </div>
                       <br>
                       {% for e in envios %}
@@ -609,6 +618,8 @@
                               <div class="form-group">
                                 <label for="communication_email">Dirección de mail para las Comunicaciones:</label> 
                                 <input type="email" class="form-control form-control-sm" name="communication_email" id="communication_email" value="{{ empresa.communication_email or ''}}">
+                                <small>Si querés modificar la cuenta desde la que se envían los mails, tenes que escibirnos primero a soporte@borisretruns.com para que podamos autorizarla.
+                                Una vez hecho esto, podes modificarla acá</small>
                               </div>
                               <hr>
                               
