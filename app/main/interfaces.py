@@ -529,7 +529,7 @@ def finalizar_orden(orden_id):
 
 ### Inicializa las basea de configuraciones para generar el JSON ################
 def incializa_configuracion(unaEmpresa):
-    if Company.query.filter_by(store_id=unaEmpresa.store_id).first():
+    if CONF_boris.query.filter_by(store=unaEmpresa.store_id).first():
         return 'Ya existe'
     else: 
         inicializa_motivos(unaEmpresa)
