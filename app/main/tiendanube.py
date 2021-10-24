@@ -237,8 +237,8 @@ def inicializa_tiendanube(empresa, tipo) :
     }
 
     response_1 = requests.request("POST", url, headers=headers, data=json.dumps(script_1))
-    response_2 = requests.request("POST", url, headers=headers, data=json.dumps(script_2))
-    response_3 = requests.request("POST", url, headers=headers, data=json.dumps(script_3))
+    #response_2 = requests.request("POST", url, headers=headers, data=json.dumps(script_2))
+    #response_3 = requests.request("POST", url, headers=headers, data=json.dumps(script_3))
     response_4 = requests.request("POST", url, headers=headers, data=json.dumps(script_4))
 
 
