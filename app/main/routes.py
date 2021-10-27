@@ -902,7 +902,45 @@ def tracking_orden():
         return json.dumps(status_tmp), 200
 
 
+@bp.route('/datos_empresa', methods=['GET', 'POST'])
+def datos_empresa():
+    if request.method == 'GET':
+        store_id = request.args.get('store_id')
+        empresa_tmp = Company.query.filter_by(store_id=store_id).first_or_404()
 
+        unaEmpresa ={
+            "platform" : empresa_tmp.platform,
+            "store_id" : empresa_tmp.store_id,
+            "platform_token_type" : empresa_tmp.platform_token_type,
+            "platform_access_token" : empresa_tmp.platform_access_token,
+            "company_name" : empresa_tmp.store_name,
+            "company_url" : empresa_tmp.store_url,
+            "company_country" : empresa_tmp.store_country,
+            "company_main_language" : empresa_tmp.store_main_language,
+            "company_main_currency" : empresa_tmp.store_main_currency,
+            "admin_email" : empresa_tmp.admin_email,
+            "communication_email" : empresa_tmp.communication_email,
+            "logo" : empresa_tmp.param_logo,
+            "correo_usado" : empresa_tmp.correo_usado,
+            "correo_apikey" : empresa_tmp.correo_apikey,
+            "correo_id" : empresa_tmp.correo_id,
+            "correo_test" : empresa_tmp.correo_test,
+            "correo_apikey_test" : empresa_tmp.correo_apikey_test,
+            "correo_id_test" : empresa_tmp.correo_id_test,
+            "contact_name" : empresa_tmp.contact_name,
+            "contact_email" : empresa_tmp.contact_email,
+            "contact_phone" : empresa_tmp.contact_phone,
+            "shipping_address" : empresa_tmp.shipping_address,
+            "shipping_number" : empresa_tmp.shipping_number,
+            "shipping_floor" : empresa_tmp.shipping_floor,
+            "shipping_zipcode" : empresa_tmp.shipping_zipcode,
+            "shipping_city" : empresa_tmp.shipping_city,
+            "shipping_province" : empresa_tmp.shipping_province,
+            "shipping_country" : empresa_tmp.shipping_country,
+            "shipping_info" : empresa_tmp.shipping_info
+        }
+        
+        return json.dumps(unaEmpresa)
 
 
 #### Se escribe nueva version para gestiona orden complata BORRAR ####
