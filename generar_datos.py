@@ -33,14 +33,14 @@ with app.app_context():
                 if response_tmp.status_code != 200:
                     maspaginas = 0
                 else:
-                    contador += 1
                     response = response_tmp.json()
                     for r in response:
                         row = [
                             x.store_id, r['number'], r['created_at'], r['subtotal'], r['discount'], 
                             r['shipping'], r['customer']['id'], r['shipping_address']['province'], 
                             r['shipping_address']['locality'], r['shipping_address']['zipcode'] ]
-                        print(r['number'], r['created_at'])
                         writer.writerow(row)
+                    print(x.store_id, ('Page')+str(contador))
+                    contador += 1
     f.close()
                     
