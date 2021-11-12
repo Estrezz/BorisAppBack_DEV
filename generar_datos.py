@@ -45,7 +45,7 @@ with app.app_context():
                 else:
                     response = response_tmp.json()
                     for r in response:
-                        if 'customer' in r:
+                        if 'id' in r['customer']:
                              cliente = r['customer']['id']
 
                         row = [
