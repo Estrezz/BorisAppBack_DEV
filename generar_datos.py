@@ -20,7 +20,7 @@ with app.app_context():
     companies = Company.query.all()
     with open('logs/app/datos_ordenes.csv', 'w+', newline='') as f:
         writer = csv.writer(f)
-        header = ['Tienda', 'Nro_orden', 'Fecha_orden', 'Subtotal', 'Descuento', 'Shipping', 'Cliente', 'Provincia', 'Localidad', 'Codigo_Postal']
+        header = ['Tienda', 'Nro_orden', 'Fecha_orden', 'status','Subtotal', 'Descuento', 'Shipping', 'Cliente', 'Provincia', 'Localidad', 'Codigo_Postal']
         writer.writerow(header)
         for x in companies:
             maspaginas = 1
@@ -45,12 +45,15 @@ with app.app_context():
                 else:
                     response = response_tmp.json()
                     for r in response:
+                        if 'customer' in r:
+                             cliente = r['customer']['id']
+
                         row = [
-                            x.store_id, r['number'], r['created_at'], r['subtotal'], r['discount'], 
-                            r['shipping'], r['customer']['id'], r['shipping_address']['province'], 
+                            x.store_id, r['number'], r['created_at'],r['status'], r['subtotal'], r['discount'], 
+                            r['shipping'], cliente, r['shipping_address']['province'], 
                             r['shipping_address']['locality'], r['shipping_address']['zipcode'] ]
                         writer.writerow(row)
                     print(x.store_id, ('Page')+str(contador))
                     contador += 1
     f.close()
-                    
+
