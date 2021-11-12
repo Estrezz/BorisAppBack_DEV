@@ -45,8 +45,10 @@ with app.app_context():
                 else:
                     response = response_tmp.json()
                     for r in response:
-                        if 'id' in r['customer']:
-                             cliente = r['customer']['id']
+                        if r['customer']:
+                            cliente = r['customer']['id']
+                        else: 
+                            cliente = '000'
 
                         row = [
                             x.store_id, r['number'], r['created_at'],r['status'], r['subtotal'], r['discount'], 
