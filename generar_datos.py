@@ -1,12 +1,22 @@
 from app import db, create_app
 import requests
 from app.models import Company
+from datetime import date
 import sys
 import csv
 
 app=create_app()
 with app.app_context():
-    fecha=sys.argv[1]
+    if len(sys.argv) < 2:
+        print('Debe indicar la fecha desde y, si se desea, la fecha hasta Ej: generar_datos.py 2021-10-01 2021-10-29')
+        sys.exit()
+    else:
+        fecha_desde=sys.argv[1]
+    if len(sys.argv) > 2:
+        fecha_hasta=sys.argv[2]
+    else:
+        fecha_hasta = date.today()
+    
     companies = Company.query.all()
     with open('logs/app/datos_ordenes.csv', 'w+', newline='') as f:
         writer = csv.writer(f)
@@ -21,7 +31,7 @@ with app.app_context():
             print ('Comenzando '+str(x.store_id)+' '+x.store_name) 
 
             while maspaginas != 0:   
-                url = "https://api.tiendanube.com/v1/"+str(x.store_id)+"/orders?created_at_min="+str(fecha)+"&page="+str(contador)
+                url = "https://api.tiendanube.com/v1/"+str(x.store_id)+"/orders?created_at_min="+str(fecha_desde)+"&created_at_max="+str(fecha_hasta)+"&page="+str(contador)
                 #url = "https://api.tiendanube.com/v1/"+str(x.store_id)+"/orders?created_at_min="+str('2021-10-01')+"&fields=id,number,created_at&page="+str(contador)
                 payload={}
                 headers = {
