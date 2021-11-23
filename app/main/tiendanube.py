@@ -182,6 +182,7 @@ def autorizar_tiendanube(codigo):
                 correo_cost = 'customer',
                 start_date = datetime.utcnow(),
                 demo_store = 0,
+                plan_boris = 'Plan_A',
                 rubro_tienda = tipo_empresa,
                 correo_test = True
             )

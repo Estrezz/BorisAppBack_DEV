@@ -12,12 +12,6 @@ Hola {{ customer.name }}!
 {% if envio == 'Coordinar' %}
         Por favor segui las siguientes intstrucciones para continuar con el cambio / devolución::
             1 - Embala tu producto correctamente
-            {% if order.courier_coordinar_empresa  is defined  %}
-                2 -El correo pasará a retirarlo en breve
-            {% else %}
-                {{order.courier_coordinar_empresa}}
-                2 - El correo pasará a retirarlo en breve
-            {% endif %}
             {{company.envio_coordinar_note | safe}}
 {% endif %}
 

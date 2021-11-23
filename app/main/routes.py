@@ -938,7 +938,8 @@ def datos_empresa():
             "shipping_city" : empresa_tmp.shipping_city,
             "shipping_province" : empresa_tmp.shipping_province,
             "shipping_country" : empresa_tmp.shipping_country,
-            "shipping_info" : empresa_tmp.shipping_info
+            "shipping_info" : empresa_tmp.shipping_info,
+            "plan_boris": empresa_tmp.plan_boris
         }
         
         return json.dumps(unaEmpresa)
