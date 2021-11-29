@@ -23,6 +23,9 @@ with app.app_context():
     productos = []
     productos_tmp = []
 
+    # ########################################################### 
+    # Genera datos de tiendas
+    # ###########################################################
     with open('logs/app/datos_tiendas.csv', 'w+', newline='') as file_tiendas:
         writer = csv.writer(file_tiendas)
         header = ['Plataforma', 'Tienda_Id', 'Tienda_Nombre', 'Fecha de Inicio', 'Demo', 'Rubro']
@@ -34,7 +37,10 @@ with app.app_context():
 
     file_tiendas.close()
 
-    ################## Genera datos de Ventas ###########################################################
+
+    # ###########################################################
+    # Genera datos de Ventas 
+    # ###########################################################
     with open('logs/app/datos_ordenes.csv', 'w+', newline='') as f:
         writer = csv.writer(f)
         header = ['Tienda', 'Nro_orden', 'Fecha_orden', 'Status','Producto','Cantidad', 'Subtotal', 'Descuento', 'Shipping', 'Cliente', 'Provincia', 'Localidad', 'Codigo_Postal']
