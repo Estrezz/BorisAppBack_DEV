@@ -26,22 +26,22 @@ with app.app_context():
     # ########################################################### 
     # Genera datos de tiendas
     # ###########################################################
-    with open('logs/app/datos_tiendas.csv', 'w+', newline='') as file_tiendas:
-        writer = csv.writer(file_tiendas)
-        header = ['Plataforma', 'Tienda_Id', 'Tienda_Nombre', 'Fecha de Inicio', 'Demo', 'Rubro']
-        writer.writerow(header)
+    #with open('logs/app/datos_tiendas.csv', 'w+', encoding='utf-8', newline='') as file_tiendas:
+    #    writer = csv.writer(file_tiendas)
+    #    header = ['Plataforma', 'Tienda_Id', 'Tienda_Nombre', 'Fecha de Inicio', 'Demo', 'Rubro']
+    #    writer.writerow(header)
 
-        for c in companies:
-            row = [c.platform, c.store_id, c.store_name, c.start_date, c.demo_store, c.rubro_tienda]
-            writer.writerow(row)
+    #    for c in companies:
+    #        row = [c.platform, c.store_id, c.store_name, c.start_date, c.demo_store, c.rubro_tienda]
+    #        writer.writerow(row)
 
-    file_tiendas.close()
+    #file_tiendas.close()
 
 
     # ###########################################################
     # Genera datos de Ventas 
     # ###########################################################
-    with open('logs/app/datos_ordenes.csv', 'w+', newline='') as f:
+    with open('logs/app/datos_ordenes.csv', 'w+', encoding='utf-8', newline='') as f:
         writer = csv.writer(f)
         header = ['Tienda', 'Nro_orden', 'Fecha_orden', 'Status','Producto','Cantidad', 'Subtotal', 'Descuento', 'Shipping', 'Cliente', 'Provincia', 'Localidad', 'Codigo_Postal']
         writer.writerow(header)
@@ -101,7 +101,10 @@ with app.app_context():
                                     response_prodcuto = requests.request("GET", url, headers=headers, data=payload).json()
                                 
                                     if 'brand' in response_prodcuto.keys(): 
-                                        productos.append([x.store_id, p['product_id'], response_prodcuto['brand'].upper()])
+                                        if response_prodcuto['brand']:
+                                            productos.append([x.store_id, p['product_id'], response_prodcuto['brand'].upper()])
+                                        else: 
+                                            productos.append([x.store_id, p['product_id'], 'Sin Marca'])
                                     else:
                                         productos.append([x.store_id, p['product_id'], 'Sin Marca'])
 
@@ -112,7 +115,7 @@ with app.app_context():
     f.close()
 
 
-    with open('logs/app/datos_productos.csv', 'w+', newline='') as file_producto:
+    with open('logs/app/datos_productos.csv', 'w+', encoding='utf-8', newline='') as file_producto:
         writer = csv.writer(file_producto)
         header = ['Tienda', 'Producto', 'Marca']
         writer.writerow(header)
