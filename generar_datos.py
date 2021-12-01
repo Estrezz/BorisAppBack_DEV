@@ -102,11 +102,11 @@ with app.app_context():
                                 
                                     if 'brand' in response_prodcuto.keys(): 
                                         if response_prodcuto['brand']:
-                                            productos.append([x.store_id, p['product_id'], response_prodcuto['brand'].upper()])
+                                            productos.append([x.store_id, p['product_id'], response_prodcuto['name']['es'], response_prodcuto['brand'].upper()])
                                         else: 
-                                            productos.append([x.store_id, p['product_id'], 'Sin Marca'])
+                                            productos.append([x.store_id, p['product_id'],response_prodcuto['name']['es'], 'Sin Marca'])
                                     else:
-                                        productos.append([x.store_id, p['product_id'], 'Sin Marca'])
+                                        productos.append([x.store_id, p['product_id'], response_prodcuto['name']['es'], 'Sin Marca'])
 
                                     productos_tmp.append(p['product_id'])
 
@@ -117,10 +117,10 @@ with app.app_context():
 
     with open('logs/app/datos_productos.csv', 'w+', encoding='utf-8', newline='') as file_producto:
         writer = csv.writer(file_producto)
-        header = ['Tienda', 'Producto', 'Marca']
+        header = ['Tienda', 'Producto_id', 'Producto', 'Marca']
         writer.writerow(header)
         for p in productos:
-            row = [p[0],p[1],p[2]]
+            row = [p[0],p[1],p[2],p[3]]
             writer.writerow(row)
     file_producto.close()
             
