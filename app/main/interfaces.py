@@ -179,8 +179,7 @@ def toReady(orden, company):
         orden_tmp.last_update_date = str(datetime.utcnow)
         db.session.commit()
         send_email('Tu orden ha sido confirmada', 
-                #sender=current_app.config['ADMINS'][0], 
-                sender=company.communication_email,
+                sender=(company.communication_email_name, company.communication_email),
                 recipients=[customer.email], 
                 text_body=render_template('email/pedido_confirmado.txt',
                                          company=company, customer=customer, order=orden, envio=orden.courier_method),
@@ -227,8 +226,7 @@ def toApproved(orden_id):
     db.session.add(unaTransaccion)
     db.session.commit()
     send_email('Tu orden ha sido aprobada', 
-                #sender=current_app.config['ADMINS'][0], 
-                sender=company.communication_email,
+                sender=(company.communication_email_name, company.communication_email),
                 recipients=[customer.email], 
                 text_body=render_template('email/pedido_aprobado.txt',
                                          company=company, customer=customer, order=orden, envio=orden.courier_method),
@@ -258,7 +256,7 @@ def toReject(orden_id, motivo):
     db.session.add(unaTransaccion)
     db.session.commit()
     send_email('Tu orden ha sido rechazada', 
-                sender=company.communication_email,
+                sender=(company.communication_email_name, company.communication_email),
                 recipients=[customer.email], 
                 text_body=render_template('email/pedido_rechazado.txt',
                                          company=company, customer=customer, order=orden, envio=orden.courier_method),
@@ -276,7 +274,7 @@ def genera_credito(empresa, monto, cliente, orden):
         cupon = genera_credito_tiendanube(empresa, importe, codigo)
         if cupon != 'Failed':
             send_email('Hemos generado tu Cupón', 
-                    sender=empresa.communication_email,
+                    sender=(empresa.communication_email_name, empresa.communication_email),
                     recipients=[cliente.email], 
                     text_body=render_template('email/cupon_generado.txt',
                                             company=empresa, customer=cliente, order=orden, cupon=cupon, monto=importe),
@@ -285,7 +283,7 @@ def genera_credito(empresa, monto, cliente, orden):
                     attachments=None, 
                     sync=False)
             send_email('BORIS ha generado un Cupon', 
-                    sender=empresa.communication_email,
+                sender=(empresa.communication_email_name, empresa.communication_email),
                     recipients=[empresa.admin_email], 
                     text_body=render_template('email/cupon_empresa.txt',
                                             customer=cliente, order=orden, cupon=cupon, monto=importe),
@@ -437,7 +435,7 @@ def devolver_linea(prod_id, variant, cantidad, orden_id, order_line_number, acci
             ## Si la configuracion de stock_vuelve_config es False (el stock no se devuelve fisicamente)
             ## Envía mail al administrador de la empresa avisando para que lo devuelva por sistema
             send_email('Se ha devuelto un artículo en BORIS ', 
-                sender=empresa.communication_email,
+                sender=(empresa.communication_email_name, empresa.communication_email),
                 recipients=[empresa.admin_email], 
                 text_body=render_template('email/articulo_devuelto.txt',
                                          order=orden, linea=linea),
@@ -515,8 +513,9 @@ def finalizar_orden(orden_id):
         loguear_transaccion('CERRADO', 'Cerrado ',orden_id, current_user.id, current_user.username)
         #flash('Mail {} para {} - orden {} , orden linea {}'.format(current_app.config['ADMINS'][0], customer.email, orden, orden_linea))
         company = Company.query.get(current_user.store)
+
         send_email('El procesamiento de tu orden ha finalizado', 
-            sender=company.communication_email, 
+            sender=(company.communication_email_name, company.communication_email),
             recipients=[customer.email], 
             text_body=render_template('email/pedido_finalizado.txt',
                                     company=company, customer=customer, order=orden, linea=orden_linea),

@@ -582,7 +582,8 @@ def gestion_lineas_salientes(orden_id):
                 actualizar_stock(ordenes, empresa ,'saliente')
             else:
                 send_email('Se ha generado una orden manual en BORIS ', 
-                    sender=empresa.communication_email,
+                    sender=(empresa.communication_email_name, empresa.communication_email),
+                    #sender=empresa.communication_email,
                     recipients=[empresa.admin_email], 
                     text_body=render_template('email/gestion_stock.txt',
                                             order=orden, envio=envio_nueva_orden, total=total_nueva_orden),
