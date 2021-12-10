@@ -615,9 +615,23 @@
                         <div class="card">
                           <div class="card-body">
                             <small>
-                              <div class="form-group">
-                                <label for="communication_email">Dirección de mail para las Comunicaciones:</label> 
-                                <input type="email" class="form-control form-control-sm" name="communication_email" id="communication_email" value="{{ empresa.communication_email or ''}}">
+                              <div class="form-row">
+                                <div class="form-group col-md-6">
+                                  <label for="communication_email">Dirección de mail para las Comunicaciones:</label> 
+                                  {% if empresa.plan_boris != 'Plan_D' %}
+                                    <input type="email" class="form-control form-control-sm" name="communication_email" id="communication_email" value="{{ empresa.communication_email or ''}}" readonly>
+                                  {% else %}
+                                  <input type="email" class="form-control form-control-sm" name="communication_email" id="communication_email" value="{{ empresa.communication_email or ''}}">
+                                  {% endif %}
+                                </div>
+                                <div class="form-group col-md-6">
+                                  <label for="communication_email_name">Nombre para el envío:</label> 
+                                  {% if (empresa.plan_boris != 'Plan_C') and (empresa.plan_boris != 'Plan_D') %}
+                                    <input type="text" class="form-control form-control-sm" name="communication_email_name" id="communication_email" value="{{ empresa.communication_email_name or ''}}" readonly>
+                                  {% else %}
+                                    <input type="text" class="form-control form-control-sm" name="communication_email_name" id="communication_email" value="{{ empresa.communication_email_name or ''}}" >
+                                  {% endif %}
+                                </div>
                                 <small>Si querés modificar la cuenta desde la que se envían los mails, tenes que escibirnos primero a soporte@borisretruns.com para que podamos autorizarla.
                                 Una vez hecho esto, podes modificarla acá</small>
                               </div>

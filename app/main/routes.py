@@ -428,6 +428,7 @@ def edit_mailsbackinfo():
             
         if accion == "guardar":
             communication_email = request.form.get('communication_email')
+            communication_email_name = request.form.get('communication_email_name')
             envio_manual_note = request.form.get('envio_manual_note')
             envio_coordinar_note = request.form.get('envio_coordinar_note')
             envio_correo_note = request.form.get('envio_correo_note')
@@ -437,6 +438,7 @@ def edit_mailsbackinfo():
             finalizado_note = request.form.get('finalizado_note')
 
             empresa.communication_email = communication_email
+            empresa.communication_email_name = communication_email_name
             empresa.envio_manual_note = envio_manual_note
             empresa.envio_coordinar_note = envio_coordinar_note
             empresa.envio_correo_note = envio_correo_note
@@ -920,6 +922,7 @@ def datos_empresa():
             "company_main_currency" : empresa_tmp.store_main_currency,
             "admin_email" : empresa_tmp.admin_email,
             "communication_email" : empresa_tmp.communication_email,
+            "communication_email_name" : empresa_tmp.communication_email_name,
             "param_logo" : empresa_tmp.param_logo,
             "param_fondo" : empresa_tmp.param_fondo,
             "correo_usado" : empresa_tmp.correo_usado,

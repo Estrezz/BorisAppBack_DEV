@@ -23,6 +23,7 @@ class Company(db.Model):
     store_address= db.Column(db.String(120)) 
     admin_email = db.Column(db.String(120))
     communication_email = db.Column(db.String(120))
+    communication_email_name = db.Column(db.String(120))
     param_logo = db.Column(db.String(200))
     param_fondo = db.Column(db.String(120))
     param_config = db.Column(db.String(120))
