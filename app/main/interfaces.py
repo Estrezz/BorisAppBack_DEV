@@ -302,12 +302,13 @@ def genera_codigo(size=6, chars=string.ascii_uppercase + string.digits):
 
 
 ##################################################################################################
-############# Envia datos de la empresa al FRONT para dar de alta o actualizar ###################
+##  Envia datos de la empresa al FRONT para crear el JSON                                        #
+##################################################################################################
 def actualiza_empresa(empresa):
     if current_app.config['SERVER_ROLE'] == 'DEV':
-        url="https://front.borisreturns.com/empresa/chequear"
+        url="https://front.borisreturns.com/empresa/crear"
     if current_app.config['SERVER_ROLE'] == 'PROD':
-        url="https://frontprod.borisreturns.com/empresa/chequear"
+        url="https://frontprod.borisreturns.com/empresa/crear"
     
     headers = {
         'Content-Type': 'application/json'
@@ -329,7 +330,7 @@ def actualiza_empresa(empresa):
         "store_main_language" : empresa.store_main_language,
         "store_main_currency" : empresa.store_main_currency,
         "store_country" : empresa.store_country,
-        "correo_usado" : empresa.correo_usado, 
+        "correo_usado" : empresa.correo_usado,
         "correo_test" : empresa.correo_test, 
         "correo_apikey" : empresa.correo_apikey,
         "correo_id" : empresa.correo_id,
@@ -349,6 +350,7 @@ def actualiza_empresa(empresa):
         "shipping_info" : empresa.shipping_info 
     }
     solicitud = requests.request("POST", url, headers=headers, data=json.dumps(data))
+    
     if solicitud.status_code != 200:
         return 'Failed'
     else: 

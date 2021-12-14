@@ -116,13 +116,11 @@ def edit_storeinfo():
             empresa.contact_phone = contact_phone
             db.session.commit()
 
-            flash('Los datos se actualizaron correctamente')
-            #status = actualiza_empresa(empresa)
-            #### a revisar ####
-            #if status != 'Failed':
-            #    flash('Los datos se actualizaron correctamente')
-            #else:
-            #    flash('Se produjo un error {}'. format(status))
+            status = actualiza_empresa(empresa)
+            if status != 'Failed':
+                flash('Los datos se actualizaron correctamente')
+            else:
+                flash('Se produjo un error {}'. format(status))
 
     return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, motivos=motivos, pestaña='tienda', empresa_name=session['current_empresa'])
     
@@ -169,18 +167,14 @@ def edit_carrierinfo():
             empresa.shipping_province = shipping_province
             empresa.shipping_country = shipping_country
             empresa.shipping_info = shipping_info
-            
+
             if empresa.correo_cost != correo_cost:
                 empresa.correo_cost = correo_cost
-                status = actualiza_empresa_JSON(empresa, 'shipping', correo_cost, 'otros')
-            else: 
-                status = 'Success'
+                actualiza_empresa_JSON(empresa, 'shipping', correo_cost, 'otros')
 
             db.session.commit()
 
-            #status = actualiza_empresa(empresa)
-            ## a revisar
-            #flash (status)
+            status = actualiza_empresa(empresa)
             if status != 'Failed':
                 flash('Los datos se actualizaron correctamente')
             else:
@@ -225,33 +219,33 @@ def edit_portalinfo():
 
             if configuracion.ventana_devolucion != ventana_devolucion:
                 configuracion.ventana_devolucion = ventana_devolucion
-                status = actualiza_empresa_JSON(empresa, 'ventana_devolucion', int(ventana_devolucion), 'politica')
+                actualiza_empresa_JSON(empresa, 'ventana_devolucion', int(ventana_devolucion), 'politica')
 
             if cambio_otra_cosa == 'on':
                 configuracion.cambio_otra_cosa = True
-                status = actualiza_empresa_JSON(empresa, 'otracosa', 'Si', 'otros')
+                actualiza_empresa_JSON(empresa, 'otracosa', 'Si', 'otros')
             else:
                 configuracion.cambio_otra_cosa = False
-                status = actualiza_empresa_JSON(empresa, 'otracosa', 'No', 'otros')
+                actualiza_empresa_JSON(empresa, 'otracosa', 'No', 'otros')
 
             if cambio_cupon == 'on':
                 configuracion.cambio_cupon = True
-                status = actualiza_empresa_JSON(empresa, 'cupon', 'Si', 'otros')
+                actualiza_empresa_JSON(empresa, 'cupon', 'Si', 'otros')
             else:
                 configuracion.cambio_cupon = False
-                status = actualiza_empresa_JSON(empresa, 'cupon', 'No', 'otros')
+                actualiza_empresa_JSON(empresa, 'cupon', 'No', 'otros')
             
             if configuracion.cambio_opcion != cambio_opcion :
                 configuracion.cambio_opcion = cambio_opcion
-                status = actualiza_empresa_JSON(empresa, 'elegir_opcion_cambio', cambio_opcion, 'textos')
+                actualiza_empresa_JSON(empresa, 'elegir_opcion_cambio', cambio_opcion, 'textos')
             
             if configuracion.cambio_opcion_cupon != cambio_opcion_cupon :
                 configuracion.cambio_opcion_cupon = cambio_opcion_cupon
-                status = actualiza_empresa_JSON(empresa, 'elegir_opcion_cambio_cupon', cambio_opcion_cupon, 'textos')
+                actualiza_empresa_JSON(empresa, 'elegir_opcion_cambio_cupon', cambio_opcion_cupon, 'textos')
 
             if configuracion.cambio_opcion_otra_cosa != cambio_opcion_otra_cosa :
                 configuracion.cambio_opcion_otra_cosa = cambio_opcion_otra_cosa
-                status = actualiza_empresa_JSON(empresa, 'elegir_opcion_otra_cosa', cambio_opcion_otra_cosa, 'textos')
+                actualiza_empresa_JSON(empresa, 'elegir_opcion_cambio_otra_cosa', cambio_opcion_otra_cosa, 'textos')
 
             db.session.commit()
 
@@ -375,12 +369,7 @@ def edit_enviosinfo():
             
             db.session.commit()
            
-            status = actualiza_empresa_JSON(empresa, 'envio', metodos, 'otros')
-            if status != 'Failed':
-                flash('Los datos se actualizaron correctamente')
-            else:
-                flash('Se produjo un error {}'. format(status))
-
+            actualiza_empresa_JSON(empresa, 'envio', metodos, 'otros')
             
     return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, motivos=motivos,pestaña='envios', empresa_name=session['current_empresa'])
 
