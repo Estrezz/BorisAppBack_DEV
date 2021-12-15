@@ -286,7 +286,7 @@
                   <div class="tab-pane fade" id="portal">
                 {% endif %}
                   <div class="card-body">
-                    <form id="portal_info" action="{{ url_for('main.edit_portalinfo') }}" method="POST"> 
+                    <form id="portal_info" action="{{ url_for('main.edit_portalinfo') }}" method="POST" enctype="multipart/form-data"> 
                       <div class = "page-header text-info font-weight-bold"> 
                         <h4> Configuración del Portal para clientes</h4>
                       </div>
@@ -307,8 +307,11 @@
                             <small>Si queres cambiar el logo de tu tienda, nos lo tenes que enviar por mail a soporte@borisreturns.com para que podamos publicarlo, luego te enviaremos el link para que pudas modificarlo</small>
                           </div>
                           <div class="form-group">
-                            <label for="param_fondo">Imagen fondo</label> <small class="text-muted">(para futuras versiones)</small>
-                            <input type="text" class="form-control form-control-sm" name="param_fondo" id="param_fondo" value="{{ empresa.param_fondo or '' }}" placeholder="Imagen para el fondo">
+                            <label for="param_fondo">Imagen fondo</label>
+                            <input type="text" class="form-control form-control-sm" name="param_fondo" id="param_fondo" value="{{ empresa.param_fondo or '' }}" placeholder="Seleccioná la imagen de Fondo - Solo disponible para el Plan Enterprise" readonly>
+                            {% if empresa.plan_boris == 'Plan_D' %}
+                              <input class="mt-2" type="file" name="file_fondo" accept="image/*">
+                            {% endif %}
                           </div>
                           <hr> 
                           <div class = "text-info mt-2"> 

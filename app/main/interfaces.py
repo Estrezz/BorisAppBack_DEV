@@ -2,6 +2,7 @@ import requests
 import json
 import string
 import random
+import imghdr
 from app import db
 from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log, categories_filter, CONF_motivos, CONF_boris, CONF_envios
 from app.main.moova import toready_moova
@@ -640,3 +641,12 @@ def inicializa_envios(unaEmpresa):
     db.session.add(retiro)
 
     db.session.commit()
+
+
+def validar_imagen(stream):
+    header = stream.read(512)
+    stream.seek(0)
+    format = imghdr.what(None, header)
+    if not format:
+        return None
+    return '.' + (format if format != 'jpeg' else 'jpg')

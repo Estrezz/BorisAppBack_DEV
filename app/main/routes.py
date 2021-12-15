@@ -8,9 +8,10 @@ from app.email import send_email
 from app.main.forms import EditProfileForm, EditProfileCompanyForm, EditMailsCompanyForm, EditCorreoCompanyForm, EditParamsCompanyForm, EditMailsFrontCompanyForm
 from app.main.tiendanube import generar_envio_tiendanube, autorizar_tiendanube, buscar_codigo_categoria_tiendanube, buscar_datos_variantes_tiendanube
 from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log, categories_filter, CONF_boris, CONF_envios, CONF_motivos
-from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto, genera_credito, actualiza_empresa, actualiza_empresa_categorias, actualiza_empresa_JSON, loguear_transaccion, finalizar_orden, devolver_linea, actualizar_stock, devolver_datos_boton, incializa_configuracion
+from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto, genera_credito, actualiza_empresa, actualiza_empresa_categorias, actualiza_empresa_JSON, loguear_transaccion, finalizar_orden, devolver_linea, actualizar_stock, devolver_datos_boton, incializa_configuracion, validar_imagen
 import json
 import re
+import os
 from app.main import bp
 
 
@@ -206,7 +207,7 @@ def edit_portalinfo():
             
         if accion == "guardar":
             param_logo = request.form.get('param_logo')
-            param_fondo = request.form.get('param_fondo')
+            #param_fondo = request.form.get('param_fondo')
             ventana_cambios = request.form.get('ventana_cambios')
             ventana_devolucion = request.form.get('ventana_devolucion')
             cambio_otra_cosa = request.form.get('cambio_otra_cosa')
@@ -214,8 +215,17 @@ def edit_portalinfo():
             cambio_opcion_otra_cosa = request.form.get('cambio_opcion_otra_cosa')
             cambio_opcion_cupon = request.form.get('cambio_opcion_cupon')
             cambio_opcion = request.form.get('cambio_opcion')
+            file_fondo = request.files['file_fondo']
+            filename = file_fondo.filename
+            if filename != '':
+                file_ext = os.path.splitext(filename)[1]
+                if file_ext not in current_app.config['UPLOAD_EXTENSIONS'] or file_ext != validar_imagen(file_fondo.stream):
+                   flash('La imagen de fondo no tiene un formato válido')
+                else:
+                    flash('subir archivo {}'.format(filename))
+                    # if envio = 'Success'
+                    param_fondo = '//frontprod.borisreturns.com/static/images/'+filename
             
-
             empresa.param_logo = param_logo
             empresa.param_fondo = param_fondo
 
