@@ -650,3 +650,21 @@ def validar_imagen(stream):
     if not format:
         return None
     return '.' + (format if format != 'jpeg' else 'jpg')
+
+
+def enviar_imagen(file, filename):
+    if current_app.config['SERVER_ROLE'] == 'DEV':
+        url="https://front.borisreturns.com/recibir_imagen"
+    if current_app.config['SERVER_ROLE'] == 'PROD':
+        url="https://frontprod.borisreturns.com/recibir_imagen"
+    
+    #filename = file.filename
+    response = requests.post(url, files={'image': (filename, file.read())})
+    
+
+    flash('Respone {} -'.format(response))
+
+    if response == 'Success':
+        return 'Success'
+    else :
+        return 'Failed'
