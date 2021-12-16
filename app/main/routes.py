@@ -826,8 +826,8 @@ def recibir_pedidos():
         pedido = request.json
         
         ############# controlar si ya exste transaccion ###########################
-        if Order_header.query.filter_by(order_number=pedido['orden_nro']).first():
-            orden = Order_header.query.filter_by(order_number=pedido['orden_nro']).first()
+        if Order_header.query.filter_by(order_id_anterior=pedido['orden']).first():
+            orden = Order_header.query.filter_by(order_id_anterior=pedido['orden']).first()
             lineas = Order_detail.query.filter_by(order=orden.id).all()
             
             ### comprueba cantidad de articulos ###
@@ -839,17 +839,24 @@ def recibir_pedidos():
             #### compruebo si son iguales (prodcutos / acciones ##########
             iguales = 'Si'
             accion = 'igual'
-            for l in lineas:
-                for p in pedido['producto']:
+            #### cambio comprobacion
+            total = len(lineas)
+            contador = 0
+            for p in pedido['producto']:
+                for l in lineas:
                     if l.prod_id == p['id']:
                         if l.accion == p['accion']:
-                            continue
+                            break
                         else:
                             accion = 'distinta'
                             break
                     else:
-                        iguales = 'No'
-                        break
+                        contador += 1
+                        if contador > total:
+                            iguales = 'No'
+                        else:
+                            continue
+
             if (cantidad == 'misma' and iguales == 'Si' and accion == 'igual'):
                 return "Solicitud duplicada", 409
             if (cantidad == 'misma' and iguales == 'Si' and accion == 'distinta'):
