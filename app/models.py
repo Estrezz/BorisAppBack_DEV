@@ -232,6 +232,9 @@ class  CONF_boris(db.Model):
     cambio_opcion = db.Column(db.String(150))
     cambio_opcion_cupon = db.Column(db.String(150))
     cambio_opcion_otra_cosa = db.Column(db.String(150))
+    portal_empresa = db.Column(db.String(150))
+    portal_titulo = db.Column(db.String(250))
+    portal_texto = db.Column(db.String(250))
 
     def __repr__(self):
         return '<configuracion {} {} >'.format(self.store, self.ventana_cambios, self.ventana_devolucion)

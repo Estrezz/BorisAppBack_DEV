@@ -215,6 +215,10 @@ def edit_portalinfo():
             cambio_opcion_otra_cosa = request.form.get('cambio_opcion_otra_cosa')
             cambio_opcion_cupon = request.form.get('cambio_opcion_cupon')
             cambio_opcion = request.form.get('cambio_opcion')
+            portal_empresa = request.form.get('portal_empresa')
+            portal_titulo = request.form.get('portal_titulo')
+            portal_texto = request.form.get('portal_texto')
+            
             file_fondo = request.files['file_fondo']
             filename = file_fondo.filename
             if filename != '':
@@ -223,15 +227,19 @@ def edit_portalinfo():
                    flash('La imagen de fondo no tiene un formato válido')
                 else:
                     envio = enviar_imagen(file_fondo, str(current_user.store)+file_ext)
-                    flash('Subiendo archivo {}'.format(filename))
                     if envio == 'Success':
-                        param_fondo = '//frontprod.borisreturns.com/static/images/'+filename
+                        if current_app.config['SERVER_ROLE'] == 'DEV':
+                            url="https://front.borisreturns.com/static/images/"
+                        if current_app.config['SERVER_ROLE'] == 'PROD':
+                            url="https://frontprod.borisreturns.com/static/images/"
+                        param_fondo = url+str(current_user.store)+file_ext
                     else: 
                         param_fondo = ''
                         flash('No se pudo cargar la imagen')
-            
+                empresa.param_fondo = param_fondo
+
             empresa.param_logo = param_logo
-            empresa.param_fondo = param_fondo
+            #empresa.param_fondo = param_fondo
 
             if configuracion.ventana_cambios != ventana_cambios:
                 configuracion.ventana_cambios = ventana_cambios
@@ -266,6 +274,18 @@ def edit_portalinfo():
             if configuracion.cambio_opcion_otra_cosa != cambio_opcion_otra_cosa :
                 configuracion.cambio_opcion_otra_cosa = cambio_opcion_otra_cosa
                 status = actualiza_empresa_JSON(empresa, 'elegir_opcion_otra_cosa', cambio_opcion_otra_cosa, 'textos')
+            
+            if configuracion.portal_empresa != portal_empresa :
+                configuracion.portal_empresa = portal_empresa
+                status = actualiza_empresa_JSON(empresa, 'portal_empresa', portal_empresa, 'textos')
+            
+            if configuracion.portal_titulo != portal_titulo :
+                configuracion.portal_titulo = portal_titulo
+                status = actualiza_empresa_JSON(empresa, 'portal_titulo', portal_titulo, 'textos')
+            
+            if configuracion.portal_texto != portal_texto :
+                configuracion.portal_texto = portal_texto
+                status = actualiza_empresa_JSON(empresa, 'portal_texto', portal_texto, 'textos')
 
             db.session.commit()
 
@@ -499,7 +519,7 @@ def filtrar_categorias():
     
     #### Si se agregó una categoria ##############################
     if accion == 'agregar':
-        if categories_filter.query.get(select):
+        if categories_filter.query.get((current_user.store,select)):
             flash('Ya existe esa categoria')
         else:
             unaCategoria =  categories_filter(
@@ -517,8 +537,8 @@ def filtrar_categorias():
     
     #### Si se quitó una categoria ##############################
     if accion == 'quitar':
-        if categories_filter.query.get(select):
-            unaCategoria = categories_filter.query.get(select)
+        if categories_filter.query.get((current_user.store,select)):
+            unaCategoria = categories_filter.query.get((current_user.store,select))
             db.session.delete(unaCategoria)
             db.session.commit()
             status = actualiza_empresa_categorias(empresa)

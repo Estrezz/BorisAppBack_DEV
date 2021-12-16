@@ -359,6 +359,18 @@
                             <h5 style="display:inline">Textos</h5>
                             <small class="text-muted"><a href="http://www.borisreturns.com/faq#textos" target="_blank">(que es esto?)</a></small>
                           </div>
+                          <div class="form-group mt-2">
+                            <label for="portal_empresa">Nombre de Tienda en el portal</label>
+                            <input type="text" class="form-control form-control-sm" name="portal_empresa" id="portal_empresa" value="{{ configuracion.portal_empresa or '' }}">
+                          </div>
+                          <div class="form-group mt-2">
+                              <label for="portal_titulo">Título para el portal</label>
+                              <input type="text" class="form-control form-control-sm" name="portal_titulo" id="portal_titulo" value="{{ configuracion.portal_titulo or '' }}">
+                          </div>
+                          <div class="form-group mt-2">
+                              <label for="portal_texto">Texto al pie del portal</label>
+                              <input type="text" class="form-control form-control-sm" name="portal_texto" id="portal_texto" value="{{ configuracion.portal_texto or '' }}">
+                          </div>
                             <div class="form-group mt-2">
                               <label for="cambio_opcion">Accion cambios</label>
                               <input type="text" class="form-control form-control-sm" name="cambio_opcion" id="cambio_opcion" value="{{ configuracion.cambio_opcion or '' }}">

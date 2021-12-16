@@ -658,13 +658,9 @@ def enviar_imagen(file, filename):
     if current_app.config['SERVER_ROLE'] == 'PROD':
         url="https://frontprod.borisreturns.com/recibir_imagen"
     
-    #filename = file.filename
     response = requests.post(url, files={'image': (filename, file.read())})
-    
-
-    flash('Respone {} -'.format(response))
-
-    if response == 'Success':
+   
+    if response.status_code == 200:
         return 'Success'
     else :
         return 'Failed'
