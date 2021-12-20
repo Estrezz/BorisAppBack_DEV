@@ -28,7 +28,7 @@ with app.app_context():
 
         empresa = CONF_boris.query.filter_by(store=x.store_id).first()
         empresa.portal_empresa = x.store_name
-        empresa.portal_texto = 'Cambios y Devoluciones'
+        empresa.portal_titulo = 'Cambios y Devoluciones'
         
 
         db.session.commit()

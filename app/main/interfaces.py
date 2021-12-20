@@ -182,12 +182,14 @@ def toReady(orden, company):
         send_email('Tu orden ha sido confirmada', 
                 sender=(company.communication_email_name, company.communication_email),
                 recipients=[customer.email], 
+                reply_to = company.admin_email,
                 text_body=render_template('email/pedido_confirmado.txt',
                                          company=company, customer=customer, order=orden, envio=orden.courier_method),
                 html_body=render_template('email/pedido_confirmado.html',
                                          company=company, customer=customer, order=orden, envio=orden.courier_method), 
                 attachments=None, 
                 sync=False)
+        flash('MAil reply : {}'.format(company.admin_email))
         return "Success"
 
 
@@ -229,6 +231,7 @@ def toApproved(orden_id):
     send_email('Tu orden ha sido aprobada', 
                 sender=(company.communication_email_name, company.communication_email),
                 recipients=[customer.email], 
+                reply_to = company.admin_email,
                 text_body=render_template('email/pedido_aprobado.txt',
                                          company=company, customer=customer, order=orden, envio=orden.courier_method),
                 html_body=render_template('email/pedido_aprobado.html',
@@ -259,6 +262,7 @@ def toReject(orden_id, motivo):
     send_email('Tu orden ha sido rechazada', 
                 sender=(company.communication_email_name, company.communication_email),
                 recipients=[customer.email], 
+                reply_to = company.admin_email,
                 text_body=render_template('email/pedido_rechazado.txt',
                                          company=company, customer=customer, order=orden, envio=orden.courier_method),
                 html_body=render_template('email/pedido_rechazado.html',
@@ -277,6 +281,7 @@ def genera_credito(empresa, monto, cliente, orden):
             send_email('Hemos generado tu Cupón', 
                     sender=(empresa.communication_email_name, empresa.communication_email),
                     recipients=[cliente.email], 
+                    reply_to = empresa.admin_email,
                     text_body=render_template('email/cupon_generado.txt',
                                             company=empresa, customer=cliente, order=orden, cupon=cupon, monto=importe),
                     html_body=render_template('email/cupon_generado.html',
@@ -285,7 +290,8 @@ def genera_credito(empresa, monto, cliente, orden):
                     sync=False)
             send_email('BORIS ha generado un Cupon', 
                 sender=(empresa.communication_email_name, empresa.communication_email),
-                    recipients=[empresa.admin_email], 
+                    recipients=[empresa.admin_email],
+                    reply_to = empresa.communication_email,
                     text_body=render_template('email/cupon_empresa.txt',
                                             customer=cliente, order=orden, cupon=cupon, monto=importe),
                     html_body=render_template('email/cupon_empresa.html',
@@ -440,6 +446,7 @@ def devolver_linea(prod_id, variant, cantidad, orden_id, order_line_number, acci
             send_email('Se ha devuelto un artículo en BORIS ', 
                 sender=(empresa.communication_email_name, empresa.communication_email),
                 recipients=[empresa.admin_email], 
+                reply_to = empresa.communication_email,
                 text_body=render_template('email/articulo_devuelto.txt',
                                          order=orden, linea=linea),
                 html_body=render_template('email/articulo_devuelto.html',
@@ -519,7 +526,8 @@ def finalizar_orden(orden_id):
 
         send_email('El procesamiento de tu orden ha finalizado', 
             sender=(company.communication_email_name, company.communication_email),
-            recipients=[customer.email], 
+            recipients=[customer.email],
+            reply_to = company.admin_email,
             text_body=render_template('email/pedido_finalizado.txt',
                                     company=company, customer=customer, order=orden, linea=orden_linea),
             html_body=render_template('email/pedido_finalizado.html',
@@ -604,6 +612,8 @@ def inicializa_parametros(unaEmpresa):
                 ventana_devolucion = 30,
                 cambio_otra_cosa = 1,
                 cambio_cupon = 0,
+                portal_empresa =  unaEmpresa.store_name,
+                portal_titulo = 'Cambios y Devoluciones', 
                 cambio_opcion = 'Seleccioná si queres cambiarlo por una variante del mismo articulo o elegí otro producto',
                 cambio_opcion_cupon = 'Seleccioná esta opción para obtener un cupón de crédito en nuestra tienda',
                 cambio_opcion_otra_cosa = 'Elegí en nuestra tienda el artículo que querés, ingresa el nombre y presion buscar'

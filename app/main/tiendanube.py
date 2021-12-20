@@ -178,7 +178,7 @@ def autorizar_tiendanube(codigo):
                 stock_vuelve_config = True,
                 shipping_country = 'ARG',
                 communication_email = 'info@borisreturns.com',
-                communication_email_name = 'Boris Returns',
+                communication_email_name = 'Info Boris',
                 correo_usado = 'Ninguno',
                 correo_cost = 'customer',
                 start_date = datetime.utcnow(),
