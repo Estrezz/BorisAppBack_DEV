@@ -229,9 +229,9 @@ def edit_portalinfo():
                     envio = enviar_imagen(file_fondo, str(current_user.store)+file_ext)
                     if envio == 'Success':
                         if current_app.config['SERVER_ROLE'] == 'DEV':
-                            url="https://front.borisreturns.com/static/images/"
+                            url="https://front.borisreturns.com/static/images/background/"
                         if current_app.config['SERVER_ROLE'] == 'PROD':
-                            url="https://frontprod.borisreturns.com/static/images/"
+                            url="https://frontprod.borisreturns.com/static/images/background/"
                         param_fondo = url+str(current_user.store)+file_ext
                     else: 
                         param_fondo = ''
