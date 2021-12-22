@@ -186,7 +186,12 @@
                           <small>
                           <div class="form-group">
                             <label for="correo_usado">Empresa de Correo utilizada</label>
-                            <input type="text" class="form-control form-control-sm" name="correo_usado" id="correo_usado" value="{{ empresa.correo_usado or ''}}" placeholder="Empresa utilizada para envíos">
+                            {% if empresa.plan_boris != 'Plan_D' %}
+                              <input type="text" class="form-control form-control-sm" name="correo_usado" id="correo_usado" value="{{ empresa.correo_usado or ''}}" placeholder="Empresa utilizada para envíos" readonly>
+                            {% else %}
+                              <input type="text" class="form-control form-control-sm" name="correo_usado" id="correo_usado" value="{{ empresa.correo_usado or ''}}" placeholder="Empresa utilizada para envíos">
+                            {% endif %}
+                            
                           </div>
                           <fieldset class="form-group">
                             <div class="row">
@@ -310,7 +315,8 @@
                             <label for="param_fondo">Imagen fondo</label>
                             <input type="text" class="form-control form-control-sm" name="param_fondo" id="param_fondo" value="{{ empresa.param_fondo or '' }}" placeholder="Seleccioná la imagen de Fondo - Solo disponible para el Plan Enterprise" readonly>
                             {% if empresa.plan_boris == 'Plan_D' %}
-                              <input class="mt-2" type="file" name="file_fondo" accept="image/*">
+                              <input class="mt-2" type="file" name="file_fondo" accept="image/*"> <br>
+                              <p>El archivo debe ser JPG o PNG y NO debe pesar mas de 10MB</p>
                             {% endif %}
                           </div>
                           <hr> 
@@ -647,8 +653,19 @@
                                     <input type="text" class="form-control form-control-sm" name="communication_email_name" id="communication_email" value="{{ empresa.communication_email_name or ''}}" >
                                   {% endif %}
                                 </div>
-                                <small>Si querés modificar la cuenta desde la que se envían los mails, tenes que escibirnos primero a soporte@borisretruns.com para que podamos autorizarla.
-                                Una vez hecho esto, podes modificarla acá</small>
+                                <p>
+                                  {% if (empresa.plan_boris != 'Plan_C') and (empresa.plan_boris != 'Plan_D') %}
+                                    El cambio de nombre para el envío está disponible para los planes PRO y ENTERPRISE <br>
+                                    El cambio de la cuenta de mail solo para el Plan ENTERPRISE
+                                  {% endif %}
+                                  {% if empresa.plan_boris == 'Plan_C' %}
+                                    El cambio de la cuenta de mail solo para el Plan ENTERPRISE
+                                  {% endif %}
+                                  {% if empresa.plan_boris == 'Plan_D' %}
+                                      La cuenta de mail debe ser primero autorizada, por lo que si queres cambiarla envianos primero un mail a soporte@borisreturns.com
+                                  {% endif %}
+                                </p>
+
                               </div>
                               <hr>
                               

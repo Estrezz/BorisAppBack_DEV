@@ -668,9 +668,11 @@ def enviar_imagen(file, filename):
     if current_app.config['SERVER_ROLE'] == 'PROD':
         url="https://frontprod.borisreturns.com/recibir_imagen"
     
-    response = requests.post(url, files={'image': (filename, file.read())})
+    file_content = file.read()
+    response = requests.post(url, files={'image': (filename, file_content)})
    
     if response.status_code == 200:
         return 'Success'
     else :
+        flash('Fallo la carga del archivo {} - {}'.format (response.status_code, response))
         return 'Failed'

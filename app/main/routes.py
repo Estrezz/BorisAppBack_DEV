@@ -207,7 +207,6 @@ def edit_portalinfo():
             
         if accion == "guardar":
             param_logo = request.form.get('param_logo')
-            #param_fondo = request.form.get('param_fondo')
             ventana_cambios = request.form.get('ventana_cambios')
             ventana_devolucion = request.form.get('ventana_devolucion')
             cambio_otra_cosa = request.form.get('cambio_otra_cosa')
@@ -219,12 +218,14 @@ def edit_portalinfo():
             portal_titulo = request.form.get('portal_titulo')
             portal_texto = request.form.get('portal_texto')
             
+            file_ok = 'Si'
             file_fondo = request.files['file_fondo']
             filename = file_fondo.filename
             if filename != '':
                 file_ext = os.path.splitext(filename)[1]
                 if file_ext not in current_app.config['UPLOAD_EXTENSIONS'] or file_ext != validar_imagen(file_fondo.stream):
-                   flash('La imagen de fondo no tiene un formato válido')
+                   flash('El archivo no tiene un formato válido')
+                   file_ok = 'No'
                 else:
                     envio = enviar_imagen(file_fondo, str(current_user.store)+file_ext)
                     if envio == 'Success':
@@ -236,7 +237,8 @@ def edit_portalinfo():
                     else: 
                         param_fondo = ''
                         flash('No se pudo cargar la imagen')
-                empresa.param_fondo = param_fondo
+                        file_ok = 'No'
+                    empresa.param_fondo = param_fondo
 
             empresa.param_logo = param_logo
             #empresa.param_fondo = param_fondo
@@ -291,10 +293,11 @@ def edit_portalinfo():
 
             # status = actualiza_empresa(empresa)
             #### falta actualizar JSON del portal
-            if status != 'Failed':
+            if status != 'Failed' and file_ok == 'Si':
                 flash('Los datos se actualizaron correctamente')
             else:
-                flash('Se produjo un error {}'. format(status))
+                if file_ok == 'Si':
+                    flash('Se produjo un error {}'. format(status))
 
     return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, motivos=motivos,pestaña='portal', empresa_name=session['current_empresa'])
 
