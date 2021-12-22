@@ -189,7 +189,6 @@ def toReady(orden, company):
                                          company=company, customer=customer, order=orden, envio=orden.courier_method), 
                 attachments=None, 
                 sync=False)
-        flash('MAil reply : {}'.format(company.admin_email))
         return "Success"
 
 
