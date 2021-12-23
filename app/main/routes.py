@@ -219,8 +219,12 @@ def edit_portalinfo():
             portal_texto = request.form.get('portal_texto')
             
             file_ok = 'Si'
-            file_fondo = request.files['file_fondo']
-            filename = file_fondo.filename
+            file_fondo = request.files['file_fondo'] if 'file_fondo' in request.files else False
+            #file_fondo = request.files['file_fondo']
+            if file_fondo is not False:
+                filename = file_fondo.filename
+            else: 
+                filename = ''
             if filename != '':
                 file_ext = os.path.splitext(filename)[1]
                 if file_ext not in current_app.config['UPLOAD_EXTENSIONS'] or file_ext != validar_imagen(file_fondo.stream):
