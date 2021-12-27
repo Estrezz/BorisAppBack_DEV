@@ -24,12 +24,16 @@ with app.app_context():
         actualiza_empresa_JSON(x, 'portal_empresa', x.store_name, 'textos')
         actualiza_empresa_JSON(x, 'portal_titulo', 'Cambios y Devoluciones', 'textos')
         
-       
 
         empresa = CONF_boris.query.filter_by(store=x.store_id).first()
         empresa.portal_empresa = x.store_name
         empresa.portal_titulo = 'Cambios y Devoluciones'
         
+        if x.envio_coordinar_note :
+            x.envio_coordinar_note = '1 - Embalá tu producto correctamente<br>'+ x.envio_coordinar_note
+        else: 
+            x.envio_coordinar_note = '1 - Embalá tu producto correctamente<br>'
+        print(x.envio_coordinar_note)
 
         db.session.commit()
 
