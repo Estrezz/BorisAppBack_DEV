@@ -13,7 +13,7 @@
         {% if i.accion == 'devolver' %}
             <li>
                 Se ha procedido a la devolución de  {{ "${:,.2f}".format(i.monto_devuelto) }} por la devolución de {{i.name}}<br>
-                Recorda que la devolución se realiza por el mismo método que utilizaste para realizar el pago.<br>
+                Recordá que la devolución se realiza por el mismo método que utilizaste para realizar el pago.<br>
                 En caso de pago con tarjeta, dependiendo de la fecha de cierre, 
                 el importe podría aparacer en el siguiente período <br>
             </li>
@@ -21,7 +21,7 @@
         {% if i.accion == 'cambiar' %}
             <li>
                 Se ha realizado el cambio de {{i.name}} X {{i.accion_cambiar_por_desc}} <br>
-                {% if i.accion_cambiar_por_desc != 'Cupón' %}
+                {% if (i.accion_cambiar_por_desc != 'Cupón') or (order.courier_coordinar_roundtrip != true) %}
                 Ya se generó la nueva orden, en breve recibiras la confirmación del envío <br>
                 {% endif %}
             </li>
