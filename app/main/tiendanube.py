@@ -247,6 +247,14 @@ def inicializa_tiendanube(empresa, tipo) :
     ### Crea usuario para Backoffice
     if tipo == 'nueva':
         nombre = re.sub('[\s+]', '', empresa.store_name[0:8].strip())
+        ### valida si ya existe el nombre del usuario
+        user = User.query.filter_by(username=nombre).first()
+        if user is not None:
+            nombre = nombre+'_2'
+        user = User.query.filter_by(username=nombre).first()
+        if user is not None:
+            nombre = nombre+'_3'
+        
         unUsuario = User(
             username=nombre, 
             email=empresa.admin_email, 
