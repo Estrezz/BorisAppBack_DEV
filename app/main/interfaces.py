@@ -4,7 +4,7 @@ import string
 import random
 import imghdr
 from app import db
-from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log, categories_filter, CONF_motivos, CONF_boris, CONF_envios
+from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log, categories_filter, CONF_motivos, CONF_boris, CONF_metodos_envios
 from app.main.moova import toready_moova
 from app.main.tiendanube import buscar_producto_tiendanube,  genera_credito_tiendanube, devolver_stock_tiendanube
 from app.email import send_email
@@ -622,7 +622,7 @@ def inicializa_parametros(unaEmpresa):
 
 
 def inicializa_envios(unaEmpresa):
-    manual = CONF_envios(
+    manual = CONF_metodos_envios(
         store = unaEmpresa.store_id,
         metodo_envio = 'manual',
         habilitado = 1,
@@ -631,7 +631,7 @@ def inicializa_envios(unaEmpresa):
     )
     db.session.add(manual)
 
-    coordinar = CONF_envios(
+    coordinar = CONF_metodos_envios(
         store = unaEmpresa.store_id,
         metodo_envio = 'coordinar',
         habilitado = 1,
@@ -640,7 +640,7 @@ def inicializa_envios(unaEmpresa):
     )
     db.session.add(coordinar)
 
-    retiro = CONF_envios(
+    retiro = CONF_metodos_envios(
         store = unaEmpresa.store_id,
         metodo_envio = 'retiro',
         habilitado = 0,

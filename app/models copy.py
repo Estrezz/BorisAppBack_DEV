@@ -240,45 +240,26 @@ class  CONF_boris(db.Model):
         return '<configuracion {} {} >'.format(self.store, self.ventana_cambios, self.ventana_devolucion)
 
 
-class envios(db.Model):
-    metodo_envio_id = db.Column(db.String(20), primary_key=True)
-    metodo_envio_descripcion = db.Column(db.String(200))
-    carrier = db.Column(db.Boolean)
-
-    def __repr__(self):
-        return '<Metodo Envio {} {} >'.format(self.metodo_envio_id, self.metodo_envio_descripcion)
-
-
-class correos(db.Model):
-    correo_id = db.Column(db.String(15), primary_key=True)
-    correo_descripcion = db.Column(db.String(150))
-
-
-class CONF_correo(db.Model):
-    id = db.Column(db.String(100), primary_key=True)
-    store = db.Column(db.String(64), db.ForeignKey('company.store_id'))
-    correo_id = db.Column(db.String(15), db.ForeignKey('correos.correo_id'))
-    cliente_apikey = db.Column(db.String(100))
-    cliente_id = db.Column(db.String(50))
-
-    def __repr__(self):
-        return '<Correo {} {} >'.format(self.store, self.correo_id, self.habilitado)
-
-
-class CONF_metodos_envios(db.Model):
+class  CONF_envios(db.Model):
     store = db.Column(db.String(64), db.ForeignKey('company.store_id'), primary_key=True)
-    metodo_envio_id = db.Column(db.String(20), db.ForeignKey('envios.metodo_envio_id'), primary_key=True)
+    metodo_envio = db.Column(db.String(200), primary_key=True)
     habilitado = db.Column(db.Boolean)
     titulo_boton = db.Column(db.String(150))
     descripcion_boton = db.Column(db.String(350))
-    correo_id = db.Column(db.String(10), db.ForeignKey('CONF_correo.id'))
-    correo_servicio = db.Column(db.String(50))
-    costo_envio = db.Column(db.String(15))
-    icon = db.Column(db.String(50))
-    # origen_valido = provincia (ver si es tabla aparte)
-    # accion = cambio/devolucion/ambas
     
     def __repr__(self):
         return '<Envio {} {} >'.format(self.store, self.metodo_envio, self.habilitado)
 
+
+class  CONF_correos(db.Model):
+    store = db.Column(db.String(64), db.ForeignKey('company.store_id'), primary_key=True)
+    correo_id = db.Column(db.String(10), primary_key=True)
+    cliente_apikey = db.Column(db.String(100))
+    cliente_id = db.Column(db.String(50))
+    correo_sucursal = db.Column(db.String(50))
+    descripcion = db.Column(db.String(350))
+    
+
+    def __repr__(self):
+        return '<Correo {} {} >'.format(self.store, self.correo_id, self.descripcion)
 

@@ -7,7 +7,7 @@ from app import db
 from app.email import send_email
 from app.main.forms import EditProfileForm, EditProfileCompanyForm, EditMailsCompanyForm, EditCorreoCompanyForm, EditParamsCompanyForm, EditMailsFrontCompanyForm
 from app.main.tiendanube import generar_envio_tiendanube, autorizar_tiendanube, buscar_codigo_categoria_tiendanube, buscar_datos_variantes_tiendanube
-from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log, categories_filter, CONF_boris, CONF_envios, CONF_motivos
+from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log, categories_filter, CONF_boris, CONF_metodos_envios, CONF_motivos
 from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto, genera_credito, actualiza_empresa, actualiza_empresa_categorias, actualiza_empresa_JSON, loguear_transaccion, finalizar_orden, devolver_linea, actualizar_stock, devolver_datos_boton, incializa_configuracion, validar_imagen, enviar_imagen
 import json
 import re
@@ -73,8 +73,8 @@ def company(empresa_id):
     else: 
         (flash('No se encuentran los datos de Configuracion - ponerse en contacto con soporte@borisreturns.com'))
         return redirect(url_for('main.ver_ordenes', estado='all', subestado='all'))
-    envios = CONF_envios.query.filter_by(store=current_user.store).all()
-    motivos = CONF_motivos.query.filter_by(store=current_user.store).all()
+    envios = CONF_metodos_envios.query.filter_by(store=current_user.store).all()
+    motivos = CONF_metodos_envios.query.filter_by(store=current_user.store).all()
 
     return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, motivos=motivos, pestaña='tienda', empresa_name=session['current_empresa'])
 
@@ -85,7 +85,7 @@ def company(empresa_id):
 def edit_storeinfo():
     empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
     configuracion = CONF_boris.query.filter_by(store=current_user.store).first_or_404()
-    envios = CONF_envios.query.filter_by(store=current_user.store).all()
+    envios = CONF_metodos_envios.query.filter_by(store=current_user.store).all()
     motivos = CONF_motivos.query.filter_by(store=current_user.store).all()
 
     if request.method == "POST":
@@ -135,7 +135,7 @@ def edit_storeinfo():
 def edit_carrierinfo():
     empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
     configuracion = CONF_boris.query.filter_by(store=current_user.store).first_or_404()
-    envios = CONF_envios.query.filter_by(store=current_user.store).all()
+    envios = CONF_metodos_envios.query.filter_by(store=current_user.store).all()
     motivos = CONF_motivos.query.filter_by(store=current_user.store).all()
 
     if request.method == "POST":
@@ -196,7 +196,7 @@ def edit_carrierinfo():
 def edit_portalinfo():
     empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
     configuracion = CONF_boris.query.filter_by(store=current_user.store).first_or_404()
-    envios = CONF_envios.query.filter_by(store=current_user.store).all()
+    envios = CONF_metodos_envios.query.filter_by(store=current_user.store).all()
     motivos = CONF_motivos.query.filter_by(store=current_user.store).all()
 
     if request.method == "POST":
@@ -312,7 +312,7 @@ def edit_portalinfo():
 def edit_motivosinfo():
     empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
     configuracion = CONF_boris.query.filter_by(store=current_user.store).first_or_404()
-    envios = CONF_envios.query.filter_by(store=current_user.store).all()
+    envios = CONF_metodos_envios.query.filter_by(store=current_user.store).all()
     motivos = CONF_motivos.query.filter_by(store=current_user.store).all()
 
     return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, motivos=motivos, pestaña='motivos', empresa_name=session['current_empresa'])
@@ -382,7 +382,7 @@ def editar_motivo(id):
 def edit_enviosinfo():
     empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
     configuracion = CONF_boris.query.filter_by(store=current_user.store).first_or_404()
-    envios = CONF_envios.query.filter_by(store=current_user.store).all()
+    envios = CONF_metodos_envios.query.filter_by(store=current_user.store).all()
     motivos = CONF_motivos.query.filter_by(store=current_user.store).all()
 
     if request.method == "POST":
@@ -432,7 +432,7 @@ def edit_enviosinfo():
 def edit_mailsportalinfo():
     empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
     configuracion = CONF_boris.query.filter_by(store=current_user.store).first_or_404()
-    envios = CONF_envios.query.filter_by(store=current_user.store).all()
+    envios = CONF_metodos_envios.query.filter_by(store=current_user.store).all()
     motivos = CONF_motivos.query.filter_by(store=current_user.store).all()
 
     if request.method == "POST":
@@ -469,7 +469,7 @@ def edit_mailsportalinfo():
 def edit_mailsbackinfo():
     empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
     configuracion = CONF_boris.query.filter_by(store=current_user.store).first_or_404()
-    envios = CONF_envios.query.filter_by(store=current_user.store).all()
+    envios = CONF_metodos_envios.query.filter_by(store=current_user.store).all()
     motivos = CONF_motivos.query.filter_by(store=current_user.store).all()
 
     if request.method == "POST":
