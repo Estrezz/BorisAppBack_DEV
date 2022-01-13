@@ -576,23 +576,24 @@ def search():
 @bp.route('/gestion_lineas_entrantes/<orden_id>',methods=['GET', 'POST'])  
 def gestion_lineas_entrantes(orden_id):
     if request.method == "POST":
-        productos = request.form.getlist('prod_id')
-        for p in productos: 
-            variant = request.form.get("variant"+str(p))
-            accion = request.form.get("accion"+str(p))
-            accion_cantidad = request.form.get("accion_cantidad"+str(p))
-            order_line = request.form.get("order_line"+str(p))
+        lineas = request.form.getlist('order_line')
+        for l in lineas: 
+            variant = request.form.get("variant"+str(l))
+            accion = request.form.get("accion"+str(l))
+            accion_cantidad = request.form.get("accion_cantidad"+str(l))
+            prod_id = request.form.get("prod_id"+str(l))
+            order_line = l
             ## Guarda el valor que se le reconoció al cliente al devolver el producto
-            if request.form.get("precio"+str(p)) != None :
-                monto_devuelto = request.form.get("precio"+str(p))
+            if request.form.get("precio"+str(l)) != None :
+                monto_devuelto = request.form.get("precio"+str(l))
             else:
                 monto_devuelto = 0
             # Asigna accion_stock dependiendo de si se eligió que el stock se reingrese o no
-            if request.form.get("stockradio"+str(p)) == None:
+            if request.form.get("stockradio"+str(l)) == None:
                 accion_stock = "No vuelve al stock"
             else: 
                 accion_stock = "Vuelve al stock"
-            devolver_linea(p, variant, accion_cantidad, orden_id, order_line, accion, accion_stock, monto_devuelto)
+            devolver_linea(prod_id, variant, accion_cantidad, orden_id, order_line, accion, accion_stock, monto_devuelto)
     return redirect(url_for('main.orden', orden_id=orden_id))
 
 

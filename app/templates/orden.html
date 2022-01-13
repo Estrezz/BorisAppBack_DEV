@@ -24,11 +24,12 @@
                     <div class="card mb-2 ">
                         <div class="card-body">
                             <!-- graba los datos que se necesitan para poder procesar cada linea asociados al respectivo Id del producto -->
-                            <input type="hidden" id="prod_id" name="prod_id" value="{{ i['prod_id'] }}">
-                            <input type="hidden" id="variant{{ i['prod_id'] }}" name="variant{{ i['prod_id'] }}" value="{{ i['variant'] }}">
-                            <input type="hidden" id="accion_cantidad{{ i['prod_id'] }}" name="accion_cantidad{{ i['prod_id'] }}" value="{{ i['accion_cantidad'] }}">
-                            <input type="hidden" id="accion{{ i['prod_id'] }}" name="accion{{ i['prod_id'] }}" value="{{ i['accion'] }}">
-                            <input type="hidden" id="order_line{{ i['prod_id'] }}" name="order_line{{ i['prod_id'] }}" value="{{ i['order_line_number'] }}">
+                            <input type="hidden" id="order_line" name="order_line" value="{{ i['order_line_number'] }}">
+                            <input type="hidden" id="prod_id{{ i['order_line_number'] }}" name="prod_id{{ i['order_line_number'] }}" value="{{ i['prod_id'] }}">
+                            <input type="hidden" id="variant{{ i['order_line_number'] }}" name="variant{{ i['order_line_number'] }}" value="{{ i['variant'] }}">
+                            <input type="hidden" id="accion_cantidad{{ i['order_line_number'] }}" name="accion_cantidad{{ i['order_line_number'] }}" value="{{ i['accion_cantidad'] }}">
+                            <input type="hidden" id="accion{{ i['order_line_number'] }}" name="accion{{ i['order_line_number'] }}" value="{{ i['accion'] }}">
+                            <input type="hidden" id="order_line{{ i['order_line_number'] }}" name="order_line{{ i['order_line_number'] }}" value="{{ i['order_line_number'] }}">
                             
                             <div class="row">
                             <!-- Descripcio + datos articulos -->
@@ -69,12 +70,12 @@
                                             {% if orden.status_resumen == 'Aprobado' %}
                                                 {% if (i.gestionado == 'Iniciado' or i.gestionado == 'Cambiado' ) %}
                                                     {% set ns.entrantes_activos=true %}
-                                                    <input type="text" id="precio{{ i['prod_id'] }}" name="precio{{ i['prod_id'] }}" class="form-control" value="{{i['precio'] * i['accion_cantidad']}}">
+                                                    <input type="text" id="precio{{ i['order_line_number'] }}" name="precio{{ i['order_line_number'] }}" class="form-control" value="{{i['precio'] * i['accion_cantidad']}}">
                                                 {% else %}
-                                                    <input type="text" id="precio{{ i['prod_id'] }}" name="precio{{ i['prod_id'] }}" class="form-control" value="{{i['monto_devuelto']}}" disabled>
+                                                    <input type="text" id="precio{{ i['order_line_number'] }}" name="precio{{ i['order_line_number'] }}" class="form-control" value="{{i['monto_devuelto']}}" disabled>
                                                 {% endif %} 
                                             {% else %}
-                                                <input type="text" id="precio{{ i['prod_id'] }}" name="precio{{ i['prod_id'] }}" class="form-control" value="{{i['precio'] * i['accion_cantidad']}}" disabled>
+                                                <input type="text" id="precio{{ i['order_line_number'] }}" name="precio{{ i['order_line_number'] }}" class="form-control" value="{{i['precio'] * i['accion_cantidad']}}" disabled>
                                             {% endif %}
                                         </div>
                                         
@@ -89,8 +90,8 @@
                                         {% if orden.status_resumen == 'Aprobado' %}
                                             {% if (i.gestionado == 'Iniciado' or i.gestionado == 'Cambiado' ) %}
                                                 <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" class="custom-control-input" id="stockradio{{ i['prod_id'] }}" name="stockradio{{ i['prod_id'] }}" checked>
-                                                    <label class="custom-control-label" for="stockradio{{ i['prod_id'] }}"><small>Restock</small></label>
+                                                    <input type="checkbox" class="custom-control-input" id="stockradio{{ i['order_line_number'] }}" name="stockradio{{ i['order_line_number']}}" checked>
+                                                    <label class="custom-control-label" for="stockradio{{ i['order_line_number'] }}"><small>Restock</small></label>
                                                 </div>
                                             {% endif %}
                                         {% endif %}
