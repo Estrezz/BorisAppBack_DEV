@@ -457,16 +457,14 @@
                             <input type="submit" id="submit-reject" class="d-none" />
                         </form>
 
-                        <!-- Si no fue confirmado y el metodo de Envio elegido es COORDINAR  --> 
-                             
-                        {% if orden.courier_method != 'Manual' %}
-                            <label for="submit-form" tabindex="0" class="btn btn-primary" title='Pasa el pedido a LISTO PARA RETIRO'> Confirmar </label>
-                        <!-- Si no fue confirmado y el metodo de Envio elegido MANUAL  --> 
+                        <!-- Si no fue confirmado y el metodo de Envio elegido es COORDINAR  -->     
+                        {% if orden.courier_method == 'Coordinar' %}
+                            <label for="submit-form" tabindex="0" class="btn btn-primary" title='Pasa el pedido a LISTO PARA RETIRO'> Coordinar </label>
+                        <!-- Si no fue confirmado y el metodo de Envio elegido es MOOVA o MANUAL  --> 
                         {% else %}
                         <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReady' ) }}">
                             <button class="btn btn-primary" title='Pasa el pedido a LISTO PARA RETIRO' > Confirmar </button></a> 
                         {% endif %}
-                        
                         
                         <!-- Boton de rechazo (previo a confirmación)  -->  
                         <label id="bton" for="submit-reject" tabindex="0" class="btn btn-outline-danger float-right" title='Rechaza el pedido'>Rechazar</label>
@@ -525,7 +523,7 @@
                                     <form id="coordinar_form" action="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReady' ) }}" method="POST"> 
                                         <div class="form-group">
                                             <input type="text" class="form-control form-control-sm" id="metodo_envio_correo" name="metodo_envio_correo" value="{{orden.metodo_envio_correo}}" placeholder="correo">
-                                            <input type="text" class="form-control form-control-sm" id="metodo_envio_guia" name="metodo_envio_guia" value="{{orden.metodo_envio_guia}}" placeholder="Guia">
+                                            <input type="text" class="form-control form-control-sm" id="metodo_envio_guia" name="metodo_envio_guia" value="{{metodo_envio_guia}}" placeholder="Guia">
                                         </div>
                                         <div class="form-group">
                                             <div class="form-check">   

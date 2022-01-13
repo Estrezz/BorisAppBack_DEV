@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: d558281ff19b
+Revision ID: e5dd6d28e46a
 Revises: 
-Create Date: 2022-01-04 12:36:04.342017
+Create Date: 2022-01-10 15:45:50.027490
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'd558281ff19b'
+revision = 'e5dd6d28e46a'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -113,7 +113,7 @@ def upgrade():
     sa.PrimaryKeyConstraint('store')
     )
     op.create_table('CONF_correo',
-    sa.Column('id', sa.String(length=100), nullable=False),
+    sa.Column('id', sa.String(length=10), nullable=False),
     sa.Column('store', sa.String(length=64), nullable=True),
     sa.Column('correo_id', sa.String(length=15), nullable=True),
     sa.Column('cliente_apikey', sa.String(length=100), nullable=True),
@@ -121,6 +121,21 @@ def upgrade():
     sa.ForeignKeyConstraint(['correo_id'], ['correos.correo_id'], ),
     sa.ForeignKeyConstraint(['store'], ['company.store_id'], ),
     sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('CONF_metodos_envios',
+    sa.Column('store', sa.String(length=64), nullable=False),
+    sa.Column('metodo_envio_id', sa.String(length=20), nullable=False),
+    sa.Column('habilitado', sa.Boolean(), nullable=True),
+    sa.Column('titulo_boton', sa.String(length=150), nullable=True),
+    sa.Column('descripcion_boton', sa.String(length=350), nullable=True),
+    sa.Column('correo_id', sa.String(length=10), nullable=True),
+    sa.Column('correo_servicio', sa.String(length=50), nullable=True),
+    sa.Column('costo_envio', sa.String(length=15), nullable=True),
+    sa.Column('icon', sa.String(length=50), nullable=True),
+    sa.Column('direccion_obligatoria', sa.Boolean(), nullable=True),
+    sa.ForeignKeyConstraint(['metodo_envio_id'], ['envios.metodo_envio_id'], ),
+    sa.ForeignKeyConstraint(['store'], ['company.store_id'], ),
+    sa.PrimaryKeyConstraint('store', 'metodo_envio_id')
     )
     op.create_table('CONF_motivos',
     sa.Column('store', sa.String(length=64), nullable=False),
@@ -152,7 +167,8 @@ def upgrade():
     sa.Column('payment_method', sa.String(length=35), nullable=True),
     sa.Column('payment_card', sa.String(length=35), nullable=True),
     sa.Column('courier_method', sa.String(length=64), nullable=True),
-    sa.Column('courier_order_id', sa.String(length=64), nullable=True),
+    sa.Column('metodo_envio_correo', sa.String(length=64), nullable=True),
+    sa.Column('metodo_envio_guia', sa.String(length=64), nullable=True),
     sa.Column('courier_precio', sa.String(length=20), nullable=True),
     sa.Column('courier_coordinar_empresa', sa.String(length=120), nullable=True),
     sa.Column('courier_coordinar_guia', sa.String(length=64), nullable=True),
@@ -179,7 +195,7 @@ def upgrade():
     sa.ForeignKeyConstraint(['store'], ['company.store_id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_order_header_courier_order_id'), 'order_header', ['courier_order_id'], unique=False)
+    op.create_index(op.f('ix_order_header_metodo_envio_guia'), 'order_header', ['metodo_envio_guia'], unique=False)
     op.create_index(op.f('ix_order_header_order_number'), 'order_header', ['order_number'], unique=False)
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -196,19 +212,6 @@ def upgrade():
     op.create_index(op.f('ix_user_id'), 'user', ['id'], unique=False)
     op.create_index(op.f('ix_user_identification'), 'user', ['identification'], unique=False)
     op.create_index(op.f('ix_user_username'), 'user', ['username'], unique=True)
-    op.create_table('CONF_metodos_envios',
-    sa.Column('store', sa.String(length=64), nullable=False),
-    sa.Column('metodo_envio_id', sa.String(length=20), nullable=False),
-    sa.Column('habilitado', sa.Boolean(), nullable=True),
-    sa.Column('titulo_boton', sa.String(length=150), nullable=True),
-    sa.Column('descripcion_boton', sa.String(length=350), nullable=True),
-    sa.Column('correo_id', sa.String(length=10), nullable=True),
-    sa.Column('correo_servicio', sa.String(length=50), nullable=True),
-    sa.ForeignKeyConstraint(['correo_id'], ['CONF_correo.id'], ),
-    sa.ForeignKeyConstraint(['metodo_envio_id'], ['envios.metodo_envio_id'], ),
-    sa.ForeignKeyConstraint(['store'], ['company.store_id'], ),
-    sa.PrimaryKeyConstraint('store', 'metodo_envio_id')
-    )
     op.create_table('order_detail',
     sa.Column('order_line_number', sa.String(length=30), nullable=False),
     sa.Column('line_number', sa.Integer(), nullable=True),
@@ -226,6 +229,10 @@ def upgrade():
     sa.Column('nuevo_envio', sa.String(length=100), nullable=True),
     sa.Column('restock', sa.String(length=30), nullable=True),
     sa.Column('precio', sa.Float(), nullable=True),
+    sa.Column('alto', sa.Float(), nullable=True),
+    sa.Column('largo', sa.Float(), nullable=True),
+    sa.Column('profundidad', sa.Float(), nullable=True),
+    sa.Column('peso', sa.Float(), nullable=True),
     sa.Column('promo_descuento', sa.Float(), nullable=True),
     sa.Column('promo_nombre', sa.String(length=120), nullable=True),
     sa.Column('promo_precio_final', sa.Float(), nullable=True),
@@ -255,17 +262,17 @@ def downgrade():
     # ### commands auto generated by Alembic - please adjust! ###
     op.drop_table('transaction_log')
     op.drop_table('order_detail')
-    op.drop_table('CONF_metodos_envios')
     op.drop_index(op.f('ix_user_username'), table_name='user')
     op.drop_index(op.f('ix_user_identification'), table_name='user')
     op.drop_index(op.f('ix_user_id'), table_name='user')
     op.drop_index(op.f('ix_user_email'), table_name='user')
     op.drop_table('user')
     op.drop_index(op.f('ix_order_header_order_number'), table_name='order_header')
-    op.drop_index(op.f('ix_order_header_courier_order_id'), table_name='order_header')
+    op.drop_index(op.f('ix_order_header_metodo_envio_guia'), table_name='order_header')
     op.drop_table('order_header')
     op.drop_table('categories_filter')
     op.drop_table('CONF_motivos')
+    op.drop_table('CONF_metodos_envios')
     op.drop_table('CONF_correo')
     op.drop_table('CONF_boris')
     op.drop_table('envios')

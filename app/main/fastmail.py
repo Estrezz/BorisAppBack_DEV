@@ -2,56 +2,166 @@ import requests
 import json
 from flask import flash, render_template
 from app.email import send_email
-#from flask_login import current_user
+from flask_login import current_user
+from app.models import Company
 
 
-# def toready_moova(orden,company,customer):
-def crear_envio_fastmail(orden,company,customer):
-    if company.correo_test == False:
-        url = "https://api-prod.moova.io/b2b/shippings/"+str(orden.courier_order_id)+"/READY"
-        url_label = "https://api-prod.moova.io/b2b/shippings/"+str(orden.courier_order_id)+"/label"
-        headers = {
-            'Authorization': company.correo_apikey,
-            'Content-Type': 'application/json',
+###################################################
+# Cotiza envio en FASTMAIL
+###################################################
+def cotiza_envio_fastmail(data, datos_correo):
+    url = "https://epresislv.fastmail.com.ar/api/v2/cotizador.json"
+    
+    headers = {
+     'Content-Type': 'application/json'
+    }
+
+    solicitud_tmp = {
+        "api_token": datos_correo.cliente_apikey,
+        "codigo_servicio": datos_correo.correo.servicio, # "LI" codigo de servicio de FASTMAIL para logistica Inversa
+        "cp_origen": data['from']['postalCode'],
+        "cp_destino": data['to']['postalCode'],
+        #"destino": "AMBA",
+        "is_urgente": False,
+        #"valor_declarado": 100.25
+    }
+
+    items_envio = []
+    precio_total_envio = 0
+    
+    for i in data['items']:
+        precio_total_envio += i['precio']
+        items_envio.append (   
+        {
+            "bultos": i['cantidad'],
+            "peso": 2,
+            "descripcion": i['descripcion'],
+            "dimensiones": {
+                "alto": 0.25,
+                "largo": 0.25,
+                "profundidad": "0.25"
+            }   
         }
-        params = {'appId': company.correo_id}
-        api_usada ='PROD'
-    else :
-        url = "https://api-dev.moova.io/b2b/shippings/"+str(orden.courier_order_id)+"/READY"
-        url_label = "https://api-dev.moova.io/b2b/shippings/"+str(orden.courier_order_id)+"/label"
-        headers = {
-            'Authorization': company.correo_apikey_test,
-            'Content-Type': 'application/json',
-        }
-        params = {'appId': company.correo_id_test}
-        api_usada = 'DEV'
+        )
+    
+    solicitud_tmp['productos'] = items_envio
+    solicitud_tmp["valor_declarado"] = precio_total_envio
 
-    solicitud = requests.request("POST", url, headers=headers, params=params)
-    if solicitud.status_code != 201:
-        if solicitud.status_code == 409:
-            flash('Revise y corrija la dirección en la página del correo. Error {}'.format(solicitud.status_code))
-            return 'Fail'
-        flash('Hubo un problema con la generación del evío. Error {}'.format(solicitud.status_code))
-        flash('url {} params{}'.format(url, params))
-        return "Fail"
+    payload = json.dumps(solicitud_tmp)
+    
+    solicitud = requests.request("POST", url, headers=headers, data=payload)
+    if solicitud.status_code != 200:
+        return "Failed"
     else:
-        if api_usada == 'DEV':
-            flash('La orden se actualizó en Moova exitosamente - DEV')
-        if api_usada == 'PROD':
-            flash('La orden se actualizó en Moova exitosamente')
-        label_tmp = requests.request("GET", url_label, headers=headers, params=params)
-        label = label_tmp.json()['label']
-            
-        send_email('Tu orden ha sido confirmada', 
-            #sender=current_app.config['ADMINS'][0], 
-            sender=(company.communication_email_name, company.communication_email),
-            #sender=company.communication_email,
-            recipients=[customer.email], 
-            reply_to = company.admin_email,
-            text_body=render_template('email/pedido_confirmado.txt',
+        solicitud = solicitud.json()
+        return solicitud['importe_total_flete']
+
+
+
+###################################################
+# Crea un nuevo envio en FASTMAIL
+###################################################
+def crea_envio_fastmail(correo, metodo_envio, orden, customer, orden_linea):
+    url = "https://epresislv.fastmail.com.ar/api/v2/guias.json"
+    headers = {
+     'Content-Type': 'application/json'
+    }
+
+    if orden.courier_coordinar_roundtrip == True:
+        observaciones= "Retiro+Entrega"
+    else: 
+        observaciones= "Retiro"
+
+    solicitud_tmp = {
+        "api_token": correo.cliente_apikey, # viene de envios
+        "codigo_sucursal": metodo_envio.correo_sucursal, # viene de CONF_metodo_envio
+        "codigo_servicio": metodo_envio.correo_servicio, # "LI" viene de CONF_metodo_envio
+        "remito": orden.order_number,
+        "isInversa": True,
+        "observaciones": observaciones,
+        "tipo_operacion": "ENTREGA PAQUETERIA",
+        "canal": "BORIS",
+        "internacional" : False,
+	    "is_urgente": False,
+
+        "comprador": {
+            "destinatario": customer.name,
+            "horario": "", # ver nota del cliente
+            "calle": orden.customer_address,
+            "altura": orden.customer_number,
+            "piso": orden.customer_floor,
+            "localidad": orden.customer_locality,
+            "provincia": orden.customer_province,
+            "cp":orden.customer_zipcode,
+            "email": customer.email,
+            "celular": customer.phone,
+            "cuit": customer.identification,
+            "contenido": ""
+        },
+       
+    }
+
+    items_envio = []
+    precio_total_envio = 0
+    
+    for i in orden_linea:
+        precio_total_envio += i.precio
+        items_envio.append (   
+        {
+            "bultos": i.accion_cantidad,
+            "peso": i.peso,
+            "descripcion": i.name,
+            "dimensiones": {
+                "alto": i.alto,
+                "largo": i.largo,
+                "profundidad": i.profundidad
+            }   
+        }
+        )
+    
+    solicitud_tmp['productos'] = items_envio
+    solicitud_tmp["valor_declarado"] = precio_total_envio
+
+    payload = json.dumps(solicitud_tmp)
+    
+    solicitud = requests.request("POST", url, headers=headers, data=payload)
+    if solicitud.status_code != 200:
+        return "Failed"
+    else:
+        solicitud = solicitud.json()
+        enviar_etiqueta_fastmail(correo, solicitud, customer, orden)
+        return solicitud
+
+
+
+def enviar_etiqueta_fastmail(correo, solicitud, customer, orden):
+    company = Company.query.filter_by(store_id=current_user.store).first()
+    url = "https://epresislv.fastmail.com.ar/api/v2/print_etiquetas.json"
+
+    headers = {
+     'Content-Type': 'application/json'
+    }
+
+    data = {
+        "api_token": correo.cliente_apikey,
+        "ids": solicitud['guia']
+    }
+    
+    payload = json.dumps(data)
+    label_tmp = requests.request("POST", url, headers=headers, data=payload)
+    if label_tmp.status_code !=200:
+        flash('no se pudo generar la etiqueta')
+    else:
+        label = label_tmp.content
+        
+    send_email('Tu orden ha sido confirmada', 
+        sender=(company.communication_email_name, company.communication_email),
+        recipients=[customer.email], 
+        reply_to = company.admin_email,
+        text_body=render_template('email/pedido_confirmado.txt',
                                         company=company, customer=customer, order=orden, envio=orden.courier_method, label=label),
                                         html_body=render_template('email/pedido_confirmado.html',
                                         company=company, customer=customer, order=orden, envio=orden.courier_method, label=label), 
-                                        attachments=None, 
+                                        attachments=[('etiqueta.pdf', 'application/pdf',
+                                            label)], 
                                         sync=False)
-        return "Success"

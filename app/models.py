@@ -122,10 +122,15 @@ class Order_header(db.Model):
     payment_method = db.Column(db.String(35))
     payment_card = db.Column(db.String(35))
     courier_method = db.Column(db.String(64))
-    courier_order_id = db.Column(db.String(64), index=True)
+    metodo_envio_correo = db.Column(db.String(64))
+    metodo_envio_guia = db.Column(db.String(64), index=True)
     courier_precio = db.Column(db.String(20))
+    #### quitar
+    # courier_coordinar_empresa es reemplazado por metodo_envio_correo
+    # courier_coordinar_guia es reemplazado por metodo_envio_guia
     courier_coordinar_empresa = db.Column(db.String(120))
     courier_coordinar_guia = db.Column(db.String(64))
+    #########
     courier_coordinar_roundtrip = db.Column(db.Boolean)
     nuevo_envio =  db.Column(db.String(100))
     nuevo_envio_costo =  db.Column(db.Float, default=0)
@@ -182,6 +187,10 @@ class Order_detail(db.Model):
     nuevo_envio =  db.Column(db.String(100))
     restock =  db.Column(db.String(30))
     precio = db.Column(db.Float)
+    alto = db.Column(db.Float)
+    largo = db.Column(db.Float)
+    profundidad = db.Column(db.Float)
+    peso = db.Column(db.Float)
     promo_descuento = db.Column(db.Float)
     promo_nombre = db.Column(db.String(120))
     promo_precio_final = db.Column(db.Float)
@@ -255,14 +264,14 @@ class correos(db.Model):
 
 
 class CONF_correo(db.Model):
-    id = db.Column(db.String(100), primary_key=True)
+    id = db.Column(db.String(10), primary_key=True)
     store = db.Column(db.String(64), db.ForeignKey('company.store_id'))
     correo_id = db.Column(db.String(15), db.ForeignKey('correos.correo_id'))
     cliente_apikey = db.Column(db.String(100))
     cliente_id = db.Column(db.String(50))
 
     def __repr__(self):
-        return '<Correo {} {} >'.format(self.store, self.correo_id, self.habilitado)
+        return '<Correo {} {} >'.format(self.store, self.correo_id)
 
 
 class CONF_metodos_envios(db.Model):
@@ -271,14 +280,17 @@ class CONF_metodos_envios(db.Model):
     habilitado = db.Column(db.Boolean)
     titulo_boton = db.Column(db.String(150))
     descripcion_boton = db.Column(db.String(350))
-    correo_id = db.Column(db.String(10), db.ForeignKey('CONF_correo.id'))
+    correo_id = db.Column(db.String(10))
+    #correo_id = db.Column(db.String(10), db.ForeignKey('CONF_correo.id'))
     correo_servicio = db.Column(db.String(50))
+    correo_sucursal = db.Column(db.String(50))
     costo_envio = db.Column(db.String(15))
     icon = db.Column(db.String(50))
+    direccion_obligatoria = db.Column(db.Boolean)
     # origen_valido = provincia (ver si es tabla aparte)
     # accion = cambio/devolucion/ambas
     
     def __repr__(self):
-        return '<Envio {} {} >'.format(self.store, self.metodo_envio, self.habilitado)
+        return '<Envio {} {} >'.format(self.store, self.metodo_envio_id, self.habilitado)
 
 

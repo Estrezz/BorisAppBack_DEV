@@ -32,7 +32,7 @@ with app.app_context():
                         ### order
                         i.order_number, i.id, i.date_creation, i.date_closed, i.status, i.sub_status,
                         i.status_resumen, i.customer_zipcode, i.customer_city, i.customer_province, 
-                        i.courier_coordinar_empresa, i.courier_coordinar_roundtrip, i.courier_method,
+                        i.metodo_envio_correo, i.courier_coordinar_roundtrip, i.courier_method,
                         i.payment_method, i.payment_card,
                         ### detail
                         l.accion, l.motivo, l.accion_cambiar_por, l. accion_cantidad, l.accion_cambiar_por_desc, l.gestionado,

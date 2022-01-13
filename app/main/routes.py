@@ -5,10 +5,10 @@ from flask_login import current_user, login_required
 from sqlalchemy import func
 from app import db
 from app.email import send_email
-from app.main.forms import EditProfileForm, EditProfileCompanyForm, EditMailsCompanyForm, EditCorreoCompanyForm, EditParamsCompanyForm, EditMailsFrontCompanyForm
+from app.main.forms import EditProfileForm
 from app.main.tiendanube import generar_envio_tiendanube, autorizar_tiendanube, buscar_codigo_categoria_tiendanube, buscar_datos_variantes_tiendanube
-from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log, categories_filter, CONF_boris, CONF_metodos_envios, CONF_motivos
-from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto, genera_credito, actualiza_empresa, actualiza_empresa_categorias, actualiza_empresa_JSON, loguear_transaccion, finalizar_orden, devolver_linea, actualizar_stock, devolver_datos_boton, incializa_configuracion, validar_imagen, enviar_imagen
+from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log, categories_filter, CONF_boris, CONF_metodos_envios, CONF_motivos, CONF_correo
+from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto, genera_credito, actualiza_empresa, actualiza_empresa_categorias, actualiza_empresa_JSON, loguear_transaccion, finalizar_orden, devolver_linea, actualizar_stock, devolver_datos_boton, incializa_configuracion, validar_imagen, enviar_imagen, cotiza_envio_correo
 import json
 import re
 import os
@@ -74,7 +74,7 @@ def company(empresa_id):
         (flash('No se encuentran los datos de Configuracion - ponerse en contacto con soporte@borisreturns.com'))
         return redirect(url_for('main.ver_ordenes', estado='all', subestado='all'))
     envios = CONF_metodos_envios.query.filter_by(store=current_user.store).all()
-    motivos = CONF_metodos_envios.query.filter_by(store=current_user.store).all()
+    motivos = CONF_motivos.query.filter_by(store=current_user.store).all()
 
     return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, motivos=motivos, pestaña='tienda', empresa_name=session['current_empresa'])
 
@@ -617,8 +617,8 @@ def gestion_lineas_salientes(orden_id):
             monto_total = 0
         else: 
             orden.nuevo_envio_total = total_nueva_orden
-        orden.courier_coordinar_empresa = request.form.get("empresa_coordinada")
-        orden.courier_coordinar_guia = request.form.get("guia_coordinada")
+        orden.metodo_envio_correo = request.form.get("empresa_coordinada")
+        orden.metodo_envio_guia = request.form.get("guia_coordinada")
         
 
         if nuevaorden == None:
@@ -775,17 +775,17 @@ def gestionar_ordenes(orden_id):
     orden = Order_header.query.filter_by(id=orden_id).first()
     orden_linea = Order_detail.query.filter_by(order=orden_id).all()
     empresa = Company.query.get(orden.store)
-    # flash ('Accion {} - orden {} CIA {}'.format(accion, orden.courier, current_user.empleado))
+    
     if accion == 'toReady':
-        # if request.form['coordinar_empresa']:
-        if request.form.get('coordinar_empresa') or request.form.get('coordinar_guia') or request.form.get('coordinar_roundtrip'):
-            orden.courier_coordinar_empresa = request.form['coordinar_empresa']
-            orden.courier_coordinar_guia = request.form.get('coordinar_guia')
+        if request.form.get('metodo_envio_correo') or request.form.get('metodo_envio_guia') or request.form.get('coordinar_roundtrip'):
+            orden.metodo_envio_correo = request.form['metodo_envio_correo']
+            orden.metodo_envio_guia = request.form.get('metodo_envio_guia')
             if request.form.get('coordinar_roundtrip') == "on":
                 orden.courier_coordinar_roundtrip = True
             else:
                 orden.courier_coordinar_roundtrip = False
             db.session.commit()
+            
         toReady(orden, current_user.empleado)
     else: 
         if accion == 'toReceived':
@@ -1076,6 +1076,21 @@ def buscar_datos_variantes():
         return json.dumps({'success':False}), 400, {'ContentType':'application/json'} 
     #flash('variante {}'.format(variante))
     return json.dumps(variante)
+
+
+@bp.route('/cotiza_envio', methods=['POST'])
+def cotiza_envio():
+   data = request.json
+   datos_correo = CONF_correo.query.filter_by(store=data['correo']['store_id'], correo_id=data['correo']['correo_id']).first() 
+   
+   precio = cotiza_envio_correo(data, datos_correo)
+   return precio
+
+
+
+
+
+
 
 
 
