@@ -7,8 +7,8 @@ from app import db
 from app.email import send_email
 from app.main.forms import EditProfileForm
 from app.main.tiendanube import generar_envio_tiendanube, autorizar_tiendanube, buscar_codigo_categoria_tiendanube, buscar_datos_variantes_tiendanube
-from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log, categories_filter, CONF_boris, CONF_metodos_envios, CONF_motivos, CONF_correo
-from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto, genera_credito, actualiza_empresa, actualiza_empresa_categorias, actualiza_empresa_JSON, loguear_transaccion, finalizar_orden, devolver_linea, actualizar_stock, devolver_datos_boton, incializa_configuracion, validar_imagen, enviar_imagen, cotiza_envio_correo
+from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log, categories_filter, CONF_boris, CONF_metodos_envios, CONF_motivos, CONF_correo, envios
+from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto, genera_credito, actualiza_empresa, actualiza_empresa_categorias, actualiza_empresa_JSON, loguear_transaccion, finalizar_orden, devolver_linea, actualizar_stock, devolver_datos_boton, incializa_configuracion, validar_imagen, enviar_imagen, cotiza_envio_correo, crea_envio_correo
 import json
 import re
 import os
@@ -626,11 +626,28 @@ def gestion_lineas_salientes(orden_id):
              flash('Debe especificar un método de creación para la nueva Orden')
              return redirect(url_for('main.orden', orden_id=orden_id))
 
+        ######## Nueva orden MANUAL ###################################################
         if  nuevaorden == 'manual': 
-                envio_nuevo_metodo = 'Se envía manualmente'
+            envio_nuevo_metodo = 'Se envía manualmente'
+            ##### genera envio si el metodo de envio tiene Carrier ###
+            envio = envios.query.get(orden.courier_method)  
+            if envio.carrier and orden.salientes == 'Si' :
+                customer = Customer.query.get(orden.customer_id)
+                envio_creado = crea_envio_correo(empresa,customer,orden,envio) 
+                if envio_creado == 'Failed':
+                    flash('se produjo un error al intentar generar el envio en la empresa de Correo')
 
+        ######## Nueva orden MANUAL - Dando de baja Stock #############################
         if  nuevaorden == 'manual_stock': 
             envio_nuevo_metodo = 'Se envía manualmente - se descuenta stock'
+            ##### genera envio si el metodo de envio tiene Carrier ###
+            envio = envios.query.get(orden.courier_method)  
+            if envio.carrier and orden.salientes == 'Si' :
+                customer = Customer.query.get(orden.customer_id)
+                envio_creado = crea_envio_correo(empresa,customer,orden,envio) 
+                if envio_creado == 'Failed':
+                    flash('se produjo un error al intentar generar el envio en la empresa de Correo')
+
             if empresa.stock_vuelve_config == True:
                 actualizar_stock(ordenes, empresa ,'saliente')
             else:
@@ -645,7 +662,9 @@ def gestion_lineas_salientes(orden_id):
                                             order=orden, envio=envio_nueva_orden, total=total_nueva_orden),
                     attachments=None, 
                     sync=False)
-          
+
+
+        ######## Nueva orden en Tienda #############################  
         if  nuevaorden == 'tienda': 
             envio_nuevo_metodo = 'Se envía mediante nueva orden en Tienda'
             

@@ -127,7 +127,7 @@
                     {% for i in orden_linea %}
                         {% if (i['accion'] == 'cambiar' and i['accion_cambiar_por'] != 1 ) %}
                         {% set ns.saliente_tmp = true %}
-                        <input class="saliente" type="hidden" id="prod_id_saliente" name="prod_id_saliente" value="{{ i['prod_id'] }}" data-variante="{{ i['accion_cambiar_por']}}" data-prod_id="{{ i['prod_id'] }}" data-cambiar_por_prod_id="{{ i['accion_cambiar_por_prod_id'] }}" data-line_saliente="{{ i['order_line_number'] }}">
+                        <input class="saliente" type="hidden" id="prod_id_saliente" name="prod_id_saliente" value="{{ i['prod_id'] }}" data-variante="{{ i['accion_cambiar_por']}}" data-prod_id="{{ i['prod_id'] }}" data-cambiar_por_prod_id="{{ i['accion_cambiar_por_prod_id'] }}">
                         <input type="hidden" id="order_line_saliente" name="order_line_saliente" value="{{ i['order_line_number'] }}">
                         <div class="card mb-2 ">
                             <div class="card-body">
@@ -639,12 +639,11 @@
             variante = $(this).data('variante');
             prod_id = $(this).data('prod_id');
             cambiar_por_prod_id = $(this).data('cambiar_por_prod_id');
-            line_saliente = $(this).data('line_saliente');
-            buscar_variante(prod_id, cambiar_por_prod_id, variante, line_saliente);
+            buscar_variante(prod_id, cambiar_por_prod_id, variante);
         });
 
 
-        function buscar_variante(prod_id, cambiar_por_prod_id, variante, line_saliente) {  
+        function buscar_variante(prod_id, cambiar_por_prod_id, variante) {  
             $.post('/buscar_variante', {
                 prod_id: cambiar_por_prod_id,
                 variante: variante
@@ -660,8 +659,8 @@
                     var precio = data['price'];
                 }
                 // calcula la diferencia de precio entre el precio del articulo y el valor del cambio
-                var cantidad = $('#accion_cantidad'+line_saliente).val();
-                var diferencia = (precio * cantidad) - ($('#precio'+line_saliente ).val());
+                var cantidad = $('#accion_cantidad'+prod_id).val();
+                var diferencia = (precio * cantidad) - ($('#precio'+prod_id ).val());
                 
                 $('#saliente_diferencia_precio'+prod_id).val(diferencia);
 

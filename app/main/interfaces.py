@@ -179,16 +179,8 @@ def toReady(orden, company):
     envio = envios.query.get(orden.courier_method)
     
     if envio.carrier and orden.salientes == 'No' :
-        orden_linea = Order_detail.query.filter_by(order=orden.id).all()
-        metodo_envio_tmp = CONF_metodos_envios.query.get((company.store_id, envio.metodo_envio_id))
-        correo_id = CONF_correo.query.get(metodo_envio_tmp.correo_id)
-        guia = crear_envio_correo (correo_id, metodo_envio_tmp, orden, customer, orden_linea)
-        if guia != 'Failed':
-            orden.metodo_envio_guia = guia['guia']
-            if guia['importe'] != float(orden.courier_precio):
-                flash('Hubo una diferencia entre el precio cotizado y el precio real Real:{}({}) - Cotizado:{}({})'.format(guia['importe'], type(guia['importe']), float(orden.courier_precio), type(orden.courier_precio)))
-                orden.courier_precio = guia['importe']
-            db.session.commit()
+        envio_creado = crea_envio_correo(company,customer,orden,envio)
+        if envio_creado != 'Failed':
             return "Success"
         else:
             return "Failed"
@@ -719,7 +711,23 @@ def cotiza_envio_correo(data, datos_correo):
         return 'Failed'
 
 
-def crear_envio_correo(correo_id, metodo_envio, orden, customer, orden_linea):
+def crea_envio_correo(company,customer,orden,envio):
+    orden_linea = Order_detail.query.filter_by(order=orden.id).all()
+    metodo_envio_tmp = CONF_metodos_envios.query.get((company.store_id, envio.metodo_envio_id))
+    correo_id = CONF_correo.query.get(metodo_envio_tmp.correo_id)
+    guia = genera_envio(correo_id, metodo_envio_tmp, orden, customer, orden_linea)
+    if guia != 'Failed':
+        orden.metodo_envio_guia = guia['guia']
+        if guia['importe'] != float(orden.courier_precio):
+            flash('Hubo una diferencia entre el precio cotizado y el precio real Real:{}({}) - Cotizado:{}({})'.format(guia['importe'], type(guia['importe']), float(orden.courier_precio), type(orden.courier_precio)))
+            orden.courier_precio = guia['importe']
+        db.session.commit()
+        return "Success"
+    else:
+        return "Failed"
+
+
+def genera_envio(correo_id, metodo_envio, orden, customer, orden_linea):
     if correo_id.correo_id == 'FAST':
         guia = crea_envio_fastmail( correo_id, metodo_envio, orden, customer, orden_linea)
         return guia
