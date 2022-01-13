@@ -48,6 +48,7 @@ def crear_pedido(pedido):
         order_id_anterior = pedido['orden'],
         gastos_cupon = pedido['orden_gastos_cupon'],
         gastos_gateway = pedido['orden_gastos_gateway'],
+        salientes = pedido['order_salientes'],
         gastos_shipping_owner = pedido['orden_gastos_shipping_owner'],
         gastos_shipping_customer = pedido['orden_gastos_shipping_customer'],
         gastos_promocion = pedido ['orden_gastos_promocion'],
@@ -177,7 +178,7 @@ def toReady(orden, company):
     customer = Customer.query.get(orden.customer_id)
     envio = envios.query.get(orden.courier_method)
     
-    if envio.carrier:
+    if envio.carrier and orden.salientes == 'No' :
         orden_linea = Order_detail.query.filter_by(order=orden.id).all()
         metodo_envio_tmp = CONF_metodos_envios.query.get((company.store_id, envio.metodo_envio_id))
         correo_id = CONF_correo.query.get(metodo_envio_tmp.correo_id)
@@ -717,7 +718,7 @@ def cotiza_envio_correo(data, datos_correo):
         return 'Failed'
 
 
-def crear_envio_correo (correo_id, metodo_envio, orden, customer, orden_linea):
+def crear_envio_correo(correo_id, metodo_envio, orden, customer, orden_linea):
     if correo_id.correo_id == 'FAST':
         guia = crea_envio_fastmail( correo_id, metodo_envio, orden, customer, orden_linea)
         return guia

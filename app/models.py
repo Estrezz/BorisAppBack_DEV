@@ -115,6 +115,7 @@ class Order_header(db.Model):
     date_closed = db.Column(db.DateTime)
     date_lastupdate = db.Column(db.DateTime)
     gastos_cupon = db.Column(db.Float)
+    salientes = db.Column(db.String(10))
     gastos_gateway = db.Column(db.Float)
     gastos_shipping_owner = db.Column(db.Float)
     gastos_shipping_customer = db.Column(db.Float)
