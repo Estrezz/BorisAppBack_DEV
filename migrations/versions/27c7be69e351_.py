@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: e5dd6d28e46a
+Revision ID: 27c7be69e351
 Revises: 
-Create Date: 2022-01-10 15:45:50.027490
+Create Date: 2022-01-19 13:27:48.255418
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'e5dd6d28e46a'
+revision = '27c7be69e351'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -91,10 +91,12 @@ def upgrade():
     op.create_index(op.f('ix_customer_email'), 'customer', ['email'], unique=False)
     op.create_index(op.f('ix_customer_name'), 'customer', ['name'], unique=False)
     op.create_index(op.f('ix_customer_platform'), 'customer', ['platform'], unique=False)
-    op.create_table('envios',
+    op.create_table('metodos_envios',
     sa.Column('metodo_envio_id', sa.String(length=20), nullable=False),
     sa.Column('metodo_envio_descripcion', sa.String(length=200), nullable=True),
     sa.Column('carrier', sa.Boolean(), nullable=True),
+    sa.Column('direccion_obligatoria', sa.Boolean(), nullable=True),
+    sa.Column('icon', sa.String(length=50), nullable=True),
     sa.PrimaryKeyConstraint('metodo_envio_id')
     )
     op.create_table('CONF_boris',
@@ -113,11 +115,12 @@ def upgrade():
     sa.PrimaryKeyConstraint('store')
     )
     op.create_table('CONF_correo',
-    sa.Column('id', sa.String(length=10), nullable=False),
+    sa.Column('id', sa.String(length=20), nullable=False),
     sa.Column('store', sa.String(length=64), nullable=True),
     sa.Column('correo_id', sa.String(length=15), nullable=True),
     sa.Column('cliente_apikey', sa.String(length=100), nullable=True),
     sa.Column('cliente_id', sa.String(length=50), nullable=True),
+    sa.Column('habilitado', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['correo_id'], ['correos.correo_id'], ),
     sa.ForeignKeyConstraint(['store'], ['company.store_id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -129,11 +132,13 @@ def upgrade():
     sa.Column('titulo_boton', sa.String(length=150), nullable=True),
     sa.Column('descripcion_boton', sa.String(length=350), nullable=True),
     sa.Column('correo_id', sa.String(length=10), nullable=True),
+    sa.Column('correo_descripcion', sa.String(length=150), nullable=True),
     sa.Column('correo_servicio', sa.String(length=50), nullable=True),
+    sa.Column('correo_sucursal', sa.String(length=50), nullable=True),
     sa.Column('costo_envio', sa.String(length=15), nullable=True),
+    sa.Column('instrucciones_entrega', sa.Text(), nullable=True),
     sa.Column('icon', sa.String(length=50), nullable=True),
-    sa.Column('direccion_obligatoria', sa.Boolean(), nullable=True),
-    sa.ForeignKeyConstraint(['metodo_envio_id'], ['envios.metodo_envio_id'], ),
+    sa.ForeignKeyConstraint(['metodo_envio_id'], ['metodos_envios.metodo_envio_id'], ),
     sa.ForeignKeyConstraint(['store'], ['company.store_id'], ),
     sa.PrimaryKeyConstraint('store', 'metodo_envio_id')
     )
@@ -160,6 +165,7 @@ def upgrade():
     sa.Column('date_closed', sa.DateTime(), nullable=True),
     sa.Column('date_lastupdate', sa.DateTime(), nullable=True),
     sa.Column('gastos_cupon', sa.Float(), nullable=True),
+    sa.Column('salientes', sa.String(length=10), nullable=True),
     sa.Column('gastos_gateway', sa.Float(), nullable=True),
     sa.Column('gastos_shipping_owner', sa.Float(), nullable=True),
     sa.Column('gastos_shipping_customer', sa.Float(), nullable=True),
@@ -275,7 +281,7 @@ def downgrade():
     op.drop_table('CONF_metodos_envios')
     op.drop_table('CONF_correo')
     op.drop_table('CONF_boris')
-    op.drop_table('envios')
+    op.drop_table('metodos_envios')
     op.drop_index(op.f('ix_customer_platform'), table_name='customer')
     op.drop_index(op.f('ix_customer_name'), table_name='customer')
     op.drop_index(op.f('ix_customer_email'), table_name='customer')

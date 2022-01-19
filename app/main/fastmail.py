@@ -67,8 +67,8 @@ def crea_envio_fastmail(correo, metodo_envio, orden, customer, orden_linea):
      'Content-Type': 'application/json'
     }
 
-    if orden.courier_coordinar_roundtrip == True:
-        observaciones= "Retiro+Entrega"
+    if orden.courier_coordinar_roundtrip == True and orden.salientes == 'Si':
+        observaciones= "Retiro + Entrega"
     else: 
         observaciones= "Retiro"
 
@@ -126,16 +126,30 @@ def crea_envio_fastmail(correo, metodo_envio, orden, customer, orden_linea):
     
     solicitud = requests.request("POST", url, headers=headers, data=payload)
     if solicitud.status_code != 200:
+        flash('Hubi un error al generar la guia. Codigo {} - {}'.format(solicitud.status_code, solicitud.content))
         return "Failed"
     else:
         solicitud = solicitud.json()
-        enviar_etiqueta_fastmail(correo, solicitud, customer, orden)
+        enviar_etiqueta_fastmail(correo, solicitud, customer, orden, observaciones)
         return solicitud
 
 
 
-def enviar_etiqueta_fastmail(correo, solicitud, customer, orden):
+def enviar_etiqueta_fastmail(correo, solicitud, customer, orden, observaciones):
+    ####################################################################
+    # las etiquetas se envia:
+    # a FASTMAIL si solo es RETIRO
+    # al MERCHANT si es Retiro + Entrega
+    ####################################################################
     company = Company.query.filter_by(store_id=current_user.store).first()
+
+    if observaciones == "Retiro + Entrega":
+        mailto = company.admin_email
+    
+    if observaciones == "Retiro":
+        #mailto = 'ssuarez@fastmail.com.ar'
+        mailto = 'erezzoni@yandex.com'
+    
     url = "https://epresislv.fastmail.com.ar/api/v2/print_etiquetas.json"
 
     headers = {
@@ -153,14 +167,15 @@ def enviar_etiqueta_fastmail(correo, solicitud, customer, orden):
         flash('no se pudo generar la etiqueta')
     else:
         label = label_tmp.content
-        
-    send_email('Tu orden ha sido confirmada', 
+    
+    flash('Se generó la orden {} . Se envia la etiqueta por correo a {}'.format(solicitud['guia'], mailto))
+    send_email('se ha generado una etiqueta para la solicitud '+str(orden.order_number), 
         sender=(company.communication_email_name, company.communication_email),
-        recipients=[customer.email], 
+        recipients=[mailto], 
         reply_to = company.admin_email,
-        text_body=render_template('email/pedido_confirmado.txt',
+        text_body=render_template('email/etiqueta_enviada.txt',
                                         company=company, customer=customer, order=orden, envio=orden.courier_method, label=label),
-                                        html_body=render_template('email/pedido_confirmado.html',
+                                        html_body=render_template('email/etiqueta_enviada.html',
                                         company=company, customer=customer, order=orden, envio=orden.courier_method, label=label), 
                                         attachments=[('etiqueta.pdf', 'application/pdf',
                                             label)], 

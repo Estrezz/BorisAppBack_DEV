@@ -4,7 +4,7 @@ import string
 import random
 import imghdr
 from app import db
-from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log, categories_filter, CONF_motivos, CONF_boris, CONF_metodos_envios, correos, CONF_correo, envios
+from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log, categories_filter, CONF_motivos, CONF_boris, CONF_metodos_envios, correos, CONF_correo, metodos_envios
 #from app.main.moova import toready_moova
 from app.main.fastmail import crea_envio_fastmail, cotiza_envio_fastmail
 from app.main.tiendanube import buscar_producto_tiendanube,  genera_credito_tiendanube, devolver_stock_tiendanube
@@ -176,7 +176,7 @@ def traducir_estado(estado):
 
 def toReady(orden, company):
     customer = Customer.query.get(orden.customer_id)
-    envio = envios.query.get(orden.courier_method)
+    envio = metodos_envios.query.get(orden.courier_method)
     
     if envio.carrier and orden.salientes == 'No' :
         envio_creado = crea_envio_correo(company,customer,orden,envio)
@@ -371,7 +371,7 @@ def actualiza_empresa(empresa):
     solicitud = requests.request("POST", url, headers=headers, data=json.dumps(data))
     
     if solicitud.status_code != 200:
-        return 'Failed'
+        return 'Ya existia'
     else: 
         return 'Success'
 
@@ -716,6 +716,7 @@ def crea_envio_correo(company,customer,orden,envio):
     metodo_envio_tmp = CONF_metodos_envios.query.get((company.store_id, envio.metodo_envio_id))
     correo_id = CONF_correo.query.get(metodo_envio_tmp.correo_id)
     guia = genera_envio(correo_id, metodo_envio_tmp, orden, customer, orden_linea)
+    
     if guia != 'Failed':
         orden.metodo_envio_guia = guia['guia']
         if guia['importe'] != float(orden.courier_precio):

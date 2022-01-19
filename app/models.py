@@ -250,10 +250,12 @@ class  CONF_boris(db.Model):
         return '<configuracion {} {} >'.format(self.store, self.ventana_cambios, self.ventana_devolucion)
 
 
-class envios(db.Model):
+class metodos_envios(db.Model):
     metodo_envio_id = db.Column(db.String(20), primary_key=True)
     metodo_envio_descripcion = db.Column(db.String(200))
     carrier = db.Column(db.Boolean)
+    direccion_obligatoria = db.Column(db.Boolean)
+    icon = db.Column(db.String(50))
 
     def __repr__(self):
         return '<Metodo Envio {} {} >'.format(self.metodo_envio_id, self.metodo_envio_descripcion)
@@ -262,14 +264,17 @@ class envios(db.Model):
 class correos(db.Model):
     correo_id = db.Column(db.String(15), primary_key=True)
     correo_descripcion = db.Column(db.String(150))
+def __repr__(self):
+        return '<Correo {} {} >'.format(self.correo_id, self.correo_descripcion)
 
 
 class CONF_correo(db.Model):
-    id = db.Column(db.String(10), primary_key=True)
+    id = db.Column(db.String(20), primary_key=True)
     store = db.Column(db.String(64), db.ForeignKey('company.store_id'))
     correo_id = db.Column(db.String(15), db.ForeignKey('correos.correo_id'))
     cliente_apikey = db.Column(db.String(100))
     cliente_id = db.Column(db.String(50))
+    habilitado = db.Column(db.Boolean)
 
     def __repr__(self):
         return '<Correo {} {} >'.format(self.store, self.correo_id)
@@ -277,17 +282,18 @@ class CONF_correo(db.Model):
 
 class CONF_metodos_envios(db.Model):
     store = db.Column(db.String(64), db.ForeignKey('company.store_id'), primary_key=True)
-    metodo_envio_id = db.Column(db.String(20), db.ForeignKey('envios.metodo_envio_id'), primary_key=True)
+    metodo_envio_id = db.Column(db.String(20), db.ForeignKey('metodos_envios.metodo_envio_id'), primary_key=True)
     habilitado = db.Column(db.Boolean)
     titulo_boton = db.Column(db.String(150))
     descripcion_boton = db.Column(db.String(350))
     correo_id = db.Column(db.String(10))
-    #correo_id = db.Column(db.String(10), db.ForeignKey('CONF_correo.id'))
+    correo_descripcion = db.Column(db.String(150))
     correo_servicio = db.Column(db.String(50))
     correo_sucursal = db.Column(db.String(50))
     costo_envio = db.Column(db.String(15))
+    instrucciones_entrega = db.Column(db.Text) 
+    ### quitar
     icon = db.Column(db.String(50))
-    direccion_obligatoria = db.Column(db.Boolean)
     # origen_valido = provincia (ver si es tabla aparte)
     # accion = cambio/devolucion/ambas
     

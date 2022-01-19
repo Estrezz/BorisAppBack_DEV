@@ -24,16 +24,12 @@
                 {% endif %}
 
                 {% if pestaña == 'carrier' %}
-                  <a class="list-group-item list-group-item-action active" data-toggle="list" href="#correo">Empresas de Correo</a>
+                  <a class="list-group-item list-group-item-action active" data-toggle="list" href="#correo">Datos para Envios</a>
                 {% else %}
-                  <a class="list-group-item list-group-item-action" data-toggle="list" href="#correo">Empresas de Correos</a>
+                  <a class="list-group-item list-group-item-action" data-toggle="list" href="#correo">Datos para Envios</a>
                 {% endif %}
 
-                {% if pestaña == 'envios' %}
-                  <a class="list-group-item list-group-item-action active" data-toggle="list" href="#envios">Métodos de Envío</a>
-                {% else %}
-                  <a class="list-group-item list-group-item-action" data-toggle="list" href="#envios">Métodos de Envío</a>
-                {% endif %}
+               
 
                 {% if pestaña == 'motivos' %}
                   <a class="list-group-item list-group-item-action active" data-toggle="list" href="#motivos">Motivos</a>
@@ -45,6 +41,12 @@
                   <a class="list-group-item list-group-item-action active" data-toggle="list" href="#portal">Cofiguracion Portal</a>
                 {% else %}
                 <a class="list-group-item list-group-item-action" data-toggle="list" href="#portal">Cofiguracion Portal</a>
+                {% endif %}
+
+                {% if pestaña == 'envios' %}
+                  <a class="list-group-item list-group-item-action active" data-toggle="list" href="#envios">Métodos de Retiro</a>
+                {% else %}
+                <a class="list-group-item list-group-item-action" data-toggle="list" href="#envios">Métodos de Retiro</a>
                 {% endif %}
 
                 {% if pestaña == 'mailsportal' %}
@@ -169,100 +171,118 @@
                   <div class="tab-pane fade" id="correo">
                 {% endif %}
 
-                  <div class="card-body">  
-                    <div class = "page-header text-info font-weight-bold"> 
-                      <h4> Empresas de Correo Utilizadas </h4>
-                    </div>
-                    <br>
-
-                    <!-- Formulario para agregar un correo -->
-                    <div class="card">
-                      <div class="card-body">
-                        <div class = "text-info"> 
-                          <h5> Agregar una nueva empresa de correo</h5>
-                        </div>
-                        <small>
-
-                          <form id="correo_add" action="{{ url_for('main.add_correo') }}" method="POST">       
-                            <div class="form-group">
-                              <label for="correo_usado">Nuevo Correo</label> 
-                              <select class="custom-select custom-select-sm" name="correo_usado" id="correo_usado" placeholder="Empresa de Correo" >
-                                <option selected disabled>Selecciona una Empresa de Correo</option>
-                                {% for un_correo in lista_correos %}
-                                  {% if un_correo.correo_id != 'NONE' %}
-                                    <option value="{{ un_correo.correo_id }}">{{ un_correo.correo_descripcion }}</option>
+                  <div class="card-body">
+                    <form id="carrier_info" action="{{ url_for('main.edit_carrierinfo') }}" method="POST"> 
+                      <div class = "page-header text-info font-weight-bold"> 
+                        <h4> Datos para los envíos</h4>
+                      </div>
+                      <br>
+                      <div class="card">
+                        <div class="card-body">
+                          <div class = "text-info"> 
+                            <h5> Empresa de Correo
+                            <small class="text-muted">&nbsp;(Utilizar solo para empresas de correo integradas con BORIS)</small></h5>
+                          </div>
+                          <small>
+                          <div class="form-group">
+                            <label for="correo_usado">Empresa de Correo utilizada</label>
+                            {% if empresa.plan_boris != 'Plan_D' %}
+                              <input type="text" class="form-control form-control-sm" name="correo_usado" id="correo_usado" value="{{ empresa.correo_usado or ''}}" placeholder="Empresa utilizada para envíos" readonly>
+                            {% else %}
+                              <input type="text" class="form-control form-control-sm" name="correo_usado" id="correo_usado" value="{{ empresa.correo_usado or ''}}" placeholder="Empresa utilizada para envíos">
+                            {% endif %}
+                            
+                          </div>
+                          <fieldset class="form-group">
+                            <div class="row">
+                              <legend class="col-form-label col-sm-2 pt-0">Costo del envío</legend>
+                              <div class="col-sm-10">
+                                <div class="form-check">
+                                  {% if (empresa.correo_cost == 'customer') or (empresa.correo_cost == None) %}
+                                    <input class="form-check-input" type="radio" name="shipping" id="shipping_customer" value="customer" checked>
+                                  {% else %}
+                                    <input class="form-check-input" type="radio" name="shipping" id="shipping_customer" value="customer">
                                   {% endif %}
-                                {% endfor %}
-                              </select>
-                            </div>
-
-                            <div class="form-row ">
-                              <div class="form-group col-md-6">  
-                                <label for="nuevo_correo_API">Api Key</label> 
-                                <input type="text" class="form-control form-control-sm" name="nuevo_correo_API" id="nuevo_correo_API" placeholder="API key para el correo seleccionado">
-                              </div> 
-
-                              <div class="form-group col-md-6">  
-                                <label for="nuevo_correo_id_servicio">ID del Servicio</label> 
-                                <input type="text" class="form-control form-control-sm" name="nuevo_correo_id_servicio" id="nuevo_correo_id_servicio" placeholder="Id del Servicio">
-                              </div> 
-
-                            </div>
-
-                            <div class="form-group col-md-2"> 
-                              <button name="agregar" type="submit" class="btn btn-primary btn-sm mt-2" value="agregar"> Agregar </button>
-                            </div>
-                                  
-                          </form>
-                        </small>
-                      </div>
-                    </div>
-                    <!-- FIN Formulario para agregar correos -->
-                    <hr>
-                    
-                    <div class="card">
-                      <div class="card-body">
-                        <div class = "text-info"> 
-                          <h5> Correos Utilizados</h5>
-                        </div>
-                        <small>
-                          {% for empresa_correo in correos_activos %} 
-                            <form id="correos_activos_info" action="{{ url_for('main.editar_correo', id= empresa_correo.correo_id) }}" method="POST"> 
-                              <div class="card">
-                                <div class="card-body">
-                                  <div class = "text-info"> 
-                                    <strong> {{ empresa_correo.correo_id }}</strong>
-                                  </div>
-
-                                  <div class="form-group">  
-                                      <label for="correo_API">Api Key</label> 
-                                      <input type="password" class="form-control form-control-sm" name="correo_API" id="correo_API" value="{{ empresa_correo.cliente_apikey }}">
-                                  </div> 
-                                  
-                                  
-                                  <div class="form-group">  
-                                    <label for="correo_cliente_id">ID de Cliente </label> <small>(si fuera necesario)</small>
-                                    <input type="password" class="form-control form-control-sm" name="correo_cliente_id" id="correo_cliente_id" value="{{ empresa_correo.cliente_id }}">
-                                  </div> 
-                                  
-
-                                  <div class="form-group col-md-4">
-                                  <br>
-                                    <button name="boton_correo" type="submit" class="btn btn-outline-info btn-sm mt-2" value="update"> Actualizar </button>
-                                    <button name="boton_correo" type="submit" class="btn btn-sm btn-outline-danger mt-2 ml-4" value="eliminar"> Eliminar </button>
-                                  </div>
+                                  <label class="form-check-label" for="shipping_customer">
+                                    A cargo del Cliente 
+                                  </label>
                                 </div>
+                                <div class="form-check">
+                                  {% if empresa.correo_cost == 'company' %}
+                                    <input class="form-check-input" type="radio" name="shipping" id="shipping_company" value="company" checked>
+                                  {% else %}
+                                    <input class="form-check-input" type="radio" name="shipping" id="shipping_company" value="company">
+                                  {% endif %}
+                                  <label class="form-check-label" for="shipping_company">
+                                    A cargo del Merchant
+                                  </label>
+                                </div> 
                               </div>
-                              <br>
-                            </form>
-                          {% endfor %}
-                        </small>
+                            </div>
+                          </fieldset>
+                          <div class="form-group row">
+                            <div class="form-check col-md-8">
+                              {% if empresa.correo_test == true %}
+                                <input class="form-check-input ml-2" type="checkbox" name ="correo_test" id="correo_test" checked>
+                              {% else %}
+                                <input class="form-check-input ml-2" type="checkbox" name ="correo_test" id="correo_test" >
+                              {% endif %}
+                              <label class="form-check-label ml-4" for="correo_test">
+                                Usar entorno de test para Correo? 
+                              </label>
+                            </div>
+                          </div>
+                          <hr>
+                          <br>
+                          <div class = "text-info"> 
+                            <h5> Dirección para recibir productos</h5>
+                          </div>
+                          <div class="form-row">
+                            <div class="form-group col-md-6">
+                              <label for="shipping_address">Calle</label>
+                              <input type="text" class="form-control form-control-sm" name="shipping_address" id="shipping_address" value="{{empresa.shipping_address or ''}}" placeholder="Dirección">
+                            </div>
+                            <div class="form-group col-md-2">
+                              <label for="shipping_number">Número</label>
+                              <input type="text" class="form-control form-control-sm" name="shipping_number" id="shipping_number" value="{{empresa.shipping_number or ''}}" placeholder="Número">
+                            </div>
+                            <div class="form-group col-md-2">
+                              <label for="shipping_floor">Piso</label>
+                              <input type="text" class="form-control form-control-sm" name="shipping_floor" id="shipping_floor" value="{{empresa.shipping_floor or ''}}" placeholder="Piso">
+                            </div>
+                            <div class="form-group col-md-2">
+                              <label for="shipping_zipcode ">Cod. Postal</label>
+                              <input type="text" class="form-control form-control-sm" name="shipping_zipcode " id="shipping_zipcode " value="{{empresa.shipping_zipcode or ''}}" placeholder="Cod. Postal">
+                            </div>
+                            <div class="form-row">
+                              <div class="form-group col-md-6">
+                                <label for="shipping_city">Ciudad</label>
+                                <input type="text" class="form-control form-control-sm" name="shipping_city" id="shipping_city" value="{{empresa.shipping_city or ''}}" placeholder="Ciudad">
+                              </div>
+                              <div class="form-group col-md-4">
+                                <label for="shipping_province">Provincia</label>
+                                <input type="text" class="form-control form-control-sm" name="shipping_province" id="shipping_province" value="{{empresa.shipping_province or ''}}" placeholder="Provincia">
+                              </div>
+                              <div class="form-group col-md-2">
+                                <label for="shipping_country">Pais</label>
+                                <input type="text" class="form-control form-control-sm" name="shipping_country" id="shipping_country" value="{{empresa.shipping_country or ''}}" placeholder="Pais">
+                              </div>
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label for="shipping_info">Nota para Envíos</label>
+                            <input type="text" class="form-control form-control-sm" name="shipping_info" id="shipping_info" value="{{ empresa.shipping_info or ''}}">
+                          </div>
+                          </small>
+                          <br>
+                          <button name="boton" type="submit" class="btn btn-primary mt-2" value="guardar"> Guardar Cambios </button>
+                          <button name="boton" type="submit" class="btn btn-danger mt-2 float-right" value="cancelar"> Salir </button>
+                        </div>
                       </div>
-                    </div>
+                    </form>
                   </div>
                 </div>
-                
-                
+
 
                 <!---------------- Configuracion del Portal  -------------------------------->
                 {% if pestaña == 'portal' %}
@@ -513,220 +533,49 @@
                 {% else %}
                   <div class="tab-pane fade" id="envios">
                 {% endif %}
-                
                   <div class="card-body">
+                    <form id="envios_info" action="{{ url_for('main.edit_enviosinfo') }}" method="POST"> 
                       <div class = "page-header text-info font-weight-bold"> 
-                        <h4> Métodos de Envío </h4>
+                        <h4> Métodos de Retiro </h4>
                       </div>
                       <br>
-
-                    <!-- Formulario para agregar un Metodo de Envio -->
-                    <div class="card">
-                      <div class="card-body">
-                        <div class = "text-info"> 
-                          <h5> Agregar un nuevo Método de Envío</h5>
-                        </div>
-
-                        <small>
-                          <form id="envios_add" action="{{ url_for('main.add_envio') }}" method="POST"> 
-                            <div class="form-group">
-                              <label for="nuevo_metodo_envio">Nuevo Método de Envío</label> 
-                              <select class="custom-select custom-select-sm" name="nuevo_metodo_envio" id="nuevo_metodo_envio" >
-                                <option selected disabled>Selecciona un Método de Envio</option>
-                                {% for un_metodo in lista_metodos %}
-                                    <option value="{{ un_metodo.metodo_envio_id }}">{{ un_metodo.metodo_envio_id }}</option>
-                                {% endfor %}
-                              </select>
-                            </div>
-
-                            <strong class = "text-info">Botón en el portal:</strong><br>
-                            <div class="form-group">
-                              <label for="nuevo_titulo_boton">Título</label> 
-                              <input type="text" class="form-control form-control-sm" name="nuevo_titulo_boton" id="nuevo_titulo_boton">
-                            </div>
-                            <div class="form-group">
-                              <label for="nuevo_descripcion_boton">Descripción</label> 
-                              <textarea class="form-control form-control-sm" name="nuevo_descripcion_boton" id="nuevo_descripcion_boton" ></textarea> 
-                            </div> 
-                            
-                            <strong class = "text-info">Empresa de correo:</strong><br>
-                            <div class="form-row mt-2 align-items-center">
-                              <div class="form-group col-md-6">
-                                <label for="nuevo_metodo_envio_correo">Correo</label> 
-                                <select class="custom-select custom-select-sm" name="nuevo_metodo_envio_correo" id="nuevo_metodo_envio_correo" placeholder="Empresa de Correo">
-                                  <option selected disabled>Selecciona una empresa de correo</option>
-                                  {% for un_correo in correos_activos %}
-                                      <option value="{{ un_correo.correo_id }}">{{ un_correo.correo_id }}</option>
-                                  {% endfor %}
-                                </select>
-                              </div>
-                            
-                              <div class="form-group col-md-3">
-                                <label for="nuevo_metodo_envio_correo_servicio">Codigo del Servicio</label> 
-                                <input type="text" class="form-control form-control-sm" name="nuevo_metodo_envio_correo_servicio" id="nuevo_metodo_envio_correo_servicio">
-                              </div>
-                            
-                          
-                              <div class="form-group col-md-3">
-                                <label for="nuevo_metodo_envio_correo_sucursal">Código de Sucursal</label> 
-                                <input type="text" class="form-control form-control-sm" name="nuevo_metodo_envio_correo_sucursal" id="nuevo_metodo_envio_correo_sucursal">
-                              </div>
-                            </div>
-                        
-                            <fieldset class="form-group">
-                              <div class="row">
-                                <legend class="col-form-label col-sm-2 pt-0">Costo del envío</legend>
-                                <div class="col-sm-10">
-                                  <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="nuevo_shipping" id="shipping_customer" value="customer">
-                                    <label class="form-check-label" for="shipping_customer">
-                                      A cargo del Cliente 
-                                    </label>
-                                  </div>
-                                  <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="nuevo_shipping" id="shipping_company" value="company">
-                                    <label class="form-check-label" for="shipping_company">
-                                      A cargo del Merchant
-                                    </label>
-                                  </div>
-                                </div>
-                              </div>
-                            </fieldset>
-
-                            <strong class = "text-info">Instrucciones para el Envío:</strong><br>
-                            <div class="form-group">
-                              <label for="nuevo_instrucciones">Instrucciones</label> 
-                              <textarea class="form-control form-control-sm" name="nuevo_instrucciones" id="nuevo_instrucciones" ></textarea> 
-                            </div> 
-
-                            <div class="form-group col-md-2"> 
-                              <button name="agregar" type="submit" class="btn btn-primary btn-sm mt-2" value="agregar"> Agregar </button>
-                            </div>
-
-                          </form>
-                        </small>
-                      </div>
-                    </div>
-                    <hr>
-
-
-                    <div class = "text-info"> 
-                      <h5> Métodos de Envío utilizados</h5>
-                    </div>
-
-                    {% for e in envios %}
-                    <form id="envios_info" action="{{ url_for('main.editar_envio', id=e.metodo_envio_id) }}" method="POST"> 
-                      <input type="hidden" id="metodos_envio_id" name="metodos_envio_id" value="{{ e.metodo_envio_id }}">
+                      {% for e in envios %}
+                      <input type="hidden" id="metodos_envio" name="metodos_envio" value="{{ e.metodo_envio }}">
                       <div class="card mb-4">
                         <div class="card-body">
                           <div class="form-group row">
                             <div class="form-check col-md-9">
-                              <h5 class="text-info" style="text-transform:uppercase">{{e.metodo_envio_id}}</h5>
+                              <h5 class="text-info" style="text-transform:uppercase">{{e.metodo_envio}}</h5>
                             </div>
                             <div class="form-check col-md-3">
                               {% if e.habilitado == true %}
-                                <input class="form-check-input" type="checkbox" name ="habilitado" id="habilitado" checked>
+                                <input class="form-check-input" type="checkbox" name ="habilitado{{ e.metodo_envio }}" id="habilitado{{ e.metodo_envio }}" checked>
                               {% else %}
-                                <input class="form-check-input" type="checkbox" name ="habilitado" id="habilitado" >
+                                <input class="form-check-input" type="checkbox" name ="habilitado{{ e.metodo_envio }}" id="habilitado{{ e.metodo_envio }}" >
                               {% endif %}
-                              <label class="form-check-label" for="habilitado">Habilitado</label>
+                              <label class="form-check-label" for="habilitado{{ e.metodo_envio }}">Habilitado</label>
                             </div>
                           </div>
                           <hr>
-
                           <small>
-                            <strong>Botón en el portal:</strong><br>
-                              <div class="form-group">
-                                <label for="titulo_boton">Título</label> 
-                                <input type="text" class="form-control form-control-sm" name="titulo_boton" id="titulo_boton" value="{{ e.titulo_boton or ''}}">
-                              </div>
-
-                              <div class="form-group">
-                                <label for="descripcion_boton">Descripción</label> 
-                                <textarea class="form-control form-control-sm" name="descripcion_boton" id="descripcion_boton" value="{{ e.descripcion_boton or ''}}">{{ e.descripcion_boton or ''}}</textarea> 
-                              </div> 
-
-                              {% if e.correo_id %}
-                                <strong class = "text-info">Empresa de correo:</strong><br>
-                                <div class="form-row mt-2 align-items-center">
-                                  <div class="form-group col-md-6">
-                                    <label for="metodo_envio_correo">Correo</label> 
-                                    <select class="custom-select custom-select-sm" name="metodo_envio_correo" id="metodo_envio_correo">
-                                        <option disabled>Selecciona una empresa de correo</option>
-                                      
-                                    
-
-                                      {% for un_correo in correos_activos %}
-                                          {% if un_correo.correo_id == e.correo_id %}
-                                            <option selected value="{{ un_correo.correo_id }}">{{ un_correo.correo_id }}</option>
-                                          {% else %}
-                                            <option value="{{ un_correo.correo_id }}">{{ un_correo.correo_id }}</option>
-                                          {% endif %}
-                                      {% endfor %}
-                                    </select>
-                                  </div>
-                              
-                                  <div class="form-group col-md-3">
-                                    <label for="metodo_envio_correo_servicio">Codigo del Servicio</label> 
-                                    <input type="text" class="form-control form-control-sm" name="metodo_envio_correo_servicio" id="metodo_envio_correo_servicio" value="{{e.correo_servicio}}">
-                                  </div>
-                              
-                            
-                                  <div class="form-group col-md-3">
-                                    <label for="metodo_envio_correo_sucursal">Código de Sucursal</label> 
-                                    <input type="text" class="form-control form-control-sm" name="metodo_envio_correo_sucursal" id="metodo_envio_correo_sucursal" value="{{e.correo_sucursal}}">
-                                  </div>
-
-                                </div>
-                              
-                                <fieldset class="form-group">
-                                  <div class="row">
-                                    <legend class="col-form-label col-sm-2 pt-0">Costo del envío</legend>
-                                    <div class="col-sm-10">
-                                      <div class="form-check">
-                                        {% if (e.costo_envio == 'Customer') or (e.costo_envio == None) %}
-                                          <input class="form-check-input" type="radio" name="shipping" id="shipping_customer" value="Customer" checked>
-                                        {% else %}
-                                          <input class="form-check-input" type="radio" name="shipping" id="shipping_customer" value="Customer">
-                                        {% endif %}
-                                        <label class="form-check-label" for="shipping_customer">
-                                          A cargo del Cliente 
-                                        </label>
-                                      </div>
-                                      <div class="form-check">
-                                        {% if e.costo_envio == 'Merchant' %}
-                                          <input class="form-check-input" type="radio" name="shipping" id="shipping_company" value="Merchant" checked>
-                                        {% else %}
-                                          <input class="form-check-input" type="radio" name="shipping" id="shipping_company" value="Merchant">
-                                        {% endif %}
-                                        <label class="form-check-label" for="shipping_company">
-                                          A cargo del Merchant
-                                        </label>
-                                      </div> 
-                                    </div>
-                                  </div>
-                                </fieldset>
-                              {% endif %}
-                              <strong class = "text-info">Instrucciones para el Envío:</strong><br>
-                              <div class="form-group">
-                                <label for="instrucciones">Instrucciones</label> 
-                                <textarea class="form-control form-control-sm" name="instrucciones" id="instrucciones" value="{{e.instrucciones_entrega}}">{{e.instrucciones_entrega}}</textarea> 
-                              </div> 
-
+                          <strong>Botón en el portal:</strong><br>
+                          <div class="form-group">
+                            <label for="titulo_boton{{ e.metodo_envio }}">Título</label> 
+                            <input type="text" class="form-control form-control-sm" name="titulo_boton{{ e.metodo_envio }}" id="titulo_boton{{ e.metodo_envio }}" value="{{ e.titulo_boton or ''}}">
+                          </div>
+                          <div class="form-group">
+                            <label for="descripcion_boton{{ e.metodo_envio }}">Descripción</label> 
+                            <textarea class="form-control form-control-sm" name="descripcion_boton{{ e.metodo_envio }}" id="descripcion_boton{{ e.metodo_envio }}" value="{{ e.descripcion_boton or ''}}">{{ e.descripcion_boton or ''}}</textarea> 
+                          </div> 
                           </small>
                         </div>
-                        <div class="form-group col-md-4">
-                          <br>
-                          <button name="boton" type="submit" class="btn btn-outline-info btn-sm mt-2" value="update"> Actualizar </button>
-                          <button name="boton" type="submit" class="btn btn-sm btn-outline-danger mt-2 ml-4" value="eliminar"> Eliminar </button>
-                        </div>
                       </div>
+                      {% endfor %}
                       <br>
+                      <button name="boton" type="submit" class="btn btn-primary mt-2" value="guardar"> Guardar Cambios </button>
+                      <button name="boton" type="submit" class="btn btn-danger mt-2 float-right" value="cancelar"> Salir </button>
                     </form>
-                    {% endfor %}
-                   
-                  
-                    </div>
+                   </div>
                   </div>   
                   
                   <!---------------- Mails Portal -------------------------------->
