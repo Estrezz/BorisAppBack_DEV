@@ -276,6 +276,8 @@ def edit_portalinfo():
                 else:
                     envio = enviar_imagen(file_fondo, str(current_user.store)+file_ext)
                     if envio == 'Success':
+                        if current_app.config['SERVER_ROLE'] == 'PREDEV':
+                            url="http://frontdev.borisreturns.com/static/images/background/"
                         if current_app.config['SERVER_ROLE'] == 'DEV':
                             url="https://front.borisreturns.com/static/images/background/"
                         if current_app.config['SERVER_ROLE'] == 'PROD':
@@ -449,44 +451,6 @@ def edit_enviosinfo():
     for e in envios:
         metodos_usados.append(e.metodo_envio_id)
     lista_metodos = metodos_envios.query.filter(~metodos_envios.metodo_envio_id.in_(metodos_usados)).all()
-
-    if request.method == "POST":
-        accion = request.form.get('boton')
-
-        if accion == "cancelar":
-            return redirect(url_for('main.company', empresa_id=current_user.store ))
-            
-        if accion == "guardar":
-            metodos = []
-            for m in envios:
-                habilitado = request.form.get('habilitado'+m.metodo_envio)
-                titulo_boton = request.form.get('titulo_boton'+m.metodo_envio)
-                descripcion_boton = request.form.get('descripcion_boton'+m.metodo_envio)
-                clave = devolver_datos_boton(m.metodo_envio)
-                
-                
-                if habilitado == 'on':
-                    m.habilitado = True
-                    metodos.append(str.lower(m.metodo_envio))
-                else:
-                    m.habilitado = False
-
-                if m.titulo_boton != titulo_boton:
-                    m.titulo_boton = titulo_boton
-                    actualiza_empresa_JSON(empresa, clave[0], titulo_boton, 'textos')
-
-                if m.descripcion_boton != descripcion_boton:    
-                    m.descripcion_boton = descripcion_boton
-                    actualiza_empresa_JSON(empresa, clave[1], descripcion_boton, 'textos')
-            
-            db.session.commit()
-           
-            status = actualiza_empresa_JSON(empresa, 'envio', metodos, 'otros')
-            if status != 'Failed':
-                flash('Los datos se actualizaron correctamente')
-            else:
-                flash('Se produjo un error {}'. format(status))
-
             
     return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, correos_activos=correos_activos, lista_correos=lista_correos, lista_metodos=lista_metodos, motivos=motivos,pestaña='envios', empresa_name=session['current_empresa'])
 
@@ -520,8 +484,25 @@ def add_envio():
 
         db.session.add(unMetodo)
         db.session.commit()
-        ###### Falta agregar al JSON #############################
-        flash('Los datos se actualizaron correctamente')
+
+        ###### actualiza el JSON del Front
+        empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
+        metodos_tmp = CONF_metodos_envios.query.filter_by(store=current_user.store).all() 
+        metodos=[]
+        for m in metodos_tmp:
+            metodo_master = metodos_envios.query.get(m.metodo_envio_id)
+            unMetodo_tmp = {"metodo_envio_id" : m.metodo_envio_id,
+                            "icon": metodo_master.icon,
+                            "boton_titulo": m.titulo_boton,
+                            "boton_descripcion": m.descripcion_boton,
+                            "direccion_obligatoria": metodo_master.direccion_obligatoria,
+                            "costo_envio": m.costo_envio}
+            metodos.append(unMetodo_tmp)
+            status = actualiza_empresa_JSON(empresa, 'metodos_envio', metodos, 'otros')
+            if status != 'Failed':
+                flash('Los datos se actualizaron correctamente')
+            else:
+                flash('Se produjo un error {}'. format(status))
     
     return redirect(url_for('main.edit_enviosinfo'))
 
@@ -559,12 +540,24 @@ def editar_envio(id):
         db.session.commit()
 
         ###### actualiza el JSON del Front
-        #empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
-        #motivos_tmp = CONF_motivos.query.filter_by(store=current_user.store).all()
-        #motivos=[]
-        #for m in motivos_tmp:
-        #    motivos.append(m.motivo)
-        #    actualiza_empresa_JSON(empresa, 'motivos', motivos, 'otros')
+        empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
+        metodos_tmp = CONF_metodos_envios.query.filter_by(store=current_user.store).all() 
+        metodos=[]
+        for m in metodos_tmp:
+            metodo_master = metodos_envios.query.get(m.metodo_envio_id)
+            unMetodo_tmp = {"metodo_envio_id" : m.metodo_envio_id,
+                            "icon": metodo_master.icon,
+                            "boton_titulo": m.titulo_boton,
+                            "boton_descripcion": m.descripcion_boton,
+                            "direccion_obligatoria": metodo_master.direccion_obligatoria,
+                            "costo_envio": m.costo_envio}
+            metodos.append(unMetodo_tmp)
+            status = actualiza_empresa_JSON(empresa, 'metodos_envio', metodos, 'otros')
+            if status != 'Failed':
+                flash('Los datos se actualizaron correctamente')
+            else:
+                flash('Se produjo un error {}'. format(status))
+        
 
     return redirect(url_for('main.edit_enviosinfo'))
 

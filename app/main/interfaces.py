@@ -324,6 +324,8 @@ def genera_codigo(size=6, chars=string.ascii_uppercase + string.digits):
 ##  Envia datos de la empresa al FRONT para crear el JSON                                        #
 ##################################################################################################
 def actualiza_empresa(empresa):
+    if current_app.config['SERVER_ROLE'] == 'PREDEV':
+        url="http://frontdev.borisreturns.com/empresa/crear"
     if current_app.config['SERVER_ROLE'] == 'DEV':
         url="https://front.borisreturns.com/empresa/crear"
     if current_app.config['SERVER_ROLE'] == 'PROD':
@@ -383,6 +385,8 @@ def actualiza_empresa(empresa):
 #  tienen un solo nivel de clave                                                                   #
 ####################################################################################################
 def actualiza_empresa_JSON(empresa, clave, valor,key):
+    if current_app.config['SERVER_ROLE'] == 'PREDEV':
+        url="http://frontdev.borisreturns.com/empresa_json?clave="+clave+"&key="+key
     if current_app.config['SERVER_ROLE'] == 'DEV':
         url="https://front.borisreturns.com/empresa_json?clave="+clave+"&key="+key
     if current_app.config['SERVER_ROLE'] == 'PROD':
@@ -419,7 +423,9 @@ def actualiza_empresa_categorias(empresa):
     categorias = []
     for i in categorias_tmp:
         categorias.append(i.category_id)
-    
+
+    if current_app.config['SERVER_ROLE'] == 'PREDEV':
+        url="http://frontdev.borisreturns.com/empresa_categorias"
     if current_app.config['SERVER_ROLE'] == 'DEV':
         url="https://front.borisreturns.com/empresa_categorias"
     if current_app.config['SERVER_ROLE'] == 'PROD':
@@ -676,6 +682,8 @@ def validar_imagen(stream):
 
 
 def enviar_imagen(file, filename):
+    if current_app.config['SERVER_ROLE'] == 'PREDEV':
+        url="http://frontdev.borisreturns.com/recibir_imagen"
     if current_app.config['SERVER_ROLE'] == 'DEV':
         url="https://front.borisreturns.com/recibir_imagen"
     if current_app.config['SERVER_ROLE'] == 'PROD':
