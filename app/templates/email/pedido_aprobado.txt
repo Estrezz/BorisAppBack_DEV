@@ -2,7 +2,7 @@
     <img  class="center-block img-responsive" src='{{company.param_logo}}'> 
 Hola {{ customer.name }}! 
 
-Hemos recibimos tus productos correctamente y estamos procediendo al procesamiento tu solicitud <br>
+Hemos recibimos tus productos correctamente y estamos procediendo al procesamiento de tu solicitud <br>
 {{company.aprobado_note | safe}}
 
 _________________________________________________________________________________________________

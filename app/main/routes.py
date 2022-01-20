@@ -2,14 +2,16 @@ import requests
 from datetime import datetime
 from flask import render_template, flash, redirect, url_for, request, current_app, session, Response
 from flask_login import current_user, login_required
+from sqlalchemy import func
 from app import db
 from app.email import send_email
 from app.main.forms import EditProfileForm, EditProfileCompanyForm, EditMailsCompanyForm, EditCorreoCompanyForm, EditParamsCompanyForm, EditMailsFrontCompanyForm
 from app.main.tiendanube import generar_envio_tiendanube, autorizar_tiendanube, buscar_codigo_categoria_tiendanube, buscar_datos_variantes_tiendanube
-from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log, categories_filter
-from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto, genera_credito, actualiza_empresa, actualiza_empresa_categorias, actualiza_empresa_JSON, loguear_transaccion, finalizar_orden, devolver_linea, actualizar_stock
+from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log, categories_filter, CONF_boris, CONF_envios, CONF_motivos
+from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto, genera_credito, actualiza_empresa, actualiza_empresa_categorias, actualiza_empresa_JSON, loguear_transaccion, finalizar_orden, devolver_linea, actualizar_stock, devolver_datos_boton, incializa_configuracion, validar_imagen, enviar_imagen
 import json
 import re
+import os
 from app.main import bp
 
 
@@ -31,7 +33,7 @@ def index():
 
 @bp.route('/mantenimiento', methods=['GET', 'POST'])
 def mantenimiento():
-    return render_template('mantenimiento.html', title='Home',  empresa_name=session['current_empresa'])
+    return render_template('mantenimiento.html', title='Home',  empresa_name='BORIS')
 
 
 @bp.route('/verautorizado', methods=['GET', 'POST'])
@@ -66,65 +68,442 @@ def edit_profile():
 @login_required
 def company(empresa_id):
     empresa = Company.query.filter_by(store_id=empresa_id).first_or_404()
-    return render_template('company.html', empresa=empresa, empresa_name=session['current_empresa'])
+    if CONF_boris.query.filter_by(store=empresa_id).first():
+        configuracion = CONF_boris.query.filter_by(store=empresa_id).first_or_404()
+    else: 
+        (flash('No se encuentran los datos de Configuracion - ponerse en contacto con soporte@borisreturns.com'))
+        return redirect(url_for('main.ver_ordenes', estado='all', subestado='all'))
+    envios = CONF_envios.query.filter_by(store=current_user.store).all()
+    motivos = CONF_motivos.query.filter_by(store=current_user.store).all()
+
+    return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, motivos=motivos, pestaña='tienda', empresa_name=session['current_empresa'])
 
 
-@bp.route('/edit_profile_company', methods=['GET', 'POST'])
+## Actualiza datos de la Tienda #######################################
+@bp.route('/edit_storeinfo', methods=['GET', 'POST'])
 @login_required
-def edit_profile_company():
+def edit_storeinfo():
     empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
-    query =  request.args.get('formulario')
-    
-    if query == "Datos de la tienda":
-        form = EditProfileCompanyForm(obj=empresa)
-    if query == "Correo":
-        form = EditCorreoCompanyForm(obj=empresa)
-    if query == "Parametros":
-        form = EditParamsCompanyForm(obj=empresa)
-    if query == "Mails":
-        form = EditMailsCompanyForm(obj=empresa)
+    configuracion = CONF_boris.query.filter_by(store=current_user.store).first_or_404()
+    envios = CONF_envios.query.filter_by(store=current_user.store).all()
+    motivos = CONF_motivos.query.filter_by(store=current_user.store).all()
 
-    if form.validate_on_submit():
-        form.populate_obj(empresa)
-        db.session.commit() 
-        #### Actualiza los datos de la empresa en el FRONT ####
-        status = actualiza_empresa(empresa)
-        if status != 'Failed':
-            flash('Los datos se actualizaron correctamente')
-        else:
-            flash('Se produjo un error {}'. format(status))
-        return redirect(url_for('main.company', empresa_id=empresa.store_id))
+    if request.method == "POST":
+        accion = request.form.get('boton')
 
-    return render_template('edit_profile_company.html', title='Editar perfil',
-                           form=form, titulo=query, empresa_name=session['current_empresa'])
-
-
-@bp.route('/edit_profile_company_front', methods=['GET', 'POST'])
-@login_required
-def edit_profile_company_front():
-    empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
-    query =  request.args.get('formulario')
-    
-    form = EditMailsFrontCompanyForm(obj=empresa)
-    if form.validate_on_submit():
-       
-        if empresa.confirma_manual_note != form.confirma_manual_note.data:
-            empresa.confirma_manual_note = form.confirma_manual_note.data
-            actualiza_empresa_JSON(empresa, 'confirma_manual_note', form.confirma_manual_note.data)
+        if accion == "cancelar":
+            #return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, motivos=motivos, pestaña='tienda', empresa_name=session['current_empresa'])
+            return redirect(url_for('main.company', empresa_id=current_user.store ))
             
-        if empresa.confirma_coordinar_note != form.confirma_coordinar_note.data:
-            empresa.confirma_coordinar_note = form.confirma_coordinar_note.data
-            actualiza_empresa_JSON(empresa, 'confirma_coordinar_note', form.confirma_coordinar_note.data)
+        if accion == "guardar":
+            store_name =  request.form.get('store_name')
+            store_address = request.form.get('store_address')
+            admin_email = request.form.get('admin_email')
+            store_phone = request.form.get('store_phone')
+            stock_vuelve_config = request.form.get('stock_vuelve_config')
+            contact_name = request.form.get('contact_name')
+            contact_email = request.form.get('contact_email')
+            contact_phone = request.form.get('contact_phone')
+            empresa.store_name = store_name
+            empresa.store_address = store_address
+            empresa.admin_email = admin_email
+            empresa.store_phone = store_phone
+            if stock_vuelve_config == 'on':
+                empresa.stock_vuelve_config = True
+            else:
+                empresa.stock_vuelve_config = False
+            empresa.contact_name = contact_name
+            empresa.contact_email = contact_email
+            empresa.contact_phone = contact_phone
+            db.session.commit()
 
-        if empresa.confirma_moova_note != form.confirma_moova_note.data:
-            empresa.confirma_moova_note = form.confirma_moova_note.data
-            actualiza_empresa_JSON(empresa, 'confirma_moova_note', form.confirma_moova_note.data)
-  
-        db.session.commit() 
-        return redirect(url_for('main.company', empresa_id=empresa.store_id))
+            flash('Los datos se actualizaron correctamente')
+            #status = actualiza_empresa(empresa)
+            #### a revisar ####
+            #if status != 'Failed':
+            #    flash('Los datos se actualizaron correctamente')
+            #else:
+            #    flash('Se produjo un error {}'. format(status))
 
-    return render_template('edit_profile_company.html', title='Editar perfil',
-                           form=form, titulo=query, empresa_name=session['current_empresa'])
+    return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, motivos=motivos, pestaña='tienda', empresa_name=session['current_empresa'])
+    
+
+
+## Actualiza datos de la Empresa de Correo #######################################
+@bp.route('/edit_carrierinfo', methods=['GET', 'POST'])
+@login_required
+def edit_carrierinfo():
+    empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
+    configuracion = CONF_boris.query.filter_by(store=current_user.store).first_or_404()
+    envios = CONF_envios.query.filter_by(store=current_user.store).all()
+    motivos = CONF_motivos.query.filter_by(store=current_user.store).all()
+
+    if request.method == "POST":
+        accion = request.form.get('boton')
+
+        if accion == "cancelar":
+            return redirect(url_for('main.company', empresa_id=current_user.store ))
+            
+        if accion == "guardar":
+            correo_usado =  request.form.get('correo_usado')
+            shipping_address = request.form.get('shipping_address')
+            shipping_number = request.form.get('shipping_number')
+            shipping_floor = request.form.get('shipping_floor')
+            shipping_zipcode = request.form.get('shipping_zipcode')
+            shipping_city = request.form.get('shipping_city')
+            shipping_province = request.form.get('shipping_province')
+            shipping_country = request.form.get('shipping_country')
+            shipping_info = request.form.get('shipping_info')
+            correo_test = request.form.get('correo_test')
+            correo_cost = request.form.get('shipping')
+
+            empresa.correo_usado = correo_usado
+            empresa.shipping_address = shipping_address
+            empresa.shipping_number = shipping_number
+            empresa.shipping_floor = shipping_floor
+            if correo_test == 'on':
+                empresa.correo_test = True
+            else:
+                empresa.correo_test = False
+            empresa.shipping_zipcode = shipping_zipcode
+            empresa.shipping_city = shipping_city
+            empresa.shipping_province = shipping_province
+            empresa.shipping_country = shipping_country
+            empresa.shipping_info = shipping_info
+            
+            if empresa.correo_cost != correo_cost:
+                empresa.correo_cost = correo_cost
+                status = actualiza_empresa_JSON(empresa, 'shipping', correo_cost, 'otros')
+            else: 
+                status = 'Success'
+
+            db.session.commit()
+
+            #status = actualiza_empresa(empresa)
+            ## a revisar
+            #flash (status)
+            if status != 'Failed':
+                flash('Los datos se actualizaron correctamente')
+            else:
+                flash('Se produjo un error {}'. format(status))
+            
+    return render_template('company.html', empresa=empresa, configuracion=configuracion,  envios=envios, motivos=motivos, pestaña='carrier', empresa_name=session['current_empresa'])
+
+
+## Actualiza datos para configuración del portal  #######################################
+@bp.route('/edit_portalinfo', methods=['GET', 'POST'])
+@login_required
+def edit_portalinfo():
+    empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
+    configuracion = CONF_boris.query.filter_by(store=current_user.store).first_or_404()
+    envios = CONF_envios.query.filter_by(store=current_user.store).all()
+    motivos = CONF_motivos.query.filter_by(store=current_user.store).all()
+
+    if request.method == "POST":
+        accion = request.form.get('boton')
+
+        if accion == "cancelar":
+            return redirect(url_for('main.company', empresa_id=current_user.store ))
+            
+        if accion == "guardar":
+            param_logo = request.form.get('param_logo')
+            ventana_cambios = request.form.get('ventana_cambios')
+            ventana_devolucion = request.form.get('ventana_devolucion')
+            cambio_otra_cosa = request.form.get('cambio_otra_cosa')
+            cambio_cupon = request.form.get('cambio_cupon')
+            cambio_opcion_otra_cosa = request.form.get('cambio_opcion_otra_cosa')
+            cambio_opcion_cupon = request.form.get('cambio_opcion_cupon')
+            cambio_opcion = request.form.get('cambio_opcion')
+            portal_empresa = request.form.get('portal_empresa')
+            portal_titulo = request.form.get('portal_titulo')
+            portal_texto = request.form.get('portal_texto')
+            
+            file_ok = 'Si'
+            file_fondo = request.files['file_fondo'] if 'file_fondo' in request.files else False
+            #file_fondo = request.files['file_fondo']
+            if file_fondo is not False:
+                filename = file_fondo.filename
+            else: 
+                filename = ''
+            if filename != '':
+                file_ext = os.path.splitext(filename)[1]
+                if file_ext not in current_app.config['UPLOAD_EXTENSIONS'] or file_ext != validar_imagen(file_fondo.stream):
+                   flash('El archivo no tiene un formato válido')
+                   file_ok = 'No'
+                else:
+                    envio = enviar_imagen(file_fondo, str(current_user.store)+file_ext)
+                    if envio == 'Success':
+                        if current_app.config['SERVER_ROLE'] == 'DEV':
+                            url="https://front.borisreturns.com/static/images/background/"
+                        if current_app.config['SERVER_ROLE'] == 'PROD':
+                            url="https://frontprod.borisreturns.com/static/images/background/"
+                        param_fondo = url+str(current_user.store)+file_ext
+                    else: 
+                        param_fondo = ''
+                        flash('No se pudo cargar la imagen')
+                        file_ok = 'No'
+                    empresa.param_fondo = param_fondo
+
+            empresa.param_logo = param_logo
+            #empresa.param_fondo = param_fondo
+
+            if configuracion.ventana_cambios != ventana_cambios:
+                configuracion.ventana_cambios = ventana_cambios
+                status = actualiza_empresa_JSON(empresa, 'ventana_cambio', int(ventana_cambios), 'politica')
+
+            if configuracion.ventana_devolucion != ventana_devolucion:
+                configuracion.ventana_devolucion = ventana_devolucion
+                status = actualiza_empresa_JSON(empresa, 'ventana_devolucion', int(ventana_devolucion), 'politica')
+
+            if cambio_otra_cosa == 'on':
+                configuracion.cambio_otra_cosa = True
+                status = actualiza_empresa_JSON(empresa, 'otracosa', 'Si', 'otros')
+            else:
+                configuracion.cambio_otra_cosa = False
+                status = actualiza_empresa_JSON(empresa, 'otracosa', 'No', 'otros')
+
+            if cambio_cupon == 'on':
+                configuracion.cambio_cupon = True
+                status = actualiza_empresa_JSON(empresa, 'cupon', 'Si', 'otros')
+            else:
+                configuracion.cambio_cupon = False
+                status = actualiza_empresa_JSON(empresa, 'cupon', 'No', 'otros')
+            
+            if configuracion.cambio_opcion != cambio_opcion :
+                configuracion.cambio_opcion = cambio_opcion
+                status = actualiza_empresa_JSON(empresa, 'elegir_opcion_cambio', cambio_opcion, 'textos')
+            
+            if configuracion.cambio_opcion_cupon != cambio_opcion_cupon :
+                configuracion.cambio_opcion_cupon = cambio_opcion_cupon
+                status = actualiza_empresa_JSON(empresa, 'elegir_opcion_cambio_cupon', cambio_opcion_cupon, 'textos')
+
+            if configuracion.cambio_opcion_otra_cosa != cambio_opcion_otra_cosa :
+                configuracion.cambio_opcion_otra_cosa = cambio_opcion_otra_cosa
+                status = actualiza_empresa_JSON(empresa, 'elegir_opcion_otra_cosa', cambio_opcion_otra_cosa, 'textos')
+            
+            if configuracion.portal_empresa != portal_empresa :
+                configuracion.portal_empresa = portal_empresa
+                status = actualiza_empresa_JSON(empresa, 'portal_empresa', portal_empresa, 'textos')
+            
+            if configuracion.portal_titulo != portal_titulo :
+                configuracion.portal_titulo = portal_titulo
+                status = actualiza_empresa_JSON(empresa, 'portal_titulo', portal_titulo, 'textos')
+            
+            if configuracion.portal_texto != portal_texto :
+                configuracion.portal_texto = portal_texto
+                status = actualiza_empresa_JSON(empresa, 'portal_texto', portal_texto, 'textos')
+
+            db.session.commit()
+
+            # status = actualiza_empresa(empresa)
+            #### falta actualizar JSON del portal
+            if status != 'Failed' and file_ok == 'Si':
+                flash('Los datos se actualizaron correctamente')
+            else:
+                if file_ok == 'Si':
+                    flash('Se produjo un error {}'. format(status))
+
+    return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, motivos=motivos,pestaña='portal', empresa_name=session['current_empresa'])
+
+
+################################# Mostrar Motivos  ###########################################################
+@bp.route('/edit_motivosinfo', methods=['GET', 'POST'])
+@login_required
+def edit_motivosinfo():
+    empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
+    configuracion = CONF_boris.query.filter_by(store=current_user.store).first_or_404()
+    envios = CONF_envios.query.filter_by(store=current_user.store).all()
+    motivos = CONF_motivos.query.filter_by(store=current_user.store).all()
+
+    return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, motivos=motivos, pestaña='motivos', empresa_name=session['current_empresa'])
+
+
+######################################## Añadir un Motivos  ######################################
+@bp.route('/add_motivo', methods=['GET', 'POST'])
+@login_required
+def add_motivo():
+    max_id = db.session.query(func.max(CONF_motivos.id_motivo)).scalar()
+    nuevo_motivo = request.form.get('nuevo_motivo')
+    tipo_nuevo_motivo = request.form.get('tipo_nuevo_motivo')
+
+    unMotivo = CONF_motivos(
+            store = current_user.store,
+            id_motivo = max_id +1,
+            motivo = nuevo_motivo,
+            tipo_motivo = tipo_nuevo_motivo
+        )
+    
+    db.session.add(unMotivo)
+    db.session.commit()
+
+    ###### actualiza el JSON del Front
+    empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
+    motivos_tmp = CONF_motivos.query.filter_by(store=current_user.store).all()
+    motivos=[]
+    for m in motivos_tmp:
+        motivos.append(m.motivo)
+        actualiza_empresa_JSON(empresa, 'motivos', motivos, 'otros')
+    
+    return redirect(url_for('main.edit_motivosinfo'))
+
+
+##################################### Editar o Borrar un Motivos  ######################################
+@bp.route('/editar_motivo/<id>', methods=['GET', 'POST'])
+@login_required
+def editar_motivo(id):
+
+    if request.method == "POST":
+        unMotivo = CONF_motivos.query.filter_by(store=current_user.store, id_motivo=id).first() 
+        accion = request.form.get('boton')
+
+        if accion == "update":
+            unMotivo.motivo = request.form.get('motivo')
+            unMotivo.tipo_motivo = request.form.get('tipo_motivo')
+
+        if accion == "eliminar":
+            db.session.delete(unMotivo)
+
+        db.session.commit()
+
+        ###### actualiza el JSON del Front
+        empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
+        motivos_tmp = CONF_motivos.query.filter_by(store=current_user.store).all()
+        motivos=[]
+        for m in motivos_tmp:
+            motivos.append(m.motivo)
+            actualiza_empresa_JSON(empresa, 'motivos', motivos, 'otros')
+
+    return redirect(url_for('main.edit_motivosinfo'))
+
+
+################ Métodos de envío  #######################################
+@bp.route('/edit_enviosinfo', methods=['GET', 'POST'])
+@login_required
+def edit_enviosinfo():
+    empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
+    configuracion = CONF_boris.query.filter_by(store=current_user.store).first_or_404()
+    envios = CONF_envios.query.filter_by(store=current_user.store).all()
+    motivos = CONF_motivos.query.filter_by(store=current_user.store).all()
+
+    if request.method == "POST":
+        accion = request.form.get('boton')
+
+        if accion == "cancelar":
+            return redirect(url_for('main.company', empresa_id=current_user.store ))
+            
+        if accion == "guardar":
+            metodos = []
+            for m in envios:
+                habilitado = request.form.get('habilitado'+m.metodo_envio)
+                titulo_boton = request.form.get('titulo_boton'+m.metodo_envio)
+                descripcion_boton = request.form.get('descripcion_boton'+m.metodo_envio)
+                clave = devolver_datos_boton(m.metodo_envio)
+                
+                
+                if habilitado == 'on':
+                    m.habilitado = True
+                    metodos.append(str.lower(m.metodo_envio))
+                else:
+                    m.habilitado = False
+
+                if m.titulo_boton != titulo_boton:
+                    m.titulo_boton = titulo_boton
+                    actualiza_empresa_JSON(empresa, clave[0], titulo_boton, 'textos')
+
+                if m.descripcion_boton != descripcion_boton:    
+                    m.descripcion_boton = descripcion_boton
+                    actualiza_empresa_JSON(empresa, clave[1], descripcion_boton, 'textos')
+            
+            db.session.commit()
+           
+            status = actualiza_empresa_JSON(empresa, 'envio', metodos, 'otros')
+            if status != 'Failed':
+                flash('Los datos se actualizaron correctamente')
+            else:
+                flash('Se produjo un error {}'. format(status))
+
+            
+    return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, motivos=motivos,pestaña='envios', empresa_name=session['current_empresa'])
+
+
+################ Mails desde el portal  #######################################
+@bp.route('/edit_mailsportalinfo', methods=['GET', 'POST'])
+@login_required
+def edit_mailsportalinfo():
+    empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
+    configuracion = CONF_boris.query.filter_by(store=current_user.store).first_or_404()
+    envios = CONF_envios.query.filter_by(store=current_user.store).all()
+    motivos = CONF_motivos.query.filter_by(store=current_user.store).all()
+
+    if request.method == "POST":
+        accion = request.form.get('boton')
+
+        if accion == "cancelar":
+            return redirect(url_for('main.company', empresa_id=current_user.store ))
+            
+        if accion == "guardar":
+            confirma_manual_note = request.form.get('confirma_manual_note')
+            confirma_coordinar_note = request.form.get('confirma_coordinar_note')
+            confirma_moova_note = request.form.get('confirma_moova_note')
+
+            if empresa.confirma_manual_note != confirma_manual_note:
+                empresa.confirma_manual_note = confirma_manual_note
+                actualiza_empresa_JSON(empresa, 'confirma_manual_note', confirma_manual_note, 'textos')
+                
+            if empresa.confirma_coordinar_note != confirma_coordinar_note:
+                empresa.confirma_coordinar_note = confirma_coordinar_note
+                actualiza_empresa_JSON(empresa, 'confirma_coordinar_note', confirma_coordinar_note, 'textos')
+
+            if empresa.confirma_moova_note != confirma_moova_note:
+                empresa.confirma_moova_note = confirma_moova_note
+                actualiza_empresa_JSON(empresa, 'confirma_moova_note', confirma_moova_note, 'textos')
+    
+            db.session.commit() 
+
+    return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, motivos=motivos, pestaña='mailsportal', empresa_name=session['current_empresa'])   
+
+
+################ Mails desde el Backoffice  #######################################
+@bp.route('/edit_mailsbackinfo', methods=['GET', 'POST'])
+@login_required
+def edit_mailsbackinfo():
+    empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
+    configuracion = CONF_boris.query.filter_by(store=current_user.store).first_or_404()
+    envios = CONF_envios.query.filter_by(store=current_user.store).all()
+    motivos = CONF_motivos.query.filter_by(store=current_user.store).all()
+
+    if request.method == "POST":
+        accion = request.form.get('boton')
+
+        if accion == "cancelar":
+            return redirect(url_for('main.company', empresa_id=current_user.store ))
+            
+        if accion == "guardar":
+            communication_email = request.form.get('communication_email')
+            communication_email_name = request.form.get('communication_email_name')
+            envio_manual_note = request.form.get('envio_manual_note')
+            envio_coordinar_note = request.form.get('envio_coordinar_note')
+            envio_correo_note = request.form.get('envio_correo_note')
+            aprobado_note = request.form.get('aprobado_note')
+            rechazado_note = request.form.get('rechazado_note')
+            cupon_generado_note = request.form.get('cupon_generado_note')
+            finalizado_note = request.form.get('finalizado_note')
+
+            empresa.communication_email = communication_email
+            empresa.communication_email_name = communication_email_name
+            empresa.envio_manual_note = envio_manual_note
+            empresa.envio_coordinar_note = envio_coordinar_note
+            empresa.envio_correo_note = envio_correo_note
+            empresa.aprobado_note = aprobado_note
+            empresa.rechazado_note = rechazado_note
+            empresa.cupon_generado_note = cupon_generado_note
+            empresa.finalizado_note = finalizado_note
+
+            db.session.commit() 
+
+    return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, motivos=motivos, pestaña='mailsback', empresa_name=session['current_empresa'])   
+        
+ 
 
 
 
@@ -147,7 +526,7 @@ def filtrar_categorias():
     
     #### Si se agregó una categoria ##############################
     if accion == 'agregar':
-        if categories_filter.query.get(select):
+        if categories_filter.query.get((current_user.store,select)):
             flash('Ya existe esa categoria')
         else:
             unaCategoria =  categories_filter(
@@ -165,8 +544,8 @@ def filtrar_categorias():
     
     #### Si se quitó una categoria ##############################
     if accion == 'quitar':
-        if categories_filter.query.get(select):
-            unaCategoria = categories_filter.query.get(select)
+        if categories_filter.query.get((current_user.store,select)):
+            unaCategoria = categories_filter.query.get((current_user.store,select))
             db.session.delete(unaCategoria)
             db.session.commit()
             status = actualiza_empresa_categorias(empresa)
@@ -197,23 +576,25 @@ def search():
 @bp.route('/gestion_lineas_entrantes/<orden_id>',methods=['GET', 'POST'])  
 def gestion_lineas_entrantes(orden_id):
     if request.method == "POST":
-        productos = request.form.getlist('prod_id')
-        for p in productos: 
-            variant = request.form.get("variant"+str(p))
-            accion = request.form.get("accion"+str(p))
-            accion_cantidad = request.form.get("accion_cantidad"+str(p))
-            order_line = request.form.get("order_line"+str(p))
+        lineas = request.form.getlist('order_line')
+       
+        for l in lineas:
+            variant = request.form.get("variant"+str(l))
+            accion = request.form.get("accion"+str(l))
+            accion_cantidad = request.form.get("accion_cantidad"+str(l))
+            prod_id = request.form.get("prod_id"+str(l))
             ## Guarda el valor que se le reconoció al cliente al devolver el producto
-            if request.form.get("precio"+str(p)) != None :
-                monto_devuelto = request.form.get("precio"+str(p))
+            if request.form.get("precio"+str(l)) != None :
+                monto_devuelto = request.form.get("precio"+str(l))
             else:
                 monto_devuelto = 0
             # Asigna accion_stock dependiendo de si se eligió que el stock se reingrese o no
-            if request.form.get("stockradio"+str(p)) == None:
+            if request.form.get("stockradio"+str(l)) == None:
                 accion_stock = "No vuelve al stock"
             else: 
                 accion_stock = "Vuelve al stock"
-            devolver_linea(p, variant, accion_cantidad, orden_id, order_line, accion, accion_stock, monto_devuelto)
+            devolver_linea(prod_id, variant, accion_cantidad, orden_id, l, accion, accion_stock, monto_devuelto)
+
     return redirect(url_for('main.orden', orden_id=orden_id))
 
 
@@ -255,8 +636,10 @@ def gestion_lineas_salientes(orden_id):
                 actualizar_stock(ordenes, empresa ,'saliente')
             else:
                 send_email('Se ha generado una orden manual en BORIS ', 
-                    sender=empresa.communication_email,
+                    sender=(empresa.communication_email_name, empresa.communication_email),
+                    #sender=empresa.communication_email,
                     recipients=[empresa.admin_email], 
+                    reply_to = empresa.communication_email,
                     text_body=render_template('email/gestion_stock.txt',
                                             order=orden, envio=envio_nueva_orden, total=total_nueva_orden),
                     html_body=render_template('email/gestion_stock.html',
@@ -288,7 +671,7 @@ def gestion_lineas_salientes(orden_id):
         for o in ordenes:
             linea = Order_detail.query.get(str(o))
             linea.fecha_gestionado = datetime.utcnow()
-            loguear_transaccion('CAMBIADO', str(linea.name)+' '+envio_nuevo_metodo, orden_id, current_user.id, current_user.username)
+            loguear_transaccion('CAMBIADO', str(linea.accion_cambiar_por_desc)+' '+envio_nuevo_metodo, orden_id, current_user.id, current_user.username)
             if linea.gestionado == 'Devuelto':
                 linea.gestionado = 'Si'
             else:
@@ -440,14 +823,6 @@ def historia_orden(orden_id):
     return render_template('historia_orden.html', orden=orden, historia=historia, lineas=lineas, customer=orden.buyer, empresa=empresa, empresa_name=session['current_empresa'])
 
 
-### BORRAR ####
-# @bp.route('/producto/historia/<linea_id>', methods=['GET', 'POST'])
-# @login_required
-# def historia_producto(linea_id):
-#    linea = Order_detail.query.get(str(linea_id))
-#    return render_template('historia_producto.html', linea=linea, empresa_name=session['current_empresa'])
-
-
 @bp.route('/webhook', methods=['POST'])
 def webhook():
     if request.method == 'POST':
@@ -471,16 +846,60 @@ def webhook():
         db.session.commit()
         return '', 200
     else:
-        abort(400)
+        #abort(400)
+        return "Error al actualizar estado del pedido", 400
 
 
 @bp.route('/pedidos', methods=['POST'])
 def recibir_pedidos():
     if request.method == 'POST':
         pedido = request.json
-        nuevo_pedido = crear_pedido(pedido)
+        
+        ############# controlar si ya exste transaccion ###########################
+        if Order_header.query.filter_by(order_id_anterior=pedido['orden']).first():
+            orden = Order_header.query.filter_by(order_id_anterior=pedido['orden']).first()
+            lineas = Order_detail.query.filter_by(order=orden.id).all()
+            
+            ### comprueba cantidad de articulos ###
+            if len(lineas) == len(pedido['producto']):
+                cantidad = 'misma'
+            else: 
+                cantidad = 'diferente'
+            
+            #### compruebo si son iguales (prodcutos / acciones ##########
+            iguales = 'Si'
+            accion = 'igual'
+            #### cambio comprobacion
+            total = len(lineas)
+            contador = 0
+            for p in pedido['producto']:
+                for l in lineas:
+                    if l.prod_id == p['id']:
+                        if l.accion == p['accion']:
+                            break
+                        else:
+                            accion = 'distinta'
+                            break
+                    else:
+                        contador += 1
+                        if contador > total:
+                            iguales = 'No'
+                        else:
+                            continue
 
+            if (cantidad == 'misma' and iguales == 'Si' and accion == 'igual'):
+                return "Solicitud duplicada", 409
+            if (cantidad == 'misma' and iguales == 'Si' and accion == 'distinta'):
+                return "Cambio de accion", 409
+            if (cantidad == 'misma' and iguales == 'No'):
+                return "Cambio de producto", 409
+            if cantidad == 'diferente':
+                return "Agrega / quita artículos", 409
+            return str('cantidad '+ cantidad + 'iguales '+ iguales + 'accion ' + accion), 409
+
+        nuevo_pedido = crear_pedido(pedido)
         usuario = User.query.filter_by(username = 'Webhook').first()
+
         unaTransaccion = Transaction_log(
             sub_status = traducir_estado(pedido['correo']['correo_status'])[0],
             status_client = traducir_estado(pedido['correo']['correo_status'])[2],
@@ -492,7 +911,8 @@ def recibir_pedidos():
         db.session.commit()
         return '', 200
     else:
-        abort(400)
+        #abort(400)
+        return "Error al cargar la solicitud", 400
 
 
 @bp.route('/autorizar/<plataforma>', methods=['GET', 'POST'])
@@ -508,19 +928,24 @@ def autorizar(plataforma):
     usuario = re.sub('[\s+]', '', autorizacion.store_name[0:8].strip())
 
     if autorizacion != 'Failed': 
-        #### actualiza los datos de la empresa en FRONT #####
+        #### actualiza los datos de la empresa en FRONT - si la empresa ya existia no hace nada #####
         actualizado = actualiza_empresa(autorizacion)
-        if actualizado != 'Failed':
-            send_email('Bienvenido a BORIS!', 
+
+        #if actualizado != 'Failed':
+            ##### inicializa las bases con los datos por default del JSON del Front ##############################3
+        incializa_configuracion(autorizacion)
+
+        send_email('Bienvenido a BORIS!', 
                 sender=current_app.config['ADMINS'][0],  
                 recipients=[current_app.config['ADMINS'][0],autorizacion.admin_email],
+                reply_to = current_app.config['ADMINS'][0],
                 text_body=render_template('email/bienvenido.txt', codigo='OK', usuario=usuario, store=autorizacion),
                 html_body=render_template('email/bienvenido.html', codigo='OK', usuario=usuario, store=autorizacion), 
                 attachments=None, 
                 sync=False)
-            return render_template('autorizado.html', codigo='OK', usuario=usuario, store=autorizacion)
-        else:
-            return render_template('autorizado.html', codigo='error_al_actualizar', store=actualizado )         
+        return render_template('autorizado.html', codigo='OK', usuario=usuario, store=autorizacion)
+        #else:
+        #    return render_template('autorizado.html', codigo='error_al_actualizar', store=actualizado )         
     else:
         return render_template('autorizado.html', codigo='error') 
 
@@ -529,9 +954,14 @@ def autorizar(plataforma):
 def tracking_orden():
     if request.method == 'GET':
         orden_id = request.args.get('orden_id')
-        orden = Order_header.query.filter_by(order_number=orden_id).first()
+        #orden = Order_header.query.get(orden_id)
+        #customer = orden.buyer
+        #company = customer.pertenece
+        orden = Order_header.query.filter_by(order_id_anterior=orden_id).first()
+        print(orden)
         # flash('Orden: {}'.format(orden.id))
         historia = Transaction_log.query.filter_by(order_id=orden.id).all()
+        
         status_tmp = []
         for i in historia:
             if i.status_client != 'N0':
@@ -540,66 +970,53 @@ def tracking_orden():
                 "Estado": i.status_client,
                 "Fecha": str(i.fecha)
                 })
+
         return json.dumps(status_tmp), 200
 
 
+@bp.route('/datos_empresa', methods=['GET', 'POST'])
+def datos_empresa():
+    if request.method == 'GET':
+        store_id = request.args.get('store_id')
+        empresa_tmp = Company.query.filter_by(store_id=store_id).first_or_404()
 
-#### Se escribe nueva version para gestion de lineas en conjunto ###################
-#@bp.route('/devolver', methods=['GET', 'POST'])
-#@login_required
-#def devolver():
-#    prod_id = request.args.get('prod_id')
-#    variant = request.args.get('variant')
-#    cantidad = request.args.get('cantidad')
-#    orden_id = request.args.get('orden_id')
-#    order_line_number = request.args.get('order_line')
-#    accion = request.args.get('accion')
-#    accion_stock = request.form['stockradio']
-#    linea = Order_detail.query.get(str(order_line_number))
-#    orden = Order_header.query.get(orden_id)
-#
-#    if request.form.get('monto') != None :
-#        monto_devuelto = request.form.get('monto')
-#    else:
-#        monto_devuelto = 0
-#    
-#    if accion_stock != 'no_vuelve':
-#        empresa = Company.query.get(current_user.store)
-#        if empresa.stock_vuelve_config == True:
-#            if empresa.platform == 'tiendanube':
-#                #devolucion = devolver_stock_tiendanube(empresa, prod_id, variant, cantidad)
-#                #if devolucion == 'Failed':
-#
-#                return redirect(url_for('main.orden', orden_id=orden_id))
-#        else: 
-#            ## Si la configuracion de stock_vuelve_config es False (el stock no se devuelve fisicamente)
-#            ## Envía mail al administrador de la empresa avisando para que lo devuelva por sistema
-#            send_email('Se ha devuelto un artículo en BORIS ', 
-#                sender=empresa.communication_email,
-#                recipients=[empresa.admin_email], 
-#                text_body=render_template('email/articulo_devuelto.txt',
-#                                         order=orden, linea=linea),
-#                html_body=render_template('email/articulo_devuelto.html',
-#                                         order=orden, linea=linea), 
-#                attachments=None, 
-#                sync=False)
-#        
-#    # linea = Order_detail.query.get(str(order_line_number))
-#    linea.monto_devuelto = monto_devuelto
-#    linea.restock = accion_stock
-#    linea.fecha_gestionado = datetime.utcnow()
-#    loguear_transaccion('DEVUELTO',str(linea.name)+' '+accion_stock, orden_id, current_user.id, current_user.username)
-#    if accion == 'devolver':
-#        linea.gestionado = 'Si'
-#        db.session.commit()
-#    if accion == 'cambiar':
-#        if linea.gestionado == 'Cambiado':
-#            linea.gestionado = 'Si'
-#        else: 
-#            linea.gestionado = traducir_estado('DEVUELTO')[1]
-#        db.session.commit()
-#    finalizar_orden(orden_id)
-#    return redirect(url_for('main.orden', orden_id=orden_id))
+        unaEmpresa ={
+            "platform" : empresa_tmp.platform,
+            "store_id" : empresa_tmp.store_id,
+            "platform_token_type" : empresa_tmp.platform_token_type,
+            "platform_access_token" : empresa_tmp.platform_access_token,
+            "company_name" : empresa_tmp.store_name,
+            "company_url" : empresa_tmp.store_url,
+            "company_country" : empresa_tmp.store_country,
+            "company_main_language" : empresa_tmp.store_main_language,
+            "company_main_currency" : empresa_tmp.store_main_currency,
+            "admin_email" : empresa_tmp.admin_email,
+            "communication_email" : empresa_tmp.communication_email,
+            "communication_email_name" : empresa_tmp.communication_email_name,
+            "param_logo" : empresa_tmp.param_logo,
+            "param_fondo" : empresa_tmp.param_fondo,
+            "correo_usado" : empresa_tmp.correo_usado,
+            "correo_apikey" : empresa_tmp.correo_apikey,
+            "correo_id" : empresa_tmp.correo_id,
+            "correo_test" : empresa_tmp.correo_test,
+            "correo_apikey_test" : empresa_tmp.correo_apikey_test,
+            "correo_id_test" : empresa_tmp.correo_id_test,
+            "contact_name" : empresa_tmp.contact_name,
+            "contact_email" : empresa_tmp.contact_email,
+            "contact_phone" : empresa_tmp.contact_phone,
+            "shipping_address" : empresa_tmp.shipping_address,
+            "shipping_number" : empresa_tmp.shipping_number,
+            "shipping_floor" : empresa_tmp.shipping_floor,
+            "shipping_zipcode" : empresa_tmp.shipping_zipcode,
+            "shipping_city" : empresa_tmp.shipping_city,
+            "shipping_province" : empresa_tmp.shipping_province,
+            "shipping_country" : empresa_tmp.shipping_country,
+            "shipping_info" : empresa_tmp.shipping_info,
+            "plan_boris": empresa_tmp.plan_boris
+        }
+        
+        return json.dumps(unaEmpresa)
+
 
 #### Se escribe nueva version para gestiona orden complata BORRAR ####
 @bp.route('/cambiar', methods=['GET', 'POST'])

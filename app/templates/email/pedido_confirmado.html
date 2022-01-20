@@ -21,14 +21,7 @@
 {% if envio == 'Coordinar' %}
     <p>   
         <br>
-        Por favor seguí las siguientes intstrucciones para continuar con el cambio / devolución:<br>
-            1 - Embalá tu producto correctamente<br>
-            {% if order.courier_coordinar_empresa  is defined  %}
-                2 - El correo pasará a retirarlo<br>
-            {% else %}
-                2 -El correo pasará a retirarlo<br>
-            {% endif %}
-            <br>
+        Por favor seguí las siguientes instrucciones para continuar con el cambio / devolución:<br>
             {{company.envio_coordinar_note | safe}}
     </p>
 {% endif %}

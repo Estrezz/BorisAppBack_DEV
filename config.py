@@ -25,3 +25,5 @@ class Config(object):
     CLIENT_ID_TN=os.environ.get('CLIENT_ID_TN')
     CLIENT_SECRET_TN=os.environ.get('CLIENT_SECRET_TN')
     
+    UPLOAD_EXTENSIONS = ['.jpg', '.png']
+    

@@ -24,11 +24,12 @@
                     <div class="card mb-2 ">
                         <div class="card-body">
                             <!-- graba los datos que se necesitan para poder procesar cada linea asociados al respectivo Id del producto -->
-                            <input type="hidden" id="prod_id" name="prod_id" value="{{ i['prod_id'] }}">
-                            <input type="hidden" id="variant{{ i['prod_id'] }}" name="variant{{ i['prod_id'] }}" value="{{ i['variant'] }}">
-                            <input type="hidden" id="accion_cantidad{{ i['prod_id'] }}" name="accion_cantidad{{ i['prod_id'] }}" value="{{ i['accion_cantidad'] }}">
-                            <input type="hidden" id="accion{{ i['prod_id'] }}" name="accion{{ i['prod_id'] }}" value="{{ i['accion'] }}">
-                            <input type="hidden" id="order_line{{ i['prod_id'] }}" name="order_line{{ i['prod_id'] }}" value="{{ i['order_line_number'] }}">
+                            <input type="hidden" id="order_line" name="order_line" value="{{ i['order_line_number'] }}">
+                            <input type="hidden" id="prod_id{{i['order_line_number']}}" name="prod_id{{i['order_line_number']}}" value="{{ i['prod_id'] }}">
+                            <input type="hidden" id="variant{{ i['order_line_number'] }}" name="variant{{ i['order_line_number'] }}" value="{{ i['variant'] }}">
+                            <input type="hidden" id="accion_cantidad{{ i['order_line_number'] }}" name="accion_cantidad{{ i['order_line_number'] }}" value="{{ i['accion_cantidad'] }}">
+                            <input type="hidden" id="accion{{ i['order_line_number'] }}" name="accion{{ i['order_line_number'] }}" value="{{ i['accion'] }}">
+                            
                             
                             <div class="row">
                             <!-- Descripcio + datos articulos -->
@@ -69,12 +70,12 @@
                                             {% if orden.status_resumen == 'Aprobado' %}
                                                 {% if (i.gestionado == 'Iniciado' or i.gestionado == 'Cambiado' ) %}
                                                     {% set ns.entrantes_activos=true %}
-                                                    <input type="text" id="precio{{ i['prod_id'] }}" name="precio{{ i['prod_id'] }}" class="form-control" value="{{i['precio'] * i['accion_cantidad']}}">
+                                                    <input type="text" id="precio{{ i['order_line_number'] }}" name="precio{{ i['order_line_number'] }}" class="form-control" value="{{i['precio'] * i['accion_cantidad']}}">
                                                 {% else %}
-                                                    <input type="text" id="precio{{ i['prod_id'] }}" name="precio{{ i['prod_id'] }}" class="form-control" value="{{i['monto_devuelto']}}" disabled>
+                                                    <input type="text" id="precio{{ i['order_line_number'] }}" name="precio{{ i['order_line_number'] }}" class="form-control" value="{{i['monto_devuelto']}}" disabled>
                                                 {% endif %} 
                                             {% else %}
-                                                <input type="text" id="precio{{ i['prod_id'] }}" name="precio{{ i['prod_id'] }}" class="form-control" value="{{i['precio'] * i['accion_cantidad']}}" disabled>
+                                                <input type="text" id="precio{{ i['order_line_number'] }}" name="precio{{ i['order_line_number'] }}" class="form-control" value="{{i['precio'] * i['accion_cantidad']}}" disabled>
                                             {% endif %}
                                         </div>
                                         
@@ -89,8 +90,8 @@
                                         {% if orden.status_resumen == 'Aprobado' %}
                                             {% if (i.gestionado == 'Iniciado' or i.gestionado == 'Cambiado' ) %}
                                                 <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" class="custom-control-input" id="stockradio{{ i['prod_id'] }}" name="stockradio{{ i['prod_id'] }}" checked>
-                                                    <label class="custom-control-label" for="stockradio{{ i['prod_id'] }}"><small>Restock</small></label>
+                                                    <input type="checkbox" class="custom-control-input" id="stockradio{{ i['order_line_number'] }}" name="stockradio{{ i['order_line_number'] }}" checked>
+                                                    <label class="custom-control-label" for="stockradio{{ i['order_line_number'] }}"><small>Restock</small></label>
                                                 </div>
                                             {% endif %}
                                         {% endif %}
@@ -126,7 +127,7 @@
                     {% for i in orden_linea %}
                         {% if (i['accion'] == 'cambiar' and i['accion_cambiar_por'] != 1 ) %}
                         {% set ns.saliente_tmp = true %}
-                        <input class="saliente" type="hidden" id="prod_id_saliente" name="prod_id_saliente" value="{{ i['prod_id'] }}" data-variante="{{ i['accion_cambiar_por']}}" data-prod_id="{{ i['prod_id'] }}" data-cambiar_por_prod_id="{{ i['accion_cambiar_por_prod_id'] }}">
+                        <input class="saliente" type="hidden" id="prod_id_saliente" name="prod_id_saliente" value="{{ i['prod_id'] }}" data-variante="{{ i['accion_cambiar_por']}}" data-prod_id="{{ i['prod_id'] }}" data-cambiar_por_prod_id="{{ i['accion_cambiar_por_prod_id'] }}" data-line_saliente="{{ i['order_line_number'] }}">
                         <input type="hidden" id="order_line_saliente" name="order_line_saliente" value="{{ i['order_line_number'] }}">
                         <div class="card mb-2 ">
                             <div class="card-body">
@@ -563,7 +564,7 @@
                         <!-- Notas --> 
                             <form id="Nota" action="{{ url_for('main.orden', orden_id = orden.id) }}" method="POST"> 
                                 <label for="nota">Notas:</label>
-                                <textarea class="form-control" style="height: 100px" id="nota" name="nota" placeholder="Notas" >{{orden.note}}</textarea>
+                                <textarea class="form-control" style="height: 100px" id="nota" name="nota" placeholder="Notas" >{{orden.note or ''}}</textarea>
                                 <button  class="btn btn-outline-primary btn-sm mt-2 float-right" type="submit"> Añadir Nota </button>
                             </form>
                             
@@ -633,11 +634,12 @@
             variante = $(this).data('variante');
             prod_id = $(this).data('prod_id');
             cambiar_por_prod_id = $(this).data('cambiar_por_prod_id');
-            buscar_variante(prod_id, cambiar_por_prod_id, variante);
+            line_saliente = $(this).data('line_saliente');
+            buscar_variante(prod_id, cambiar_por_prod_id, variante, line_saliente);
         });
 
 
-        function buscar_variante(prod_id, cambiar_por_prod_id, variante) {  
+        function buscar_variante(prod_id, cambiar_por_prod_id, variante, line_saliente) {  
             $.post('/buscar_variante', {
                 prod_id: cambiar_por_prod_id,
                 variante: variante
@@ -653,7 +655,9 @@
                     var precio = data['price'];
                 }
                 // calcula la diferencia de precio entre el precio del articulo y el valor del cambio
-                var diferencia = precio - $('#precio'+prod_id ).val();
+                var cantidad = $('#accion_cantidad'+line_saliente).val();
+                var diferencia = (precio * cantidad) - ($('#precio'+line_saliente ).val());
+                
                 $('#saliente_diferencia_precio'+prod_id).val(diferencia);
 
                 // acumula el valor de todas las diferencias
@@ -683,7 +687,7 @@
                 } else {
                     texto_diferencia = '&nbsp; A devolver '+Math.abs(diferencia)+'$ &nbsp;';
                     color = 'white';
-                    color_back ="FireBrick";
+                    color_back ="darkorange";
                 }
                 $('#saliente_diferencia_precio_desc'+prod_id).html(texto_diferencia);
                 $('#saliente_diferencia_precio_desc'+prod_id).css('color', color);

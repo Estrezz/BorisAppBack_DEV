@@ -23,6 +23,7 @@ class Company(db.Model):
     store_address= db.Column(db.String(120)) 
     admin_email = db.Column(db.String(120))
     communication_email = db.Column(db.String(120))
+    communication_email_name = db.Column(db.String(120))
     param_logo = db.Column(db.String(200))
     param_fondo = db.Column(db.String(120))
     param_config = db.Column(db.String(120))
@@ -33,6 +34,7 @@ class Company(db.Model):
     correo_apikey = db.Column(db.String(50))
     correo_id = db.Column(db.String(50))
     correo_test = db.Column(db.Boolean)
+    correo_cost = db.Column(db.String(15))
     stock_vuelve_config = db.Column(db.Boolean)
     correo_apikey_test = db.Column(db.String(50))
     correo_id_test = db.Column(db.String(50))
@@ -46,15 +48,18 @@ class Company(db.Model):
     shipping_info = db.Column(db.String(120))
     aprobado_note = db.Column(db.String(250))
     rechazado_note = db.Column(db.String(250))
-    envio_manual_note = db.Column(db.String(350))
-    envio_coordinar_note = db.Column(db.String(350))
-    envio_correo_note = db.Column(db.String(350))
+    envio_manual_note = db.Column(db.String(500))
+    envio_coordinar_note = db.Column(db.String(500))
+    envio_correo_note = db.Column(db.String(500))
     cupon_generado_note = db.Column(db.String(350))
-    finalizado_note = db.Column(db.String(350))
-    confirma_manual_note = db.Column(db.String(350))
-    confirma_coordinar_note = db.Column(db.String(350))
-    confirma_moova_note = db.Column(db.String(350))
-    start_date = db.Column(db.DateTime)
+    finalizado_note = db.Column(db.String(500))
+    confirma_manual_note = db.Column(db.String(500))
+    confirma_coordinar_note = db.Column(db.String(500))
+    confirma_moova_note = db.Column(db.String(500))
+    start_date = db.Column(db.DateTime, default=datetime.utcnow)
+    demo_store = db.Column(db.Boolean)
+    rubro_tienda = db.Column(db.String(64))
+    plan_boris = db.Column(db.String(64))
     users = db.relationship('User', backref='empleado', lazy='dynamic')
     categories_filter = db.relationship('categories_filter', backref='filtroCategorias', lazy='dynamic')
     orders = db.relationship('Order_header', backref='pertenece', lazy='dynamic')
@@ -200,9 +205,47 @@ class Transaction_log(db.Model):
 
 
 class  categories_filter(db.Model):
-    store = db.Column(db.String(64), db.ForeignKey('company.store_id'))
+    store = db.Column(db.String(64), db.ForeignKey('company.store_id'), primary_key=True)
     category_id = db.Column(db.Integer, primary_key=True)
     category_desc = db.Column(db.String(100))
 
     def __repr__(self):
         return '<Categoria {} {} >'.format(self.category_id, self.category_desc)
+
+
+class  CONF_motivos(db.Model):
+    store = db.Column(db.String(64), db.ForeignKey('company.store_id'), primary_key=True)
+    id_motivo = db.Column(db.Integer, primary_key=True)
+    motivo = db.Column(db.String(35))
+    tipo_motivo = db.Column(db.String(35))
+
+    def __repr__(self):
+        return '<Motivo {} {} >'.format(self.store, self.motivo, self.tipo_motivo)
+
+
+class  CONF_boris(db.Model):
+    store = db.Column(db.String(64), db.ForeignKey('company.store_id'), primary_key=True)
+    ventana_cambios = db.Column(db.Integer)
+    ventana_devolucion = db.Column(db.Integer)
+    cambio_otra_cosa = db.Column(db.Boolean)
+    cambio_cupon = db.Column(db.Boolean)
+    cambio_opcion = db.Column(db.String(150))
+    cambio_opcion_cupon = db.Column(db.String(150))
+    cambio_opcion_otra_cosa = db.Column(db.String(150))
+    portal_empresa = db.Column(db.String(150))
+    portal_titulo = db.Column(db.String(250))
+    portal_texto = db.Column(db.String(250))
+
+    def __repr__(self):
+        return '<configuracion {} {} >'.format(self.store, self.ventana_cambios, self.ventana_devolucion)
+
+
+class  CONF_envios(db.Model):
+    store = db.Column(db.String(64), db.ForeignKey('company.store_id'), primary_key=True)
+    metodo_envio = db.Column(db.String(200), primary_key=True)
+    habilitado = db.Column(db.Boolean)
+    titulo_boton = db.Column(db.String(150))
+    descripcion_boton = db.Column(db.String(350))
+
+    def __repr__(self):
+        return '<Envio {} {} >'.format(self.store, self.metodo_envio, self.habilitado)

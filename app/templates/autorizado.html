@@ -8,24 +8,28 @@
                 Se produjo un error en la autorización <br>
                 por favor ponete en contacto con nosotros <br>
             {% endif %} 
-            {% if codigo == 'error_al_actualizar' %}
-                <br>
-                Se produjo un error en la actualización del FRONT <br>
-                por favor ponete en contacto con nosotros <br>
-            {% endif %}
+          
             {% if codigo == 'OK' %}
-            <h1> Bienvenido  {{ store.store_name }} <br>
-                Gracias por Instalar Boris </h1><br>
+            <h2> Bienvenido  {{ store.store_name }}! <br></h2>
+                <h3>Gracias por instalar Boris </h3><br>
+                <p>Te enviamos un mail a {{store.admin_email}} con los datos para que puedas terminar la instación <br></p>
                 <br>
+                <h4>IMPORTANTE! - SOLO TE QUEDA UN PEQUEÑO PASO PARA FINALIZAR LA INTEGRACION DE BORIS CON TU TIENDA. </h4>
                 <p>
-                Te enviamos un mail a {{store.admin_email}} con los datos de tu usuario y contraseña<br>
+                Para que tus clientes puedan acceder al portal de autogestión, tenes que agregar en tu página de Cambios y Devoluciones un link al mismo. Tenes dos maneras de hacerlo:<br>
+                <ul>
+                    <li> <strong>RECOMENDADA:</strong> Añadir un botón en la página de tu tienda donde tengas la Política de Cambios y Devoluciones. Para hacerlo podés seguir las instrucciones que vas a ver encontrar en <a href="http://www.borisreturns.com/faq" target="_blank" >http://www.borisreturns.com/faq</a></li>
+                    <li> Otra opción es que en el texto de tu política de Cambios, pongas directamente el enlace. La direccion de tu portal es: <a href="http://frontprod.borisreturns.com/buscar?empresa={{store.store_id}}" target="_blank" >http://frontprod.borisreturns.com/buscar?empresa={{store.store_id}}</a> </li>
+                </ul>
                 <br>
-                Para poder ingresar en tu consola de gestión entra en:<br>
+                La gestión de las solicitudes y parametrización de la app la vas a hacer utilizando tu <strong>Consola de Gestión</strong>.<br>
+                Para ingresar, podes hacerlo en el siguiente enlace:<br>
                 <a href="http://backprod.borisreturns.com">http://backprod.borisreturns.com</a>
                 con el usuario y contraseña : {{usuario}} 
                 <br>
-                <br> Si queres saber cómo podes personalizar el portal y el comportamiento de Boris, podés seguir las intrucciones en nuestra página:<br>
-                 <a href="http://www.borisreturns.com/instalacion">http://www.borisreturns.com/instalacion</a>
+                <br> Para mayor información sobre cómo podes <strong>personalizar el portal y el comportamiento de Boris</strong>, consulta nuestra página:<br>
+                <a href="http://www.borisreturns.com/faq" target="_blank">http://www.borisreturns.com/faq</a> 
+                 <br>
                  <br>
                 </p>
             {% else %}

@@ -42,8 +42,10 @@ def toready_moova(orden,company,customer):
             
         send_email('Tu orden ha sido confirmada', 
             #sender=current_app.config['ADMINS'][0], 
-            sender=company.communication_email,
+            sender=(company.communication_email_name, company.communication_email),
+            #sender=company.communication_email,
             recipients=[customer.email], 
+            reply_to = company.admin_email,
             text_body=render_template('email/pedido_confirmado.txt',
                                         company=company, customer=customer, order=orden, envio=orden.courier_method, label=label),
                                         html_body=render_template('email/pedido_confirmado.html',

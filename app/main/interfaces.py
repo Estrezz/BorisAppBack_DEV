@@ -2,8 +2,9 @@ import requests
 import json
 import string
 import random
+import imghdr
 from app import db
-from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log, categories_filter
+from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log, categories_filter, CONF_motivos, CONF_boris, CONF_envios
 from app.main.moova import toready_moova
 from app.main.tiendanube import buscar_producto_tiendanube,  genera_credito_tiendanube, devolver_stock_tiendanube
 from app.email import send_email
@@ -179,9 +180,9 @@ def toReady(orden, company):
         orden_tmp.last_update_date = str(datetime.utcnow)
         db.session.commit()
         send_email('Tu orden ha sido confirmada', 
-                #sender=current_app.config['ADMINS'][0], 
-                sender=company.communication_email,
+                sender=(company.communication_email_name, company.communication_email),
                 recipients=[customer.email], 
+                reply_to = company.admin_email,
                 text_body=render_template('email/pedido_confirmado.txt',
                                          company=company, customer=customer, order=orden, envio=orden.courier_method),
                 html_body=render_template('email/pedido_confirmado.html',
@@ -227,9 +228,9 @@ def toApproved(orden_id):
     db.session.add(unaTransaccion)
     db.session.commit()
     send_email('Tu orden ha sido aprobada', 
-                #sender=current_app.config['ADMINS'][0], 
-                sender=company.communication_email,
+                sender=(company.communication_email_name, company.communication_email),
                 recipients=[customer.email], 
+                reply_to = company.admin_email,
                 text_body=render_template('email/pedido_aprobado.txt',
                                          company=company, customer=customer, order=orden, envio=orden.courier_method),
                 html_body=render_template('email/pedido_aprobado.html',
@@ -258,8 +259,9 @@ def toReject(orden_id, motivo):
     db.session.add(unaTransaccion)
     db.session.commit()
     send_email('Tu orden ha sido rechazada', 
-                sender=company.communication_email,
+                sender=(company.communication_email_name, company.communication_email),
                 recipients=[customer.email], 
+                reply_to = company.admin_email,
                 text_body=render_template('email/pedido_rechazado.txt',
                                          company=company, customer=customer, order=orden, envio=orden.courier_method),
                 html_body=render_template('email/pedido_rechazado.html',
@@ -276,8 +278,9 @@ def genera_credito(empresa, monto, cliente, orden):
         cupon = genera_credito_tiendanube(empresa, importe, codigo)
         if cupon != 'Failed':
             send_email('Hemos generado tu Cupón', 
-                    sender=empresa.communication_email,
+                    sender=(empresa.communication_email_name, empresa.communication_email),
                     recipients=[cliente.email], 
+                    reply_to = empresa.admin_email,
                     text_body=render_template('email/cupon_generado.txt',
                                             company=empresa, customer=cliente, order=orden, cupon=cupon, monto=importe),
                     html_body=render_template('email/cupon_generado.html',
@@ -285,8 +288,9 @@ def genera_credito(empresa, monto, cliente, orden):
                     attachments=None, 
                     sync=False)
             send_email('BORIS ha generado un Cupon', 
-                    sender=empresa.communication_email,
-                    recipients=[empresa.admin_email], 
+                sender=(empresa.communication_email_name, empresa.communication_email),
+                    recipients=[empresa.admin_email],
+                    reply_to = empresa.communication_email,
                     text_body=render_template('email/cupon_empresa.txt',
                                             customer=cliente, order=orden, cupon=cupon, monto=importe),
                     html_body=render_template('email/cupon_empresa.html',
@@ -304,12 +308,13 @@ def genera_codigo(size=6, chars=string.ascii_uppercase + string.digits):
 
 
 ##################################################################################################
-############# Envia datos de la empresa al FRONT para dar de alta o actualizar ###################
+##  Envia datos de la empresa al FRONT para crear el JSON                                        #
+##################################################################################################
 def actualiza_empresa(empresa):
     if current_app.config['SERVER_ROLE'] == 'DEV':
-        url="https://front.borisreturns.com/empresa/chequear"
+        url="https://front.borisreturns.com/empresa/crear"
     if current_app.config['SERVER_ROLE'] == 'PROD':
-        url="https://frontprod.borisreturns.com/empresa/chequear"
+        url="https://frontprod.borisreturns.com/empresa/crear"
     
     headers = {
         'Content-Type': 'application/json'
@@ -331,7 +336,7 @@ def actualiza_empresa(empresa):
         "store_main_language" : empresa.store_main_language,
         "store_main_currency" : empresa.store_main_currency,
         "store_country" : empresa.store_country,
-        "correo_usado" : empresa.correo_usado, 
+        "correo_usado" : empresa.correo_usado,
         "correo_test" : empresa.correo_test, 
         "correo_apikey" : empresa.correo_apikey,
         "correo_id" : empresa.correo_id,
@@ -351,19 +356,24 @@ def actualiza_empresa(empresa):
         "shipping_info" : empresa.shipping_info 
     }
     solicitud = requests.request("POST", url, headers=headers, data=json.dumps(data))
+    
     if solicitud.status_code != 200:
-        return 'Failed'
+        return 'Ya existia'
     else: 
         return 'Success'
 
 
-######################################################################################################
-####################### Actualiza el JSON de configuracion del FRONT #################################
-def actualiza_empresa_JSON(empresa, clave, valor):
+####################################################################################################
+#  Actualiza el JSON de configuracion del FRONT                                                    #
+#  EL valor de Key depende de la clave que quiera actualizarse. Puede ser:                         #
+#  textos / politica / provincia_codigos_postales u otros () para los que                          #
+#  tienen un solo nivel de clave                                                                   #
+####################################################################################################
+def actualiza_empresa_JSON(empresa, clave, valor,key):
     if current_app.config['SERVER_ROLE'] == 'DEV':
-        url="https://front.borisreturns.com/empresa_json?clave="+clave
+        url="https://front.borisreturns.com/empresa_json?clave="+clave+"&key="+key
     if current_app.config['SERVER_ROLE'] == 'PROD':
-        url="https://frontprod.borisreturns.com/empresa_json?clave="+clave
+        url="https://frontprod.borisreturns.com/empresa_json?clave="+clave+"&key="+key
     
     headers = {
         'Content-Type': 'application/json'
@@ -377,7 +387,19 @@ def actualiza_empresa_JSON(empresa, clave, valor):
         return 'Failed'
     else: 
         return 'Success'
-    
+
+
+############# Devuelve el nombre de la clave del titulo y descripcion de los botones correspondientes a los metodos de envios en el JSON de configuracion #################
+def devolver_datos_boton(metodo_envio):
+    boton = []
+    if str.upper(metodo_envio) == "MANUAL":
+        boton = ["boton_envio_manual", "boton_envio_manual_desc"]
+    if str.upper(metodo_envio) == "COORDINAR":
+        boton = ["boton_envio_coordinar", "boton_envio_coordinar_desc"]
+    if str.upper(metodo_envio) == "RETIRO":
+        boton = ["boton_envio_retiro", "boton_envio_retiro_desc"]
+    return boton
+
 ############# Envia datos de las categorias filtradas al FRONT para dar de alta o actualizar #################
 def actualiza_empresa_categorias(empresa):
     categorias_tmp = categories_filter.query.filter_by(store=empresa.store_id).all()
@@ -421,8 +443,9 @@ def devolver_linea(prod_id, variant, cantidad, orden_id, order_line_number, acci
             ## Si la configuracion de stock_vuelve_config es False (el stock no se devuelve fisicamente)
             ## Envía mail al administrador de la empresa avisando para que lo devuelva por sistema
             send_email('Se ha devuelto un artículo en BORIS ', 
-                sender=empresa.communication_email,
+                sender=(empresa.communication_email_name, empresa.communication_email),
                 recipients=[empresa.admin_email], 
+                reply_to = empresa.communication_email,
                 text_body=render_template('email/articulo_devuelto.txt',
                                          order=orden, linea=linea),
                 html_body=render_template('email/articulo_devuelto.html',
@@ -462,11 +485,10 @@ def actualizar_stock(lineas, empresa, accion):
         if empresa.platform == 'tiendanube':
             stock = devolver_stock_tiendanube(empresa, linea.accion_cambiar_por_prod_id, linea.accion_cambiar_por, cantidad_tmp)
             if stock == 'Failed':
-                flash('No se pude actualizar el stock para el articulo {} '.format(linea.accion_cambiar_por_desc))
-
+                flash('No se pudo actualizar el stock para el articulo {} '.format(linea.accion_cambiar_por_desc))
+            ### Aca edberia registrar en un log las actualizaciones de stock registradas
     return 'Success'
         
-
 
 
 def loguear_transaccion(sub_status, prod, order_id, user_id, username):
@@ -500,9 +522,11 @@ def finalizar_orden(orden_id):
         loguear_transaccion('CERRADO', 'Cerrado ',orden_id, current_user.id, current_user.username)
         #flash('Mail {} para {} - orden {} , orden linea {}'.format(current_app.config['ADMINS'][0], customer.email, orden, orden_linea))
         company = Company.query.get(current_user.store)
+
         send_email('El procesamiento de tu orden ha finalizado', 
-            sender=company.communication_email, 
-            recipients=[customer.email], 
+            sender=(company.communication_email_name, company.communication_email),
+            recipients=[customer.email],
+            reply_to = company.admin_email,
             text_body=render_template('email/pedido_finalizado.txt',
                                     company=company, customer=customer, order=orden, linea=orden_linea),
             html_body=render_template('email/pedido_finalizado.html',
@@ -510,3 +534,144 @@ def finalizar_orden(orden_id):
             attachments=None, 
             sync=False)
     return 'Success'
+
+
+### Inicializa las basea de configuraciones para generar el JSON ################
+def incializa_configuracion(unaEmpresa):
+    if CONF_boris.query.filter_by(store=unaEmpresa.store_id).first():
+        return 'Ya existe'
+    else: 
+        inicializa_motivos(unaEmpresa)
+        inicializa_parametros(unaEmpresa)
+        inicializa_envios(unaEmpresa)
+
+
+###########################################################################################
+# Inicializa la base de motivos con los motivos por default
+# PARA MODIFICAR EL DEFAULT HAY QUE MODIFICAR TAMBIEN EL JSON QUE SE GENERA EN EL FRONT
+# #########################################################################################
+def inicializa_motivos(unaEmpresa):
+    store_id = unaEmpresa.store_id
+
+    motivoUno = CONF_motivos(
+                store = store_id,
+                id_motivo = 1,
+                motivo = 'No calza bien',
+                tipo_motivo = 'Calce'
+    )
+    db.session.add(motivoUno)
+
+    motivoDos = CONF_motivos(
+                store = store_id,
+                id_motivo = 2,
+                motivo = 'Es grande',
+                tipo_motivo = 'Talle'
+    )
+    db.session.add(motivoDos)
+
+    motivoTres = CONF_motivos(
+                store = store_id,
+                id_motivo = 3,
+                motivo = 'Es chico',
+                tipo_motivo = 'Talle'
+    )
+    db.session.add(motivoTres)
+
+    motivoCuatro = CONF_motivos(
+                store = store_id,
+                id_motivo = 4,
+                motivo = 'Mala calidad',
+                tipo_motivo = 'Calidad'
+    )
+    db.session.add(motivoCuatro)
+
+    motivoCinco = CONF_motivos(
+                store = store_id,
+                id_motivo = 5,
+                motivo = 'No gusta color',
+                tipo_motivo = 'Color'
+    )
+    db.session.add(motivoCinco)
+
+    motivoSeis = CONF_motivos(
+                store = store_id,
+                id_motivo = 6,
+                motivo = 'No es lo que esperaba',
+                tipo_motivo = 'Expectativa'
+    )
+    db.session.add(motivoSeis)
+
+    db.session.commit()
+
+
+def inicializa_parametros(unaEmpresa):
+    unParametro = CONF_boris(
+                store = unaEmpresa.store_id,
+                ventana_cambios = 30,
+                ventana_devolucion = 30,
+                cambio_otra_cosa = 1,
+                cambio_cupon = 0,
+                portal_empresa =  unaEmpresa.store_name,
+                portal_titulo = 'Cambios y Devoluciones', 
+                cambio_opcion = 'Seleccioná si queres cambiarlo por una variante del mismo articulo o elegí otro producto',
+                cambio_opcion_cupon = 'Seleccioná esta opción para obtener un cupón de crédito en nuestra tienda',
+                cambio_opcion_otra_cosa = 'Elegí en nuestra tienda el artículo que querés, ingresa el nombre y presion buscar'
+        )
+    db.session.add(unParametro)
+    db.session.commit()
+
+
+def inicializa_envios(unaEmpresa):
+    manual = CONF_envios(
+        store = unaEmpresa.store_id,
+        metodo_envio = 'manual',
+        habilitado = 1,
+        titulo_boton = 'Traer la orden a nuestro local',
+        descripcion_boton = 'Acercanos el/los productos a nuestros locales/depósito'
+    )
+    db.session.add(manual)
+
+    coordinar = CONF_envios(
+        store = unaEmpresa.store_id,
+        metodo_envio = 'coordinar',
+        habilitado = 1,
+        titulo_boton = 'Coordinar método de retiro',
+        descripcion_boton = 'Coordiná con nosotros el método de envío que te quede mas cómodo'
+    )
+    db.session.add(coordinar)
+
+    retiro = CONF_envios(
+        store = unaEmpresa.store_id,
+        metodo_envio = 'retiro',
+        habilitado = 0,
+        titulo_boton = 'Retirar en tu domicilio',
+        descripcion_boton = 'Un servicio de correo pasara a buscar los productos por tu domicilio'
+    )
+    db.session.add(retiro)
+
+    db.session.commit()
+
+
+def validar_imagen(stream):
+    header = stream.read(512)
+    stream.seek(0)
+    format = imghdr.what(None, header)
+    if not format:
+        return None
+    return '.' + (format if format != 'jpeg' else 'jpg')
+
+
+def enviar_imagen(file, filename):
+    if current_app.config['SERVER_ROLE'] == 'DEV':
+        url="https://front.borisreturns.com/recibir_imagen"
+    if current_app.config['SERVER_ROLE'] == 'PROD':
+        url="https://frontprod.borisreturns.com/recibir_imagen"
+    
+    file_content = file.read()
+    response = requests.post(url, files={'image': (filename, file_content)})
+   
+    if response.status_code == 200:
+        return 'Success'
+    else :
+        flash('Fallo la carga del archivo {} - {}'.format (response.status_code, response))
+        return 'Failed'
