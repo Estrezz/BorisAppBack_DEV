@@ -300,4 +300,14 @@ class CONF_metodos_envios(db.Model):
     def __repr__(self):
         return '<Envio {} {} >'.format(self.store, self.metodo_envio_id, self.habilitado)
 
+####### Esta tabla sirve solo para migrar del modelo anterior al nuevo
+####### durante la actualziacion para integrar con correos, despues sacar
+class  CONF_envios(db.Model):
+    store = db.Column(db.String(64), db.ForeignKey('company.store_id'), primary_key=True)
+    metodo_envio = db.Column(db.String(200), primary_key=True)
+    habilitado = db.Column(db.Boolean)
+    titulo_boton = db.Column(db.String(150))
+    descripcion_boton = db.Column(db.String(350))
 
+    def __repr__(self):
+        return '<Envio {} {} >'.format(self.store, self.metodo_envio, self.habilitado)
