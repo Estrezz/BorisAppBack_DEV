@@ -16,7 +16,7 @@
  
         {% block navbar %}
               
-            {% if config['SERVER_ROLE']== 'DEV' %}
+            {% if (config['SERVER_ROLE']== 'DEV') or (config['SERVER_ROLE']== 'PREDEV') %}
             <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             {% endif %}
             {% if config['SERVER_ROLE']== 'PROD' %}
