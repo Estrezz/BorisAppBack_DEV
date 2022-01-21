@@ -4,8 +4,9 @@ import string
 import random
 import imghdr
 from app import db
-from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log, categories_filter, CONF_motivos, CONF_boris, CONF_envios
-from app.main.moova import toready_moova
+from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log, categories_filter, CONF_motivos, CONF_boris, CONF_metodos_envios, correos, CONF_correo, metodos_envios
+#from app.main.moova import toready_moova
+from app.main.fastmail import crea_envio_fastmail, cotiza_envio_fastmail
 from app.main.tiendanube import buscar_producto_tiendanube,  genera_credito_tiendanube, devolver_stock_tiendanube
 from app.email import send_email
 from flask import session, flash, current_app,render_template
@@ -28,6 +29,7 @@ def cargar_pedidos():
 
 def crear_pedido(pedido):
     unaEmpresa = Company.query.get(pedido['company']['store_id'])
+    descripcion_correo = buscar_descripcion_correo(pedido['company']['store_id'], pedido['correo']['correo_metodo_envio'])
     
     if Customer.query.get(pedido['cliente']['id']):
         unCliente = Customer.query.get(pedido['cliente']['id'])
@@ -46,6 +48,7 @@ def crear_pedido(pedido):
         order_id_anterior = pedido['orden'],
         gastos_cupon = pedido['orden_gastos_cupon'],
         gastos_gateway = pedido['orden_gastos_gateway'],
+        salientes = pedido['order_salientes'],
         gastos_shipping_owner = pedido['orden_gastos_shipping_owner'],
         gastos_shipping_customer = pedido['orden_gastos_shipping_customer'],
         gastos_promocion = pedido ['orden_gastos_promocion'],
@@ -53,8 +56,9 @@ def crear_pedido(pedido):
         date_lastupdate = datetime.strptime(pedido['orden_fecha'], '%Y-%m-%d %H:%M:%S.%f'),
         payment_method = pedido['orden_medio_de_pago'],
         payment_card = pedido['orden_tarjeta_de_pago'],
-        courier_method = pedido['correo']['correo_metodo_envio'],
-        courier_order_id = pedido['correo']['correo_id'],
+        courier_method= pedido['correo']['correo_metodo_envio'],
+        metodo_envio_correo = descripcion_correo,
+        metodo_envio_guia = pedido['correo']['correo_id'],
         courier_precio = pedido['correo']['correo_precio_formateado'],
         status = 'Shipping',
         sub_status = traducir_estado(pedido['correo']['correo_status'])[0],
@@ -83,6 +87,10 @@ def crear_pedido(pedido):
             accion = x['accion'],
             monto_a_devolver = x['monto_a_devolver'],
             precio = float(x['precio']),
+            alto = float(x['alto']),
+            largo = float(x['largo']),
+            profundidad = float(x['profundidad']),
+            peso = float(x['peso']),
             promo_descuento = float(x['promo_descuento']),
             promo_nombre = x['promo_nombre'],
             promo_precio_final = float(x['promo_precio_final']),
@@ -168,9 +176,14 @@ def traducir_estado(estado):
 
 def toReady(orden, company):
     customer = Customer.query.get(orden.customer_id)
-    if orden.courier_method == 'Moova':
-        manda_envio = toready_moova(orden,company,customer) 
-        return manda_envio
+    envio = metodos_envios.query.get(orden.courier_method)
+    
+    if envio.carrier and orden.salientes == 'No' :
+        envio_creado = crea_envio_correo(company,customer,orden,envio)
+        if envio_creado != 'Failed':
+            return "Success"
+        else:
+            return "Failed"
     else:
         ## envio mail con instrucciones para envío manual
         orden_tmp = Order_header.query.get(orden.id)
@@ -311,6 +324,8 @@ def genera_codigo(size=6, chars=string.ascii_uppercase + string.digits):
 ##  Envia datos de la empresa al FRONT para crear el JSON                                        #
 ##################################################################################################
 def actualiza_empresa(empresa):
+    if current_app.config['SERVER_ROLE'] == 'PREDEV':
+        url="http://frontdev.borisreturns.com/empresa/crear"
     if current_app.config['SERVER_ROLE'] == 'DEV':
         url="https://front.borisreturns.com/empresa/crear"
     if current_app.config['SERVER_ROLE'] == 'PROD':
@@ -370,6 +385,8 @@ def actualiza_empresa(empresa):
 #  tienen un solo nivel de clave                                                                   #
 ####################################################################################################
 def actualiza_empresa_JSON(empresa, clave, valor,key):
+    if current_app.config['SERVER_ROLE'] == 'PREDEV':
+        url="http://frontdev.borisreturns.com/empresa_json?clave="+clave+"&key="+key
     if current_app.config['SERVER_ROLE'] == 'DEV':
         url="https://front.borisreturns.com/empresa_json?clave="+clave+"&key="+key
     if current_app.config['SERVER_ROLE'] == 'PROD':
@@ -406,7 +423,9 @@ def actualiza_empresa_categorias(empresa):
     categorias = []
     for i in categorias_tmp:
         categorias.append(i.category_id)
-    
+
+    if current_app.config['SERVER_ROLE'] == 'PREDEV':
+        url="http://frontdev.borisreturns.com/empresa_categorias"
     if current_app.config['SERVER_ROLE'] == 'DEV':
         url="https://front.borisreturns.com/empresa_categorias"
     if current_app.config['SERVER_ROLE'] == 'PROD':
@@ -431,6 +450,7 @@ def devolver_linea(prod_id, variant, cantidad, orden_id, order_line_number, acci
     linea = Order_detail.query.get(str(order_line_number))
     orden = Order_header.query.get(orden_id)
     
+    #### comprobar si la linea ya esta gestionada y no hacer nada 
     if accion_stock != 'No vuelve al stock':
         empresa = Company.query.get(current_user.store)
         if empresa.stock_vuelve_config == True:
@@ -622,7 +642,7 @@ def inicializa_parametros(unaEmpresa):
 
 
 def inicializa_envios(unaEmpresa):
-    manual = CONF_envios(
+    manual = CONF_metodos_envios(
         store = unaEmpresa.store_id,
         metodo_envio = 'manual',
         habilitado = 1,
@@ -631,7 +651,7 @@ def inicializa_envios(unaEmpresa):
     )
     db.session.add(manual)
 
-    coordinar = CONF_envios(
+    coordinar = CONF_metodos_envios(
         store = unaEmpresa.store_id,
         metodo_envio = 'coordinar',
         habilitado = 1,
@@ -640,7 +660,7 @@ def inicializa_envios(unaEmpresa):
     )
     db.session.add(coordinar)
 
-    retiro = CONF_envios(
+    retiro = CONF_metodos_envios(
         store = unaEmpresa.store_id,
         metodo_envio = 'retiro',
         habilitado = 0,
@@ -662,6 +682,8 @@ def validar_imagen(stream):
 
 
 def enviar_imagen(file, filename):
+    if current_app.config['SERVER_ROLE'] == 'PREDEV':
+        url="http://frontdev.borisreturns.com/recibir_imagen"
     if current_app.config['SERVER_ROLE'] == 'DEV':
         url="https://front.borisreturns.com/recibir_imagen"
     if current_app.config['SERVER_ROLE'] == 'PROD':
@@ -675,3 +697,48 @@ def enviar_imagen(file, filename):
     else :
         flash('Fallo la carga del archivo {} - {}'.format (response.status_code, response))
         return 'Failed'
+
+
+
+def buscar_descripcion_correo(store, correo):
+    correo_tmp = CONF_metodos_envios.query.get((store, correo)).correo_id
+    if not correo_tmp:
+        return ""
+    correo_id = CONF_correo.query.get(correo_tmp).correo_id
+    correo_descripcion = correos.query.get(correo_id).correo_descripcion
+    if correo_descripcion == 'None':
+        correo_descripcion = ""
+    return correo_descripcion
+
+
+def cotiza_envio_correo(data, datos_correo):
+   if data['correo']['correo_id'] == 'FAST':
+        precio = cotiza_envio_fastmail(data, datos_correo)
+        return str(precio)
+   else: 
+        return 'Failed'
+
+
+def crea_envio_correo(company,customer,orden,envio):
+    orden_linea = Order_detail.query.filter_by(order=orden.id).all()
+    metodo_envio_tmp = CONF_metodos_envios.query.get((company.store_id, envio.metodo_envio_id))
+    correo_id = CONF_correo.query.get(metodo_envio_tmp.correo_id)
+    guia = genera_envio(correo_id, metodo_envio_tmp, orden, customer, orden_linea)
+    
+    if guia != 'Failed':
+        orden.metodo_envio_guia = guia['guia']
+        if guia['importe'] != float(orden.courier_precio):
+            flash('Hubo una diferencia entre el precio cotizado y el precio real Real:{}({}) - Cotizado:{}({})'.format(guia['importe'], type(guia['importe']), float(orden.courier_precio), type(orden.courier_precio)))
+            orden.courier_precio = guia['importe']
+        db.session.commit()
+        return "Success"
+    else:
+        return "Failed"
+
+
+def genera_envio(correo_id, metodo_envio, orden, customer, orden_linea):
+    if correo_id.correo_id == 'FAST':
+        guia = crea_envio_fastmail( correo_id, metodo_envio, orden, customer, orden_linea)
+        return guia
+    else:
+        return "No se encontro el correo_id"

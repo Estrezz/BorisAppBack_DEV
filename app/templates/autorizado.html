@@ -8,7 +8,11 @@
                 Se produjo un error en la autorización <br>
                 por favor ponete en contacto con nosotros <br>
             {% endif %} 
-          
+            {% if codigo == 'error_al_actualizar' %}
+                <br>
+                Se produjo un error en la actualización del FRONT <br>
+                por favor ponete en contacto con nosotros <br>
+            {% endif %}
             {% if codigo == 'OK' %}
             <h2> Bienvenido  {{ store.store_name }}! <br></h2>
                 <h3>Gracias por instalar Boris </h3><br>

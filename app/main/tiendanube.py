@@ -193,7 +193,7 @@ def autorizar_tiendanube(codigo):
         db.session.commit()
         return unaEmpresa
     else:
-        flash("Error al autorizar la Tienda {}. Ponete en contacto con nosotros".format(respuesta))    
+        flash("Error al autorizar la Tienda {}. Ponete en contacto con nosotros".format(respuesta))
     return 'Failed'
 
 
