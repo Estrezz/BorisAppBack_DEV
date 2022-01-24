@@ -80,7 +80,6 @@ with app.app_context():
         envios = CONF_envios.query.filter_by(store=x.store_id).all()
         
         for e in envios:
-
             if e.metodo_envio == 'manual':
                 manual = CONF_metodos_envios( 
                         store = x.store_id,
@@ -116,7 +115,9 @@ with app.app_context():
             
                 db.session.add(coordinar)
 
-                db.session.commit()
+            db.session.commit()
+
+        print('sale del for') 
         if x.store_id == '1447373':        
                 ########### Actualizar JSON ######################
                 print('actualizando JSON')
@@ -134,15 +135,13 @@ with app.app_context():
                             "carrier":metodo_master.carrier,
                             "costo_envio": m.costo_envio}
                     metodos.append(unMetodo_tmp)
-                    print(metodos)
-
-                print('sale del for')   
+  
                 data = {
                         "store_id" : x.store_id,
                         'envio' : metodos,
                 }
                 print(data)
-                print(url)
+                
                 solicitud = requests.request("POST", url, headers=headers, data=json.dumps(data))               
                     
                 print ('Finalizado '+str(solicitud.status_code)+str(x.store_id)+' '+x.store_name)
