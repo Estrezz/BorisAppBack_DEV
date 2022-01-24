@@ -500,7 +500,7 @@ def add_envio():
             metodos.append(unMetodo_tmp)
             ############# revisar si lo que sigue va fuera del for
             ######### agregar carrier en JSON
-        status = actualiza_empresa_JSON(empresa, 'metodos_envio', metodos, 'otros')
+        status = actualiza_empresa_JSON(empresa, 'envio', metodos, 'otros')
         if status != 'Failed':
             flash('Los datos se actualizaron correctamente')
         else:
@@ -555,7 +555,7 @@ def editar_envio(id):
                             "direccion_obligatoria": metodo_master.direccion_obligatoria,
                             "costo_envio": m.costo_envio}
             metodos.append(unMetodo_tmp)
-            status = actualiza_empresa_JSON(empresa, 'metodos_envio', metodos, 'otros')
+            status = actualiza_empresa_JSON(empresa, 'envio', metodos, 'otros')
             if status == 'Failed':
                 status = 'Failed'
 
