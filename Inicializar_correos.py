@@ -63,7 +63,7 @@ with app.app_context():
     
     print('Configurando tiendas')
 
-    url="http://devfront.borisreturns.com/empresa_json?clave="+'envio'+"&key="+'otros'
+    url="https://devfront.borisreturns.com/empresa_json?clave="+'envio'+"&key="+'otros'
     headers = {
         'Content-Type': 'application/json'
     }
@@ -124,6 +124,7 @@ with app.app_context():
                 metodos_tmp = CONF_metodos_envios.query.filter_by(store=x.store_id).all() 
                 metodos=[]
                 for m in metodos_tmp:
+                    print(m)
                     metodo_master = metodos_envios.query.get(m.metodo_envio_id)
                     unMetodo_tmp = {"metodo_envio_id" : m.metodo_envio_id,
                             "icon": metodo_master.icon,
@@ -133,7 +134,9 @@ with app.app_context():
                             "carrier":metodo_master.carrier,
                             "costo_envio": m.costo_envio}
                     metodos.append(unMetodo_tmp)
-                    
+                    print(metodos)
+
+                print('sale del for')   
                 data = {
                         "store_id" : x.store_id,
                         'envio' : metodos,
