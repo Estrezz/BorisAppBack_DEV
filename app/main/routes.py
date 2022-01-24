@@ -340,7 +340,6 @@ def edit_portalinfo():
 
             db.session.commit()
 
-            # status = actualiza_empresa(empresa)
             #### falta actualizar JSON del portal
             if status != 'Failed' and file_ok == 'Si':
                 flash('Los datos se actualizaron correctamente')
@@ -496,15 +495,16 @@ def add_envio():
                             "boton_titulo": m.titulo_boton,
                             "boton_descripcion": m.descripcion_boton,
                             "direccion_obligatoria": metodo_master.direccion_obligatoria,
+                            "carrier":metodo_master.carrier,
                             "costo_envio": m.costo_envio}
             metodos.append(unMetodo_tmp)
             ############# revisar si lo que sigue va fuera del for
             ######### agregar carrier en JSON
-            status = actualiza_empresa_JSON(empresa, 'metodos_envio', metodos, 'otros')
-            if status != 'Failed':
-                flash('Los datos se actualizaron correctamente')
-            else:
-                flash('Se produjo un error {}'. format(status))
+        status = actualiza_empresa_JSON(empresa, 'metodos_envio', metodos, 'otros')
+        if status != 'Failed':
+            flash('Los datos se actualizaron correctamente')
+        else:
+            flash('Se produjo un error {}'. format(status))
     
     return redirect(url_for('main.edit_enviosinfo'))
 
