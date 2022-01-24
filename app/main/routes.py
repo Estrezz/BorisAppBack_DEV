@@ -553,6 +553,7 @@ def editar_envio(id):
                             "boton_titulo": m.titulo_boton,
                             "boton_descripcion": m.descripcion_boton,
                             "direccion_obligatoria": metodo_master.direccion_obligatoria,
+                            "carrier":metodo_master.carrier,
                             "costo_envio": m.costo_envio}
             metodos.append(unMetodo_tmp)
             status = actualiza_empresa_JSON(empresa, 'envio', metodos, 'otros')
