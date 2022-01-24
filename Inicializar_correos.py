@@ -71,11 +71,12 @@ with app.app_context():
     for x in companies:
         if x.store_id == '1':
             continue
-        print ('Comenzando '+str(x.store_id)+' '+x.store_name)
+        
 
         if x.store_id != '1447373':
             continue
 
+        print ('Comenzando '+str(x.store_id)+' '+x.store_name)
         envios = CONF_envios.query.filter_by(store=x.store_id).all()
         
         for e in envios:
@@ -129,7 +130,7 @@ with app.app_context():
                             "boton_titulo": m.titulo_boton,
                             "boton_descripcion": m.descripcion_boton,
                             "direccion_obligatoria": metodo_master.direccion_obligatoria,
-                            "carrier":m.carrier,
+                            "carrier":metodo_master.carrier,
                             "costo_envio": m.costo_envio}
                     metodos.append(unMetodo_tmp)
                     
