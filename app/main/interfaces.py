@@ -325,7 +325,7 @@ def genera_codigo(size=6, chars=string.ascii_uppercase + string.digits):
 ##################################################################################################
 def actualiza_empresa(empresa):
     if current_app.config['SERVER_ROLE'] == 'PREDEV':
-        url="http://frontdev.borisreturns.com/empresa/crear"
+        url="https://devfront.borisreturns.com/empresa/crear"
     if current_app.config['SERVER_ROLE'] == 'DEV':
         url="https://front.borisreturns.com/empresa/crear"
     if current_app.config['SERVER_ROLE'] == 'PROD':
@@ -386,7 +386,7 @@ def actualiza_empresa(empresa):
 ####################################################################################################
 def actualiza_empresa_JSON(empresa, clave, valor,key):
     if current_app.config['SERVER_ROLE'] == 'PREDEV':
-        url="http://frontdev.borisreturns.com/empresa_json?clave="+clave+"&key="+key
+        url="https://devfront.borisreturns.com/empresa_json?clave="+clave+"&key="+key
     if current_app.config['SERVER_ROLE'] == 'DEV':
         url="https://front.borisreturns.com/empresa_json?clave="+clave+"&key="+key
     if current_app.config['SERVER_ROLE'] == 'PROD':
@@ -425,7 +425,7 @@ def actualiza_empresa_categorias(empresa):
         categorias.append(i.category_id)
 
     if current_app.config['SERVER_ROLE'] == 'PREDEV':
-        url="http://frontdev.borisreturns.com/empresa_categorias"
+        url="https://devfront.borisreturns.com/empresa_categorias"
     if current_app.config['SERVER_ROLE'] == 'DEV':
         url="https://front.borisreturns.com/empresa_categorias"
     if current_app.config['SERVER_ROLE'] == 'PROD':
@@ -683,7 +683,7 @@ def validar_imagen(stream):
 
 def enviar_imagen(file, filename):
     if current_app.config['SERVER_ROLE'] == 'PREDEV':
-        url="http://frontdev.borisreturns.com/recibir_imagen"
+        url="https://devfront.borisreturns.com/recibir_imagen"
     if current_app.config['SERVER_ROLE'] == 'DEV':
         url="https://front.borisreturns.com/recibir_imagen"
     if current_app.config['SERVER_ROLE'] == 'PROD':
