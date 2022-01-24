@@ -127,6 +127,7 @@ with app.app_context():
                             "boton_descripcion": m.descripcion_boton,
                             "direccion_obligatoria": metodo_master.direccion_obligatoria,
                             "carrier":metodo_master.carrier,
+                            "correo_id": m.correo_id,
                             "costo_envio": m.costo_envio}
                 metodos.append(unMetodo_tmp)
   

@@ -496,6 +496,7 @@ def add_envio():
                             "boton_descripcion": m.descripcion_boton,
                             "direccion_obligatoria": metodo_master.direccion_obligatoria,
                             "carrier":metodo_master.carrier,
+                            "correo_id": m.correo_id,
                             "costo_envio": m.costo_envio}
             metodos.append(unMetodo_tmp)
             ############# revisar si lo que sigue va fuera del for
@@ -554,6 +555,7 @@ def editar_envio(id):
                             "boton_descripcion": m.descripcion_boton,
                             "direccion_obligatoria": metodo_master.direccion_obligatoria,
                             "carrier":metodo_master.carrier,
+                            "correo_id": m.correo_id,
                             "costo_envio": m.costo_envio}
             metodos.append(unMetodo_tmp)
             status = actualiza_empresa_JSON(empresa, 'envio', metodos, 'otros')
