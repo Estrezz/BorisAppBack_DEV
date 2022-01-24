@@ -138,7 +138,8 @@ with app.app_context():
                         "store_id" : x.store_id,
                         'envio' : metodos,
                 }
-                print(url+data)
+                print(data)
+                print(url)
                 solicitud = requests.request("POST", url, headers=headers, data=json.dumps(data))               
                     
                 print ('Finalizado '+str(solicitud.status_code)+str(x.store_id)+' '+x.store_name)
