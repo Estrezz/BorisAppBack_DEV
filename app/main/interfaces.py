@@ -75,6 +75,8 @@ def crear_pedido(pedido):
         buyer = unCliente,
         pertenece = unaEmpresa
     )   
+    #print('carga precio {}'.format(pedido['correo']['correo_precio']))
+    #print('precio cargado {}'.format(unaOrden.courier_precio))
 
     indice = 1
     for x in pedido['producto']: 
