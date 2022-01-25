@@ -1269,9 +1269,10 @@ def buscar_datos_variantes():
 @bp.route('/cotiza_envio', methods=['POST'])
 def cotiza_envio():
    data = request.json
-   datos_correo = CONF_correo.query.filter_by(store=data['correo']['store_id'], correo_id=data['correo']['correo_id']).first() 
+   datos_correo = CONF_correo.query.filter_by(store=data['correo']['store_id'], correo_id=data['correo']['correo_id']).first()
+   servicio =  CONF_metodos_envios.query.filter_by(store=data['correo']['store_id'], metodo_envio_id=data['correo']['metodo_envio']).first() 
    
-   precio = cotiza_envio_correo(data, datos_correo)
+   precio = cotiza_envio_correo(data, datos_correo, servicio)
    return precio
 
 
