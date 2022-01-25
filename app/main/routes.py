@@ -1013,7 +1013,7 @@ def historia_orden(orden_id):
 def webhook():
     if request.method == 'POST':
         data = request.json
-        orden = Order_header.query.filter_by(courier_order_id = str(data['id'])).first()
+        orden = Order_header.query.filter_by(metodo_envio_guia = str(data['id'])).first()
         orden.status = 'Shipping'
         orden.sub_status = traducir_estado(data['status'])[0]
         orden.status_resumen = traducir_estado(data['status'])[1]

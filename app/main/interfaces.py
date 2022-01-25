@@ -60,7 +60,7 @@ def crear_pedido(pedido):
         metodo_envio_correo = descripcion_correo,
         ### Esto cambio con la integracion de los correos en correo_id viene el ID del correo y no la guia
         metodo_envio_guia = "", 
-        courier_precio = pedido['correo']['correo_precio_formateado'],
+        courier_precio = pedido['correo']['correo_precio'],
         status = 'Shipping',
         sub_status = traducir_estado(pedido['correo']['correo_status'])[0],
         status_resumen = traducir_estado(pedido['correo']['correo_status'])[1],
