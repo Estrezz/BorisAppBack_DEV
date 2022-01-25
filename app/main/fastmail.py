@@ -9,7 +9,7 @@ from app.models import Company
 ###################################################
 # Cotiza envio en FASTMAIL
 ###################################################
-def cotiza_envio_fastmail(data, datos_correo):
+def cotiza_envio_fastmail(data, datos_correo, correo_servicio):
     url = "https://epresislv.fastmail.com.ar/api/v2/cotizador.json"
     
     headers = {
@@ -18,7 +18,7 @@ def cotiza_envio_fastmail(data, datos_correo):
 
     solicitud_tmp = {
         "api_token": datos_correo.cliente_apikey,
-        "codigo_servicio": datos_correo.correo.servicio, # "LI" codigo de servicio de FASTMAIL para logistica Inversa
+        "codigo_servicio": correo_servicio, # "LI" codigo de servicio de FASTMAIL para logistica Inversa
         "cp_origen": data['from']['postalCode'],
         "cp_destino": data['to']['postalCode'],
         #"destino": "AMBA",
@@ -29,7 +29,7 @@ def cotiza_envio_fastmail(data, datos_correo):
     items_envio = []
     precio_total_envio = 0
     
-    for i in data['items']:
+    for i in data['conf']:
         precio_total_envio += i['precio']
         items_envio.append (   
         {

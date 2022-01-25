@@ -29,7 +29,7 @@ def cargar_pedidos():
 
 def crear_pedido(pedido):
     unaEmpresa = Company.query.get(pedido['company']['store_id'])
-    descripcion_correo = buscar_descripcion_correo(pedido['company']['store_id'], pedido['correo']['correo_metodo_envio'])
+    descripcion_correo = buscar_descripcion_correo(pedido['company']['store_id'], pedido['correo']['correo_id'])
     
     if Customer.query.get(pedido['cliente']['id']):
         unCliente = Customer.query.get(pedido['cliente']['id'])
@@ -58,7 +58,8 @@ def crear_pedido(pedido):
         payment_card = pedido['orden_tarjeta_de_pago'],
         courier_method= pedido['correo']['correo_metodo_envio'],
         metodo_envio_correo = descripcion_correo,
-        metodo_envio_guia = pedido['correo']['correo_id'],
+        ### Esto cambio con la integracion de los correos en correo_id viene el ID del correo y no la guia
+        metodo_envio_guia = "", 
         courier_precio = pedido['correo']['correo_precio_formateado'],
         status = 'Shipping',
         sub_status = traducir_estado(pedido['correo']['correo_status'])[0],
@@ -325,7 +326,7 @@ def genera_codigo(size=6, chars=string.ascii_uppercase + string.digits):
 ##################################################################################################
 def actualiza_empresa(empresa):
     if current_app.config['SERVER_ROLE'] == 'PREDEV':
-        url="http://frontdev.borisreturns.com/empresa/crear"
+        url="https://devfront.borisreturns.com/empresa/crear"
     if current_app.config['SERVER_ROLE'] == 'DEV':
         url="https://front.borisreturns.com/empresa/crear"
     if current_app.config['SERVER_ROLE'] == 'PROD':
@@ -386,7 +387,7 @@ def actualiza_empresa(empresa):
 ####################################################################################################
 def actualiza_empresa_JSON(empresa, clave, valor,key):
     if current_app.config['SERVER_ROLE'] == 'PREDEV':
-        url="http://frontdev.borisreturns.com/empresa_json?clave="+clave+"&key="+key
+        url="https://devfront.borisreturns.com/empresa_json?clave="+clave+"&key="+key
     if current_app.config['SERVER_ROLE'] == 'DEV':
         url="https://front.borisreturns.com/empresa_json?clave="+clave+"&key="+key
     if current_app.config['SERVER_ROLE'] == 'PROD':
@@ -425,7 +426,7 @@ def actualiza_empresa_categorias(empresa):
         categorias.append(i.category_id)
 
     if current_app.config['SERVER_ROLE'] == 'PREDEV':
-        url="http://frontdev.borisreturns.com/empresa_categorias"
+        url="https://devfront.borisreturns.com/empresa_categorias"
     if current_app.config['SERVER_ROLE'] == 'DEV':
         url="https://front.borisreturns.com/empresa_categorias"
     if current_app.config['SERVER_ROLE'] == 'PROD':
@@ -683,7 +684,7 @@ def validar_imagen(stream):
 
 def enviar_imagen(file, filename):
     if current_app.config['SERVER_ROLE'] == 'PREDEV':
-        url="http://frontdev.borisreturns.com/recibir_imagen"
+        url="https://devfront.borisreturns.com/recibir_imagen"
     if current_app.config['SERVER_ROLE'] == 'DEV':
         url="https://front.borisreturns.com/recibir_imagen"
     if current_app.config['SERVER_ROLE'] == 'PROD':
@@ -701,19 +702,27 @@ def enviar_imagen(file, filename):
 
 
 def buscar_descripcion_correo(store, correo):
-    correo_tmp = CONF_metodos_envios.query.get((store, correo)).correo_id
-    if not correo_tmp:
+    #correo_tmp = CONF_metodos_envios.query.get((store, correo)).correo_id
+    #if not correo_tmp:
+    #    return ""
+    correo_tmp = correo+str(store)
+    correo_id = CONF_correo.query.get(correo_tmp)
+
+    #print(correo_tmp, correo_id)
+    if not correo_id:
         return ""
-    correo_id = CONF_correo.query.get(correo_tmp).correo_id
+    else: 
+        correo_id = correo_id.correo_id
+
     correo_descripcion = correos.query.get(correo_id).correo_descripcion
     if correo_descripcion == 'None':
         correo_descripcion = ""
     return correo_descripcion
 
 
-def cotiza_envio_correo(data, datos_correo):
+def cotiza_envio_correo(data, datos_correo, servicio):
    if data['correo']['correo_id'] == 'FAST':
-        precio = cotiza_envio_fastmail(data, datos_correo)
+        precio = cotiza_envio_fastmail(data, datos_correo, servicio.correo_servicio)
         return str(precio)
    else: 
         return 'Failed'
@@ -722,7 +731,7 @@ def cotiza_envio_correo(data, datos_correo):
 def crea_envio_correo(company,customer,orden,envio):
     orden_linea = Order_detail.query.filter_by(order=orden.id).all()
     metodo_envio_tmp = CONF_metodos_envios.query.get((company.store_id, envio.metodo_envio_id))
-    correo_id = CONF_correo.query.get(metodo_envio_tmp.correo_id)
+    correo_id = CONF_correo.query.get(metodo_envio_tmp.correo_id+str(company.store_id))
     guia = genera_envio(correo_id, metodo_envio_tmp, orden, customer, orden_linea)
     
     if guia != 'Failed':

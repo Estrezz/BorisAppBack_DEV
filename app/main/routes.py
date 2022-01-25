@@ -277,7 +277,7 @@ def edit_portalinfo():
                     envio = enviar_imagen(file_fondo, str(current_user.store)+file_ext)
                     if envio == 'Success':
                         if current_app.config['SERVER_ROLE'] == 'PREDEV':
-                            url="http://frontdev.borisreturns.com/static/images/background/"
+                            url="https://devfront.borisreturns.com/static/images/background/"
                         if current_app.config['SERVER_ROLE'] == 'DEV':
                             url="https://front.borisreturns.com/static/images/background/"
                         if current_app.config['SERVER_ROLE'] == 'PROD':
@@ -340,7 +340,6 @@ def edit_portalinfo():
 
             db.session.commit()
 
-            # status = actualiza_empresa(empresa)
             #### falta actualizar JSON del portal
             if status != 'Failed' and file_ok == 'Si':
                 flash('Los datos se actualizaron correctamente')
@@ -496,13 +495,17 @@ def add_envio():
                             "boton_titulo": m.titulo_boton,
                             "boton_descripcion": m.descripcion_boton,
                             "direccion_obligatoria": metodo_master.direccion_obligatoria,
+                            "carrier":metodo_master.carrier,
+                            "correo_id": m.correo_id,
                             "costo_envio": m.costo_envio}
             metodos.append(unMetodo_tmp)
-            status = actualiza_empresa_JSON(empresa, 'metodos_envio', metodos, 'otros')
-            if status != 'Failed':
-                flash('Los datos se actualizaron correctamente')
-            else:
-                flash('Se produjo un error {}'. format(status))
+            ############# revisar si lo que sigue va fuera del for
+            ######### agregar carrier en JSON
+        status = actualiza_empresa_JSON(empresa, 'envio', metodos, 'otros')
+        if status != 'Failed':
+            flash('Los datos se actualizaron correctamente')
+        else:
+            flash('Se produjo un error {}'. format(status))
     
     return redirect(url_for('main.edit_enviosinfo'))
 
@@ -543,6 +546,7 @@ def editar_envio(id):
         empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
         metodos_tmp = CONF_metodos_envios.query.filter_by(store=current_user.store).all() 
         metodos=[]
+        status = 'Success'
         for m in metodos_tmp:
             metodo_master = metodos_envios.query.get(m.metodo_envio_id)
             unMetodo_tmp = {"metodo_envio_id" : m.metodo_envio_id,
@@ -550,13 +554,18 @@ def editar_envio(id):
                             "boton_titulo": m.titulo_boton,
                             "boton_descripcion": m.descripcion_boton,
                             "direccion_obligatoria": metodo_master.direccion_obligatoria,
+                            "carrier":metodo_master.carrier,
+                            "correo_id": m.correo_id,
                             "costo_envio": m.costo_envio}
             metodos.append(unMetodo_tmp)
-            status = actualiza_empresa_JSON(empresa, 'metodos_envio', metodos, 'otros')
-            if status != 'Failed':
-                flash('Los datos se actualizaron correctamente')
-            else:
-                flash('Se produjo un error {}'. format(status))
+            status = actualiza_empresa_JSON(empresa, 'envio', metodos, 'otros')
+            if status == 'Failed':
+                status = 'Failed'
+
+        if status != 'Failed':
+            flash('Los datos se actualizaron correctamente')
+        else:
+            flash('Se produjo un error {}'. format(status))
         
 
     return redirect(url_for('main.edit_enviosinfo'))
@@ -1260,9 +1269,10 @@ def buscar_datos_variantes():
 @bp.route('/cotiza_envio', methods=['POST'])
 def cotiza_envio():
    data = request.json
-   datos_correo = CONF_correo.query.filter_by(store=data['correo']['store_id'], correo_id=data['correo']['correo_id']).first() 
+   datos_correo = CONF_correo.query.filter_by(store=data['correo']['store_id'], correo_id=data['correo']['correo_id']).first()
+   servicio =  CONF_metodos_envios.query.filter_by(store=data['correo']['store_id'], metodo_envio_id=data['correo']['metodo_envio']).first() 
    
-   precio = cotiza_envio_correo(data, datos_correo)
+   precio = cotiza_envio_correo(data, datos_correo, servicio)
    return precio
 
 
