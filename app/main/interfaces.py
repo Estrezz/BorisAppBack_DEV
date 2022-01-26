@@ -185,6 +185,12 @@ def toReady(orden, company):
     if envio.carrier and orden.salientes == 'No' :
         envio_creado = crea_envio_correo(company,customer,orden,envio)
         if envio_creado != 'Failed':
+            orden_tmp = Order_header.query.get(orden.id)
+            orden_tmp.status = 'Shipping'
+            orden_tmp.sub_status = traducir_estado('READY')[0]
+            orden_tmp.status_resumen = traducir_estado('READY')[1]
+            orden_tmp.last_update_date = str(datetime.utcnow)
+            db.session.commit()
             return "Success"
         else:
             return "Failed"
