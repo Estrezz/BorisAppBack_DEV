@@ -6,7 +6,7 @@ import imghdr
 from app import db
 from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log, categories_filter, CONF_motivos, CONF_boris, CONF_metodos_envios, correos, CONF_correo, metodos_envios
 #from app.main.moova import toready_moova
-from app.main.fastmail import crea_envio_fastmail, cotiza_envio_fastmail
+from app.main.fastmail import crea_envio_fastmail, cotiza_envio_fastmail, ver_etiqueta_fastmail
 from app.main.tiendanube import buscar_producto_tiendanube,  genera_credito_tiendanube, devolver_stock_tiendanube
 from app.email import send_email
 from flask import session, flash, current_app,render_template
@@ -60,6 +60,7 @@ def crear_pedido(pedido):
         metodo_envio_correo = descripcion_correo,
         ### Esto cambio con la integracion de los correos en correo_id viene el ID del correo y no la guia
         metodo_envio_guia = "", 
+        etiqueta_generada = False,
         courier_precio = pedido['correo']['correo_precio'],
         status = 'Shipping',
         sub_status = traducir_estado(pedido['correo']['correo_status'])[0],
@@ -738,6 +739,7 @@ def crea_envio_correo(company,customer,orden,envio):
     
     if guia != 'Failed':
         orden.metodo_envio_guia = guia['guia']
+        orden.etiqueta_generada = True
         if guia['importe'] != float(orden.courier_precio):
             flash('Hubo una diferencia entre el precio cotizado y el precio real Real:{}({}) - Cotizado:{}({})'.format(guia['importe'], type(guia['importe']), float(orden.courier_precio), type(orden.courier_precio)))
             orden.courier_precio = guia['importe']
@@ -753,3 +755,12 @@ def genera_envio(correo_id, metodo_envio, orden, customer, orden_linea):
         return guia
     else:
         return "No se encontro el correo_id"
+
+
+############### Prueba Etiqueta ############################
+def ver_etiqueta(correo_id, guia):
+    if correo_id == 'FAST':
+        etiqueta = ver_etiqueta_fastmail(guia)
+        return etiqueta
+    else:
+        return "No se encontro la etiqueta para esa guia"

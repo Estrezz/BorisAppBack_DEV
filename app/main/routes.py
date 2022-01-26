@@ -8,7 +8,7 @@ from app.email import send_email
 from app.main.forms import EditProfileForm
 from app.main.tiendanube import generar_envio_tiendanube, autorizar_tiendanube, buscar_codigo_categoria_tiendanube, buscar_datos_variantes_tiendanube
 from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log, categories_filter, CONF_boris, CONF_metodos_envios, CONF_motivos, CONF_correo, metodos_envios, correos
-from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto, genera_credito, actualiza_empresa, actualiza_empresa_categorias, actualiza_empresa_JSON, loguear_transaccion, finalizar_orden, devolver_linea, actualizar_stock, devolver_datos_boton, incializa_configuracion, validar_imagen, enviar_imagen, cotiza_envio_correo, crea_envio_correo
+from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto, genera_credito, actualiza_empresa, actualiza_empresa_categorias, actualiza_empresa_JSON, loguear_transaccion, finalizar_orden, devolver_linea, actualizar_stock, devolver_datos_boton, incializa_configuracion, validar_imagen, enviar_imagen, cotiza_envio_correo, crea_envio_correo, ver_etiqueta
 import json
 import re
 import os
@@ -728,7 +728,6 @@ def filtrar_categorias():
     return render_template('category.html', categorias=categorias, categorias_filtradas=categorias_filtradas, title='Categorias', empresa_name=session['current_empresa'])
 
 
-
 @bp.route('/search')  
 def search():
     query =  request.args.get('search') 
@@ -1276,10 +1275,15 @@ def cotiza_envio():
    return precio
 
 
+@bp.route('/etiqueta/<orden_id>', methods=['GET', 'POST'])
+@login_required
+def etiqueta(orden_id):
+    orden = Order_header.query.filter_by(id=orden_id).first()
+    metodo = CONF_metodos_envios.query.filter_by(store=orden.store, metodo_envio_id=orden.courier_method).first() 
+    etiqueta = ver_etiqueta(metodo.correo_id, orden.metodo_envio_guia )
 
-
-
-
+    return etiqueta.content, etiqueta.status_code, etiqueta.headers.items()
+    
 
 
 
@@ -1289,6 +1293,12 @@ def cotiza_envio():
 #################################################################################
 ####### Tareasde Mantenimiento /Mantenimiento ###################################
 #################################################################################
+
+@bp.route('/prueba_etiqueta', methods=['GET', 'POST'])
+@login_required
+def prueba_etiqueta():
+    return redirect(url_for('main.etiqueta', orden_id=7))
+
 
 @bp.route('/cargar_pedidos', methods=['GET', 'POST'])
 @login_required

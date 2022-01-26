@@ -1,9 +1,10 @@
 import requests
 import json
-from flask import flash, render_template
+
+from flask import flash, render_template, send_file
 from app.email import send_email
 from flask_login import current_user
-from app.models import Company
+from app.models import CONF_correo, Company
 
 
 ###################################################
@@ -126,7 +127,7 @@ def crea_envio_fastmail(correo, metodo_envio, orden, customer, orden_linea):
     
     solicitud = requests.request("POST", url, headers=headers, data=payload)
     if solicitud.status_code != 200:
-        flash('Hubi un error al generar la guia. Codigo {} - {}'.format(solicitud.status_code, solicitud.content))
+        flash('Hubo un error al generar la guia. Codigo {} - {}'.format(solicitud.status_code, solicitud.content))
         return "Failed"
     else:
         solicitud = solicitud.json()
@@ -180,3 +181,31 @@ def enviar_etiqueta_fastmail(correo, solicitud, customer, orden, observaciones):
                                         attachments=[('etiqueta.pdf', 'application/pdf',
                                             label)], 
                                         sync=False)
+
+    ### Abrir el PDF en el Browser
+    # return label_tmp
+    # return send_file(label, mimetype='application/pdf')
+    #return label_tmp.content, label_tmp.status_code, label_tmp.headers.items()
+    #return send_file(filename='etiqueta.pdf', mimetype='application/pdf')
+
+
+############### Prueba Etiqueta ############################
+def ver_etiqueta_fastmail(guia):
+    correo_tmp = 'FAST'+str(current_user.store)
+    correo = CONF_correo.query.get(correo_tmp)
+    
+    url = "https://epresislv.fastmail.com.ar/api/v2/print_etiquetas.json"
+
+    headers = {
+     'Content-Type': 'application/json'
+    }
+
+    data = {
+        "api_token": correo.cliente_apikey,
+        "ids": guia
+    }
+    
+    payload = json.dumps(data)
+    label_tmp = requests.request("POST", url, headers=headers, data=payload)
+   
+    return label_tmp
