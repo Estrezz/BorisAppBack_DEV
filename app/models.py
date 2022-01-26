@@ -125,6 +125,7 @@ class Order_header(db.Model):
     courier_method = db.Column(db.String(64))
     metodo_envio_correo = db.Column(db.String(64))
     metodo_envio_guia = db.Column(db.String(64), index=True)
+    etiqueta_generada = db.Column(db.Boolean)
     courier_precio = db.Column(db.String(20))
     #### quitar
     # courier_coordinar_empresa es reemplazado por metodo_envio_correo
