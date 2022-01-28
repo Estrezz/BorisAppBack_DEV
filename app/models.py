@@ -265,6 +265,7 @@ class metodos_envios(db.Model):
 class correos(db.Model):
     correo_id = db.Column(db.String(15), primary_key=True)
     correo_descripcion = db.Column(db.String(150))
+    correo_mail = db.Column(db.String(120))
 def __repr__(self):
         return '<Correo {} {} >'.format(self.correo_id, self.correo_descripcion)
 

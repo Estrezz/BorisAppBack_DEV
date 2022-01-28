@@ -682,6 +682,9 @@ def inicializa_envios(unaEmpresa):
     db.session.commit()
 
 
+########################################################
+# Valida imagen cargada para fondo 
+########################################################
 def validar_imagen(stream):
     header = stream.read(512)
     stream.seek(0)
@@ -746,9 +749,11 @@ def crea_envio_correo(company,customer,orden,envio):
     if guia != 'Failed':
         orden.metodo_envio_guia = guia['guia']
         orden.etiqueta_generada = True
-        if guia['importe'] != float(orden.courier_precio):
-            flash('Hubo una diferencia entre el precio cotizado y el precio real Real:{}({}) - Cotizado:{}({})'.format(guia['importe'], type(guia['importe']), float(orden.courier_precio), type(orden.courier_precio)))
-            orden.courier_precio = guia['importe']
+        
+        if orden.courier_precio != 'Sin Cargo':
+            if guia['importe'] != float(orden.courier_precio):
+                flash('Hubo una diferencia entre el precio cotizado y el precio real Real:{}({}) - Cotizado:{}({})'.format(guia['importe'], type(guia['importe']), float(orden.courier_precio), type(orden.courier_precio)))
+                orden.courier_precio = guia['importe']
         db.session.commit()
         return "Success"
     else:
@@ -763,7 +768,6 @@ def genera_envio(correo_id, metodo_envio, orden, customer, orden_linea):
         return "No se encontro el correo_id"
 
 
-############### Prueba Etiqueta ############################
 def ver_etiqueta(correo_id, guia):
     if correo_id == 'FAST':
         etiqueta = ver_etiqueta_fastmail(guia)

@@ -15,7 +15,8 @@ with app.app_context():
     print ('Dando de alta correos')
     correoFastmail = correos(
                        correo_id = 'FAST',
-                       correo_descripcion = 'Fastmail'
+                       correo_descripcion = 'Fastmail',
+                       correo_mail ='ssuarez@fastmail.com.ar'
                    ) 
     db.session.add(correoFastmail)   
 
@@ -47,14 +48,14 @@ with app.app_context():
                    ) 
     db.session.add(metodoCoordinar)
 
-    metodoRetiro = metodos_envios(
-                       metodo_envio_id = 'Retiro',
+    metodoDomicilio = metodos_envios(
+                       metodo_envio_id = 'Domicilio',
                        metodo_envio_descripcion = 'Retiro por el domicilio del cliente',
                        carrier = True,
                        direccion_obligatoria = True,
                        icon = 'bi bi-house-fill'
                    ) 
-    db.session.add(metodoRetiro)
+    db.session.add(metodoDomicilio)
 
     db.session.commit()
 
@@ -92,6 +93,7 @@ with app.app_context():
                 )    
             
                 db.session.add(manual)
+                print('se dio de alta manual')
 
 
             if e.metodo_envio == 'coordinar':
@@ -110,18 +112,19 @@ with app.app_context():
                 )    
             
                 db.session.add(coordinar)
+                print('se dio de alta coordinar')
 
             db.session.commit()
 
        
-            ########### Actualizar JSON ######################
-            print('actualizando JSON')
+        ########### Actualizar JSON ######################
+        print('actualizando JSON')
 
-            metodos_tmp = CONF_metodos_envios.query.filter_by(store=x.store_id).all() 
-            metodos=[]
-            for m in metodos_tmp:
-                metodo_master = metodos_envios.query.get(m.metodo_envio_id)
-                unMetodo_tmp = {"metodo_envio_id" : m.metodo_envio_id,
+        metodos_tmp = CONF_metodos_envios.query.filter_by(store=x.store_id).all() 
+        metodos=[]
+        for m in metodos_tmp:
+            metodo_master = metodos_envios.query.get(m.metodo_envio_id)
+            unMetodo_tmp = {"metodo_envio_id" : m.metodo_envio_id,
                             "icon": metodo_master.icon,
                             "boton_titulo": m.titulo_boton,
                             "boton_descripcion": m.descripcion_boton,
@@ -129,16 +132,16 @@ with app.app_context():
                             "carrier":metodo_master.carrier,
                             "correo_id": m.correo_id,
                             "costo_envio": m.costo_envio}
-                metodos.append(unMetodo_tmp)
+            metodos.append(unMetodo_tmp)
   
-            data = {
+        data = {
                 "store_id" : x.store_id,
                 'envio' : metodos,
-            }
+        }
                 
-            solicitud = requests.request("POST", url, headers=headers, data=json.dumps(data))               
+        solicitud = requests.request("POST", url, headers=headers, data=json.dumps(data))               
                     
-            print ('Finalizado '+str(solicitud.status_code)+str(x.store_id)+' '+x.store_name)
+        print ('Finalizado '+str(solicitud.status_code)+str(x.store_id)+' '+x.store_name)
 
 
 

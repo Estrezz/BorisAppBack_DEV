@@ -984,7 +984,9 @@ def gestionar_ordenes(orden_id):
                 if accion == 'toReject': 
                     motivo = request.form.get('motivo')
                     toReject(orden.id, motivo)
-    return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer, empresa=empresa, empresa_name=session['current_empresa'])
+
+    return redirect(url_for('main.orden', orden_id=orden.id))
+    #return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer, empresa=empresa, empresa_name=session['current_empresa'])
     
 
 @bp.route('/gestion_producto/<orden_id>', methods=['GET', 'POST'])
@@ -1284,6 +1286,16 @@ def etiqueta(orden_id):
 
     return etiqueta.content, etiqueta.status_code, etiqueta.headers.items()
     
+
+@bp.route('/buscar_metodo_envio', methods=['POST'])
+def buscar_metodo_envio():
+    metodo_envio_id = request.form.get('metodo_envio_id')
+    metodo_tmp = metodos_envios.query.get(metodo_envio_id)  
+    if metodo_tmp.carrier == True:
+        carrier = 'Si'
+    else:
+        carrier = 'No'
+    return carrier
 
 
 

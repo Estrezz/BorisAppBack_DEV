@@ -12,4 +12,4 @@ En breve recibiras un email confirmando el fin del mismo
 
 
 Podes hacer el seguimiento de tu orden acá:
-http://frontprod.borisreturns.com/tracking/{{order.order_number}}
+http://frontprod.borisreturns.com/tracking/{{order.order_id_anterior}}
