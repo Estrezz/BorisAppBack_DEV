@@ -69,6 +69,8 @@ with app.app_context():
         'Content-Type': 'application/json'
     }
 
+    print(url)
+
     for x in companies:
         if x.store_id == '1':
             continue
@@ -138,8 +140,9 @@ with app.app_context():
                 "store_id" : x.store_id,
                 'envio' : metodos,
         }
-                
-        solicitud = requests.request("POST", url, headers=headers, data=json.dumps(data))               
+               
+        solicitud = requests.request("POST", url, headers=headers, data=json.dumps(data))
+        print (solicitud.status_code)               
                     
         print ('Finalizado '+str(solicitud.status_code)+str(x.store_id)+' '+x.store_name)
 

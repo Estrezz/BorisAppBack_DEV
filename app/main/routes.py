@@ -971,7 +971,9 @@ def gestionar_ordenes(orden_id):
                 orden.courier_coordinar_roundtrip = True
             else:
                 orden.courier_coordinar_roundtrip = False
-            db.session.commit()
+        else: 
+            orden.courier_coordinar_roundtrip = False
+        db.session.commit()
             
         toReady(orden, current_user.empleado)
     else: 

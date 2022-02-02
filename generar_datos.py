@@ -99,14 +99,15 @@ with app.app_context():
                                         'Authentication': x.platform_token_type+' '+x.platform_access_token
                                     }
                                     response_prodcuto = requests.request("GET", url, headers=headers, data=payload).json()
-                                
-                                    if 'brand' in response_prodcuto.keys(): 
-                                        if response_prodcuto['brand']:
-                                            productos.append([x.store_id, p['product_id'], response_prodcuto['name']['es'], response_prodcuto['brand'].upper()])
-                                        else: 
-                                            productos.append([x.store_id, p['product_id'],response_prodcuto['name']['es'], 'Sin Marca'])
-                                    else:
-                                        productos.append([x.store_id, p['product_id'], response_prodcuto['name']['es'], 'Sin Marca'])
+
+                                    if 'name' in response_prodcuto.keys(): 
+                                        if 'brand' in response_prodcuto.keys(): 
+                                            if response_prodcuto['brand']:
+                                                productos.append([x.store_id, p['product_id'], response_prodcuto['name']['es'], response_prodcuto['brand'].upper()])
+                                            else: 
+                                                productos.append([x.store_id, p['product_id'],response_prodcuto['name']['es'], 'Sin Marca'])
+                                        else:
+                                            productos.append([x.store_id, p['product_id'], response_prodcuto['name']['es'], 'Sin Marca'])
 
                                     productos_tmp.append(p['product_id'])
 

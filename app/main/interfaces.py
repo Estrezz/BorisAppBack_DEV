@@ -182,34 +182,37 @@ def toReady(orden, company):
     customer = Customer.query.get(orden.customer_id)
     envio = metodos_envios.query.get(orden.courier_method)
     
-    if envio.carrier and orden.salientes == 'No' :
+    if (envio.carrier and orden.salientes == 'No') or (envio.carrier and orden.salientes == 'Si' and orden.courier_coordinar_roundtrip == False ) :
         envio_creado = crea_envio_correo(company,customer,orden,envio)
         if envio_creado != 'Failed':
             orden_tmp = Order_header.query.get(orden.id)
             orden_tmp.status = 'Shipping'
             orden_tmp.sub_status = traducir_estado('READY')[0]
             orden_tmp.status_resumen = traducir_estado('READY')[1]
-            orden_tmp.last_update_date = str(datetime.utcnow)
+            orden_tmp.date_lastupdate = datetime.utcnow()
             db.session.commit()
             return "Success"
         else:
             return "Failed"
     else:
-        ## envio mail con instrucciones para envío manual
+        ## envio mail con instrucciones para Metodos de envio que no tengan CARRIER (Manual y A coordinar)
         orden_tmp = Order_header.query.get(orden.id)
         orden_tmp.status = 'Shipping'
         orden_tmp.sub_status = traducir_estado('READY')[0]
         orden_tmp.status_resumen = traducir_estado('READY')[1]
-        orden_tmp.last_update_date = str(datetime.utcnow)
+        #orden_tmp.last_update_date = str(datetime.utcnow)
+        orden_tmp.date_lastupdate = datetime.utcnow()
         db.session.commit()
+
+        metodo_envio_tmp = CONF_metodos_envios.query.get((company.store_id, envio.metodo_envio_id))
         send_email('Tu orden ha sido confirmada', 
                 sender=(company.communication_email_name, company.communication_email),
                 recipients=[customer.email], 
                 reply_to = company.admin_email,
                 text_body=render_template('email/pedido_confirmado.txt',
-                                         company=company, customer=customer, order=orden, envio=orden.courier_method),
+                                         company=company, customer=customer, order=orden, envio=metodo_envio_tmp),
                 html_body=render_template('email/pedido_confirmado.html',
-                                         company=company, customer=customer, order=orden, envio=orden.courier_method), 
+                                         company=company, customer=customer, order=orden, envio=metodo_envio_tmp), 
                 attachments=None, 
                 sync=False)
         return "Success"
@@ -220,7 +223,8 @@ def toReceived(orden_id):
     orden.status = 'Shipping'
     orden.sub_status = traducir_estado('DELIVERED')[0]
     orden.status_resumen =traducir_estado('DELIVERED')[1]
-    orden.last_update_date = str(datetime.utcnow)
+    #orden.last_update_date = str(datetime.utcnow)
+    orden.date_lastupdate = datetime.utcnow()
 
     unaTransaccion = Transaction_log(
             sub_status = traducir_estado('DELIVERED')[0],
@@ -237,7 +241,8 @@ def toApproved(orden_id):
     orden.status = 'En Proceso'
     orden.sub_status = traducir_estado('APROBADO')[0]
     orden.status_resumen =traducir_estado('APROBADO')[1]
-    orden.last_update_date = str(datetime.utcnow)
+    #orden.last_update_date = str(datetime.utcnow)
+    orden.date_lastupdate = datetime.utcnow()
     customer = Customer.query.get(orden.customer_id)
     company = Company.query.get(orden.store)
 
@@ -267,7 +272,8 @@ def toReject(orden_id, motivo):
     orden.status = 'En Proceso'
     orden.sub_status = traducir_estado('RECHAZADO')[0]
     orden.status_resumen = traducir_estado('RECHAZADO')[1]
-    orden.last_update_date = str(datetime.utcnow)
+    #orden.last_update_date = str(datetime.utcnow)
+    orden.date_lastupdate = datetime.utcnow()
     orden.reject_reason = motivo
     customer = Customer.query.get(orden.customer_id)
     company = Company.query.get(orden.store)
