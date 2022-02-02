@@ -1,6 +1,6 @@
 from sqlalchemy import false
 from app import db, create_app
-from app.models import Company, CONF_envios, correos, metodos_envios,CONF_metodos_envios 
+from app.models import Company, CONF_envios, correos, metodos_envios,CONF_metodos_envios, Order_header
 import requests
 from flask import current_app
 import json
@@ -117,6 +117,16 @@ with app.app_context():
                 print('se dio de alta coordinar')
 
             db.session.commit()
+        
+        ################## Actualiza los datos de Correo y Guia de los campos anteriores a los nuevos
+        print("Actualizando Ordenes")
+        ordenes =  Order_header.query.filter_by(store=x.store_id).all()
+        for o in ordenes:
+            if o.courier_coordinar_empresa or o.courier_coordinar_guia:
+                o.metodo_envio_correo = o.courier_coordinar_empresa
+                o.metodo_envio_guia = o.courier_coordinar_guia
+                db.session.commit()
+            
 
        
         ########### Actualizar JSON ######################

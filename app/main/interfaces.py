@@ -658,32 +658,62 @@ def inicializa_parametros(unaEmpresa):
 
 
 def inicializa_envios(unaEmpresa):
-    manual = CONF_metodos_envios(
+    ################### Version Anterior ##############################################
+    # manual = CONF_metodos_envios(
+    #     store = unaEmpresa.store_id,
+    #     metodo_envio = 'manual',
+    #     habilitado = 1,
+    #     titulo_boton = 'Traer la orden a nuestro local',
+    #     descripcion_boton = 'Acercanos el/los productos a nuestros locales/depósito'
+    # )
+    # db.session.add(manual)
+
+    # coordinar = CONF_metodos_envios(
+    #     store = unaEmpresa.store_id,
+    #     metodo_envio = 'coordinar',
+    #     habilitado = 1,
+    #     titulo_boton = 'Coordinar método de retiro',
+    #     descripcion_boton = 'Coordiná con nosotros el método de envío que te quede mas cómodo'
+    # )
+    # db.session.add(coordinar)
+
+    # retiro = CONF_metodos_envios(
+    #     store = unaEmpresa.store_id,
+    #     metodo_envio = 'retiro',
+    #     habilitado = 0,
+    #     titulo_boton = 'Retirar en tu domicilio',
+    #     descripcion_boton = 'Un servicio de correo pasara a buscar los productos por tu domicilio'
+    # )
+    # db.session.add(retiro)
+    manual = CONF_metodos_envios( 
         store = unaEmpresa.store_id,
-        metodo_envio = 'manual',
+        metodo_envio_id = 'Manual',
         habilitado = 1,
         titulo_boton = 'Traer la orden a nuestro local',
-        descripcion_boton = 'Acercanos el/los productos a nuestros locales/depósito'
-    )
+        descripcion_boton = 'Acercanos el/los productos a nuestros locales/depósito',
+        correo_id = "",
+        correo_descripcion = "",
+        correo_servicio = "",
+        correo_sucursal = "",
+        costo_envio = 'Merchant',
+        instrucciones_entrega = ""
+    )        
     db.session.add(manual)
 
-    coordinar = CONF_metodos_envios(
+    coordinar = CONF_metodos_envios( 
         store = unaEmpresa.store_id,
-        metodo_envio = 'coordinar',
+        metodo_envio_id = 'Coordinar',
         habilitado = 1,
         titulo_boton = 'Coordinar método de retiro',
-        descripcion_boton = 'Coordiná con nosotros el método de envío que te quede mas cómodo'
-    )
+        descripcion_boton = 'Coordiná con nosotros el método de envío que te quede mas cómodo',
+        correo_id = "",
+        correo_descripcion = "",
+        correo_servicio = "",
+        correo_sucursal = "",
+        costo_envio = 'Merchant',
+        instrucciones_entrega = ""
+    )            
     db.session.add(coordinar)
-
-    retiro = CONF_metodos_envios(
-        store = unaEmpresa.store_id,
-        metodo_envio = 'retiro',
-        habilitado = 0,
-        titulo_boton = 'Retirar en tu domicilio',
-        descripcion_boton = 'Un servicio de correo pasara a buscar los productos por tu domicilio'
-    )
-    db.session.add(retiro)
 
     db.session.commit()
 
