@@ -76,56 +76,56 @@ with app.app_context():
             continue
 
         print ('Comenzando '+str(x.store_id)+' '+x.store_name)
-        envios = CONF_envios.query.filter_by(store=x.store_id).all()
+        # envios = CONF_envios.query.filter_by(store=x.store_id).all()
         
-        for e in envios:
-            if e.metodo_envio == 'manual':
-                manual = CONF_metodos_envios( 
-                        store = x.store_id,
-                        metodo_envio_id = 'Manual',
-                        habilitado = e.habilitado,
-                        titulo_boton = e.titulo_boton,
-                        descripcion_boton = e.descripcion_boton,
-                        correo_id = "",
-                        correo_descripcion = "",
-                        correo_servicio = "",
-                        correo_sucursal = "",
-                        costo_envio = 'Merchant',
-                        instrucciones_entrega = x.envio_manual_note
-                )    
+        # for e in envios:
+        #     if e.metodo_envio == 'manual':
+        #         manual = CONF_metodos_envios( 
+        #                 store = x.store_id,
+        #                 metodo_envio_id = 'Manual',
+        #                 habilitado = e.habilitado,
+        #                 titulo_boton = e.titulo_boton,
+        #                 descripcion_boton = e.descripcion_boton,
+        #                 correo_id = "",
+        #                 correo_descripcion = "",
+        #                 correo_servicio = "",
+        #                 correo_sucursal = "",
+        #                 costo_envio = 'Merchant',
+        #                 instrucciones_entrega = x.envio_manual_note
+        #         )    
             
-                db.session.add(manual)
-                print('se dio de alta manual')
+        #         db.session.add(manual)
+        #         print('se dio de alta manual')
 
 
-            if e.metodo_envio == 'coordinar':
-                coordinar = CONF_metodos_envios( 
-                        store = x.store_id,
-                        metodo_envio_id = 'Coordinar',
-                        habilitado = e.habilitado,
-                        titulo_boton = e.titulo_boton,
-                        descripcion_boton = e.descripcion_boton,
-                        correo_id = "",
-                        correo_descripcion = "",
-                        correo_servicio = "",
-                        correo_sucursal = "",
-                        costo_envio = 'Merchant',
-                        instrucciones_entrega = x.envio_coordinar_note
-                )    
+        #     if e.metodo_envio == 'coordinar':
+        #         coordinar = CONF_metodos_envios( 
+        #                 store = x.store_id,
+        #                 metodo_envio_id = 'Coordinar',
+        #                 habilitado = e.habilitado,
+        #                 titulo_boton = e.titulo_boton,
+        #                 descripcion_boton = e.descripcion_boton,
+        #                 correo_id = "",
+        #                 correo_descripcion = "",
+        #                 correo_servicio = "",
+        #                 correo_sucursal = "",
+        #                 costo_envio = 'Merchant',
+        #                 instrucciones_entrega = x.envio_coordinar_note
+        #         )    
             
-                db.session.add(coordinar)
-                print('se dio de alta coordinar')
+        #         db.session.add(coordinar)
+        #         print('se dio de alta coordinar')
 
-            db.session.commit()
+        #     db.session.commit()
         
         ################## Actualiza los datos de Correo y Guia de los campos anteriores a los nuevos
-        print("Actualizando Ordenes")
-        ordenes =  Order_header.query.filter_by(store=x.store_id).all()
-        for o in ordenes:
-            if o.courier_coordinar_empresa or o.courier_coordinar_guia:
-                o.metodo_envio_correo = o.courier_coordinar_empresa
-                o.metodo_envio_guia = o.courier_coordinar_guia
-                db.session.commit()
+        # print("Actualizando Ordenes")
+        # ordenes =  Order_header.query.filter_by(store=x.store_id).all()
+        # for o in ordenes:
+        #     if o.courier_coordinar_empresa or o.courier_coordinar_guia:
+        #         o.metodo_envio_correo = o.courier_coordinar_empresa
+        #         o.metodo_envio_guia = o.courier_coordinar_guia
+        #         db.session.commit()
             
 
        
