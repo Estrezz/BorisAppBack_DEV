@@ -115,7 +115,6 @@ class Order_header(db.Model):
     date_closed = db.Column(db.DateTime)
     date_lastupdate = db.Column(db.DateTime)
     gastos_cupon = db.Column(db.Float)
-    salientes = db.Column(db.String(10))
     gastos_gateway = db.Column(db.Float)
     gastos_shipping_owner = db.Column(db.Float)
     gastos_shipping_customer = db.Column(db.Float)
@@ -123,16 +122,10 @@ class Order_header(db.Model):
     payment_method = db.Column(db.String(35))
     payment_card = db.Column(db.String(35))
     courier_method = db.Column(db.String(64))
-    metodo_envio_correo = db.Column(db.String(64))
-    metodo_envio_guia = db.Column(db.String(64), index=True)
-    etiqueta_generada = db.Column(db.Boolean)
+    courier_order_id = db.Column(db.String(64), index=True)
     courier_precio = db.Column(db.String(20))
-    #### quitar
-    # courier_coordinar_empresa es reemplazado por metodo_envio_correo
-    # courier_coordinar_guia es reemplazado por metodo_envio_guia
     courier_coordinar_empresa = db.Column(db.String(120))
     courier_coordinar_guia = db.Column(db.String(64))
-    #########
     courier_coordinar_roundtrip = db.Column(db.Boolean)
     nuevo_envio =  db.Column(db.String(100))
     nuevo_envio_costo =  db.Column(db.Float, default=0)
@@ -189,10 +182,6 @@ class Order_detail(db.Model):
     nuevo_envio =  db.Column(db.String(100))
     restock =  db.Column(db.String(30))
     precio = db.Column(db.Float)
-    alto = db.Column(db.Float)
-    largo = db.Column(db.Float)
-    profundidad = db.Column(db.Float)
-    peso = db.Column(db.Float)
     promo_descuento = db.Column(db.Float)
     promo_nombre = db.Column(db.String(120))
     promo_precio_final = db.Column(db.Float)
@@ -251,65 +240,26 @@ class  CONF_boris(db.Model):
         return '<configuracion {} {} >'.format(self.store, self.ventana_cambios, self.ventana_devolucion)
 
 
-class metodos_envios(db.Model):
-    metodo_envio_id = db.Column(db.String(20), primary_key=True)
-    metodo_envio_descripcion = db.Column(db.String(200))
-    carrier = db.Column(db.Boolean)
-    direccion_obligatoria = db.Column(db.Boolean)
-    icon = db.Column(db.String(50))
-
-    def __repr__(self):
-        return '<Metodo Envio {} {} >'.format(self.metodo_envio_id, self.metodo_envio_descripcion)
-
-
-class correos(db.Model):
-    correo_id = db.Column(db.String(15), primary_key=True)
-    correo_descripcion = db.Column(db.String(150))
-    correo_mail = db.Column(db.String(120))
-def __repr__(self):
-        return '<Correo {} {} >'.format(self.correo_id, self.correo_descripcion)
-
-
-class CONF_correo(db.Model):
-    id = db.Column(db.String(20), primary_key=True)
-    store = db.Column(db.String(64), db.ForeignKey('company.store_id'))
-    correo_id = db.Column(db.String(15), db.ForeignKey('correos.correo_id'))
-    cliente_apikey = db.Column(db.String(100))
-    cliente_id = db.Column(db.String(50))
-    habilitado = db.Column(db.Boolean)
-
-    def __repr__(self):
-        return '<Correo {} {} >'.format(self.store, self.correo_id)
-
-
-class CONF_metodos_envios(db.Model):
-    store = db.Column(db.String(64), db.ForeignKey('company.store_id'), primary_key=True)
-    metodo_envio_id = db.Column(db.String(20), db.ForeignKey('metodos_envios.metodo_envio_id'), primary_key=True)
-    habilitado = db.Column(db.Boolean)
-    titulo_boton = db.Column(db.String(150))
-    descripcion_boton = db.Column(db.String(350))
-    correo_id = db.Column(db.String(10))
-    correo_descripcion = db.Column(db.String(150))
-    correo_servicio = db.Column(db.String(50))
-    correo_sucursal = db.Column(db.String(50))
-    costo_envio = db.Column(db.String(15))
-    instrucciones_entrega = db.Column(db.Text) 
-    ### quitar
-    icon = db.Column(db.String(50))
-    # origen_valido = provincia (ver si es tabla aparte)
-    # accion = cambio/devolucion/ambas
-    
-    def __repr__(self):
-        return '<Envio {} {} >'.format(self.store, self.metodo_envio_id, self.habilitado)
-
-####### Esta tabla sirve solo para migrar del modelo anterior al nuevo
-####### durante la actualziacion para integrar con correos, despues sacar
 class  CONF_envios(db.Model):
     store = db.Column(db.String(64), db.ForeignKey('company.store_id'), primary_key=True)
     metodo_envio = db.Column(db.String(200), primary_key=True)
     habilitado = db.Column(db.Boolean)
     titulo_boton = db.Column(db.String(150))
     descripcion_boton = db.Column(db.String(350))
-
+    
     def __repr__(self):
         return '<Envio {} {} >'.format(self.store, self.metodo_envio, self.habilitado)
+
+
+class  CONF_correos(db.Model):
+    store = db.Column(db.String(64), db.ForeignKey('company.store_id'), primary_key=True)
+    correo_id = db.Column(db.String(10), primary_key=True)
+    cliente_apikey = db.Column(db.String(100))
+    cliente_id = db.Column(db.String(50))
+    correo_sucursal = db.Column(db.String(50))
+    descripcion = db.Column(db.String(350))
+    
+
+    def __repr__(self):
+        return '<Correo {} {} >'.format(self.store, self.correo_id, self.descripcion)
+

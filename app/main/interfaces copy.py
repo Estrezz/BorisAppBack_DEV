@@ -167,9 +167,7 @@ def traducir_estado(estado):
             'CONFIRMED':['Confirmado','En Transito', 'No'],
             'PICKEDUP':['Recogido','En Transito', 'Se recogió la orden'],
             'INTRANSIT':['En camino','En Transito','No'],
-            'DISTRIBUCION':['En camino','En Transito','No'],
             'DELIVERED':['Recibido','Recibido', 'Llego a nuestro depósito'],
-            'ENTREGADA':['Recibido','Recibido', 'Llego a nuestro depósito'],
             "DEVUELTO":['Prenda devuleta a Stock', 'Devuelto', 'No'],
             "CAMBIADO":['Orden de cambio iniciada', 'Cambiado', 'Se generó el cambio'],
             "APROBADO":['Aprobado','Aprobado','Tu orden fue aprobada'],
@@ -197,7 +195,7 @@ def toReady(orden, company):
         else:
             return "Failed"
     else:
-        ## envio mail con instrucciones para Metodos de envio que no tengan CARRIER (Manual y A coordinar)
+        ## envio mail con instrucciones para envío manual
         orden_tmp = Order_header.query.get(orden.id)
         orden_tmp.status = 'Shipping'
         orden_tmp.sub_status = traducir_estado('READY')[0]
@@ -205,16 +203,14 @@ def toReady(orden, company):
         #orden_tmp.last_update_date = str(datetime.utcnow)
         orden_tmp.date_lastupdate = datetime.utcnow()
         db.session.commit()
-
-        metodo_envio_tmp = CONF_metodos_envios.query.get((company.store_id, envio.metodo_envio_id))
         send_email('Tu orden ha sido confirmada', 
                 sender=(company.communication_email_name, company.communication_email),
                 recipients=[customer.email], 
                 reply_to = company.admin_email,
                 text_body=render_template('email/pedido_confirmado.txt',
-                                         company=company, customer=customer, order=orden, envio=metodo_envio_tmp),
+                                         company=company, customer=customer, order=orden, envio=orden.courier_method),
                 html_body=render_template('email/pedido_confirmado.html',
-                                         company=company, customer=customer, order=orden, envio=metodo_envio_tmp), 
+                                         company=company, customer=customer, order=orden, envio=orden.courier_method), 
                 attachments=None, 
                 sync=False)
         return "Success"
@@ -660,62 +656,32 @@ def inicializa_parametros(unaEmpresa):
 
 
 def inicializa_envios(unaEmpresa):
-    ################### Version Anterior ##############################################
-    # manual = CONF_metodos_envios(
-    #     store = unaEmpresa.store_id,
-    #     metodo_envio = 'manual',
-    #     habilitado = 1,
-    #     titulo_boton = 'Traer la orden a nuestro local',
-    #     descripcion_boton = 'Acercanos el/los productos a nuestros locales/depósito'
-    # )
-    # db.session.add(manual)
-
-    # coordinar = CONF_metodos_envios(
-    #     store = unaEmpresa.store_id,
-    #     metodo_envio = 'coordinar',
-    #     habilitado = 1,
-    #     titulo_boton = 'Coordinar método de retiro',
-    #     descripcion_boton = 'Coordiná con nosotros el método de envío que te quede mas cómodo'
-    # )
-    # db.session.add(coordinar)
-
-    # retiro = CONF_metodos_envios(
-    #     store = unaEmpresa.store_id,
-    #     metodo_envio = 'retiro',
-    #     habilitado = 0,
-    #     titulo_boton = 'Retirar en tu domicilio',
-    #     descripcion_boton = 'Un servicio de correo pasara a buscar los productos por tu domicilio'
-    # )
-    # db.session.add(retiro)
-    manual = CONF_metodos_envios( 
+    manual = CONF_metodos_envios(
         store = unaEmpresa.store_id,
-        metodo_envio_id = 'Manual',
+        metodo_envio = 'manual',
         habilitado = 1,
         titulo_boton = 'Traer la orden a nuestro local',
-        descripcion_boton = 'Acercanos el/los productos a nuestros locales/depósito',
-        correo_id = "",
-        correo_descripcion = "",
-        correo_servicio = "",
-        correo_sucursal = "",
-        costo_envio = 'Merchant',
-        instrucciones_entrega = ""
-    )        
+        descripcion_boton = 'Acercanos el/los productos a nuestros locales/depósito'
+    )
     db.session.add(manual)
 
-    coordinar = CONF_metodos_envios( 
+    coordinar = CONF_metodos_envios(
         store = unaEmpresa.store_id,
-        metodo_envio_id = 'Coordinar',
+        metodo_envio = 'coordinar',
         habilitado = 1,
         titulo_boton = 'Coordinar método de retiro',
-        descripcion_boton = 'Coordiná con nosotros el método de envío que te quede mas cómodo',
-        correo_id = "",
-        correo_descripcion = "",
-        correo_servicio = "",
-        correo_sucursal = "",
-        costo_envio = 'Merchant',
-        instrucciones_entrega = ""
-    )            
+        descripcion_boton = 'Coordiná con nosotros el método de envío que te quede mas cómodo'
+    )
     db.session.add(coordinar)
+
+    retiro = CONF_metodos_envios(
+        store = unaEmpresa.store_id,
+        metodo_envio = 'retiro',
+        habilitado = 0,
+        titulo_boton = 'Retirar en tu domicilio',
+        descripcion_boton = 'Un servicio de correo pasara a buscar los productos por tu domicilio'
+    )
+    db.session.add(retiro)
 
     db.session.commit()
 

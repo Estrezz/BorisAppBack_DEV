@@ -1,0 +1,2 @@
+
+Se ha generado una una Logística Inversa para la solicitud #{{order.order_number}} 

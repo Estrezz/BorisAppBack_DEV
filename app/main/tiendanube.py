@@ -192,6 +192,8 @@ def autorizar_tiendanube(codigo):
 
         db.session.commit()
         return unaEmpresa
+    else:
+        flash("Error al autorizar la Tienda {}. Ponete en contacto con nosotros".format(respuesta))
     return 'Failed'
 
 
@@ -239,8 +241,6 @@ def inicializa_tiendanube(empresa, tipo) :
     }
 
     response_1 = requests.request("POST", url, headers=headers, data=json.dumps(script_1))
-    #response_2 = requests.request("POST", url, headers=headers, data=json.dumps(script_2))
-    #response_3 = requests.request("POST", url, headers=headers, data=json.dumps(script_3))
     response_4 = requests.request("POST", url, headers=headers, data=json.dumps(script_4))
 
 
@@ -254,7 +254,6 @@ def inicializa_tiendanube(empresa, tipo) :
         user = User.query.filter_by(username=nombre).first()
         if user is not None:
             nombre = nombre+'_3'
-        
         unUsuario = User(
             username=nombre, 
             email=empresa.admin_email, 

@@ -5,10 +5,10 @@ from flask_login import current_user, login_required
 from sqlalchemy import func
 from app import db
 from app.email import send_email
-from app.main.forms import EditProfileForm, EditProfileCompanyForm, EditMailsCompanyForm, EditCorreoCompanyForm, EditParamsCompanyForm, EditMailsFrontCompanyForm
+from app.main.forms import EditProfileForm
 from app.main.tiendanube import generar_envio_tiendanube, autorizar_tiendanube, buscar_codigo_categoria_tiendanube, buscar_datos_variantes_tiendanube
-from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log, categories_filter, CONF_boris, CONF_envios, CONF_motivos
-from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto, genera_credito, actualiza_empresa, actualiza_empresa_categorias, actualiza_empresa_JSON, loguear_transaccion, finalizar_orden, devolver_linea, actualizar_stock, devolver_datos_boton, incializa_configuracion, validar_imagen, enviar_imagen
+from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log, categories_filter, CONF_boris, CONF_metodos_envios, CONF_motivos, CONF_correo, metodos_envios, correos
+from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto, genera_credito, actualiza_empresa, actualiza_empresa_categorias, actualiza_empresa_JSON, loguear_transaccion, finalizar_orden, devolver_linea, actualizar_stock, devolver_datos_boton, incializa_configuracion, validar_imagen, enviar_imagen, cotiza_envio_correo, crea_envio_correo, ver_etiqueta
 import json
 import re
 import os
@@ -63,7 +63,9 @@ def edit_profile():
     return render_template('edit_profile.html', title='Editar perfil',
                            form=form,  empresa_name=session['current_empresa'])
 
-
+############################################################################################
+# CONFIGURACION  PERFIL DE LA TIENDA
+############################################################################################
 @bp.route('/company/<empresa_id>')
 @login_required
 def company(empresa_id):
@@ -73,10 +75,22 @@ def company(empresa_id):
     else: 
         (flash('No se encuentran los datos de Configuracion - ponerse en contacto con soporte@borisreturns.com'))
         return redirect(url_for('main.ver_ordenes', estado='all', subestado='all'))
-    envios = CONF_envios.query.filter_by(store=current_user.store).all()
+    envios = CONF_metodos_envios.query.filter_by(store=current_user.store).all()
     motivos = CONF_motivos.query.filter_by(store=current_user.store).all()
+    correos_activos = CONF_correo.query.filter_by(store=current_user.store, habilitado=True).all()
+   
+    correos_usados = []
+    for c in correos_activos:
+        if c.habilitado == True:
+            correos_usados.append(c.correo_id)
+    lista_correos = correos.query.filter(~correos.correo_id.in_(correos_usados)).all()
+    
+    metodos_usados = []
+    for e in envios:
+        metodos_usados.append(e.metodo_envio_id)
+    lista_metodos = metodos_envios.query.filter(~metodos_envios.metodo_envio_id.in_(metodos_usados)).all()
 
-    return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, motivos=motivos, pestaña='tienda', empresa_name=session['current_empresa'])
+    return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, correos_activos=correos_activos, lista_correos=lista_correos, lista_metodos=lista_metodos, motivos=motivos, pestaña='tienda', empresa_name=session['current_empresa'])
 
 
 ## Actualiza datos de la Tienda #######################################
@@ -85,14 +99,24 @@ def company(empresa_id):
 def edit_storeinfo():
     empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
     configuracion = CONF_boris.query.filter_by(store=current_user.store).first_or_404()
-    envios = CONF_envios.query.filter_by(store=current_user.store).all()
+    envios = CONF_metodos_envios.query.filter_by(store=current_user.store).all()
     motivos = CONF_motivos.query.filter_by(store=current_user.store).all()
+    correos_activos = CONF_correo.query.filter_by(store=current_user.store, habilitado=True).all()
+    correos_usados = []
+    for c in correos_activos:
+        if c.habilitado == True:
+            correos_usados.append(c.correo_id)
+    lista_correos = correos.query.filter(~correos.correo_id.in_(correos_usados)).all()
+
+    metodos_usados = []
+    for e in envios:
+        metodos_usados.append(e.metodo_envio_id)
+    lista_metodos = metodos_envios.query.filter(~metodos_envios.metodo_envio_id.in_(metodos_usados)).all()
 
     if request.method == "POST":
         accion = request.form.get('boton')
 
         if accion == "cancelar":
-            #return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, motivos=motivos, pestaña='tienda', empresa_name=session['current_empresa'])
             return redirect(url_for('main.company', empresa_id=current_user.store ))
             
         if accion == "guardar":
@@ -118,76 +142,84 @@ def edit_storeinfo():
             db.session.commit()
 
             flash('Los datos se actualizaron correctamente')
-            #status = actualiza_empresa(empresa)
-            #### a revisar ####
-            #if status != 'Failed':
-            #    flash('Los datos se actualizaron correctamente')
-            #else:
-            #    flash('Se produjo un error {}'. format(status))
 
-    return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, motivos=motivos, pestaña='tienda', empresa_name=session['current_empresa'])
+    return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, correos_activos=correos_activos, lista_correos=lista_correos, lista_metodos=lista_metodos, motivos=motivos, pestaña='tienda', empresa_name=session['current_empresa'])
     
 
 
-## Actualiza datos de la Empresa de Correo #######################################
+## ACTUALIZA DATOS DE las empresas de correo utilizadas #######################################
 @bp.route('/edit_carrierinfo', methods=['GET', 'POST'])
 @login_required
 def edit_carrierinfo():
     empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
     configuracion = CONF_boris.query.filter_by(store=current_user.store).first_or_404()
-    envios = CONF_envios.query.filter_by(store=current_user.store).all()
+    envios = CONF_metodos_envios.query.filter_by(store=current_user.store).all()
     motivos = CONF_motivos.query.filter_by(store=current_user.store).all()
+    correos_activos = CONF_correo.query.filter_by(store=current_user.store, habilitado=True).all()
+    correos_usados = []
+    for c in correos_activos:
+        if c.habilitado == True:
+            correos_usados.append(c.correo_id)
+    lista_correos = correos.query.filter(~correos.correo_id.in_(correos_usados)).all()
 
+    metodos_usados = []
+    for e in envios:
+        metodos_usados.append(e.metodo_envio_id)
+    lista_metodos = metodos_envios.query.filter(~metodos_envios.metodo_envio_id.in_(metodos_usados)).all()
+        
+    return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, correos_activos=correos_activos, lista_correos=lista_correos,lista_metodos=lista_metodos,  motivos=motivos, pestaña='carrier', empresa_name=session['current_empresa'])
+
+
+######################################## Añadir un Correo  ######################################
+@bp.route('/add_correo', methods=['GET', 'POST'])
+@login_required
+def add_correo():
+    correo_usado = request.form.get('correo_usado')
+    id = correo_usado+str(current_user.store)
+    correo_usado = request.form.get('correo_usado')
+    nuevo_correo_API = request.form.get('nuevo_correo_API')
+    nuevo_correo_id_servicio = request.form.get('nuevo_correo_id_servicio')
+
+    if CONF_correo.query.get(id):
+        correo_tmp = CONF_correo.query.get(id)
+        correo_tmp.cliente_apikey = nuevo_correo_API
+        correo_tmp.cliente_id = nuevo_correo_id_servicio
+        correo_tmp.habilitado = True
+    else: 
+        unCorreo = CONF_correo(
+                id = id,
+                store = current_user.store,
+                correo_id = correo_usado,
+                cliente_apikey = nuevo_correo_API,
+                cliente_id = nuevo_correo_id_servicio,
+                habilitado = True
+            )
+        db.session.add(unCorreo)
+
+    db.session.commit()
+
+    return redirect(url_for('main.edit_carrierinfo'))
+
+
+##################################### Editar o Borrar un Correo  ######################################
+@bp.route('/editar_correo/<id>', methods=['GET', 'POST'])
+@login_required
+def editar_correo(id):
+    id = id+str(current_user.store)
     if request.method == "POST":
-        accion = request.form.get('boton')
+        unCorreo =  CONF_correo.query.get(id)
+        accion = request.form.get('boton_correo')
 
-        if accion == "cancelar":
-            return redirect(url_for('main.company', empresa_id=current_user.store ))
-            
-        if accion == "guardar":
-            correo_usado =  request.form.get('correo_usado')
-            shipping_address = request.form.get('shipping_address')
-            shipping_number = request.form.get('shipping_number')
-            shipping_floor = request.form.get('shipping_floor')
-            shipping_zipcode = request.form.get('shipping_zipcode')
-            shipping_city = request.form.get('shipping_city')
-            shipping_province = request.form.get('shipping_province')
-            shipping_country = request.form.get('shipping_country')
-            shipping_info = request.form.get('shipping_info')
-            correo_test = request.form.get('correo_test')
-            correo_cost = request.form.get('shipping')
+        if accion == "update":
+            unCorreo.cliente_apikey = request.form.get('correo_API')
+            unCorreo.cliente_id = request.form.get('correo_cliente_id')
 
-            empresa.correo_usado = correo_usado
-            empresa.shipping_address = shipping_address
-            empresa.shipping_number = shipping_number
-            empresa.shipping_floor = shipping_floor
-            if correo_test == 'on':
-                empresa.correo_test = True
-            else:
-                empresa.correo_test = False
-            empresa.shipping_zipcode = shipping_zipcode
-            empresa.shipping_city = shipping_city
-            empresa.shipping_province = shipping_province
-            empresa.shipping_country = shipping_country
-            empresa.shipping_info = shipping_info
-            
-            if empresa.correo_cost != correo_cost:
-                empresa.correo_cost = correo_cost
-                status = actualiza_empresa_JSON(empresa, 'shipping', correo_cost, 'otros')
-            else: 
-                status = 'Success'
+        if accion == "eliminar":
+            unCorreo.habilitado = False
 
-            db.session.commit()
+        db.session.commit()
 
-            #status = actualiza_empresa(empresa)
-            ## a revisar
-            #flash (status)
-            if status != 'Failed':
-                flash('Los datos se actualizaron correctamente')
-            else:
-                flash('Se produjo un error {}'. format(status))
-            
-    return render_template('company.html', empresa=empresa, configuracion=configuracion,  envios=envios, motivos=motivos, pestaña='carrier', empresa_name=session['current_empresa'])
+    return redirect(url_for('main.edit_carrierinfo'))
 
 
 ## Actualiza datos para configuración del portal  #######################################
@@ -196,8 +228,19 @@ def edit_carrierinfo():
 def edit_portalinfo():
     empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
     configuracion = CONF_boris.query.filter_by(store=current_user.store).first_or_404()
-    envios = CONF_envios.query.filter_by(store=current_user.store).all()
+    envios = CONF_metodos_envios.query.filter_by(store=current_user.store).all()
     motivos = CONF_motivos.query.filter_by(store=current_user.store).all()
+    correos_activos = CONF_correo.query.filter_by(store=current_user.store, habilitado=True).all()
+    correos_usados = []
+    for c in correos_activos:
+        if c.habilitado == True:
+            correos_usados.append(c.correo_id)
+    lista_correos = correos.query.filter(~correos.correo_id.in_(correos_usados)).all()
+
+    metodos_usados = []
+    for e in envios:
+        metodos_usados.append(e.metodo_envio_id)
+    lista_metodos = metodos_envios.query.filter(~metodos_envios.metodo_envio_id.in_(metodos_usados)).all()
 
     if request.method == "POST":
         accion = request.form.get('boton')
@@ -233,6 +276,8 @@ def edit_portalinfo():
                 else:
                     envio = enviar_imagen(file_fondo, str(current_user.store)+file_ext)
                     if envio == 'Success':
+                        if current_app.config['SERVER_ROLE'] == 'PREDEV':
+                            url="https://devfront.borisreturns.com/static/images/background/"
                         if current_app.config['SERVER_ROLE'] == 'DEV':
                             url="https://front.borisreturns.com/static/images/background/"
                         if current_app.config['SERVER_ROLE'] == 'PROD':
@@ -295,7 +340,6 @@ def edit_portalinfo():
 
             db.session.commit()
 
-            # status = actualiza_empresa(empresa)
             #### falta actualizar JSON del portal
             if status != 'Failed' and file_ok == 'Si':
                 flash('Los datos se actualizaron correctamente')
@@ -303,7 +347,7 @@ def edit_portalinfo():
                 if file_ok == 'Si':
                     flash('Se produjo un error {}'. format(status))
 
-    return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, motivos=motivos,pestaña='portal', empresa_name=session['current_empresa'])
+    return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, correos_activos=correos_activos, lista_correos=lista_correos, lista_metodos=lista_metodos, motivos=motivos,pestaña='portal', empresa_name=session['current_empresa'])
 
 
 ################################# Mostrar Motivos  ###########################################################
@@ -312,10 +356,21 @@ def edit_portalinfo():
 def edit_motivosinfo():
     empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
     configuracion = CONF_boris.query.filter_by(store=current_user.store).first_or_404()
-    envios = CONF_envios.query.filter_by(store=current_user.store).all()
+    envios = CONF_metodos_envios.query.filter_by(store=current_user.store).all()
     motivos = CONF_motivos.query.filter_by(store=current_user.store).all()
+    correos_activos = CONF_correo.query.filter_by(store=current_user.store, habilitado=True).all()
+    correos_usados = []
+    for c in correos_activos:
+        if c.habilitado == True:
+            correos_usados.append(c.correo_id)
+    lista_correos = correos.query.filter(~correos.correo_id.in_(correos_usados)).all()
 
-    return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, motivos=motivos, pestaña='motivos', empresa_name=session['current_empresa'])
+    metodos_usados = []
+    for e in envios:
+        metodos_usados.append(e.metodo_envio_id)
+    lista_metodos = metodos_envios.query.filter(~metodos_envios.metodo_envio_id.in_(metodos_usados)).all()
+
+    return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, correos_activos=correos_activos, lista_correos=lista_correos, lista_metodos=lista_metodos, motivos=motivos, pestaña='motivos', empresa_name=session['current_empresa'])
 
 
 ######################################## Añadir un Motivos  ######################################
@@ -382,48 +437,139 @@ def editar_motivo(id):
 def edit_enviosinfo():
     empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
     configuracion = CONF_boris.query.filter_by(store=current_user.store).first_or_404()
-    envios = CONF_envios.query.filter_by(store=current_user.store).all()
+    envios = CONF_metodos_envios.query.filter_by(store=current_user.store).all()
     motivos = CONF_motivos.query.filter_by(store=current_user.store).all()
+    correos_activos = CONF_correo.query.filter_by(store=current_user.store, habilitado=True).all()
+    correos_usados = []
+    for c in correos_activos:
+        if c.habilitado == True:
+            correos_usados.append(c.correo_id)
+    lista_correos = correos.query.filter(~correos.correo_id.in_(correos_usados)).all()
+
+    metodos_usados = []
+    for e in envios:
+        metodos_usados.append(e.metodo_envio_id)
+    lista_metodos = metodos_envios.query.filter(~metodos_envios.metodo_envio_id.in_(metodos_usados)).all()
+            
+    return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, correos_activos=correos_activos, lista_correos=lista_correos, lista_metodos=lista_metodos, motivos=motivos,pestaña='envios', empresa_name=session['current_empresa'])
+
+######################################## Añadir un Correo  ######################################
+@bp.route('/add_envio', methods=['GET', 'POST'])
+@login_required
+def add_envio():
+
+    if request.form.get('nuevo_metodo_envio'):
+        nuevo_metodo_envio = request.form.get('nuevo_metodo_envio')
+        nuevo_titulo_boton = request.form.get('nuevo_titulo_boton')
+        nuevo_descripcion_boton = request.form.get('nuevo_descripcion_boton')
+        nuevo_metodo_envio_correo = request.form.get('nuevo_metodo_envio_correo')
+        nuevo_shipping = request.form.get('nuevo_shipping')
+        nuevo_metodo_envio_correo_servicio = request.form.get('nuevo_metodo_envio_correo_servicio')
+        nuevo_metodo_envio_correo_sucursal = request.form.get('nuevo_metodo_envio_correo_sucursal')
+        nuevo_instrucciones = request.form.get('nuevo_instrucciones')
+
+        unMetodo = CONF_metodos_envios(
+                    store = current_user.store,
+                    habilitado = True,
+                    metodo_envio_id = nuevo_metodo_envio,
+                    titulo_boton = nuevo_titulo_boton,
+                    descripcion_boton = nuevo_descripcion_boton,
+                    correo_id = nuevo_metodo_envio_correo,
+                    correo_servicio = nuevo_metodo_envio_correo_servicio,
+                    correo_sucursal = nuevo_metodo_envio_correo_sucursal,
+                    costo_envio = nuevo_shipping,
+                    instrucciones_entrega = nuevo_instrucciones
+                )
+
+        db.session.add(unMetodo)
+        db.session.commit()
+
+        ###### actualiza el JSON del Front
+        empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
+        metodos_tmp = CONF_metodos_envios.query.filter_by(store=current_user.store).all() 
+        metodos=[]
+        for m in metodos_tmp:
+            metodo_master = metodos_envios.query.get(m.metodo_envio_id)
+            unMetodo_tmp = {"metodo_envio_id" : m.metodo_envio_id,
+                            "icon": metodo_master.icon,
+                            "boton_titulo": m.titulo_boton,
+                            "boton_descripcion": m.descripcion_boton,
+                            "direccion_obligatoria": metodo_master.direccion_obligatoria,
+                            "carrier":metodo_master.carrier,
+                            "correo_id": m.correo_id,
+                            "costo_envio": m.costo_envio}
+            metodos.append(unMetodo_tmp)
+            ############# revisar si lo que sigue va fuera del for
+            ######### agregar carrier en JSON
+        status = actualiza_empresa_JSON(empresa, 'envio', metodos, 'otros')
+        if status != 'Failed':
+            flash('Los datos se actualizaron correctamente')
+        else:
+            flash('Se produjo un error {}'. format(status))
+    
+    return redirect(url_for('main.edit_enviosinfo'))
+
+
+
+##################################### Editar o Borrar un Metodo de Envío  ######################################
+@bp.route('/editar_envio/<id>', methods=['GET', 'POST'])
+@login_required
+def editar_envio(id):
 
     if request.method == "POST":
+        unMetodo = CONF_metodos_envios.query.filter_by(store=current_user.store, metodo_envio_id=id).first() 
         accion = request.form.get('boton')
 
-        if accion == "cancelar":
-            return redirect(url_for('main.company', empresa_id=current_user.store ))
+        if accion == "update":
             
-        if accion == "guardar":
-            metodos = []
-            for m in envios:
-                habilitado = request.form.get('habilitado'+m.metodo_envio)
-                titulo_boton = request.form.get('titulo_boton'+m.metodo_envio)
-                descripcion_boton = request.form.get('descripcion_boton'+m.metodo_envio)
-                clave = devolver_datos_boton(m.metodo_envio)
-                
-                
-                if habilitado == 'on':
-                    m.habilitado = True
-                    metodos.append(str.lower(m.metodo_envio))
-                else:
-                    m.habilitado = False
-
-                if m.titulo_boton != titulo_boton:
-                    m.titulo_boton = titulo_boton
-                    actualiza_empresa_JSON(empresa, clave[0], titulo_boton, 'textos')
-
-                if m.descripcion_boton != descripcion_boton:    
-                    m.descripcion_boton = descripcion_boton
-                    actualiza_empresa_JSON(empresa, clave[1], descripcion_boton, 'textos')
-            
-            db.session.commit()
-           
-            status = actualiza_empresa_JSON(empresa, 'envio', metodos, 'otros')
-            if status != 'Failed':
-                flash('Los datos se actualizaron correctamente')
+             
+            habilitado = request.form.get('habilitado')
+            if habilitado == 'on':
+                unMetodo.habilitado = True
             else:
-                flash('Se produjo un error {}'. format(status))
-
+                unMetodo.habilitado = False
             
-    return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, motivos=motivos,pestaña='envios', empresa_name=session['current_empresa'])
+            unMetodo.titulo_boton = request.form.get('titulo_boton')
+            unMetodo.descripcion_boton = request.form.get('descripcion_boton')
+            unMetodo.correo_id = request.form.get('metodo_envio_correo')
+            unMetodo.costo_envio = request.form.get('shipping')
+            unMetodo.correo_servicio = request.form.get('metodo_envio_correo_servicio')
+            unMetodo.correo_sucursal = request.form.get('metodo_envio_correo_sucursal')
+            unMetodo.instrucciones_entrega = request.form.get('instrucciones')
+
+        if accion == "eliminar":
+            db.session.delete(unMetodo)
+
+        db.session.commit()
+
+        ###### actualiza el JSON del Front
+        empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
+        metodos_tmp = CONF_metodos_envios.query.filter_by(store=current_user.store).all() 
+        metodos=[]
+        status = 'Success'
+        for m in metodos_tmp:
+            metodo_master = metodos_envios.query.get(m.metodo_envio_id)
+            unMetodo_tmp = {"metodo_envio_id" : m.metodo_envio_id,
+                            "icon": metodo_master.icon,
+                            "boton_titulo": m.titulo_boton,
+                            "boton_descripcion": m.descripcion_boton,
+                            "direccion_obligatoria": metodo_master.direccion_obligatoria,
+                            "carrier":metodo_master.carrier,
+                            "correo_id": m.correo_id,
+                            "costo_envio": m.costo_envio}
+            metodos.append(unMetodo_tmp)
+            status = actualiza_empresa_JSON(empresa, 'envio', metodos, 'otros')
+            if status == 'Failed':
+                status = 'Failed'
+
+        if status != 'Failed':
+            flash('Los datos se actualizaron correctamente')
+        else:
+            flash('Se produjo un error {}'. format(status))
+        
+
+    return redirect(url_for('main.edit_enviosinfo'))
+
 
 
 ################ Mails desde el portal  #######################################
@@ -432,8 +578,19 @@ def edit_enviosinfo():
 def edit_mailsportalinfo():
     empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
     configuracion = CONF_boris.query.filter_by(store=current_user.store).first_or_404()
-    envios = CONF_envios.query.filter_by(store=current_user.store).all()
+    envios = CONF_metodos_envios.query.filter_by(store=current_user.store).all()
     motivos = CONF_motivos.query.filter_by(store=current_user.store).all()
+    correos_activos = CONF_correo.query.filter_by(store=current_user.store, habilitado=True).all()
+    correos_usados = []
+    for c in correos_activos:
+        if c.habilitado == True:
+            correos_usados.append(c.correo_id)
+    lista_correos = correos.query.filter(~correos.correo_id.in_(correos_usados)).all()
+
+    metodos_usados = []
+    for e in envios:
+        metodos_usados.append(e.metodo_envio_id)
+    lista_metodos = metodos_envios.query.filter(~metodos_envios.metodo_envio_id.in_(metodos_usados)).all()
 
     if request.method == "POST":
         accion = request.form.get('boton')
@@ -460,7 +617,7 @@ def edit_mailsportalinfo():
     
             db.session.commit() 
 
-    return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, motivos=motivos, pestaña='mailsportal', empresa_name=session['current_empresa'])   
+    return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, correos_activos=correos_activos, lista_correos=lista_correos, lista_metodos=lista_metodos, motivos=motivos, pestaña='mailsportal', empresa_name=session['current_empresa'])   
 
 
 ################ Mails desde el Backoffice  #######################################
@@ -469,8 +626,19 @@ def edit_mailsportalinfo():
 def edit_mailsbackinfo():
     empresa = Company.query.filter_by(store_id=current_user.store).first_or_404()
     configuracion = CONF_boris.query.filter_by(store=current_user.store).first_or_404()
-    envios = CONF_envios.query.filter_by(store=current_user.store).all()
+    envios = CONF_metodos_envios.query.filter_by(store=current_user.store).all()
     motivos = CONF_motivos.query.filter_by(store=current_user.store).all()
+    correos_activos = CONF_correo.query.filter_by(store=current_user.store, habilitado=True).all()
+    correos_usados = []
+    for c in correos_activos:
+        if c.habilitado == True:
+            correos_usados.append(c.correo_id)
+    lista_correos = correos.query.filter(~correos.correo_id.in_(correos_usados)).all()
+
+    metodos_usados = []
+    for e in envios:
+        metodos_usados.append(e.metodo_envio_id)
+    lista_metodos = metodos_envios.query.filter(~metodos_envios.metodo_envio_id.in_(metodos_usados)).all()
 
     if request.method == "POST":
         accion = request.form.get('boton')
@@ -501,7 +669,7 @@ def edit_mailsbackinfo():
 
             db.session.commit() 
 
-    return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, motivos=motivos, pestaña='mailsback', empresa_name=session['current_empresa'])   
+    return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, correos_activos=correos_activos, lista_correos=lista_correos, lista_metodos=lista_metodos, motivos=motivos, pestaña='mailsback', empresa_name=session['current_empresa'])   
         
  
 
@@ -560,7 +728,6 @@ def filtrar_categorias():
     return render_template('category.html', categorias=categorias, categorias_filtradas=categorias_filtradas, title='Categorias', empresa_name=session['current_empresa'])
 
 
-
 @bp.route('/search')  
 def search():
     query =  request.args.get('search') 
@@ -576,23 +743,24 @@ def search():
 @bp.route('/gestion_lineas_entrantes/<orden_id>',methods=['GET', 'POST'])  
 def gestion_lineas_entrantes(orden_id):
     if request.method == "POST":
-        productos = request.form.getlist('prod_id')
-        for p in productos: 
-            variant = request.form.get("variant"+str(p))
-            accion = request.form.get("accion"+str(p))
-            accion_cantidad = request.form.get("accion_cantidad"+str(p))
-            order_line = request.form.get("order_line"+str(p))
+        lineas = request.form.getlist('order_line')
+        for l in lineas: 
+            variant = request.form.get("variant"+str(l))
+            accion = request.form.get("accion"+str(l))
+            accion_cantidad = request.form.get("accion_cantidad"+str(l))
+            prod_id = request.form.get("prod_id"+str(l))
+            order_line = l
             ## Guarda el valor que se le reconoció al cliente al devolver el producto
-            if request.form.get("precio"+str(p)) != None :
-                monto_devuelto = request.form.get("precio"+str(p))
+            if request.form.get("precio"+str(l)) != None :
+                monto_devuelto = request.form.get("precio"+str(l))
             else:
                 monto_devuelto = 0
             # Asigna accion_stock dependiendo de si se eligió que el stock se reingrese o no
-            if request.form.get("stockradio"+str(p)) == None:
+            if request.form.get("stockradio"+str(l)) == None:
                 accion_stock = "No vuelve al stock"
             else: 
                 accion_stock = "Vuelve al stock"
-            devolver_linea(p, variant, accion_cantidad, orden_id, order_line, accion, accion_stock, monto_devuelto)
+            devolver_linea(prod_id, variant, accion_cantidad, orden_id, order_line, accion, accion_stock, monto_devuelto)
     return redirect(url_for('main.orden', orden_id=orden_id))
 
 
@@ -617,19 +785,36 @@ def gestion_lineas_salientes(orden_id):
             monto_total = 0
         else: 
             orden.nuevo_envio_total = total_nueva_orden
-        orden.courier_coordinar_empresa = request.form.get("empresa_coordinada")
-        orden.courier_coordinar_guia = request.form.get("guia_coordinada")
+        orden.metodo_envio_correo = request.form.get("empresa_coordinada")
+        orden.metodo_envio_guia = request.form.get("guia_coordinada")
         
 
         if nuevaorden == None:
              flash('Debe especificar un método de creación para la nueva Orden')
              return redirect(url_for('main.orden', orden_id=orden_id))
 
+        ######## Nueva orden MANUAL ###################################################
         if  nuevaorden == 'manual': 
-                envio_nuevo_metodo = 'Se envía manualmente'
+            envio_nuevo_metodo = 'Se envía manualmente'
+            ##### genera envio si el metodo de envio tiene Carrier ###
+            envio = metodos_envios.query.get(orden.courier_method)  
+            if envio.carrier and orden.salientes == 'Si' :
+                customer = Customer.query.get(orden.customer_id)
+                envio_creado = crea_envio_correo(empresa,customer,orden,envio) 
+                if envio_creado == 'Failed':
+                    flash('se produjo un error al intentar generar el envio en la empresa de Correo')
 
+        ######## Nueva orden MANUAL - Dando de baja Stock #############################
         if  nuevaorden == 'manual_stock': 
             envio_nuevo_metodo = 'Se envía manualmente - se descuenta stock'
+            ##### genera envio si el metodo de envio tiene Carrier ###
+            envio = metodos_envios.query.get(orden.courier_method)  
+            if envio.carrier and orden.salientes == 'Si' :
+                customer = Customer.query.get(orden.customer_id)
+                envio_creado = crea_envio_correo(empresa,customer,orden,envio) 
+                if envio_creado == 'Failed':
+                    flash('se produjo un error al intentar generar el envio en la empresa de Correo')
+
             if empresa.stock_vuelve_config == True:
                 actualizar_stock(ordenes, empresa ,'saliente')
             else:
@@ -644,7 +829,9 @@ def gestion_lineas_salientes(orden_id):
                                             order=orden, envio=envio_nueva_orden, total=total_nueva_orden),
                     attachments=None, 
                     sync=False)
-          
+
+
+        ######## Nueva orden en Tienda #############################  
         if  nuevaorden == 'tienda': 
             envio_nuevo_metodo = 'Se envía mediante nueva orden en Tienda'
             
@@ -775,17 +962,19 @@ def gestionar_ordenes(orden_id):
     orden = Order_header.query.filter_by(id=orden_id).first()
     orden_linea = Order_detail.query.filter_by(order=orden_id).all()
     empresa = Company.query.get(orden.store)
-    # flash ('Accion {} - orden {} CIA {}'.format(accion, orden.courier, current_user.empleado))
+    
     if accion == 'toReady':
-        # if request.form['coordinar_empresa']:
-        if request.form.get('coordinar_empresa') or request.form.get('coordinar_guia') or request.form.get('coordinar_roundtrip'):
-            orden.courier_coordinar_empresa = request.form['coordinar_empresa']
-            orden.courier_coordinar_guia = request.form.get('coordinar_guia')
+        if request.form.get('metodo_envio_correo') or request.form.get('metodo_envio_guia') or request.form.get('coordinar_roundtrip'):
+            orden.metodo_envio_correo = request.form['metodo_envio_correo']
+            orden.metodo_envio_guia = request.form.get('metodo_envio_guia')
             if request.form.get('coordinar_roundtrip') == "on":
                 orden.courier_coordinar_roundtrip = True
             else:
                 orden.courier_coordinar_roundtrip = False
-            db.session.commit()
+        else: 
+            orden.courier_coordinar_roundtrip = False
+        db.session.commit()
+            
         toReady(orden, current_user.empleado)
     else: 
         if accion == 'toReceived':
@@ -797,7 +986,9 @@ def gestionar_ordenes(orden_id):
                 if accion == 'toReject': 
                     motivo = request.form.get('motivo')
                     toReject(orden.id, motivo)
-    return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer, empresa=empresa, empresa_name=session['current_empresa'])
+
+    return redirect(url_for('main.orden', orden_id=orden.id))
+    #return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer, empresa=empresa, empresa_name=session['current_empresa'])
     
 
 @bp.route('/gestion_producto/<orden_id>', methods=['GET', 'POST'])
@@ -825,7 +1016,7 @@ def historia_orden(orden_id):
 def webhook():
     if request.method == 'POST':
         data = request.json
-        orden = Order_header.query.filter_by(courier_order_id = str(data['id'])).first()
+        orden = Order_header.query.filter_by(metodo_envio_guia = str(data['id'])).first()
         orden.status = 'Shipping'
         orden.sub_status = traducir_estado(data['status'])[0]
         orden.status_resumen = traducir_estado(data['status'])[1]
@@ -929,11 +1120,11 @@ def autorizar(plataforma):
         #### actualiza los datos de la empresa en FRONT - si la empresa ya existia no hace nada #####
         actualizado = actualiza_empresa(autorizacion)
 
-        if actualizado != 'Failed':
+        #if actualizado != 'Failed':
             ##### inicializa las bases con los datos por default del JSON del Front ##############################3
-            incializa_configuracion(autorizacion)
+        incializa_configuracion(autorizacion)
 
-            send_email('Bienvenido a BORIS!', 
+        send_email('Bienvenido a BORIS!', 
                 sender=current_app.config['ADMINS'][0],  
                 recipients=[current_app.config['ADMINS'][0],autorizacion.admin_email],
                 reply_to = current_app.config['ADMINS'][0],
@@ -941,9 +1132,9 @@ def autorizar(plataforma):
                 html_body=render_template('email/bienvenido.html', codigo='OK', usuario=usuario, store=autorizacion), 
                 attachments=None, 
                 sync=False)
-            return render_template('autorizado.html', codigo='OK', usuario=usuario, store=autorizacion)
-        else:
-            return render_template('autorizado.html', codigo='error_al_actualizar', store=actualizado )         
+        return render_template('autorizado.html', codigo='OK', usuario=usuario, store=autorizacion)
+        #else:
+        #    return render_template('autorizado.html', codigo='error_al_actualizar', store=actualizado )         
     else:
         return render_template('autorizado.html', codigo='error') 
 
@@ -1078,6 +1269,37 @@ def buscar_datos_variantes():
     return json.dumps(variante)
 
 
+@bp.route('/cotiza_envio', methods=['POST'])
+def cotiza_envio():
+   data = request.json
+   datos_correo = CONF_correo.query.filter_by(store=data['correo']['store_id'], correo_id=data['correo']['correo_id']).first()
+   servicio =  CONF_metodos_envios.query.filter_by(store=data['correo']['store_id'], metodo_envio_id=data['correo']['metodo_envio']).first() 
+   
+   precio = cotiza_envio_correo(data, datos_correo, servicio)
+   return precio
+
+
+@bp.route('/etiqueta/<orden_id>', methods=['GET', 'POST'])
+@login_required
+def etiqueta(orden_id):
+    orden = Order_header.query.filter_by(id=orden_id).first()
+    metodo = CONF_metodos_envios.query.filter_by(store=orden.store, metodo_envio_id=orden.courier_method).first() 
+    etiqueta = ver_etiqueta(metodo.correo_id, orden.metodo_envio_guia )
+
+    return etiqueta.content, etiqueta.status_code, etiqueta.headers.items()
+    
+
+@bp.route('/buscar_metodo_envio', methods=['POST'])
+def buscar_metodo_envio():
+    metodo_envio_id = request.form.get('metodo_envio_id')
+    metodo_tmp = metodos_envios.query.get(metodo_envio_id)  
+    if metodo_tmp.carrier == True:
+        carrier = 'Si'
+    else:
+        carrier = 'No'
+    return carrier
+
+
 
 
 
@@ -1085,6 +1307,12 @@ def buscar_datos_variantes():
 #################################################################################
 ####### Tareasde Mantenimiento /Mantenimiento ###################################
 #################################################################################
+
+@bp.route('/prueba_etiqueta', methods=['GET', 'POST'])
+@login_required
+def prueba_etiqueta():
+    return redirect(url_for('main.etiqueta', orden_id=7))
+
 
 @bp.route('/cargar_pedidos', methods=['GET', 'POST'])
 @login_required

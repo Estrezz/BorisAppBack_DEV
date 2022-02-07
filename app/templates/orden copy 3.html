@@ -518,7 +518,9 @@
 
                         <!-- Info Envio -->
                             <h5>Método de Envío: {{orden.courier_method}}</h5>
-                            
+                            {% if orden.courier_precio|int != 0  %}
+                                Costo del Envío: {{orden.courier_precio}} $ <br>
+                            {% endif %}
                             {% if orden.courier_method != 'Manual' %}
                                 {% if orden.sub_status == 'Solicitado' %}
                                     <form id="coordinar_form" action="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReady' ) }}" method="POST"> 
@@ -536,15 +538,7 @@
                                     </form>
                                 {% else %}
                                     Correo: {{orden.metodo_envio_correo}} <br>
-                                    Guia: {{orden.metodo_envio_guia}} 
-
-                                    {% if orden.etiqueta_generada == True %}
-                                        <form id="Etiqeuta" action="{{ url_for('main.etiqueta', orden_id = orden.id) }}" method="POST"  style="display: inline;"> 
-                                            <button  class="btn btn-link btn-sm " type="submit"> Ver Guia </button>
-                                        </form>
-                                    {% endif %}
-                                    <br>
-
+                                    Guia: {{orden.metodo_envio_guia}} <br>
                                     Retiro + entrega:
                                     {% if orden.courier_coordinar_roundtrip == True %}
                                         Si
@@ -553,11 +547,6 @@
                                     {% endif %}
                                     <br>
                                 {% endif %}
-
-                                {% if orden.courier_precio|int != 0  %}
-                                    Costo del Envío: {{orden.courier_precio}} $ <br>
-                                {% endif %}
-
                             {% endif %}        
                             {% if orden.courier_method == 'Moova' %}
                                 Guia: {{ orden.courier_order_id }} <br>
