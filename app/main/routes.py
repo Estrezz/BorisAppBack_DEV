@@ -8,7 +8,7 @@ from app.email import send_email
 from app.main.forms import EditProfileForm
 from app.main.tiendanube import generar_envio_tiendanube, autorizar_tiendanube, buscar_codigo_categoria_tiendanube, buscar_datos_variantes_tiendanube
 from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log, categories_filter, CONF_boris, CONF_metodos_envios, CONF_motivos, CONF_correo, metodos_envios, correos
-from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto, genera_credito, actualiza_empresa, actualiza_empresa_categorias, actualiza_empresa_JSON, loguear_transaccion, finalizar_orden, devolver_linea, actualizar_stock, devolver_datos_boton, incializa_configuracion, validar_imagen, enviar_imagen, cotiza_envio_correo, crea_envio_correo
+from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto, genera_credito, actualiza_empresa, actualiza_empresa_categorias, actualiza_empresa_JSON, loguear_transaccion, finalizar_orden, devolver_linea, actualizar_stock, devolver_datos_boton, incializa_configuracion, validar_imagen, enviar_imagen, cotiza_envio_correo, crea_envio_correo, ver_etiqueta
 import json
 import re
 import os
@@ -728,7 +728,6 @@ def filtrar_categorias():
     return render_template('category.html', categorias=categorias, categorias_filtradas=categorias_filtradas, title='Categorias', empresa_name=session['current_empresa'])
 
 
-
 @bp.route('/search')  
 def search():
     query =  request.args.get('search') 
@@ -972,7 +971,9 @@ def gestionar_ordenes(orden_id):
                 orden.courier_coordinar_roundtrip = True
             else:
                 orden.courier_coordinar_roundtrip = False
-            db.session.commit()
+        else: 
+            orden.courier_coordinar_roundtrip = False
+        db.session.commit()
             
         toReady(orden, current_user.empleado)
     else: 
@@ -985,7 +986,9 @@ def gestionar_ordenes(orden_id):
                 if accion == 'toReject': 
                     motivo = request.form.get('motivo')
                     toReject(orden.id, motivo)
-    return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer, empresa=empresa, empresa_name=session['current_empresa'])
+
+    return redirect(url_for('main.orden', orden_id=orden.id))
+    #return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer, empresa=empresa, empresa_name=session['current_empresa'])
     
 
 @bp.route('/gestion_producto/<orden_id>', methods=['GET', 'POST'])
@@ -1013,7 +1016,7 @@ def historia_orden(orden_id):
 def webhook():
     if request.method == 'POST':
         data = request.json
-        orden = Order_header.query.filter_by(courier_order_id = str(data['id'])).first()
+        orden = Order_header.query.filter_by(metodo_envio_guia = str(data['id'])).first()
         orden.status = 'Shipping'
         orden.sub_status = traducir_estado(data['status'])[0]
         orden.status_resumen = traducir_estado(data['status'])[1]
@@ -1276,10 +1279,25 @@ def cotiza_envio():
    return precio
 
 
+@bp.route('/etiqueta/<orden_id>', methods=['GET', 'POST'])
+@login_required
+def etiqueta(orden_id):
+    orden = Order_header.query.filter_by(id=orden_id).first()
+    metodo = CONF_metodos_envios.query.filter_by(store=orden.store, metodo_envio_id=orden.courier_method).first() 
+    etiqueta = ver_etiqueta(metodo.correo_id, orden.metodo_envio_guia )
 
+    return etiqueta.content, etiqueta.status_code, etiqueta.headers.items()
+    
 
-
-
+@bp.route('/buscar_metodo_envio', methods=['POST'])
+def buscar_metodo_envio():
+    metodo_envio_id = request.form.get('metodo_envio_id')
+    metodo_tmp = metodos_envios.query.get(metodo_envio_id)  
+    if metodo_tmp.carrier == True:
+        carrier = 'Si'
+    else:
+        carrier = 'No'
+    return carrier
 
 
 
@@ -1289,6 +1307,12 @@ def cotiza_envio():
 #################################################################################
 ####### Tareasde Mantenimiento /Mantenimiento ###################################
 #################################################################################
+
+@bp.route('/prueba_etiqueta', methods=['GET', 'POST'])
+@login_required
+def prueba_etiqueta():
+    return redirect(url_for('main.etiqueta', orden_id=7))
+
 
 @bp.route('/cargar_pedidos', methods=['GET', 'POST'])
 @login_required

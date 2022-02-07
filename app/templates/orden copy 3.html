@@ -24,11 +24,12 @@
                     <div class="card mb-2 ">
                         <div class="card-body">
                             <!-- graba los datos que se necesitan para poder procesar cada linea asociados al respectivo Id del producto -->
-                            <input type="hidden" id="prod_id" name="prod_id" value="{{ i['prod_id'] }}">
-                            <input type="hidden" id="variant{{ i['prod_id'] }}" name="variant{{ i['prod_id'] }}" value="{{ i['variant'] }}">
-                            <input type="hidden" id="accion_cantidad{{ i['prod_id'] }}" name="accion_cantidad{{ i['prod_id'] }}" value="{{ i['accion_cantidad'] }}">
-                            <input type="hidden" id="accion{{ i['prod_id'] }}" name="accion{{ i['prod_id'] }}" value="{{ i['accion'] }}">
-                            <input type="hidden" id="order_line{{ i['prod_id'] }}" name="order_line{{ i['prod_id'] }}" value="{{ i['order_line_number'] }}">
+                            <input type="hidden" id="order_line" name="order_line" value="{{ i['order_line_number'] }}">
+                            <input type="hidden" id="prod_id{{ i['order_line_number'] }}" name="prod_id{{ i['order_line_number'] }}" value="{{ i['prod_id'] }}">
+                            <input type="hidden" id="variant{{ i['order_line_number'] }}" name="variant{{ i['order_line_number'] }}" value="{{ i['variant'] }}">
+                            <input type="hidden" id="accion_cantidad{{ i['order_line_number'] }}" name="accion_cantidad{{ i['order_line_number'] }}" value="{{ i['accion_cantidad'] }}">
+                            <input type="hidden" id="accion{{ i['order_line_number'] }}" name="accion{{ i['order_line_number'] }}" value="{{ i['accion'] }}">
+                            <input type="hidden" id="order_line{{ i['order_line_number'] }}" name="order_line{{ i['order_line_number'] }}" value="{{ i['order_line_number'] }}">
                             
                             <div class="row">
                             <!-- Descripcio + datos articulos -->
@@ -69,12 +70,12 @@
                                             {% if orden.status_resumen == 'Aprobado' %}
                                                 {% if (i.gestionado == 'Iniciado' or i.gestionado == 'Cambiado' ) %}
                                                     {% set ns.entrantes_activos=true %}
-                                                    <input type="text" id="precio{{ i['prod_id'] }}" name="precio{{ i['prod_id'] }}" class="form-control" value="{{i['precio'] * i['accion_cantidad']}}">
+                                                    <input type="text" id="precio{{ i['order_line_number'] }}" name="precio{{ i['order_line_number'] }}" class="form-control" value="{{i['precio'] * i['accion_cantidad']}}">
                                                 {% else %}
-                                                    <input type="text" id="precio{{ i['prod_id'] }}" name="precio{{ i['prod_id'] }}" class="form-control" value="{{i['monto_devuelto']}}" disabled>
+                                                    <input type="text" id="precio{{ i['order_line_number'] }}" name="precio{{ i['order_line_number'] }}" class="form-control" value="{{i['monto_devuelto']}}" disabled>
                                                 {% endif %} 
                                             {% else %}
-                                                <input type="text" id="precio{{ i['prod_id'] }}" name="precio{{ i['prod_id'] }}" class="form-control" value="{{i['precio'] * i['accion_cantidad']}}" disabled>
+                                                <input type="text" id="precio{{ i['order_line_number'] }}" name="precio{{ i['order_line_number'] }}" class="form-control" value="{{i['precio'] * i['accion_cantidad']}}" disabled>
                                             {% endif %}
                                         </div>
                                         
@@ -89,8 +90,8 @@
                                         {% if orden.status_resumen == 'Aprobado' %}
                                             {% if (i.gestionado == 'Iniciado' or i.gestionado == 'Cambiado' ) %}
                                                 <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" class="custom-control-input" id="stockradio{{ i['prod_id'] }}" name="stockradio{{ i['prod_id'] }}" checked>
-                                                    <label class="custom-control-label" for="stockradio{{ i['prod_id'] }}"><small>Restock</small></label>
+                                                    <input type="checkbox" class="custom-control-input" id="stockradio{{ i['order_line_number'] }}" name="stockradio{{ i['order_line_number']}}" checked>
+                                                    <label class="custom-control-label" for="stockradio{{ i['order_line_number'] }}"><small>Restock</small></label>
                                                 </div>
                                             {% endif %}
                                         {% endif %}
@@ -126,7 +127,7 @@
                     {% for i in orden_linea %}
                         {% if (i['accion'] == 'cambiar' and i['accion_cambiar_por'] != 1 ) %}
                         {% set ns.saliente_tmp = true %}
-                        <input class="saliente" type="hidden" id="prod_id_saliente" name="prod_id_saliente" value="{{ i['prod_id'] }}" data-variante="{{ i['accion_cambiar_por']}}" data-prod_id="{{ i['prod_id'] }}" data-cambiar_por_prod_id="{{ i['accion_cambiar_por_prod_id'] }}">
+                        <input class="saliente" type="hidden" id="prod_id_saliente" name="prod_id_saliente" value="{{ i['prod_id'] }}" data-variante="{{ i['accion_cambiar_por']}}" data-prod_id="{{ i['prod_id'] }}" data-cambiar_por_prod_id="{{ i['accion_cambiar_por_prod_id'] }}" data-line_saliente="{{ i['order_line_number'] }}">
                         <input type="hidden" id="order_line_saliente" name="order_line_saliente" value="{{ i['order_line_number'] }}">
                         <div class="card mb-2 ">
                             <div class="card-body">
@@ -457,14 +458,16 @@
                             <input type="submit" id="submit-reject" class="d-none" />
                         </form>
 
-                        <!-- Si no fue confirmado y el metodo de Envio elegido es COORDINAR  -->     
-                        {% if orden.courier_method == 'Coordinar' %}
-                            <label for="submit-form" tabindex="0" class="btn btn-primary" title='Pasa el pedido a LISTO PARA RETIRO'> Coordinar </label>
-                        <!-- Si no fue confirmado y el metodo de Envio elegido es MOOVA o MANUAL  --> 
+                        <!-- Si no fue confirmado y el metodo de Envio elegido es COORDINAR  --> 
+                             
+                        {% if orden.courier_method != 'Manual' %}
+                            <label for="submit-form" tabindex="0" class="btn btn-primary" title='Pasa el pedido a LISTO PARA RETIRO'> Confirmar </label>
+                        <!-- Si no fue confirmado y el metodo de Envio elegido MANUAL  --> 
                         {% else %}
                         <a href="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReady' ) }}">
                             <button class="btn btn-primary" title='Pasa el pedido a LISTO PARA RETIRO' > Confirmar </button></a> 
                         {% endif %}
+                        
                         
                         <!-- Boton de rechazo (previo a confirmación)  -->  
                         <label id="bton" for="submit-reject" tabindex="0" class="btn btn-outline-danger float-right" title='Rechaza el pedido'>Rechazar</label>
@@ -523,7 +526,7 @@
                                     <form id="coordinar_form" action="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReady' ) }}" method="POST"> 
                                         <div class="form-group">
                                             <input type="text" class="form-control form-control-sm" id="metodo_envio_correo" name="metodo_envio_correo" value="{{orden.metodo_envio_correo}}" placeholder="correo">
-                                            <input type="text" class="form-control form-control-sm" id="metodo_envio_guia" name="metodo_envio_guia" value="{{metodo_envio_guia}}" placeholder="Guia">
+                                            <input type="text" class="form-control form-control-sm" id="metodo_envio_guia" name="metodo_envio_guia" value="{{orden.metodo_envio_guia}}" placeholder="Guia">
                                         </div>
                                         <div class="form-group">
                                             <div class="form-check">   
@@ -636,11 +639,12 @@
             variante = $(this).data('variante');
             prod_id = $(this).data('prod_id');
             cambiar_por_prod_id = $(this).data('cambiar_por_prod_id');
-            buscar_variante(prod_id, cambiar_por_prod_id, variante);
+            line_saliente = $(this).data('line_saliente');
+            buscar_variante(prod_id, cambiar_por_prod_id, variante, line_saliente);
         });
 
 
-        function buscar_variante(prod_id, cambiar_por_prod_id, variante) {  
+        function buscar_variante(prod_id, cambiar_por_prod_id, variante, line_saliente) {  
             $.post('/buscar_variante', {
                 prod_id: cambiar_por_prod_id,
                 variante: variante
@@ -656,8 +660,8 @@
                     var precio = data['price'];
                 }
                 // calcula la diferencia de precio entre el precio del articulo y el valor del cambio
-                var cantidad = $('#accion_cantidad'+prod_id).val();
-                var diferencia = (precio * cantidad) - ($('#precio'+prod_id ).val());
+                var cantidad = $('#accion_cantidad'+line_saliente).val();
+                var diferencia = (precio * cantidad) - ($('#precio'+line_saliente ).val());
                 
                 $('#saliente_diferencia_precio'+prod_id).val(diferencia);
 

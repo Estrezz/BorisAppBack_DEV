@@ -549,49 +549,51 @@
                               <textarea class="form-control form-control-sm" name="nuevo_descripcion_boton" id="nuevo_descripcion_boton" ></textarea> 
                             </div> 
                             
-                            <strong class = "text-info">Empresa de correo:</strong><br>
-                            <div class="form-row mt-2 align-items-center">
-                              <div class="form-group col-md-6">
-                                <label for="nuevo_metodo_envio_correo">Correo</label> 
-                                <select class="custom-select custom-select-sm" name="nuevo_metodo_envio_correo" id="nuevo_metodo_envio_correo" placeholder="Empresa de Correo">
-                                  <option selected disabled>Selecciona una empresa de correo</option>
-                                  {% for un_correo in correos_activos %}
-                                      <option value="{{ un_correo.correo_id }}">{{ un_correo.correo_id }}</option>
-                                  {% endfor %}
-                                </select>
-                              </div>
+                            <div id="bloque_correo">
+                              <strong class = "text-info">Empresa de correo:</strong><br>
+                              <div class="form-row mt-2 align-items-center">
+                                <div class="form-group col-md-6">
+                                  <label for="nuevo_metodo_envio_correo">Correo</label> 
+                                  <select class="custom-select custom-select-sm" name="nuevo_metodo_envio_correo" id="nuevo_metodo_envio_correo" placeholder="Empresa de Correo">
+                                    <option selected disabled>Selecciona una empresa de correo</option>
+                                    {% for un_correo in correos_activos %}
+                                        <option value="{{ un_correo.correo_id }}">{{ un_correo.correo_id }}</option>
+                                    {% endfor %}
+                                  </select>
+                                </div>
+                              
+                                <div class="form-group col-md-3">
+                                  <label for="nuevo_metodo_envio_correo_servicio">Codigo del Servicio</label> 
+                                  <input type="text" class="form-control form-control-sm" name="nuevo_metodo_envio_correo_servicio" id="nuevo_metodo_envio_correo_servicio">
+                                </div>
+                              
                             
-                              <div class="form-group col-md-3">
-                                <label for="nuevo_metodo_envio_correo_servicio">Codigo del Servicio</label> 
-                                <input type="text" class="form-control form-control-sm" name="nuevo_metodo_envio_correo_servicio" id="nuevo_metodo_envio_correo_servicio">
-                              </div>
-                            
-                          
-                              <div class="form-group col-md-3">
-                                <label for="nuevo_metodo_envio_correo_sucursal">Código de Sucursal</label> 
-                                <input type="text" class="form-control form-control-sm" name="nuevo_metodo_envio_correo_sucursal" id="nuevo_metodo_envio_correo_sucursal">
-                              </div>
-                            </div>
-                        
-                            <fieldset class="form-group">
-                              <div class="row">
-                                <legend class="col-form-label col-sm-2 pt-0">Costo del envío</legend>
-                                <div class="col-sm-10">
-                                  <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="nuevo_shipping" id="shipping_customer" value="customer">
-                                    <label class="form-check-label" for="shipping_customer">
-                                      A cargo del Cliente 
-                                    </label>
-                                  </div>
-                                  <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="nuevo_shipping" id="shipping_company" value="company">
-                                    <label class="form-check-label" for="shipping_company">
-                                      A cargo del Merchant
-                                    </label>
-                                  </div>
+                                <div class="form-group col-md-3">
+                                  <label for="nuevo_metodo_envio_correo_sucursal">Código de Sucursal</label> 
+                                  <input type="text" class="form-control form-control-sm" name="nuevo_metodo_envio_correo_sucursal" id="nuevo_metodo_envio_correo_sucursal">
                                 </div>
                               </div>
-                            </fieldset>
+                          
+                              <fieldset class="form-group">
+                                <div class="row">
+                                  <legend class="col-form-label col-sm-2 pt-0">Costo del envío</legend>
+                                  <div class="col-sm-10">
+                                    <div class="form-check">
+                                      <input class="form-check-input" type="radio" name="nuevo_shipping" id="shipping_customer" value="customer">
+                                      <label class="form-check-label" for="shipping_customer">
+                                        A cargo del Cliente 
+                                      </label>
+                                    </div>
+                                    <div class="form-check">
+                                      <input class="form-check-input" type="radio" name="nuevo_shipping" id="shipping_company" value="company">
+                                      <label class="form-check-label" for="shipping_company">
+                                        A cargo del Merchant
+                                      </label>
+                                    </div>
+                                  </div>
+                                </div>
+                              </fieldset>
+                            </div> <!-- Fin bloque correo-->
 
                             <strong class = "text-info">Instrucciones para el Envío:</strong><br>
                             <div class="form-group">
@@ -894,4 +896,32 @@
                
                
             
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script>
+      $('#bloque_correo').hide(); 
+
+      $('#nuevo_metodo_envio').change(function () { 
+          buscar_metodo_envio($(this).val());
+      });
+
+      function buscar_metodo_envio(metodo_envio_id) {  
+            $.post('/buscar_metodo_envio', {
+                metodo_envio_id: metodo_envio_id
+            }).done(function(response) {
+              if (response == 'Si'){
+                $('#bloque_correo').show(); 
+              } else {
+                $('#bloque_correo').hide(); 
+              }
+            }).fail(function(){
+                alert('No existe el Método de Envío');
+            })   
+        }
+      
+   
+
+    </script>
 {% endblock %}

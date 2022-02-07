@@ -7,35 +7,23 @@
     Tu orden #{{order.order_number}} ha sido confirmada
 </h3>
 
-{% if envio == 'Manual' %}
+{% if envio.metodo_envio_id == 'Manual' %}
     <p>   
         <br>
         Por favor seguí las siguientes intstrucciones para hacernos llegar tus productos:<br>
-            1 - Embala tu producto cuidadosamente <br>
-            2 - Envialo por tu método de correo preferido o acercalo a una de nuestras sucursales<br>
             <br>
-            {{company.envio_manual_note | safe}}
+            {{envio.instrucciones_entrega | safe}}
     </p>
 {% endif %}
 
-{% if envio == 'Coordinar' %}
+{% if envio.metodo_envio_id == 'Coordinar' %}
     <p>   
         <br>
         Por favor seguí las siguientes instrucciones para continuar con el cambio / devolución:<br>
-            {{company.envio_coordinar_note | safe}}
+            {{envio.instrucciones_entrega | safe}}
     </p>
 {% endif %}
 
-{% if envio == 'Moova' %}
-   <p>
-    Por favor seguí las siguientes intstrucciones para hacernos llegar tu pedido:<br>
-        1 - Embalá tu producto cuidadosamente <br>
-        2 - imprimí y pega la etiqueta que encontrarás <a href="{{label}}">acá</a> <br>
-        3 - Un Moover pasará por tu domicilio para retirar el pedido <br>
-    <br>
-    {{company.envio_correo_note | safe}}
-    </p>
-{% endif %}
 
 <br>
     <hr>
@@ -46,7 +34,7 @@
    
 
 <h5 style="text-align:center"> Podes hacer el seguimiento de tu orden acá: <br>
-        <a href="http://frontprod.borisreturns.com/tracking/{{order.order_number}}">
-        http://frontprod.borisreturns.com/tracking/{{order.order_number}}
+        <a href="http://frontprod.borisreturns.com/tracking/{{order.order_id_anterior}}">
+        http://frontprod.borisreturns.com/tracking/{{order.order_id_anterior}}
         </a>
 </h5>

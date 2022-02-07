@@ -1,9 +1,10 @@
 import requests
 import json
-from flask import flash, render_template
+
+from flask import flash, render_template, send_file
 from app.email import send_email
 from flask_login import current_user
-from app.models import Company
+from app.models import CONF_correo, Company, correos
 
 
 ###################################################
@@ -29,7 +30,7 @@ def cotiza_envio_fastmail(data, datos_correo, correo_servicio):
     items_envio = []
     precio_total_envio = 0
     
-    for i in data['conf']:
+    for i in data['items']:
         precio_total_envio += i['precio']
         items_envio.append (   
         {
@@ -126,29 +127,30 @@ def crea_envio_fastmail(correo, metodo_envio, orden, customer, orden_linea):
     
     solicitud = requests.request("POST", url, headers=headers, data=payload)
     if solicitud.status_code != 200:
-        flash('Hubi un error al generar la guia. Codigo {} - {}'.format(solicitud.status_code, solicitud.content))
+        flash('Hubo un error al generar la guia. Codigo {} - {}'.format(solicitud.status_code, solicitud.content))
         return "Failed"
     else:
         solicitud = solicitud.json()
-        enviar_etiqueta_fastmail(correo, solicitud, customer, orden, observaciones)
+        enviar_etiqueta_fastmail(correo, solicitud, customer, orden, metodo_envio, observaciones)
         return solicitud
 
 
 
-def enviar_etiqueta_fastmail(correo, solicitud, customer, orden, observaciones):
+def enviar_etiqueta_fastmail(correo, solicitud, customer, orden, metodo_envio, observaciones):
     ####################################################################
     # las etiquetas se envia:
-    # a FASTMAIL si solo es RETIRO
+    # a FASTMAIL + CLIENTE si solo es RETIRO
     # al MERCHANT si es Retiro + Entrega
     ####################################################################
     company = Company.query.filter_by(store_id=current_user.store).first()
 
     if observaciones == "Retiro + Entrega":
-        mailto = company.admin_email
+        mailto = [company.admin_email]
     
     if observaciones == "Retiro":
+        correo_descripcion = correos.query.get('FAST').correo_mail
         #mailto = 'ssuarez@fastmail.com.ar'
-        mailto = 'erezzoni@yandex.com'
+        mailto = [correo_descripcion,customer.email]
     
     url = "https://epresislv.fastmail.com.ar/api/v2/print_etiquetas.json"
 
@@ -169,14 +171,36 @@ def enviar_etiqueta_fastmail(correo, solicitud, customer, orden, observaciones):
         label = label_tmp.content
     
     flash('Se generó la orden {} . Se envia la etiqueta por correo a {}'.format(solicitud['guia'], mailto))
+
     send_email('se ha generado una etiqueta para la solicitud '+str(orden.order_number), 
         sender=(company.communication_email_name, company.communication_email),
-        recipients=[mailto], 
+        recipients=mailto, 
         reply_to = company.admin_email,
         text_body=render_template('email/etiqueta_enviada.txt',
                                         company=company, customer=customer, order=orden, envio=orden.courier_method, label=label),
                                         html_body=render_template('email/etiqueta_enviada.html',
-                                        company=company, customer=customer, order=orden, envio=orden.courier_method, label=label), 
+                                        company=company, customer=customer, order=orden, envio=orden.courier_method, label=label, instrucciones=metodo_envio.instrucciones_entrega), 
                                         attachments=[('etiqueta.pdf', 'application/pdf',
                                             label)], 
                                         sync=False)
+
+
+def ver_etiqueta_fastmail(guia):
+    correo_tmp = 'FAST'+str(current_user.store)
+    correo = CONF_correo.query.get(correo_tmp)
+    
+    url = "https://epresislv.fastmail.com.ar/api/v2/print_etiquetas.json"
+
+    headers = {
+     'Content-Type': 'application/json'
+    }
+
+    data = {
+        "api_token": correo.cliente_apikey,
+        "ids": guia
+    }
+    
+    payload = json.dumps(data)
+    label_tmp = requests.request("POST", url, headers=headers, data=payload)
+   
+    return label_tmp

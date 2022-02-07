@@ -18,7 +18,7 @@ with app.app_context():
     companies = Company.query.all()
     with open('logs/app/datos.csv', 'w+') as f:
         writer = csv.writer(f)
-        header = ['Plataforma', 'Tienda_Id', 'Tienda_Nombre', 'Fecha de Inicio', 'Demo', 'Rubro',  'Solicitud_Nro', 'Solicitud_Id', 'Solicitud_Fecha_Creación', 'Solicitud_Fecha_Cierre','Estado','Sub_Estado','Estado_Descripcion','Codigo_Postal','Ciudad','Provincia','Correo_coordinar','Roundtrip','Metodo_Envio', 'Metodo_Pago','Tarjeta','Accion','Motivo','Cambiar_por', 'Cambiar_cantidad','Cambiar_por_descripcion','Linea_Estado','Linea_Fecha_estado','Monto_a_devolver','Monto_devuelto','Produto_id', 'Producto_descripcion', 'Cliente_Documento','Cliente_Mail','Cliente' ]
+        header = ['Plataforma', 'Tienda_Id', 'Tienda_Nombre', 'Fecha de Inicio', 'Demo', 'Rubro',  'Solicitud_Nro', 'Solicitud_Id', 'Solicitud_Fecha_Creacion', 'Solicitud_Fecha_Cierre','Estado','Sub_Estado','Estado_Descripcion','Codigo_Postal','Ciudad','Provincia','Correo_coordinar','Roundtrip','Metodo_Envio', 'Metodo_Pago','Tarjeta','Accion','Motivo','Cambiar_por', 'Cambiar_cantidad','Cambiar_por_descripcion','Linea_Estado','Linea_Fecha_estado','Monto_a_devolver','Monto_devuelto','Produto_id', 'Producto_descripcion', 'Cliente_Documento','Cliente_Mail','Cliente' ]
         writer.writerow(header)
         for x in companies:
             orden = Order_header.query.filter_by(store = x.store_id).all()
