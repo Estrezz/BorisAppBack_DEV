@@ -22,8 +22,7 @@
                 <form id="entrante" action="{{ url_for('main.gestion_lineas_entrantes', orden_id=orden.id) }}" method="POST"> 
                     {% for i in orden_linea %}
                     <div class="card mb-2 ">
-                        <div class="card-body">
-                            
+                        <div class="card-body">     
                             <!-- graba los datos que se necesitan para poder procesar cada linea asociados al respectivo Id del producto -->
                             <input type="hidden" id="order_line" name="order_line" value="{{ i['order_line_number'] }}">
                             <input type="hidden" id="prod_id{{ i['order_line_number'] }}" name="prod_id{{ i['order_line_number'] }}" value="{{ i['prod_id'] }}">
