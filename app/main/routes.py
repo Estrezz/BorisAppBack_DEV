@@ -991,7 +991,6 @@ def gestionar_ordenes(orden_id):
     #return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer, empresa=empresa, empresa_name=session['current_empresa'])
     
 
-    
 @bp.route('/gestion_producto/<orden_id>', methods=['GET', 'POST'])
 @login_required
 def gestionar_producto(orden_id):
