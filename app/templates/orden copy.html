@@ -22,7 +22,7 @@
                 <form id="entrante" action="{{ url_for('main.gestion_lineas_entrantes', orden_id=orden.id) }}" method="POST"> 
                     {% for i in orden_linea %}
                     <div class="card mb-2 ">
-                        <div class="card-body">
+                        <div class="card-body">     
                             <!-- graba los datos que se necesitan para poder procesar cada linea asociados al respectivo Id del producto -->
                             <input type="hidden" id="order_line" name="order_line" value="{{ i['order_line_number'] }}">
                             <input type="hidden" id="prod_id{{ i['order_line_number'] }}" name="prod_id{{ i['order_line_number'] }}" value="{{ i['prod_id'] }}">
@@ -518,9 +518,7 @@
 
                         <!-- Info Envio -->
                             <h5>Método de Envío: {{orden.courier_method}}</h5>
-                            {% if orden.courier_precio|int != 0  %}
-                                Costo del Envío: {{orden.courier_precio}} $ <br>
-                            {% endif %}
+                            
                             {% if orden.courier_method != 'Manual' %}
                                 {% if orden.sub_status == 'Solicitado' %}
                                     <form id="coordinar_form" action="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReady' ) }}" method="POST"> 
@@ -538,7 +536,15 @@
                                     </form>
                                 {% else %}
                                     Correo: {{orden.metodo_envio_correo}} <br>
-                                    Guia: {{orden.metodo_envio_guia}} <br>
+                                    Guia: {{orden.metodo_envio_guia}} 
+
+                                    {% if orden.etiqueta_generada == True %}
+                                        <form id="Etiqeuta" action="{{ url_for('main.etiqueta', orden_id = orden.id) }}" method="POST"  style="display: inline;"> 
+                                            <button  class="btn btn-link btn-sm " type="submit"> Ver Guia </button>
+                                        </form>
+                                    {% endif %}
+                                    <br>
+
                                     Retiro + entrega:
                                     {% if orden.courier_coordinar_roundtrip == True %}
                                         Si
@@ -547,6 +553,11 @@
                                     {% endif %}
                                     <br>
                                 {% endif %}
+
+                                {% if orden.courier_precio|int != 0  %}
+                                    Costo del Envío: {{orden.courier_precio}} $ <br>
+                                {% endif %}
+
                             {% endif %}        
                             {% if orden.courier_method == 'Moova' %}
                                 Guia: {{ orden.courier_order_id }} <br>
