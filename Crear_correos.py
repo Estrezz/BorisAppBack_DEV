@@ -13,9 +13,9 @@ with app.app_context():
     ################# ALTA CORREOS #####################################################
     print ('Dando de alta correos')
     correoFastmail = correos(
-                       correo_id = 'FAST',
-                       correo_descripcion = 'Fastmail',
-                       correo_mail ='ssuarez@fastmail.com.ar'
+                       correo_id = 'OCA',
+                       correo_descripcion = 'OCA',
+                       correo_mail =''
                    ) 
     db.session.add(correoFastmail)   
 
@@ -24,11 +24,11 @@ with app.app_context():
     print ('Dando de alta Metodos de Envio')
     
     metodoDomicilio = metodos_envios(
-                       metodo_envio_id = 'Domicilio',
-                       metodo_envio_descripcion = 'Retiro por el domicilio del cliente',
+                       metodo_envio_id = 'Etiqueta',
+                       metodo_envio_descripcion = 'Etiqueta Prepaga',
                        carrier = True,
                        direccion_obligatoria = True,
-                       icon = 'bi bi-house-fill'
+                       icon = 'bi bi-postage-fill'
                    ) 
     db.session.add(metodoDomicilio)
 
