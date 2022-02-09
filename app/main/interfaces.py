@@ -771,10 +771,12 @@ def buscar_descripcion_correo(store, correo):
 
 
 def cotiza_envio_correo(data, datos_correo, servicio):
-   if data['correo']['correo_id'] == 'FAST':
+    if data['correo']['correo_id'] == 'FAST':
         precio = cotiza_envio_fastmail(data, datos_correo, servicio.correo_servicio)
         return str(precio)
-   else: 
+    if data['correo']['correo_id'] == 'FAST':
+        return '0'
+    else: 
         return 'Failed'
 
 
