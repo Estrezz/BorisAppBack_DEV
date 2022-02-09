@@ -254,7 +254,6 @@ def inicializa_tiendanube(empresa, tipo) :
         user = User.query.filter_by(username=nombre).first()
         if user is not None:
             nombre = nombre+'_3'
- 
         unUsuario = User(
             username=nombre, 
             email=empresa.admin_email, 

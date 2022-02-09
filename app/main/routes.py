@@ -948,11 +948,15 @@ def orden(orden_id):
     orden = Order_header.query.filter_by(id=orden_id).first()
     orden_linea = Order_detail.query.filter_by(order=orden_id).all()
     empresa = Company.query.get(orden.store)
+    ##### alerta etiqueta
+    envio = metodos_envios.query.get(orden.courier_method)
+
     if request.form.get('nota'):
         orden.note = request.form.get('nota')
         db.session.commit()
-        
-    return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer, empresa=empresa, empresa_name=session['current_empresa'])
+
+    ##### alerta etiqueta (envio=envio)    
+    return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer, empresa=empresa, empresa_name=session['current_empresa'], envio=envio)
 
 
 @bp.route('/orden/gestion/<orden_id>', methods=['GET', 'POST'])
@@ -1147,7 +1151,7 @@ def tracking_orden():
         #customer = orden.buyer
         #company = customer.pertenece
         orden = Order_header.query.filter_by(order_id_anterior=orden_id).first()
-        print(orden)
+        #print(orden)
         # flash('Orden: {}'.format(orden.id))
         historia = Transaction_log.query.filter_by(order_id=orden.id).all()
         
