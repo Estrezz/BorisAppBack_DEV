@@ -774,7 +774,7 @@ def cotiza_envio_correo(data, datos_correo, servicio):
     if data['correo']['correo_id'] == 'FAST':
         precio = cotiza_envio_fastmail(data, datos_correo, servicio.correo_servicio)
         return str(precio)
-    if data['correo']['correo_id'] == 'FAST':
+    if data['correo']['correo_id'] == 'OCA':
         return '0',200
     else: 
         return 'Failed'
