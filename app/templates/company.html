@@ -203,8 +203,8 @@
                               </div> 
 
                               <div class="form-group col-md-6">  
-                                <label for="nuevo_correo_id_servicio">ID del Servicio</label> 
-                                <input type="text" class="form-control form-control-sm" name="nuevo_correo_id_servicio" id="nuevo_correo_id_servicio" placeholder="Id del Servicio">
+                                <label for="nuevo_correo_id_cliente">ID de Cliente</label> <small>(si fuera necesario)</small>
+                                <input type="text" class="form-control form-control-sm" name="nuevo_correo_id_cliente" id="nuevo_correo_id_cliente" placeholder="Id del Cliente">
                               </div> 
 
                             </div>
@@ -241,7 +241,7 @@
                                   
                                   
                                   <div class="form-group">  
-                                    <label for="correo_cliente_id">ID de Cliente </label> <small>(si fuera necesario)</small>
+                                    <label for="correo_cliente_id">ID de Cliente </label> 
                                     <input type="password" class="form-control form-control-sm" name="correo_cliente_id" id="correo_cliente_id" value="{{ empresa_correo.cliente_id }}">
                                   </div> 
                                   
@@ -579,13 +579,13 @@
                                   <legend class="col-form-label col-sm-2 pt-0">Costo del envío</legend>
                                   <div class="col-sm-10">
                                     <div class="form-check">
-                                      <input class="form-check-input" type="radio" name="nuevo_shipping" id="shipping_customer" value="customer">
+                                      <input class="form-check-input" type="radio" name="nuevo_shipping" id="shipping_customer" value="Customer">
                                       <label class="form-check-label" for="shipping_customer">
                                         A cargo del Cliente 
                                       </label>
                                     </div>
                                     <div class="form-check">
-                                      <input class="form-check-input" type="radio" name="nuevo_shipping" id="shipping_company" value="company">
+                                      <input class="form-check-input" type="radio" name="nuevo_shipping" id="shipping_company" value="Merchant">
                                       <label class="form-check-label" for="shipping_company">
                                         A cargo del Merchant
                                       </label>

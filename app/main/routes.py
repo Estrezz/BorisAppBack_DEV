@@ -178,12 +178,12 @@ def add_correo():
     id = correo_usado+str(current_user.store)
     correo_usado = request.form.get('correo_usado')
     nuevo_correo_API = request.form.get('nuevo_correo_API')
-    nuevo_correo_id_servicio = request.form.get('nuevo_correo_id_servicio')
+    nuevo_correo_id_cliente = request.form.get('nuevo_correo_id_cliente')
 
     if CONF_correo.query.get(id):
         correo_tmp = CONF_correo.query.get(id)
         correo_tmp.cliente_apikey = nuevo_correo_API
-        correo_tmp.cliente_id = nuevo_correo_id_servicio
+        correo_tmp.cliente_id = nuevo_correo_id_cliente
         correo_tmp.habilitado = True
     else: 
         unCorreo = CONF_correo(
@@ -191,7 +191,7 @@ def add_correo():
                 store = current_user.store,
                 correo_id = correo_usado,
                 cliente_apikey = nuevo_correo_API,
-                cliente_id = nuevo_correo_id_servicio,
+                cliente_id = nuevo_correo_id_cliente,
                 habilitado = True
             )
         db.session.add(unCorreo)
