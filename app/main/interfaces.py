@@ -789,7 +789,8 @@ def crea_envio_correo(company,customer,orden,envio):
     if guia != 'Failed':
         orden.metodo_envio_guia = guia['guia']
         orden.etiqueta_generada = True
-        if orden.courier_precio != 'Sin Cargo' and orden.courier_precio != 'A Cotizar':
+        if orden.courier_precio != 'Sin Cargo' and orden.courier_precio != 'A cotizar':
+            
             if guia['importe'] != float(orden.courier_precio):
                 flash('Hubo una diferencia entre el precio cotizado y el precio real Real:{}({}) - Cotizado:{}({})'.format(guia['importe'], type(guia['importe']), float(orden.courier_precio), type(orden.courier_precio)))
                 orden.courier_precio = guia['importe']
