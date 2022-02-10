@@ -601,7 +601,7 @@ def edit_mailsportalinfo():
         if accion == "guardar":
             confirma_manual_note = request.form.get('confirma_manual_note')
             confirma_coordinar_note = request.form.get('confirma_coordinar_note')
-            confirma_moova_note = request.form.get('confirma_moova_note')
+            confirma_retiro_note = request.form.get('confirma_retiro_note')
 
             if empresa.confirma_manual_note != confirma_manual_note:
                 empresa.confirma_manual_note = confirma_manual_note
@@ -611,9 +611,9 @@ def edit_mailsportalinfo():
                 empresa.confirma_coordinar_note = confirma_coordinar_note
                 actualiza_empresa_JSON(empresa, 'confirma_coordinar_note', confirma_coordinar_note, 'textos')
 
-            if empresa.confirma_moova_note != confirma_moova_note:
-                empresa.confirma_moova_note = confirma_moova_note
-                actualiza_empresa_JSON(empresa, 'confirma_moova_note', confirma_moova_note, 'textos')
+            if empresa.confirma_retiro_note != confirma_retiro_note:
+                empresa.confirma_retiro_note = confirma_retiro_note
+                actualiza_empresa_JSON(empresa, 'confirma_retiro_note', confirma_retiro_note, 'textos')
     
             db.session.commit() 
 
