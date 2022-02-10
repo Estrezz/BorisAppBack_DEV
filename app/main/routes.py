@@ -1275,12 +1275,16 @@ def buscar_datos_variantes():
 
 @bp.route('/cotiza_envio', methods=['POST'])
 def cotiza_envio():
-   data = request.json
-   datos_correo = CONF_correo.query.filter_by(store=data['correo']['store_id'], correo_id=data['correo']['correo_id']).first()
-   servicio =  CONF_metodos_envios.query.filter_by(store=data['correo']['store_id'], metodo_envio_id=data['correo']['metodo_envio']).first() 
+    data = request.json
+    datos_correo = CONF_correo.query.filter_by(store=data['correo']['store_id'], correo_id=data['correo']['correo_id']).first()
+    servicio =  CONF_metodos_envios.query.filter_by(store=data['correo']['store_id'], metodo_envio_id=data['correo']['metodo_envio']).first() 
    
-   precio = cotiza_envio_correo(data, datos_correo, servicio)
-   return precio
+    precio = cotiza_envio_correo(data, datos_correo, servicio)
+    if precio != 'Failed':
+        return precio, 200
+    else:
+        return 'A Cotizar',400
+
 
 
 @bp.route('/etiqueta/<orden_id>', methods=['GET', 'POST'])
