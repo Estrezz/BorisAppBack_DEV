@@ -123,14 +123,17 @@ def edit_storeinfo():
             store_name =  request.form.get('store_name')
             store_address = request.form.get('store_address')
             admin_email = request.form.get('admin_email')
+            store_idfiscal = request.form.get('idfiscal')
             store_phone = request.form.get('store_phone')
             stock_vuelve_config = request.form.get('stock_vuelve_config')
             contact_name = request.form.get('contact_name')
             contact_email = request.form.get('contact_email')
             contact_phone = request.form.get('contact_phone')
+
             empresa.store_name = store_name
             empresa.store_address = store_address
             empresa.admin_email = admin_email
+            empresa.store_idfiscal = store_idfiscal
             empresa.store_phone = store_phone
             if stock_vuelve_config == 'on':
                 empresa.stock_vuelve_config = True
