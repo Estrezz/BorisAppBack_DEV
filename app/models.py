@@ -278,6 +278,8 @@ class CONF_correo(db.Model):
     correo_id = db.Column(db.String(15), db.ForeignKey('correos.correo_id'))
     cliente_apikey = db.Column(db.String(100))
     cliente_id = db.Column(db.String(50))
+    user = db.Column(db.String(50))
+    passw = db.Column(db.String(50))
     habilitado = db.Column(db.Boolean)
 
     def __repr__(self):
