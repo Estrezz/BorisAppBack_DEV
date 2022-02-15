@@ -82,6 +82,7 @@ def crear_pedido(pedido):
     indice = 1
     for x in pedido['producto']: 
         # flash('monto {} tipo {}'.format(x['monto_a_devolver'], type(x['monto_a_devolver'])))
+        
         unProducto = Order_detail(
             order_line_number = str(pedido['orden']) + str(indice),
             line_number = indice,
