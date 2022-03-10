@@ -552,14 +552,27 @@ def editar_envio(id):
         status = 'Success'
         for m in metodos_tmp:
             metodo_master = metodos_envios.query.get(m.metodo_envio_id)
+
+            #### agregado por falla en creacion de JSON poen correo_id null
+            #flash(' Correo ID en Form:'.format( request.form.get('metodo_envio_correo')))
+            if m.correo_id is None:
+                correo_id_tmp = ""
+                costo_envio_tmp = "Merchant"
+                #flash('el correo es NONE poen espacio')
+            else: 
+                correo_id_tmp = m.correo_id
+                costo_envio_tmp = m.costo_envio
+                #flash('el correo NO es NONE')
+            ######################################################################
+
             unMetodo_tmp = {"metodo_envio_id" : m.metodo_envio_id,
                             "icon": metodo_master.icon,
                             "boton_titulo": m.titulo_boton,
                             "boton_descripcion": m.descripcion_boton,
                             "direccion_obligatoria": metodo_master.direccion_obligatoria,
                             "carrier":metodo_master.carrier,
-                            "correo_id": m.correo_id,
-                            "costo_envio": m.costo_envio}
+                            "correo_id": correo_id_tmp,
+                            "costo_envio": costo_envio_tmp}
             metodos.append(unMetodo_tmp)
             status = actualiza_empresa_JSON(empresa, 'envio', metodos, 'otros')
             if status == 'Failed':
