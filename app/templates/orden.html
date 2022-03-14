@@ -47,6 +47,10 @@
                                         {{i['accion_cantidad']}}
                                         {% endif %}
                                         <br><span class="text-muted">({{i['motivo']}})</span><br>
+
+                                        {% if i['observaciones'] %}
+                                            <span class="text-muted">Observaciones: {{i['observaciones']}}</span><br>
+                                        {% endif %}
                                         
                                     </div>
                                     <small>

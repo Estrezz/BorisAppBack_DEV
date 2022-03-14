@@ -104,6 +104,7 @@ def crear_pedido(pedido):
             accion_cambiar_por_prod_id = x['accion_cambiar_por_prod_id'],
             accion_cambiar_por_desc = x['accion_cambiar_por_desc'],
             motivo =  x['motivo'],
+            observaciones = x['observaciones'],
             gestionado = 'Iniciado',
             productos = unaOrden
             )

@@ -178,6 +178,7 @@
                         </div> <!-- end of card SALIENTE -->
                         {% endif %}
                     {% endfor %}
+
                     {% if ns.saliente_tmp == false %}
                         <strong> No hay articulos salientes para gestionar </strong> <br>
                    {% else %}
@@ -338,11 +339,26 @@
                             </div>
                             {% endif %}
                             <!-- end modal-->
-
+                            
                             <button class="btn btn-info btn-sm float-right mt-2 mb-2" type="submit"> Generar nueva Orden </button>
                             <br>
+                            
                             </div> <!-- end of column -->
                         </div>
+
+                         <!-- Alerta si se va a generar la etiqueta-->
+                         <div id="sale_etiqueta_round">
+                            <div class="row">
+                                <div class="col-8 mx-auto ">
+                                    <mark><small><b>
+                                        &nbsp;&nbsp;Se va a generar la guía. Si corresponde, recuerde cobrar el Envío&nbsp;&nbsp;
+                                    </b></small></mark>
+                                </div>
+                            <br>
+                            </div>
+                        </div>
+                        <!-- Fin de alerta-->
+
                         {% endif %}
                     {% endif %}
                 </form>
@@ -444,6 +460,12 @@
                 </form>
 
                 <!-- Botones -->
+                <!-- Se usan estos campos para la alerta para etiquetas -->
+                <input type="hidden" id="estado_orden" name="estado_orden" value={{orden.status_resumen}}>
+                <input type="hidden" id="tiene_salientes" name="tiene_salientes" value={{orden.salientes}}>
+                <input type="hidden" id="es_roundtrip" name="es_roundtrip" value={{orden.courier_coordinar_roundtrip}}>
+                <input type="hidden" id="tiene_carrier" name="tiene_carrier" value={{envio.carrier}}>
+                
 
                 <!-- Si el articulo Aún no fue RECIBIDO  -->
                 {% if orden.status == 'Shipping' %}
@@ -458,8 +480,8 @@
                             <input type="submit" id="submit-reject" class="d-none" />
                         </form>
 
+                        
                         <!-- Si no fue confirmado y el metodo de Envio elegido es COORDINAR  --> 
-                             
                         {% if orden.courier_method != 'Manual' %}
                             <label for="submit-form" tabindex="0" class="btn btn-primary" title='Pasa el pedido a LISTO PARA RETIRO'> Confirmar </label>
                         <!-- Si no fue confirmado y el metodo de Envio elegido MANUAL  --> 
@@ -487,6 +509,19 @@
                         <!-- Boton de rechazo (post confirmación, previo a recibir)  -->  
                         <label id="bton" for="submit-reject" tabindex="0" class="btn btn-outline-danger float-right" title='Rechaza el pedido'>Rechazar</label>      
                     {% endif %}
+
+                    <!-- Alerta si se va a generar la etiqueta-->
+                    <div id="sale_etiqueta">
+                        <div class="row">
+                            <div class="col-8 mx-auto ">
+                                <mark><small><b>
+                                    &nbsp;&nbsp;Se va a generar la guía. Si corresponde, recuerde cobrar el Envío&nbsp;&nbsp;
+                                </b></small></mark>
+                            </div>
+                        <br>
+                        </div>
+                    </div>
+
                 {% endif %}
                 
               
@@ -539,7 +574,7 @@
                                     Guia: {{orden.metodo_envio_guia}} 
 
                                     {% if orden.etiqueta_generada == True %}
-                                        <form id="Etiqeuta" action="{{ url_for('main.etiqueta', orden_id = orden.id) }}" method="POST"  style="display: inline;"> 
+                                        <form id="Etiqueta" action="{{ url_for('main.etiqueta', orden_id = orden.id) }}" method="POST"  style="display: inline;"> 
                                             <button  class="btn btn-link btn-sm " type="submit"> Ver Guia </button>
                                         </form>
                                     {% endif %}
@@ -597,6 +632,9 @@
     {{ super() }}
     <script>
 
+        $('#sale_etiqueta').hide(); 
+        $('#sale_etiqueta_round').hide(); 
+
         $('#bton').on('click', function () {
             var reason = prompt("Motivo del Rechazo ): ");
             $("#motivo").val(reason)
@@ -614,6 +652,42 @@
         });
 
         
+        $(function () {
+            var rountrip = 'Sin definir';
+            if ($('#es_roundtrip').val() == true){
+                roundtrip = 'Si';
+            } else {
+                roundtrip = 'No';
+            }
+            alerta_etiqueta(); //this calls it on load
+            $("#coordinar_roundtrip").change(alerta_etiqueta);
+        });
+        
+        function alerta_etiqueta() {
+            if ($('#coordinar_roundtrip').is(":checked")) {
+                roundtrip = 'Si';
+            } else {
+                roundtrip = 'No';
+            }
+            
+            estado_orden = $('#estado_orden').val();
+            tiene_salientes = $('#tiene_salientes').val();
+            tiene_carrier = $('#tiene_carrier').val();
+            
+            if (estado_orden == 'Solicitado' && tiene_salientes == 'Si' && tiene_carrier == 'True' && roundtrip == 'No')  {
+                $('#sale_etiqueta').show(); 
+            } else if (estado_orden == 'Solicitado' && tiene_carrier == 'True' && tiene_salientes == 'No') {
+                $('#sale_etiqueta').show(); 
+            //} else if (estado_orden == 'En' && tiene_salientes == 'Si' && tiene_carrier == 'True' && roundtrip == 'Si') {
+            } else if (estado_orden == 'En' && tiene_salientes == 'Si'&& tiene_carrier == 'True' && $('#es_roundtrip').val() == 'True') {
+                $('#sale_etiqueta_round').show(); 
+            } else {
+                $('#sale_etiqueta').hide(); 
+            }       
+        }
+
+
+
         $('#envio_nueva_orden').on('change', function() {
             var total_diferencia = parseFloat($('#diferencia_total_desc').val() );
             var total_envio = parseFloat($('#envio_nueva_orden').val());
@@ -645,6 +719,7 @@
         var contador_cupones =0;
         var total_salientes = document.querySelectorAll('.saliente').length;
         var total_cupones = document.querySelectorAll('.cupones').length;
+        
 
         $('.saliente').each(function() {
             variante = $(this).data('variante');

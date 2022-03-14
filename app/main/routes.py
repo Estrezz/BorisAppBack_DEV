@@ -1167,6 +1167,9 @@ def tracking_orden():
         #customer = orden.buyer
         #company = customer.pertenece
         orden = Order_header.query.filter_by(order_id_anterior=orden_id).first()
+        
+        ###### POner que devolver si no se encuestra la orden
+
         #print(orden)
         # flash('Orden: {}'.format(orden.id))
         historia = Transaction_log.query.filter_by(order_id=orden.id).all()
