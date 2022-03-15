@@ -957,6 +957,11 @@ def eliminar_orden(orden_id):
     eliminar = request.form.get("bton")
     confirmacion = request.form.get("confirmacion")
     if eliminar == 'OK' and confirmacion == 'eliminar':
+        ### Si la orden ya se eliminó (pero no se refresco la pantalla)
+        if orden is None:
+            flash('La orden ya fue eliminada')
+            return redirect(url_for('main.ver_ordenes', estado='all', subestado='all'))
+        ###
         flash('Se eliminó la orden {}'.format(orden.order_number))
         Transaction_log.query.filter_by(order_id=orden_id).delete()
         Order_detail.query.filter_by(order=orden_id).delete()
