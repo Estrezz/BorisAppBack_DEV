@@ -1176,18 +1176,20 @@ def autorizar(plataforma):
 def tracking_orden():
     if request.method == 'GET':
         orden_id = request.args.get('orden_id')
+        status_tmp = []
         #orden = Order_header.query.get(orden_id)
         #customer = orden.buyer
         #company = customer.pertenece
         orden = Order_header.query.filter_by(order_id_anterior=orden_id).first()
-        
+        if orden is None:
+            return json.dumps(status_tmp), 400
         ###### POner que devolver si no se encuestra la orden
 
         #print(orden)
         # flash('Orden: {}'.format(orden.id))
         historia = Transaction_log.query.filter_by(order_id=orden.id).all()
         
-        status_tmp = []
+        
         for i in historia:
             if i.status_client != 'N0':
                 status_tmp.append({
