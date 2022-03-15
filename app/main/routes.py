@@ -257,6 +257,7 @@ def edit_portalinfo():
             ventana_devolucion = request.form.get('ventana_devolucion')
             cambio_otra_cosa = request.form.get('cambio_otra_cosa')
             cambio_cupon = request.form.get('cambio_cupon')
+            observaciones = request.form.get('observaciones')
             cambio_opcion_otra_cosa = request.form.get('cambio_opcion_otra_cosa')
             cambio_opcion_cupon = request.form.get('cambio_opcion_cupon')
             cambio_opcion = request.form.get('cambio_opcion')
@@ -316,6 +317,13 @@ def edit_portalinfo():
             else:
                 configuracion.cambio_cupon = False
                 status = actualiza_empresa_JSON(empresa, 'cupon', 'No', 'otros')
+            
+            if observaciones == 'on':
+                configuracion.observaciones = True
+                status = actualiza_empresa_JSON(empresa, 'observaciones', 'Si', 'otros')
+            else:
+                configuracion.observaciones = False
+                status = actualiza_empresa_JSON(empresa, 'observaciones', 'No', 'otros')
             
             if configuracion.cambio_opcion != cambio_opcion :
                 configuracion.cambio_opcion = cambio_opcion

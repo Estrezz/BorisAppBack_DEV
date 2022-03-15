@@ -243,6 +243,7 @@ class  CONF_boris(db.Model):
     ventana_devolucion = db.Column(db.Integer)
     cambio_otra_cosa = db.Column(db.Boolean)
     cambio_cupon = db.Column(db.Boolean)
+    observaciones = db.Column(db.Boolean)
     cambio_opcion = db.Column(db.String(150))
     cambio_opcion_cupon = db.Column(db.String(150))
     cambio_opcion_otra_cosa = db.Column(db.String(150))
