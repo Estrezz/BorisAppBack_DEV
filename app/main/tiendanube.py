@@ -42,6 +42,11 @@ def devolver_stock_tiendanube(empresa, prod_id, variant, cantidad):
     }
     # Trae stock actual
     order = requests.request("GET", url, headers=headers, data=payload).json()
+
+    ### Si la variante no existe
+    if 'stock' not in order:
+        return 'Failed_Variante'
+        
     #flash('order{} - prod_id {} - variant {}'.format(order, prod_id, variant))
     if isinstance(order['stock'], type(None)) == True:
         flash('No se está gestionando información de Stock.')
@@ -57,6 +62,8 @@ def devolver_stock_tiendanube(empresa, prod_id, variant, cantidad):
         flash('Hubo un problema en la devolución No se pudo devolver el stock. Error {} - {}'.format(order.status_code, order.content))
         flash('{} - {}'.format(url, json.dumps(stock)))
         return 'Failed'
+
+    flash("Se regreso el stock staisfactoriamente a la variante{}".format(str(variant))) #### stock FALLA
     return 'Success'
 
 

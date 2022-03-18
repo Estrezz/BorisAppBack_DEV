@@ -561,7 +561,7 @@ def editar_envio(id):
         for m in metodos_tmp:
             metodo_master = metodos_envios.query.get(m.metodo_envio_id)
 
-            #### agregado por falla en creacion de JSON poen correo_id null
+            
             #flash(' Correo ID en Form:'.format( request.form.get('metodo_envio_correo')))
             if m.correo_id is None:
                 correo_id_tmp = ""

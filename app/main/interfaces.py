@@ -478,6 +478,8 @@ def devolver_linea(prod_id, variant, cantidad, orden_id, order_line_number, acci
                 devolucion = devolver_stock_tiendanube(empresa, prod_id, variant, cantidad)
                 if devolucion == 'Failed':
                     return 'Failed'
+                if devolucion == 'Failed_Variante':
+                    flash ("El articulo {} no se pudo devolver porque ya no existe esa Variante".format(linea.name))
 
         else: 
             ## Si la configuracion de stock_vuelve_config es False (el stock no se devuelve fisicamente)
