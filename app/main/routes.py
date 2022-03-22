@@ -129,6 +129,14 @@ def edit_storeinfo():
             contact_name = request.form.get('contact_name')
             contact_email = request.form.get('contact_email')
             contact_phone = request.form.get('contact_phone')
+            shipping_address = request.form.get('shipping_address')
+            shipping_number = request.form.get('shipping_number')
+            shipping_floor = request.form.get('shipping_floor')
+            shipping_zipcode = request.form.get('shipping_zipcode')
+            shipping_city = request.form.get('shipping_city')
+            shipping_province = request.form.get('shipping_province')
+            shipping_country = request.form.get('shipping_country')
+            shipping_info = request.form.get('shipping_info')
 
             empresa.store_name = store_name
             empresa.store_address = store_address
@@ -142,6 +150,15 @@ def edit_storeinfo():
             empresa.contact_name = contact_name
             empresa.contact_email = contact_email
             empresa.contact_phone = contact_phone
+            empresa.shipping_address = shipping_address
+            empresa.shipping_number = shipping_number
+            empresa.shipping_floor = shipping_floor
+            empresa.shipping_zipcode = shipping_zipcode
+            empresa.shipping_city = shipping_city
+            empresa.shipping_province = shipping_province
+            empresa.shipping_country = shipping_country
+            empresa.shipping_info = shipping_info
+
             db.session.commit()
 
             flash('Los datos se actualizaron correctamente')
