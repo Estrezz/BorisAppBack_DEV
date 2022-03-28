@@ -250,7 +250,7 @@ def inicializa_tiendanube(empresa, tipo) :
 
     #### Valida si ya existen scripts antes de crearlos ####
     response = requests.request("GET", url, headers=headers).json()
-    if len.response < 1:
+    if len(response) < 1:
         response_1 = requests.request("POST", url, headers=headers, data=json.dumps(script_1))
         response_4 = requests.request("POST", url, headers=headers, data=json.dumps(script_4))
     #############################3
