@@ -22,3 +22,4 @@ app.db
 boris.env
 app/templates/email/1447373/
 app/templates/email/1631829/
+migrations/
