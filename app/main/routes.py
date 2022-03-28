@@ -1373,6 +1373,22 @@ def prueba_etiqueta():
     return redirect(url_for('main.etiqueta', orden_id=7))
 
 
+#####quitar####
+@bp.route('/prueba_script', methods=['GET', 'POST'])
+@login_required
+def prueba_script():
+    empresa = Company.query.filter_by(store_id=current_user.store).first()
+    url = "https://api.tiendanube.com/v1/"+str(empresa.store_id)+"/scripts"
+    headers = {
+        'Content-Type': 'application/json',
+        'Authentication': str(empresa.platform_token_type)+' '+str(empresa.platform_access_token)
+    }
+    response = requests.request("GET", url, headers=headers).json()
+    flash('largo SCRIPTS {}'.format(len(response)))
+    flash('SCRIPTS {}'.format(response))
+    return redirect(url_for('main.user', username=current_user.username))
+
+
 @bp.route('/cargar_pedidos', methods=['GET', 'POST'])
 @login_required
 def upload_pedidos():

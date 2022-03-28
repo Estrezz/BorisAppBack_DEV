@@ -248,9 +248,12 @@ def inicializa_tiendanube(empresa, tipo) :
     "where" : "store"
     }
 
-    response_1 = requests.request("POST", url, headers=headers, data=json.dumps(script_1))
-    response_4 = requests.request("POST", url, headers=headers, data=json.dumps(script_4))
-
+    #### Prueba por reinstalacion de scripts ####
+    #url = "https://api.tiendanube.com/v1/"+str(empresa.store_id)+"/scripts"
+    response = requests.request("GET", url, headers=headers).json()
+    if len.response < 1:
+        response_1 = requests.request("POST", url, headers=headers, data=json.dumps(script_1))
+        response_4 = requests.request("POST", url, headers=headers, data=json.dumps(script_4))
 
     ### Crea usuario para Backoffice
     if tipo == 'nueva':
