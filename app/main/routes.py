@@ -123,14 +123,25 @@ def edit_storeinfo():
             store_name =  request.form.get('store_name')
             store_address = request.form.get('store_address')
             admin_email = request.form.get('admin_email')
+            store_idfiscal = request.form.get('idfiscal')
             store_phone = request.form.get('store_phone')
             stock_vuelve_config = request.form.get('stock_vuelve_config')
             contact_name = request.form.get('contact_name')
             contact_email = request.form.get('contact_email')
             contact_phone = request.form.get('contact_phone')
+            shipping_address = request.form.get('shipping_address')
+            shipping_number = request.form.get('shipping_number')
+            shipping_floor = request.form.get('shipping_floor')
+            shipping_zipcode = request.form.get('shipping_zipcode')
+            shipping_city = request.form.get('shipping_city')
+            shipping_province = request.form.get('shipping_province')
+            shipping_country = request.form.get('shipping_country')
+            shipping_info = request.form.get('shipping_info')
+
             empresa.store_name = store_name
             empresa.store_address = store_address
             empresa.admin_email = admin_email
+            empresa.store_idfiscal = store_idfiscal
             empresa.store_phone = store_phone
             if stock_vuelve_config == 'on':
                 empresa.stock_vuelve_config = True
@@ -139,6 +150,15 @@ def edit_storeinfo():
             empresa.contact_name = contact_name
             empresa.contact_email = contact_email
             empresa.contact_phone = contact_phone
+            empresa.shipping_address = shipping_address
+            empresa.shipping_number = shipping_number
+            empresa.shipping_floor = shipping_floor
+            empresa.shipping_zipcode = shipping_zipcode
+            empresa.shipping_city = shipping_city
+            empresa.shipping_province = shipping_province
+            empresa.shipping_country = shipping_country
+            empresa.shipping_info = shipping_info
+
             db.session.commit()
 
             flash('Los datos se actualizaron correctamente')
@@ -178,12 +198,12 @@ def add_correo():
     id = correo_usado+str(current_user.store)
     correo_usado = request.form.get('correo_usado')
     nuevo_correo_API = request.form.get('nuevo_correo_API')
-    nuevo_correo_id_servicio = request.form.get('nuevo_correo_id_servicio')
+    nuevo_correo_id_cliente = request.form.get('nuevo_correo_id_cliente')
 
     if CONF_correo.query.get(id):
         correo_tmp = CONF_correo.query.get(id)
         correo_tmp.cliente_apikey = nuevo_correo_API
-        correo_tmp.cliente_id = nuevo_correo_id_servicio
+        correo_tmp.cliente_id = nuevo_correo_id_cliente
         correo_tmp.habilitado = True
     else: 
         unCorreo = CONF_correo(
@@ -191,7 +211,7 @@ def add_correo():
                 store = current_user.store,
                 correo_id = correo_usado,
                 cliente_apikey = nuevo_correo_API,
-                cliente_id = nuevo_correo_id_servicio,
+                cliente_id = nuevo_correo_id_cliente,
                 habilitado = True
             )
         db.session.add(unCorreo)
@@ -254,6 +274,7 @@ def edit_portalinfo():
             ventana_devolucion = request.form.get('ventana_devolucion')
             cambio_otra_cosa = request.form.get('cambio_otra_cosa')
             cambio_cupon = request.form.get('cambio_cupon')
+            observaciones = request.form.get('observaciones')
             cambio_opcion_otra_cosa = request.form.get('cambio_opcion_otra_cosa')
             cambio_opcion_cupon = request.form.get('cambio_opcion_cupon')
             cambio_opcion = request.form.get('cambio_opcion')
@@ -313,6 +334,13 @@ def edit_portalinfo():
             else:
                 configuracion.cambio_cupon = False
                 status = actualiza_empresa_JSON(empresa, 'cupon', 'No', 'otros')
+            
+            if observaciones == 'on':
+                configuracion.observaciones = True
+                status = actualiza_empresa_JSON(empresa, 'observaciones', 'Si', 'otros')
+            else:
+                configuracion.observaciones = False
+                status = actualiza_empresa_JSON(empresa, 'observaciones', 'No', 'otros')
             
             if configuracion.cambio_opcion != cambio_opcion :
                 configuracion.cambio_opcion = cambio_opcion
@@ -549,14 +577,27 @@ def editar_envio(id):
         status = 'Success'
         for m in metodos_tmp:
             metodo_master = metodos_envios.query.get(m.metodo_envio_id)
+
+            
+            #flash(' Correo ID en Form:'.format( request.form.get('metodo_envio_correo')))
+            if m.correo_id is None:
+                correo_id_tmp = ""
+                costo_envio_tmp = "Merchant"
+                #flash('el correo es NONE poen espacio')
+            else: 
+                correo_id_tmp = m.correo_id
+                costo_envio_tmp = m.costo_envio
+                #flash('el correo NO es NONE')
+            ######################################################################
+
             unMetodo_tmp = {"metodo_envio_id" : m.metodo_envio_id,
                             "icon": metodo_master.icon,
                             "boton_titulo": m.titulo_boton,
                             "boton_descripcion": m.descripcion_boton,
                             "direccion_obligatoria": metodo_master.direccion_obligatoria,
                             "carrier":metodo_master.carrier,
-                            "correo_id": m.correo_id,
-                            "costo_envio": m.costo_envio}
+                            "correo_id": correo_id_tmp,
+                            "costo_envio": costo_envio_tmp}
             metodos.append(unMetodo_tmp)
             status = actualiza_empresa_JSON(empresa, 'envio', metodos, 'otros')
             if status == 'Failed':
@@ -601,7 +642,7 @@ def edit_mailsportalinfo():
         if accion == "guardar":
             confirma_manual_note = request.form.get('confirma_manual_note')
             confirma_coordinar_note = request.form.get('confirma_coordinar_note')
-            confirma_moova_note = request.form.get('confirma_moova_note')
+            confirma_retiro_note = request.form.get('confirma_retiro_note')
 
             if empresa.confirma_manual_note != confirma_manual_note:
                 empresa.confirma_manual_note = confirma_manual_note
@@ -611,9 +652,9 @@ def edit_mailsportalinfo():
                 empresa.confirma_coordinar_note = confirma_coordinar_note
                 actualiza_empresa_JSON(empresa, 'confirma_coordinar_note', confirma_coordinar_note, 'textos')
 
-            if empresa.confirma_moova_note != confirma_moova_note:
-                empresa.confirma_moova_note = confirma_moova_note
-                actualiza_empresa_JSON(empresa, 'confirma_moova_note', confirma_moova_note, 'textos')
+            if empresa.confirma_retiro_note != confirma_retiro_note:
+                empresa.confirma_retiro_note = confirma_retiro_note
+                actualiza_empresa_JSON(empresa, 'confirma_retiro_note', confirma_retiro_note, 'textos')
     
             db.session.commit() 
 
@@ -933,6 +974,11 @@ def eliminar_orden(orden_id):
     eliminar = request.form.get("bton")
     confirmacion = request.form.get("confirmacion")
     if eliminar == 'OK' and confirmacion == 'eliminar':
+        ### Si la orden ya se eliminó (pero no se refresco la pantalla)
+        if orden is None:
+            flash('La orden ya fue eliminada')
+            return redirect(url_for('main.ver_ordenes', estado='all', subestado='all'))
+        ###
         flash('Se eliminó la orden {}'.format(orden.order_number))
         Transaction_log.query.filter_by(order_id=orden_id).delete()
         Order_detail.query.filter_by(order=orden_id).delete()
@@ -1147,15 +1193,20 @@ def autorizar(plataforma):
 def tracking_orden():
     if request.method == 'GET':
         orden_id = request.args.get('orden_id')
+        status_tmp = []
         #orden = Order_header.query.get(orden_id)
         #customer = orden.buyer
         #company = customer.pertenece
         orden = Order_header.query.filter_by(order_id_anterior=orden_id).first()
+        if orden is None:
+            return json.dumps(status_tmp), 400
+        ###### POner que devolver si no se encuestra la orden
+
         #print(orden)
         # flash('Orden: {}'.format(orden.id))
         historia = Transaction_log.query.filter_by(order_id=orden.id).all()
         
-        status_tmp = []
+        
         for i in historia:
             if i.status_client != 'N0':
                 status_tmp.append({
@@ -1275,12 +1326,16 @@ def buscar_datos_variantes():
 
 @bp.route('/cotiza_envio', methods=['POST'])
 def cotiza_envio():
-   data = request.json
-   datos_correo = CONF_correo.query.filter_by(store=data['correo']['store_id'], correo_id=data['correo']['correo_id']).first()
-   servicio =  CONF_metodos_envios.query.filter_by(store=data['correo']['store_id'], metodo_envio_id=data['correo']['metodo_envio']).first() 
+    data = request.json
+    datos_correo = CONF_correo.query.filter_by(store=data['correo']['store_id'], correo_id=data['correo']['correo_id']).first()
+    servicio =  CONF_metodos_envios.query.filter_by(store=data['correo']['store_id'], metodo_envio_id=data['correo']['metodo_envio']).first() 
    
-   precio = cotiza_envio_correo(data, datos_correo, servicio)
-   return precio
+    precio = cotiza_envio_correo(data, datos_correo, servicio)
+    if precio != 'Failed':
+        return precio, 200
+    else:
+        return 'A Cotizar',400
+
 
 
 @bp.route('/etiqueta/<orden_id>', methods=['GET', 'POST'])
@@ -1316,6 +1371,22 @@ def buscar_metodo_envio():
 @login_required
 def prueba_etiqueta():
     return redirect(url_for('main.etiqueta', orden_id=7))
+
+
+#####quitar####
+@bp.route('/prueba_script', methods=['GET', 'POST'])
+@login_required
+def prueba_script():
+    empresa = Company.query.filter_by(store_id=current_user.store).first()
+    url = "https://api.tiendanube.com/v1/"+str(empresa.store_id)+"/scripts"
+    headers = {
+        'Content-Type': 'application/json',
+        'Authentication': str(empresa.platform_token_type)+' '+str(empresa.platform_access_token)
+    }
+    response = requests.request("GET", url, headers=headers).json()
+    flash('largo SCRIPTS {}'.format(len(response)))
+    flash('SCRIPTS {}'.format(response))
+    return redirect(url_for('main.user', username=current_user.username))
 
 
 @bp.route('/cargar_pedidos', methods=['GET', 'POST'])

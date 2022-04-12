@@ -82,6 +82,7 @@ def crear_pedido(pedido):
     indice = 1
     for x in pedido['producto']: 
         # flash('monto {} tipo {}'.format(x['monto_a_devolver'], type(x['monto_a_devolver'])))
+        
         unProducto = Order_detail(
             order_line_number = str(pedido['orden']) + str(indice),
             line_number = indice,
@@ -103,6 +104,7 @@ def crear_pedido(pedido):
             accion_cambiar_por_prod_id = x['accion_cambiar_por_prod_id'],
             accion_cambiar_por_desc = x['accion_cambiar_por_desc'],
             motivo =  x['motivo'],
+            observaciones = x['observaciones'],
             gestionado = 'Iniciado',
             productos = unaOrden
             )
@@ -476,6 +478,8 @@ def devolver_linea(prod_id, variant, cantidad, orden_id, order_line_number, acci
                 devolucion = devolver_stock_tiendanube(empresa, prod_id, variant, cantidad)
                 if devolucion == 'Failed':
                     return 'Failed'
+                if devolucion == 'Failed_Variante':
+                    flash ("El articulo {} no se pudo devolver porque ya no existe esa Variante".format(linea.name))
 
         else: 
             ## Si la configuracion de stock_vuelve_config es False (el stock no se devuelve fisicamente)
@@ -771,10 +775,12 @@ def buscar_descripcion_correo(store, correo):
 
 
 def cotiza_envio_correo(data, datos_correo, servicio):
-   if data['correo']['correo_id'] == 'FAST':
+    if data['correo']['correo_id'] == 'FAST':
         precio = cotiza_envio_fastmail(data, datos_correo, servicio.correo_servicio)
         return str(precio)
-   else: 
+    if data['correo']['correo_id'] == 'OCA':
+        return '0'
+    else: 
         return 'Failed'
 
 
@@ -787,8 +793,8 @@ def crea_envio_correo(company,customer,orden,envio):
     if guia != 'Failed':
         orden.metodo_envio_guia = guia['guia']
         orden.etiqueta_generada = True
-        
-        if orden.courier_precio != 'Sin Cargo':
+        if orden.courier_precio != 'Sin Cargo' and orden.courier_precio != 'A cotizar':
+            
             if guia['importe'] != float(orden.courier_precio):
                 flash('Hubo una diferencia entre el precio cotizado y el precio real Real:{}({}) - Cotizado:{}({})'.format(guia['importe'], type(guia['importe']), float(orden.courier_precio), type(orden.courier_precio)))
                 orden.courier_precio = guia['importe']

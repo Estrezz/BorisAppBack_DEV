@@ -95,11 +95,15 @@
                               <input type="text" class="form-control form-control-sm" name="store_address" id="store_address" value="{{ empresa.store_address or ''}}" placeholder="Dirección">
                             </div>
                             <div class="form-row">
-                              <div class="form-group col-md-6">
+                              <div class="form-group col-md-4">
                                 <label for="admin_email">Mail Administración</label>
                                 <input type="email" class="form-control form-control-sm" name="admin_email" id="admin_email" value="{{empresa.admin_email or ''}}" placeholder="Email Administración">
                               </div>
-                              <div class="form-group col-md-6">
+                              <div class="form-group col-md-4">
+                                <label for="idfiscal">CUIT</label>&nbsp;<small>(con guiones)</small>
+                                <input type="text" class="form-control form-control-sm" name="idfiscal" id="idfiscal" value="{{empresa.store_idfiscal or ''}}" placeholder="CUIT">
+                              </div>
+                              <div class="form-group col-md-4">
                                 <label for="store_phone">Teléfono</label>
                                 <input type="text" class="form-control form-control-sm" name="store_phone" id="store_phone" value="{{empresa.store_phone or ''}}" placeholder="Teléfono Tienda">
                               </div>
@@ -150,11 +154,59 @@
                               </div>
                             </div>
                           </small>
+                          <hr>
+
+                          <!---------------- Datos para recepciond de productos -------------------------------->
+                          <div class = "text-info "> 
+                            <h5> Datos para Recepción de productos </h5>
+                          </div>
+                          <small>
+                            <div class="form-row">
+                              <div class="form-group col-md-6">
+                                <label for="shipping_address">Calle</label>
+                                <input type="text" class="form-control form-control-sm" name="shipping_address" id="shipping_address" value="{{empresa.shipping_address or ''}}" placeholder="Calle para Recepción">
+                              </div>
+                              <div class="form-group  col-md-3">
+                                <label for="shipping_number">Número</label>
+                                <input type="text" class="form-control form-control-sm" name="shipping_number" id="shipping_number" value="{{empresa.shipping_number or ''}}" placeholder="Número">
+                              </div>
+                              <div class="form-group  col-md-3">
+                                <label for="shipping_floor">Piso</label>
+                                <input type="text" class="form-control form-control-sm" name="shipping_floor" id="shipping_floor" value="{{empresa.shipping_floor or ''}}" placeholder="Piso">
+                              </div>
+                            </div>
+                            <div class="form-row">
+                              <div class="form-group col-md-2">
+                                <label for="shipping_zipcode">Código Postal</label>
+                                <input type="text" class="form-control form-control-sm" name="shipping_zipcode" id="shipping_zipcode" value="{{empresa.shipping_zipcode or ''}}" placeholder="Código Postal">
+                              </div>
+                              <div class="form-group col-md-4">
+                                <label for="shipping_city">Ciudad</label>
+                                <input type="text" class="form-control form-control-sm" name="shipping_city" id="shipping_city" value="{{empresa.shipping_city or ''}}" placeholder="Ciudad">
+                              </div>
+                              <div class="form-group col-md-4">
+                                <label for="shipping_province">Provincia</label>
+                                <input type="text" class="form-control form-control-sm" name="shipping_province" id="shipping_province" value="{{empresa.shipping_province or ''}}" placeholder="Provincia">
+                              </div>
+                              <div class="form-group col-md-2">
+                                <label for="shipping_country">Pais</label>
+                                <input type="text" class="form-control form-control-sm" name="shipping_country" id="shipping_country" value="{{empresa.shipping_country or ''}}" placeholder="Pais">
+                              </div>
+                            </div>
+
+                            <div class="form-group">
+                              <label for="shipping_info">Nota para Recepción</label>
+                              <input type="text" class="form-control form-control-sm" name="shipping_info" id="shipping_info" value="{{empresa.shipping_info or ''}}" placeholder="Notas">
+                            </div>
+                          
+                          </small>
                           <br>
                           <button name="boton" type="submit" class="btn btn-primary mt-2" value="guardar"> Guardar Cambios </button>
                           <button name="boton" type="submit" class="btn btn-danger mt-2 float-right" value="cancelar"> Salir </button>
                    
                         </div>
+
+
                       </div> <!--end card Merchant body-->
 
                     </form>
@@ -203,8 +255,8 @@
                               </div> 
 
                               <div class="form-group col-md-6">  
-                                <label for="nuevo_correo_id_servicio">ID del Servicio</label> 
-                                <input type="text" class="form-control form-control-sm" name="nuevo_correo_id_servicio" id="nuevo_correo_id_servicio" placeholder="Id del Servicio">
+                                <label for="nuevo_correo_id_cliente">ID de Cliente</label> <small>(si fuera necesario)</small>
+                                <input type="text" class="form-control form-control-sm" name="nuevo_correo_id_cliente" id="nuevo_correo_id_cliente" placeholder="Id del Cliente">
                               </div> 
 
                             </div>
@@ -241,7 +293,7 @@
                                   
                                   
                                   <div class="form-group">  
-                                    <label for="correo_cliente_id">ID de Cliente </label> <small>(si fuera necesario)</small>
+                                    <label for="correo_cliente_id">ID de Cliente </label> 
                                     <input type="password" class="form-control form-control-sm" name="correo_cliente_id" id="correo_cliente_id" value="{{ empresa_correo.cliente_id }}">
                                   </div> 
                                   
@@ -319,7 +371,7 @@
                             <h5>Opciones para cambios</h5>
                           </div>
                           <div class="form-group row">
-                            <div class="form-check col-md-6">
+                            <div class="form-check col-md-4">
                               {% if configuracion.cambio_otra_cosa == true %}
                                 <input class="form-check-input ml-2" type="checkbox" name ="cambio_otra_cosa" id="cambio_otra_cosa" checked>
                               {% else %}
@@ -329,7 +381,7 @@
                                 Habilitar cambio por Otro Producto 
                               </label>
                             </div>
-                            <div class="form-check col-md-6">
+                            <div class="form-check col-md-4">
                               {% if configuracion.cambio_cupon == true %}
                                 <input class="form-check-input" type="checkbox" name ="cambio_cupon" id="cambio_cupon" checked>
                               {% else %}
@@ -337,6 +389,17 @@
                               {% endif %}
                               <label class="form-check-label" for="cambio_cupon">
                                 Habilitar cambio por Cupón
+                              </label>
+                            </div>
+
+                            <div class="form-check col-md-4">
+                              {% if configuracion.observaciones == true %}
+                                <input class="form-check-input" type="checkbox" name ="observaciones" id="observaciones" checked>
+                              {% else %}
+                                <input class="form-check-input" type="checkbox" name ="observaciones" id="observaciones" >
+                              {% endif %}
+                              <label class="form-check-label" for="observaciones">
+                                Habilitar Observaciones 
                               </label>
                             </div>
                           </div>
@@ -579,13 +642,13 @@
                                   <legend class="col-form-label col-sm-2 pt-0">Costo del envío</legend>
                                   <div class="col-sm-10">
                                     <div class="form-check">
-                                      <input class="form-check-input" type="radio" name="nuevo_shipping" id="shipping_customer" value="customer">
+                                      <input class="form-check-input" type="radio" name="nuevo_shipping" id="shipping_customer" value="Customer">
                                       <label class="form-check-label" for="shipping_customer">
                                         A cargo del Cliente 
                                       </label>
                                     </div>
                                     <div class="form-check">
-                                      <input class="form-check-input" type="radio" name="nuevo_shipping" id="shipping_company" value="company">
+                                      <input class="form-check-input" type="radio" name="nuevo_shipping" id="shipping_company" value="Merchant">
                                       <label class="form-check-label" for="shipping_company">
                                         A cargo del Merchant
                                       </label>
@@ -761,8 +824,8 @@
                               </div> 
                               
                               <div class="form-group">
-                                <label for="confirma_coordinar_note">Nota para Inicio de Envios por Correo:</label> 
-                                <textarea class="form-control form-control-sm" name="confirma_moova_note" id="confirma_moova_note" >{{ empresa.confirma_moova_note or ''}}</textarea> 
+                                <label for="confirma_retiro_note">Nota para Inicio de Envios por Correo:</label> 
+                                <textarea class="form-control form-control-sm" name="confirma_retiro_note" id="confirma_retiro_note" >{{ empresa.confirma_retiro_note or ''}}</textarea> 
                               </div> 
                             </small>
                             <br>

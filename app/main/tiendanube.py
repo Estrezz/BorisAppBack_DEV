@@ -42,6 +42,12 @@ def devolver_stock_tiendanube(empresa, prod_id, variant, cantidad):
     }
     # Trae stock actual
     order = requests.request("GET", url, headers=headers, data=payload).json()
+
+    ### Si la variante no existe
+    if 'stock' not in order:
+        return 'Failed_Variante'
+        
+    #flash('order{} - prod_id {} - variant {}'.format(order, prod_id, variant))
     if isinstance(order['stock'], type(None)) == True:
         flash('No se está gestionando información de Stock.')
         return 'Success'
@@ -56,6 +62,8 @@ def devolver_stock_tiendanube(empresa, prod_id, variant, cantidad):
         flash('Hubo un problema en la devolución No se pudo devolver el stock. Error {} - {}'.format(order.status_code, order.content))
         flash('{} - {}'.format(url, json.dumps(stock)))
         return 'Failed'
+
+    flash("Se regreso el stock staisfactoriamente a la variante{}".format(str(variant))) #### stock FALLA
     return 'Success'
 
 
@@ -240,9 +248,12 @@ def inicializa_tiendanube(empresa, tipo) :
     "where" : "store"
     }
 
-    response_1 = requests.request("POST", url, headers=headers, data=json.dumps(script_1))
-    response_4 = requests.request("POST", url, headers=headers, data=json.dumps(script_4))
-
+    #### Valida si ya existen scripts antes de crearlos ####
+    response = requests.request("GET", url, headers=headers).json()
+    if len(response) < 1:
+        response_1 = requests.request("POST", url, headers=headers, data=json.dumps(script_1))
+        response_4 = requests.request("POST", url, headers=headers, data=json.dumps(script_4))
+    #############################3
 
     ### Crea usuario para Backoffice
     if tipo == 'nueva':

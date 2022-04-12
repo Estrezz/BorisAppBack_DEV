@@ -20,7 +20,8 @@ class Company(db.Model):
     store_url = db.Column(db.String(120))
     store_plan = db.Column(db.String(64))
     store_phone = db.Column(db.String(20))
-    store_address= db.Column(db.String(120)) 
+    store_address= db.Column(db.String(120))
+    store_idfiscal = db.Column(db.String(20))
     admin_email = db.Column(db.String(120))
     communication_email = db.Column(db.String(120))
     communication_email_name = db.Column(db.String(120))
@@ -55,7 +56,8 @@ class Company(db.Model):
     finalizado_note = db.Column(db.String(500))
     confirma_manual_note = db.Column(db.String(500))
     confirma_coordinar_note = db.Column(db.String(500))
-    confirma_moova_note = db.Column(db.String(500))
+    #confirma_moova_note = db.Column(db.String(500))
+    confirma_retiro_note = db.Column(db.String(500))
     start_date = db.Column(db.DateTime, default=datetime.utcnow)
     demo_store = db.Column(db.Boolean)
     rubro_tienda = db.Column(db.String(64))
@@ -198,6 +200,7 @@ class Order_detail(db.Model):
     promo_precio_final = db.Column(db.Float)
     gestionado = db.Column(db.String(10))
     fecha_gestionado = db.Column(db.DateTime)
+    observaciones = db.Column(db.Text)
     order = db.Column(db.Integer, db.ForeignKey('order_header.id'))
 
     def __repr__(self):
@@ -240,6 +243,7 @@ class  CONF_boris(db.Model):
     ventana_devolucion = db.Column(db.Integer)
     cambio_otra_cosa = db.Column(db.Boolean)
     cambio_cupon = db.Column(db.Boolean)
+    observaciones = db.Column(db.Boolean)
     cambio_opcion = db.Column(db.String(150))
     cambio_opcion_cupon = db.Column(db.String(150))
     cambio_opcion_otra_cosa = db.Column(db.String(150))
@@ -276,6 +280,8 @@ class CONF_correo(db.Model):
     correo_id = db.Column(db.String(15), db.ForeignKey('correos.correo_id'))
     cliente_apikey = db.Column(db.String(100))
     cliente_id = db.Column(db.String(50))
+    user = db.Column(db.String(50))
+    passw = db.Column(db.String(50))
     habilitado = db.Column(db.Boolean)
 
     def __repr__(self):

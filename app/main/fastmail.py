@@ -52,7 +52,7 @@ def cotiza_envio_fastmail(data, datos_correo, correo_servicio):
     
     solicitud = requests.request("POST", url, headers=headers, data=payload)
     if solicitud.status_code != 200:
-        return "Failed"
+        return 'Failed'
     else:
         solicitud = solicitud.json()
         return solicitud['importe_total_flete']

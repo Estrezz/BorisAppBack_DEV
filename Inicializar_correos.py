@@ -64,7 +64,7 @@ with app.app_context():
     
     print('Configurando tiendas')
 
-    url="https://devfront.borisreturns.com/empresa_json?clave="+'envio'+"&key="+'otros'
+    url="https://frontprod.borisreturns.com/empresa_json?clave="+'envio'+"&key="+'otros'
     headers = {
         'Content-Type': 'application/json'
     }
