@@ -4,54 +4,117 @@
 
 <div class="card mb-2">
     <div class="card-body">
-        <h5 class="card-title"> <strong>
-            Eliminar Orden #{{orden.order_number}}<br>
-        </strong> </h5>    
-        <p style = "color:FireBrick;" > 
-            <i class="bi bi-exclamation-triangle"></i> Esta acción no se puede revertir <i class="bi bi-exclamation-triangle"></i>
-        </p>
-       
-        
-        <p class="card-text"> <small>
-            <strong>Vas a eliminar la orden #{{orden.order_number}} 
-                (Estado: {{orden.status_resumen}} )
-            </strong> <br>
-            Fecha de creación: {{ moment(orden.date_creation).format("DD/MM/YYYY")}} 
-            <br><br>
+        <h4 class="card-title"> <strong>
+            Menú de Mantenimiento - Orden #{{orden.order_number}} <br>
+        </strong> </h4> 
+        <br>
 
-            <!-- Info Cliente -->
-            <strong>Cliente {{customer.name}}</strong><br>
-            {{customer.email}} / {{customer.phone}} <br> 
-            <br>
+        <div class="row">
+            <div class="col-md-6">
+                <!-------------------- Añadir Retiro + Entrega ----------------------->
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <a href="{{ url_for('main.roundtrip_orden',  orden_id=orden.id) }}" id="roundtrip" name="roundtrip"> 
+                            <button class="btn btn-default text-left">
+                                <h5>
+                                    <strong>
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                    Añadir Retiro + Entrega 
+                                    </strong> 
+                                </h5>
+                                Pone la orden como "Retiro + Entrega" aunque ya este confirmada
+                            </button>
+                        </a>
+                    </div>
+                </div>
 
-            <strong>Líneas</strong><br>
-            {% for linea in lineas %}
-                <strong>{{linea.name}} ({{linea.prod_id}})</strong> &nbsp;
-                {{linea.accion}} - {{linea.accion_cantidad}}
-                {% if linea.accion == 'cambiar' %}
-                    por {{linea.accion_cambiar_por_desc}}
-                    {% if linea.nuevo_envio != None %}
-                        <br> Nuevo envio: {{linea.nuevo_envio}}
-                    {% endif %}
-                {% endif %}
                 <br>
-            {% endfor %}
 
-        </small> </p>
-        <br><br>
-        <div class=row>
-            <div class="col"> </div>
-            <div class="col-10">
-                <form id="eliminar_orden" action="{{ url_for('main.eliminar_orden', orden_id=orden.id) }}"method="POST"> 
-                    <input name=confirmacion class="form-control form-control-sm" type="text" placeholder="Para eliminar la orden, escribí la palabara -eliminar- en este recuadro y presioná Eliminar">
-                    <br>
-                    <button name="bton" class="btn btn-primary float-right" type="submit" value="NOK" > No Eliminar </button>
-                    <button name="bton" class="btn btn-danger float-left" type="submit" value="OK"> Eliminar </button>
-                </form>
+                <!-------------------- Cancelar Orden ----------------------->           
+                <div class="card bg-light text-left">
+                    <div class="card-body">
+                        <a href="{{ url_for('main.cancelar_orden', orden_id=orden.id) }}" id="cancelar" name="cancelar"> 
+                            <button class="btn btn-default text-left">
+                                <h5>
+                                    <strong>
+                                    <i class="bi bi-slash-circle"></i>
+                                      Cancelar Orden
+                                    </strong> 
+                                </h5>
+                                Pone la orden en estado "Cancelado"
+                            </button>
+                        </a>
+                    </div>
+                </div>
+                
+                <br>
+
+                <!-------------------- Cancelar Orden ----------------------->       
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <a href="{{ url_for('main.menu_eliminar_orden', orden_id=orden.id) }}" id="eliminar" name="eliminar"> 
+                            <button class="btn btn-default text-left">
+                                <h5>
+                                    <strong>
+                                    <i class="bi bi-x-circle-fill"></i>
+                                    Eliminar Orden
+                                    </strong> 
+                                </h5>
+                                Elimina la Orden completamente
+                            </button>
+                        </a>
+                    </div>
+                </div>                
             </div>
-            <div class="col"> </div>
-        </div>
 
+
+            <div class="col-md-6">
+                <div class="card border-light">
+                    <div class="card-body">
+                        <h5 class="card-title"> <strong>
+                            Información de la Orden
+                        </strong> </h5>  
+                        
+                        <p class="card-text">
+                            <strong>Orden #{{orden.order_number}} 
+                                (Estado: {{orden.status_resumen}} )
+                            </strong> <br>
+                            Fecha de creación: {{ moment(orden.date_creation).format("DD/MM/YYYY")}} 
+                            <br><br>
+                
+                            <!-- Info Cliente -->
+                            <strong>Cliente {{customer.name}}</strong><br>
+                            {{customer.email}} / {{customer.phone}} <br> 
+                            <br>
+                            <strong>Método de Envío:</strong> {{orden.courier_method}}
+                            <br>
+                            <strong>Retiro + entrega:</strong>
+                            {% if orden.courier_coordinar_roundtrip == True %}
+                                Si
+                            {% else %}
+                                No
+                            {% endif %}
+                            <br><br>
+
+                            <strong>Líneas</strong><br>
+                            {% for linea in lineas %}
+                                <strong>{{linea.name}} ({{linea.prod_id}})</strong> &nbsp;
+                                {{linea.accion}} - {{linea.accion_cantidad}}
+                                {% if linea.accion == 'cambiar' %}
+                                    por {{linea.accion_cambiar_por_desc}}
+                                    {% if linea.nuevo_envio != None %}
+                                        <br> Nuevo envio: {{linea.nuevo_envio}}
+                                    {% endif %}
+                                {% endif %}
+                                <br>
+                            {% endfor %}
+                
+                        </p>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
 
     </div>
 </div>

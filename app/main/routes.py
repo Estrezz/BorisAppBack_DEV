@@ -2,13 +2,13 @@ import requests
 from datetime import datetime
 from flask import render_template, flash, redirect, url_for, request, current_app, session, Response
 from flask_login import current_user, login_required
-from sqlalchemy import func
+from sqlalchemy import func, true
 from app import db
 from app.email import send_email
 from app.main.forms import EditProfileForm
 from app.main.tiendanube import generar_envio_tiendanube, autorizar_tiendanube, buscar_codigo_categoria_tiendanube, buscar_datos_variantes_tiendanube
 from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log, categories_filter, CONF_boris, CONF_metodos_envios, CONF_motivos, CONF_correo, metodos_envios, correos
-from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, traducir_estado, buscar_producto, genera_credito, actualiza_empresa, actualiza_empresa_categorias, actualiza_empresa_JSON, loguear_transaccion, finalizar_orden, devolver_linea, actualizar_stock, devolver_datos_boton, incializa_configuracion, validar_imagen, enviar_imagen, cotiza_envio_correo, crea_envio_correo, ver_etiqueta
+from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, toCancel, traducir_estado, buscar_producto, genera_credito, actualiza_empresa, actualiza_empresa_categorias, actualiza_empresa_JSON, loguear_transaccion, finalizar_orden, devolver_linea, actualizar_stock, devolver_datos_boton, incializa_configuracion, validar_imagen, enviar_imagen, cotiza_envio_correo, crea_envio_correo, ver_etiqueta, registrar_log
 import json
 import re
 import os
@@ -690,23 +690,33 @@ def edit_mailsbackinfo():
         if accion == "guardar":
             communication_email = request.form.get('communication_email')
             communication_email_name = request.form.get('communication_email_name')
+            orden_confirmada_asunto = request.form.get('asunto_confirmado')
             envio_manual_note = request.form.get('envio_manual_note')
             envio_coordinar_note = request.form.get('envio_coordinar_note')
             envio_correo_note = request.form.get('envio_correo_note')
             aprobado_note = request.form.get('aprobado_note')
+            orden_aprobada_asunto = request.form.get('asunto_aprobado')
             rechazado_note = request.form.get('rechazado_note')
+            orden_rechazada_asunto = request.form.get('asunto_rechazado')
             cupon_generado_note = request.form.get('cupon_generado_note')
+            cupon_generado_asunto = request.form.get('asunto_cupon')
             finalizado_note = request.form.get('finalizado_note')
+            orden_finalizada_asunto = request.form.get('asunto_finalizado')
 
             empresa.communication_email = communication_email
             empresa.communication_email_name = communication_email_name
             empresa.envio_manual_note = envio_manual_note
+            empresa.orden_confirmada_asunto = orden_confirmada_asunto
             empresa.envio_coordinar_note = envio_coordinar_note
             empresa.envio_correo_note = envio_correo_note
             empresa.aprobado_note = aprobado_note
+            empresa.orden_aprobada_asunto = orden_aprobada_asunto
             empresa.rechazado_note = rechazado_note
+            empresa.orden_rechazada_asunto = orden_rechazada_asunto
             empresa.cupon_generado_note = cupon_generado_note
+            empresa.cupon_generado_asunto = cupon_generado_asunto
             empresa.finalizado_note = finalizado_note
+            empresa.orden_finalizada_asunto = orden_finalizada_asunto
 
             db.session.commit() 
 
@@ -959,18 +969,19 @@ def ver_ordenes(estado, subestado):
     return render_template('ordenes.html', title='Ordenes', ordenes=ordenes, estado=estado, subestado=subestado,  resumen=resumen, empresa_name=session['current_empresa'])
 
 
-@bp.route('/orden/mantenimiento/<orden_id>', methods=['GET', 'POST'])
+@bp.route('/orden/mantenimiento/eliminar/<orden_id>', methods=['GET', 'POST'])
 @login_required
-def mantener_orden(orden_id):
+def menu_eliminar_orden(orden_id):
     orden = Order_header.query.filter_by(id=orden_id).first()
     lineas = Order_detail.query.filter_by(order=orden.id).all()
-    return render_template('mantener_orden.html', orden=orden, lineas=lineas, customer=orden.buyer, empresa_name=session['current_empresa'])
+    return render_template('eliminar_orden.html', orden=orden, lineas=lineas, customer=orden.buyer, empresa_name=session['current_empresa'])
 
 
 @bp.route('/orden/eliminar/<orden_id>', methods=['GET', 'POST'])
 @login_required
 def eliminar_orden(orden_id):
     orden = Order_header.query.filter_by(id=orden_id).first()
+    company = Company.query.get(orden.store)
     eliminar = request.form.get("bton")
     confirmacion = request.form.get("confirmacion")
     if eliminar == 'OK' and confirmacion == 'eliminar':
@@ -979,6 +990,7 @@ def eliminar_orden(orden_id):
             flash('La orden ya fue eliminada')
             return redirect(url_for('main.ver_ordenes', estado='all', subestado='all'))
         ###
+        registrar_log(datetime.utcnow(), company.platform, company.store_name, orden.id, orden.order_number, orden.status, orden.sub_status, orden.status_resumen, 'Orden eliminada')
         flash('Se eliminó la orden {}'.format(orden.order_number))
         Transaction_log.query.filter_by(order_id=orden_id).delete()
         Order_detail.query.filter_by(order=orden_id).delete()
@@ -987,6 +999,48 @@ def eliminar_orden(orden_id):
     else: 
         flash('Se canceló la eliminación de la orden')
     return redirect(url_for('main.ver_ordenes', estado='all', subestado='all'))
+
+
+@bp.route('/orden/mantenimiento/<orden_id>', methods=['GET', 'POST'])
+@login_required
+def mantener_orden(orden_id):
+    orden = Order_header.query.filter_by(id=orden_id).first()
+    lineas = Order_detail.query.filter_by(order=orden.id).all()
+    return render_template('mantener_orden.html', orden=orden, lineas=lineas, customer=orden.buyer, empresa_name=session['current_empresa'])
+
+
+@bp.route('/orden/roundtrip/<orden_id>', methods=['GET', 'POST'])
+@login_required
+def roundtrip_orden(orden_id):
+   
+    orden = Order_header.query.filter_by(id=orden_id).first()
+
+    if orden.courier_method == "Manual":
+        flash('La orden {} no puede pasarse a "Retiro + Entrega" porque no el Método no es "A Coordinar"'.format(orden.order_number))
+    else:
+        if orden.courier_coordinar_roundtrip == True:
+            flash('La orden {} ya estaba como "Retiro + Entrega"'.format(orden.order_number))
+        else:
+            orden.courier_coordinar_roundtrip = True
+            db.session.commit()
+            loguear_transaccion('MODIFICACION', 'Retiro + Entrega- SI', orden_id, current_user.id, current_user.username)
+            flash('La orden {} se paso a "Retiro + Entrega"'.format(orden.order_number))
+    
+    return redirect(url_for('main.ver_ordenes', estado='all', subestado='all'))
+
+
+@bp.route('/orden/cancelar/<orden_id>', methods=['GET', 'POST'])
+@login_required
+def cancelar_orden(orden_id):
+   
+    orden = Order_header.query.filter_by(id=orden_id).first()
+    toCancel(orden_id)
+    flash('Se canceló la orden {}"'.format(orden.order_number))
+    return redirect(url_for('main.ver_ordenes', estado='all', subestado='all'))
+
+
+
+
 
 @bp.route('/orden/<orden_id>', methods=['GET', 'POST'])
 @login_required

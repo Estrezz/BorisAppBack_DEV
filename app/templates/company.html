@@ -231,8 +231,12 @@
                     <div class="card">
                       <div class="card-body">
                         <div class = "text-info"> 
-                          <h5> Agregar una nueva empresa de correo</h5>
+                          <h5> Agregar una nueva empresa de correo<br>
+                            <small><small>Antes de configurar esta opción tenes que ponerte en contacto con nosotros a admin@borisreturns.com para que te proporcionemos los datos necesarios</small></small>
+                          </h5>
+                          
                         </div>
+                        
                         <small>
 
                           <form id="correo_add" action="{{ url_for('main.add_correo') }}" method="POST">       
@@ -887,6 +891,10 @@
                               
                               <div class = "text-info mt-2"> 
                                 <h5> Mail CONFIRMACION: </h5>
+                                <div class="form-group">
+                                  <label for="asunto_confirmado">Asunto para solicitudes confirmadas</label> 
+                                  <input type="text" class="form-control form-control-sm" name="asunto_confirmado" id="asunto_confirmado" value="{{empresa.orden_confirmada_asunto}}">
+                                </div>
                               </div>                             
                               <div class="form-group">
                                   <label for="envio_manual_note">Nota para envios Manuales:</label> 
@@ -906,6 +914,10 @@
                                 <h5>Mail APROBACION: </h5>
                               </div>
                               <div class="form-group">
+                                <label for="asunto_aprobado">Asunto para solicitudes aprobadas</label> 
+                                <input type="text" class="form-control form-control-sm" name="asunto_aprobado" id="asunto_aprobado" value="{{empresa.orden_aprobada_asunto}}">
+                              </div>
+                              <div class="form-group">
                                 <label for="aprobado_note">Nota para solicitudes recibidas y aprobadas:</label> 
                                 <textarea class="form-control form-control-sm" name="aprobado_note" id="aprobado_note" >{{ empresa.aprobado_note or '' }}</textarea> 
                               </div> 
@@ -915,14 +927,22 @@
                                 <h5>Mail RECHAZO: </h5>
                               </div>
                               <div class="form-group">
-                                <label for="rechazado_note">Nota para solicitudes rechazadaa al recibir:</label> 
+                                <label for="asunto_rechazado">Asunto para solicitudes rechazadas</label> 
+                                <input type="text" class="form-control form-control-sm" name="asunto_rechazado" id="asunto_rechazado" value="{{empresa.orden_rechazada_asunto}}">
+                              </div>
+                              <div class="form-group">
+                                <label for="rechazado_note">Nota para solicitudes rechazadas al recibir:</label> 
                                 <textarea class="form-control form-control-sm" name="rechazado_note" id="rechazado_note" >{{ empresa.rechazado_note or '' }}</textarea> 
                               </div> 
                               <hr>
                                
                               <div class = "text-info mt-2"> 
                                 <h5> Mail GENERACIÓN CUPÓN: </h5>
-                              </div>  
+                              </div> 
+                              <div class="form-group">
+                                <label for="asunto_cupon">Asunto al generar un cupón</label> 
+                                <input type="text" class="form-control form-control-sm" name="asunto_cupon" id="asunto_cupon" value="{{empresa.cupon_generado_asunto}}">
+                              </div>
                               <div class="form-group">
                                 <label for="cupon_generado_note">Nota para la generación de cupón:</label> 
                                 <textarea class="form-control form-control-sm" name="cupon_generado_note" id="cupon_generado_note" >{{ empresa.cupon_generado_note or ''}}</textarea> 
@@ -932,6 +952,10 @@
                                 
                               <div class = "text-info mt-2"> 
                                 <h5> Mail FINALIZACION: </h5>
+                              </div>
+                              <div class="form-group">
+                                <label for="asunto_finalizado">Asunto para solicitudes finzalidas</label> 
+                                <input type="text" class="form-control form-control-sm" name="asunto_finalizado" id="asunto_finalizado" value="{{empresa.orden_finalizada_asunto}}">
                               </div>  
                               <div class="form-group">
                                 <label for="finalizado_note">Nota para el final del procesamiento:</label> 

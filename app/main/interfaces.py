@@ -13,6 +13,7 @@ from flask import session, flash, current_app,render_template
 from flask_login import current_user
 from datetime import datetime
 import os
+import csv
 
 def cargar_pedidos():
     Pedidos = []
@@ -176,7 +177,9 @@ def traducir_estado(estado):
             "CAMBIADO":['Orden de cambio iniciada', 'Cambiado', 'Se generó el cambio'],
             "APROBADO":['Aprobado','Aprobado','Tu orden fue aprobada'],
             "RECHAZADO":['Rechazado', 'Rechazado', 'Tu orden fue rechazada'],
-            "CERRADO":['Cerrado', 'Cerrado', 'Tu orden fue finalizada']
+            "CERRADO":['Cerrado', 'Cerrado', 'Tu orden fue finalizada'],
+            "CANCELADO":['Cancelado', 'Cancelado', 'La orden fue cancelada'],
+            "MODIFICACION":['Modificado', 'Modificado', 'Tu orden fue modificada']
         }
     return switcher.get(estado,"Aprobado")
 
@@ -209,7 +212,7 @@ def toReady(orden, company):
         db.session.commit()
 
         metodo_envio_tmp = CONF_metodos_envios.query.get((company.store_id, envio.metodo_envio_id))
-        send_email('Tu orden ha sido confirmada', 
+        send_email(company.orden_confirmada_asunto, 
                 sender=(company.communication_email_name, company.communication_email),
                 recipients=[customer.email], 
                 reply_to = company.admin_email,
@@ -259,7 +262,7 @@ def toApproved(orden_id):
         )
     db.session.add(unaTransaccion)
     db.session.commit()
-    send_email('Tu orden ha sido aprobada', 
+    send_email(company.orden_aprobada_asunto, 
                 sender=(company.communication_email_name, company.communication_email),
                 recipients=[customer.email], 
                 reply_to = company.admin_email,
@@ -291,7 +294,7 @@ def toReject(orden_id, motivo):
         )
     db.session.add(unaTransaccion)
     db.session.commit()
-    send_email('Tu orden ha sido rechazada', 
+    send_email(company.orden_rechazada_asunto, 
                 sender=(company.communication_email_name, company.communication_email),
                 recipients=[customer.email], 
                 reply_to = company.admin_email,
@@ -303,6 +306,28 @@ def toReject(orden_id, motivo):
                 sync=False)
 
 
+def toCancel(orden_id):
+    orden = Order_header.query.get(orden_id)
+    company = Company.query.get(orden.store)
+    registrar_log(datetime.utcnow(), company.platform, company.store_name, orden.id, orden.order_number, orden.status, orden.sub_status, orden.status_resumen, 'Orden cancelada')
+    orden.status = 'Cerrado'
+    orden.sub_status = traducir_estado('CANCELADO')[0]
+    orden.status_resumen = traducir_estado('CANCELADO')[1]
+    orden.date_lastupdate = datetime.utcnow()
+    
+    unaTransaccion = Transaction_log(
+            sub_status = traducir_estado('CANCELADO')[0],
+            status_client = traducir_estado('CANCELADO')[2],
+            order_id = orden.id,
+            user_id = current_user.id,
+            username = current_user.username
+        )
+    db.session.add(unaTransaccion)
+    db.session.commit()
+
+
+
+
 def genera_credito(empresa, monto, cliente, orden):
     importe = float(monto)
     codigo_tmp = genera_codigo(8)
@@ -310,7 +335,7 @@ def genera_credito(empresa, monto, cliente, orden):
     if empresa.platform == 'tiendanube':
         cupon = genera_credito_tiendanube(empresa, importe, codigo)
         if cupon != 'Failed':
-            send_email('Hemos generado tu Cupón', 
+            send_email(empresa.cupon_generado_asunto, 
                     sender=(empresa.communication_email_name, empresa.communication_email),
                     recipients=[cliente.email], 
                     reply_to = empresa.admin_email,
@@ -565,7 +590,7 @@ def finalizar_orden(orden_id):
         #flash('Mail {} para {} - orden {} , orden linea {}'.format(current_app.config['ADMINS'][0], customer.email, orden, orden_linea))
         company = Company.query.get(current_user.store)
 
-        send_email('El procesamiento de tu orden ha finalizado', 
+        send_email(company.orden_finalizada_asunto, 
             sender=(company.communication_email_name, company.communication_email),
             recipients=[customer.email],
             reply_to = company.admin_email,
@@ -818,3 +843,21 @@ def ver_etiqueta(correo_id, guia):
         return etiqueta
     else:
         return "No se encontro la etiqueta para esa guia"
+
+
+def registrar_log(fecha, plataforma, tienda, orden_id, orden_nro, accion, estado_ant, subestado_ant, comentario):
+    file_exists = os.path.isfile('logs/app/ordenes_modificadas.csv')
+    with open('logs/app/ordenes_modificadas.csv', 'a+', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        header = ['Plataforma','Tienda_Nombre', 'Orden', 'Accion', 'Estado_Anterior',  'Subestado_anterior', 'Comentarios'  ]
+        if not file_exists:
+                writer.writerow(header)
+
+        row = [fecha, plataforma, tienda, orden_id, orden_nro, accion, estado_ant, subestado_ant, comentario]
+            
+        writer.writerow(row)
+
+                # close the file
+    f.close()
+
+    

@@ -124,8 +124,9 @@ def crea_envio_fastmail(correo, metodo_envio, orden, customer, orden_linea):
     solicitud_tmp["valor_declarado"] = precio_total_envio
 
     payload = json.dumps(solicitud_tmp)
-    
+       
     solicitud = requests.request("POST", url, headers=headers, data=payload)
+   
     if solicitud.status_code != 200:
         flash('Hubo un error al generar la guia. Codigo {} - {}'.format(solicitud.status_code, solicitud.content))
         return "Failed"
