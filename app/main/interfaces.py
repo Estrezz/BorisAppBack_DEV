@@ -326,6 +326,26 @@ def toCancel(orden_id):
     db.session.commit()
 
 
+def toCerrado(orden_id):
+    orden = Order_header.query.get(orden_id)
+    company = Company.query.get(orden.store)
+    registrar_log(datetime.utcnow(), company.platform, company.store_name, orden.id, orden.order_number, orden.status, orden.sub_status, orden.status_resumen, 'Orden cerrada manualmente')
+    orden.status = 'Cerrado'
+    orden.sub_status = traducir_estado('CERRADO')[0]
+    orden.status_resumen = traducir_estado('CERRADO')[1]
+    orden.date_lastupdate = datetime.utcnow()
+    
+    unaTransaccion = Transaction_log(
+            sub_status = traducir_estado('CERRADO')[0],
+            status_client = traducir_estado('CERRADO')[2],
+            order_id = orden.id,
+            user_id = current_user.id,
+            username = current_user.username
+        )
+    db.session.add(unaTransaccion)
+    db.session.commit()
+
+
 
 
 def genera_credito(empresa, monto, cliente, orden):
@@ -581,7 +601,7 @@ def finalizar_orden(orden_id):
         if i.gestionado == 'Si':
             finalizados += 1
     if finalizados == len(orden_linea):
-        flash('Todas las tareas completas. Se finalizó la Orden {}'.format(orden_id))
+        flash('Todas las tareas completas. Se finalizó la Orden {}'.format(orden.order_number))
         orden.sub_status = traducir_estado('CERRADO')[0]
         orden.status_resumen =traducir_estado('CERRADO')[1]
         orden.status = 'Cerrado'

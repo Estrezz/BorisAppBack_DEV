@@ -15,7 +15,7 @@
                 <div class="card bg-light">
                     <div class="card-body">
                         <a href="{{ url_for('main.roundtrip_orden',  orden_id=orden.id) }}" id="roundtrip" name="roundtrip"> 
-                            <button class="btn btn-default text-left">
+                            <button class="btn btn-default text-left" onclick="return confirm('Va a poner la orden {{orden.order_number}} como Retiro + Entrega . Esta seguro ?')">
                                 <h5>
                                     <strong>
                                     <i class="bi bi-arrow-clockwise"></i>
@@ -34,7 +34,7 @@
                 <div class="card bg-light text-left">
                     <div class="card-body">
                         <a href="{{ url_for('main.cancelar_orden', orden_id=orden.id) }}" id="cancelar" name="cancelar"> 
-                            <button class="btn btn-default text-left">
+                            <button class="btn btn-default text-left" onclick="return confirm('Va a cancelar la orden {{orden.order_number}}. Esta seguro ?')">
                                 <h5>
                                     <strong>
                                     <i class="bi bi-slash-circle"></i>
@@ -42,6 +42,25 @@
                                     </strong> 
                                 </h5>
                                 Pone la orden en estado "Cancelado"
+                            </button>
+                        </a>
+                    </div>
+                </div>
+                
+                <br>
+
+                <!-------------------- Cerrar Orden ----------------------->           
+                <div class="card bg-light text-left">
+                    <div class="card-body">
+                        <a href="{{ url_for('main.cerrar_orden', orden_id=orden.id) }}" id="cerrar" name="cerrar"> 
+                            <button class="btn btn-default text-left" onclick="return confirm('Va a Cerrar la orden {{orden.order_number}}. Esta seguro ?')">
+                                <h5>
+                                    <strong>
+                                    <i class="bi bi-door-closed"></i>
+                                      Cerrar Orden
+                                    </strong> 
+                                </h5>
+                                Cierra la orden manualmente
                             </button>
                         </a>
                     </div>

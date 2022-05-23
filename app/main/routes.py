@@ -8,7 +8,7 @@ from app.email import send_email
 from app.main.forms import EditProfileForm
 from app.main.tiendanube import generar_envio_tiendanube, autorizar_tiendanube, buscar_codigo_categoria_tiendanube, buscar_datos_variantes_tiendanube
 from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log, categories_filter, CONF_boris, CONF_metodos_envios, CONF_motivos, CONF_correo, metodos_envios, correos
-from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, toCancel, traducir_estado, buscar_producto, genera_credito, actualiza_empresa, actualiza_empresa_categorias, actualiza_empresa_JSON, loguear_transaccion, finalizar_orden, devolver_linea, actualizar_stock, devolver_datos_boton, incializa_configuracion, validar_imagen, enviar_imagen, cotiza_envio_correo, crea_envio_correo, ver_etiqueta, registrar_log
+from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, toCancel, toCerrado, traducir_estado, buscar_producto, genera_credito, actualiza_empresa, actualiza_empresa_categorias, actualiza_empresa_JSON, loguear_transaccion, finalizar_orden, devolver_linea, actualizar_stock, devolver_datos_boton, incializa_configuracion, validar_imagen, enviar_imagen, cotiza_envio_correo, crea_envio_correo, ver_etiqueta, registrar_log
 import json
 import re
 import os
@@ -703,6 +703,12 @@ def edit_mailsbackinfo():
             finalizado_note = request.form.get('finalizado_note')
             orden_finalizada_asunto = request.form.get('asunto_finalizado')
 
+            #### Controla si el largo del texto ingresado es mayor a 500
+            print(type(aprobado_note))
+            if len(aprobado_note) > 500 or len(rechazado_note) > 500 or len(cupon_generado_note) > 500 or len(finalizado_note) > 500:
+                flash('El texto ingresado es demasiado largo. El máximo permitido son 500 caracteres')
+                return redirect(url_for('main.company', empresa_id=current_user.store ))
+
             empresa.communication_email = communication_email
             empresa.communication_email_name = communication_email_name
             empresa.envio_manual_note = envio_manual_note
@@ -848,6 +854,7 @@ def gestion_lineas_salientes(orden_id):
         if  nuevaorden == 'manual': 
             envio_nuevo_metodo = 'Se envía manualmente'
             ##### genera envio si el metodo de envio tiene Carrier ###
+            ##### chequear que pasa si el get esta en 0
             envio = metodos_envios.query.get(orden.courier_method)  
             if envio.carrier and orden.salientes == 'Si' :
                 customer = Customer.query.get(orden.customer_id)
@@ -955,9 +962,12 @@ def gestion_lineas_cupones(orden_id):
 @login_required
 def ver_ordenes(estado, subestado):
     resumen = resumen_ordenes(current_user.store) 
-    page = request.args.get('page', 1, type=int)
-    next_url = None
-    prev_url = None
+    ## page = request.args.get('page', 1, type=int)
+    ## next_url = None
+    ## prev_url = None
+    company = Company.query.get(current_user.store)
+    if company.habilitado == False:
+         flash("Existe un problema adminsitrativo con su Tienda. Por favor ponerse en contacto con nosotros a la siguiente dirección de mail: admin@borisreturns.com. De lo contrario se deshabilitara su cuenta en los próximos dias.")
     if estado == 'all':
         ordenes =  Order_header.query.filter_by(store=current_user.store).all()
     else :
@@ -1038,6 +1048,15 @@ def cancelar_orden(orden_id):
     flash('Se canceló la orden {}"'.format(orden.order_number))
     return redirect(url_for('main.ver_ordenes', estado='all', subestado='all'))
 
+
+@bp.route('/orden/cerrar/<orden_id>', methods=['GET', 'POST'])
+@login_required
+def cerrar_orden(orden_id):
+   
+    orden = Order_header.query.filter_by(id=orden_id).first()
+    toCerrado(orden_id)
+    flash('Se cerró la orden {}"'.format(orden.order_number))
+    return redirect(url_for('main.ver_ordenes', estado='all', subestado='all'))
 
 
 
