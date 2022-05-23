@@ -50,7 +50,8 @@
                     <td><a href="{{ url_for('main.historia_orden', orden_id = i['id']) }}">
                         <button class="btn btn-link btn-sm"> Historia </button></td>
                     <td><a href="{{ url_for('main.mantener_orden', orden_id = i['id']) }}">
-                        <button class="btn btn-link btn-sm"> <i style = "color:FireBrick;" title="Eliminar" class="bi bi-x-circle-fill"></i></button></td>
+                            <button class="btn btn-link btn-sm"> <i title="Mantenimiento" class="bi bi-gear-fill"></i></button></td>
+    
                 </tr>
             {% endfor %}
         </tbody>

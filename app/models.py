@@ -56,8 +56,17 @@ class Company(db.Model):
     finalizado_note = db.Column(db.String(500))
     confirma_manual_note = db.Column(db.String(500))
     confirma_coordinar_note = db.Column(db.String(500))
-    #confirma_moova_note = db.Column(db.String(500))
     confirma_retiro_note = db.Column(db.String(500))
+    ### Asuntos para mails
+    orden_iniciada_asunto = db.Column(db.String(120))
+    orden_confirmada_asunto = db.Column(db.String(120))
+    orden_rechazada_asunto = db.Column(db.String(120))
+    orden_aprobada_asunto = db.Column(db.String(120))
+    cupon_generado_asunto = db.Column(db.String(120))
+    orden_finalizada_asunto = db.Column(db.String(120))
+
+    encuesta = db.Column(db.Boolean)
+    habilitado = db.Column(db.Boolean)
     start_date = db.Column(db.DateTime, default=datetime.utcnow)
     demo_store = db.Column(db.Boolean)
     rubro_tienda = db.Column(db.String(64))
@@ -143,7 +152,7 @@ class Order_header(db.Model):
     sub_status = db.Column(db.String(25))
     status_resumen = db.Column(db.String(25))
     reject_reason = db.Column(db.String(350))
-    customer_address = db.Column(db.String(64))
+    customer_address = db.Column(db.String(180))
     customer_number = db.Column(db.String(35))
     customer_floor = db.Column(db.String(64))
     customer_zipcode = db.Column(db.String(8))
@@ -250,6 +259,7 @@ class  CONF_boris(db.Model):
     portal_empresa = db.Column(db.String(150))
     portal_titulo = db.Column(db.String(250))
     portal_texto = db.Column(db.String(250))
+    
 
     def __repr__(self):
         return '<configuracion {} {} >'.format(self.store, self.ventana_cambios, self.ventana_devolucion)
