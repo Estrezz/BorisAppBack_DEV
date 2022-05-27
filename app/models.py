@@ -56,8 +56,11 @@ class Company(db.Model):
     finalizado_note = db.Column(db.String(500))
     confirma_manual_note = db.Column(db.String(500))
     confirma_coordinar_note = db.Column(db.String(500))
+    confirma_domicilio_note = db.Column(db.String(500))
+    #### confirma_retiro_note se utilizaba para Moova
     confirma_retiro_note = db.Column(db.String(500))
     ### Asuntos para mails
+    orden_solicitada_asunto = db.Column(db.String(120))
     orden_iniciada_asunto = db.Column(db.String(120))
     orden_confirmada_asunto = db.Column(db.String(120))
     orden_rechazada_asunto = db.Column(db.String(120))

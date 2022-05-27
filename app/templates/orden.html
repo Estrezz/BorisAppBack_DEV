@@ -188,7 +188,6 @@
                    {% else %}
              
                         <!-- Calculo Total a Pagar/ Devolver-->
-                        <!--poraca-->
                         {% if ((orden.status_resumen == 'Aprobado' and ns.saliente_activo == true) or (orden.courier_coordinar_roundtrip == true and orden.status_resumen != 'Cerrado' and ns.saliente_activo == true)) %}
                             <hr>
                             <input type="hidden" id="diferencia_total" name="diferencia_total" value=0 />

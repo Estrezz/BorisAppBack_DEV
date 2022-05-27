@@ -642,7 +642,12 @@ def edit_mailsportalinfo():
         if accion == "guardar":
             confirma_manual_note = request.form.get('confirma_manual_note')
             confirma_coordinar_note = request.form.get('confirma_coordinar_note')
-            confirma_retiro_note = request.form.get('confirma_retiro_note')
+            confirma_domicilio_note = request.form.get('confirma_domicilio_note')
+            orden_solicitada_asunto = request.form.get('asunto_solicitado')
+
+            if empresa.orden_solicitada_asunto != orden_solicitada_asunto:
+                empresa.orden_solicitada_asunto = orden_solicitada_asunto
+                actualiza_empresa_JSON(empresa, 'orden_solicitada_asunto', orden_solicitada_asunto, 'textos')
 
             if empresa.confirma_manual_note != confirma_manual_note:
                 empresa.confirma_manual_note = confirma_manual_note
@@ -652,10 +657,11 @@ def edit_mailsportalinfo():
                 empresa.confirma_coordinar_note = confirma_coordinar_note
                 actualiza_empresa_JSON(empresa, 'confirma_coordinar_note', confirma_coordinar_note, 'textos')
 
-            if empresa.confirma_retiro_note != confirma_retiro_note:
-                empresa.confirma_retiro_note = confirma_retiro_note
-                actualiza_empresa_JSON(empresa, 'confirma_retiro_note', confirma_retiro_note, 'textos')
+            if empresa.confirma_domicilio_note != confirma_domicilio_note:
+                empresa.confirma_domicilio_note = confirma_domicilio_note
+                actualiza_empresa_JSON(empresa, 'confirma_domicilio_note', confirma_domicilio_note, 'textos')
     
+            flash(confirma_domicilio_note)
             db.session.commit() 
 
     return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, correos_activos=correos_activos, lista_correos=lista_correos, lista_metodos=lista_metodos, motivos=motivos, pestaña='mailsportal', empresa_name=session['current_empresa'])   
