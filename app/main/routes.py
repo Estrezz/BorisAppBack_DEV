@@ -661,7 +661,6 @@ def edit_mailsportalinfo():
                 empresa.confirma_domicilio_note = confirma_domicilio_note
                 actualiza_empresa_JSON(empresa, 'confirma_domicilio_note', confirma_domicilio_note, 'textos')
     
-            flash(confirma_domicilio_note)
             db.session.commit() 
 
     return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, correos_activos=correos_activos, lista_correos=lista_correos, lista_metodos=lista_metodos, motivos=motivos, pestaña='mailsportal', empresa_name=session['current_empresa'])   
@@ -1034,6 +1033,10 @@ def roundtrip_orden(orden_id):
     if orden.courier_method == "Manual":
         flash('La orden {} no puede pasarse a "Retiro + Entrega" porque no el Método no es "A Coordinar"'.format(orden.order_number))
     else:
+        if orden.courier_method == "Domicilio" and orden.metodo_envio_guia != None:
+            flash('La orden {} ya tiene una GUIA creada y no puede pasarse a "Retiro + Entrega"'.format(orden.order_number))
+            return redirect(url_for('main.ver_ordenes', estado='all', subestado='all'))
+
         if orden.courier_coordinar_roundtrip == True:
             flash('La orden {} ya estaba como "Retiro + Entrega"'.format(orden.order_number))
         else:
