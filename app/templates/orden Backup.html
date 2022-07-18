@@ -145,11 +145,11 @@
                                             <span class="badge badge-pill badge-warning mr-2">Cambio x Otro Producto</span><br>
                                             {% endif %}
                                             <small class="text-muted">
-                                            Stock Actual: <span type="text" id="stock{{ i['order_line_number'] }}" name="stock{{ i['order_line_number'] }}"></span> /
-                                            Precio: <span type="text" id="saliente_precio{{ i['order_line_number'] }}" name="saliente_precio{{ i['order_line_number'] }}"></span>
+                                            Stock Actual: <span type="text" id="stock{{ i['prod_id'] }}" name="stock{{ i['prod_id'] }}"></span> /
+                                            Precio: <span type="text" id="saliente_precio{{ i['prod_id'] }}" name="saliente_precio{{ i['prod_id'] }}"></span>
                                                     <!-- guarda el precio promocional y lo muestra si existiera con Jquery-->
-                                                    <input type="hidden" id="saliente_precio_promo{{ i['order_line_number'] }}" name="saliente_precio_promo{{ i['order_line_number'] }}" value=0 >
-                                                    <span type="text" id="saliente_precio_promo_desc{{ i['order_line_number'] }}" name="saliente_precio_promo_desc{{ i['order_line_number'] }}"></span>
+                                                    <input type="hidden" id="saliente_precio_promo{{ i['prod_id'] }}" name="saliente_precio_promo{{ i['prod_id'] }}" value=0 >
+                                                    <span type="text" id="saliente_precio_promo_desc{{ i['prod_id'] }}" name="saliente_precio_promo_desc{{ i['prod_id'] }}"></span>
                                             </span> 
                                             <br>
                                             </small>
@@ -165,13 +165,13 @@
                     
                                     <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
                                         <div class="float-right">
-                                            <input class="diferencia" type="hidden" id="saliente_diferencia_precio{{ i['order_line_number'] }}" name="saliente_diferencia_precio{{ i['order_line_number'] }}" value=0 >
+                                            <input class="diferencia" type="hidden" id="saliente_diferencia_precio{{ i['prod_id'] }}" name="saliente_diferencia_precio{{ i['prod_id'] }}" value=0 >
                                             {% if (orden.status_resumen == 'Aprobado' or (orden.courier_coordinar_roundtrip == true and orden.status_resumen != 'Cerrado')) %}
                                             {% if (i.gestionado == 'Iniciado' or i.gestionado == 'Devuelto' ) %}
                                                 {% set ns.saliente_activo = true %}
                                                 <small>
                                                 <!-- campo para mostrar si hay diferencia de precio -->
-                                                <span class="float-right" type="hidden" id="saliente_diferencia_precio_desc{{ i['order_line_number'] }}" name="saliente_diferencia_precio_desc{{ i['order_line_number'] }}"></span>
+                                                <span class="float-right" type="hidden" id="saliente_diferencia_precio_desc{{ i['prod_id'] }}" name="saliente_diferencia_precio_desc{{ i['prod_id'] }}"></span>
                                             </small>
                                             {% endif %}
                                         {% endif %}
@@ -722,6 +722,7 @@
         var contador_cupones =0;
         var total_salientes = document.querySelectorAll('.saliente').length;
         var total_cupones = document.querySelectorAll('.cupones').length;
+        
 
         $('.saliente').each(function() {
             variante = $(this).data('variante');
@@ -738,11 +739,11 @@
                 variante: variante
             }).done(function(response) {
                 data = JSON.parse(response);
-                $('#stock'+line_saliente).html(data['stock']);
-                $('#saliente_precio'+line_saliente).html(data['price']);
+                $('#stock'+prod_id).html(data['stock']);
+                $('#saliente_precio'+prod_id).html(data['price']);
                 if (data['promotional_price'] != null) {
-                    $('#saliente_precio_promo'+line_saliente).html(data['promotional_price']);
-                    $('#saliente_precio_promo_desc'+line_saliente).html('(Promo: '+data['promotional_price']+')');
+                    $('#saliente_precio_promo'+prod_id).html(data['promotional_price']);
+                    $('#saliente_precio_promo_desc'+prod_id).html('(Promo: '+data['promotional_price']+')');
                     var precio = data['promotional_price'];
                 } else {
                     var precio = data['price'];
@@ -751,7 +752,7 @@
                 var cantidad = $('#accion_cantidad'+line_saliente).val();
                 var diferencia = (precio * cantidad) - ($('#precio'+line_saliente ).val());
                 
-                $('#saliente_diferencia_precio'+line_saliente).val(diferencia);
+                $('#saliente_diferencia_precio'+prod_id).val(diferencia);
 
                 // acumula el valor de todas las diferencias
                 total_diferencia += diferencia;
@@ -762,23 +763,14 @@
                     $('#diferencia_total_desc').val(total_diferencia);
                     // actualiza total de la orden
                     var total_total = parseFloat(total_diferencia) + parseFloat($('#envio_nueva_orden').val());
-                    
-                    if(isNaN(total_total)) {
-                        $('#total_nueva_orden').val(0)
-                    } else {
-                        $('#total_nueva_orden').val(total_total) 
-                    }
+                    $('#total_nueva_orden').val(total_total)  
                 }
 
                 // Arma texto para mostrar diferencia
                 var texto_diferencia = "";
                 var color ="";
                 var color_back ="";
-                if(isNaN(diferencia)) {
-                    texto_diferencia = '&nbsp; NO SE ENCONTRÓ EL ARTICULO &nbsp;';
-                    color = 'white';
-                    color_back ="FireBrick";
-                } else if (diferencia > 0) {
+                if (diferencia > 0) {
                     texto_diferencia = '&nbsp; A cobrar '+Math.abs(diferencia)+'$ &nbsp;';
                     color = 'white';
                     color_back ="FireBrick";
@@ -791,9 +783,9 @@
                     color = 'white';
                     color_back ="darkorange";
                 }
-                $('#saliente_diferencia_precio_desc'+line_saliente).html(texto_diferencia);
-                $('#saliente_diferencia_precio_desc'+line_saliente).css('color', color);
-                $('#saliente_diferencia_precio_desc'+line_saliente).css('background-color', color_back);
+                $('#saliente_diferencia_precio_desc'+prod_id).html(texto_diferencia);
+                $('#saliente_diferencia_precio_desc'+prod_id).css('color', color);
+                $('#saliente_diferencia_precio_desc'+prod_id).css('background-color', color_back);
                 
             }).fail(function(){
                 alert('No se encontró el articulo')

@@ -642,7 +642,12 @@ def edit_mailsportalinfo():
         if accion == "guardar":
             confirma_manual_note = request.form.get('confirma_manual_note')
             confirma_coordinar_note = request.form.get('confirma_coordinar_note')
-            confirma_retiro_note = request.form.get('confirma_retiro_note')
+            confirma_domicilio_note = request.form.get('confirma_domicilio_note')
+            orden_solicitada_asunto = request.form.get('asunto_solicitado')
+
+            if empresa.orden_solicitada_asunto != orden_solicitada_asunto:
+                empresa.orden_solicitada_asunto = orden_solicitada_asunto
+                actualiza_empresa_JSON(empresa, 'orden_solicitada_asunto', orden_solicitada_asunto, 'textos')
 
             if empresa.confirma_manual_note != confirma_manual_note:
                 empresa.confirma_manual_note = confirma_manual_note
@@ -652,9 +657,9 @@ def edit_mailsportalinfo():
                 empresa.confirma_coordinar_note = confirma_coordinar_note
                 actualiza_empresa_JSON(empresa, 'confirma_coordinar_note', confirma_coordinar_note, 'textos')
 
-            if empresa.confirma_retiro_note != confirma_retiro_note:
-                empresa.confirma_retiro_note = confirma_retiro_note
-                actualiza_empresa_JSON(empresa, 'confirma_retiro_note', confirma_retiro_note, 'textos')
+            if empresa.confirma_domicilio_note != confirma_domicilio_note:
+                empresa.confirma_domicilio_note = confirma_domicilio_note
+                actualiza_empresa_JSON(empresa, 'confirma_domicilio_note', confirma_domicilio_note, 'textos')
     
             db.session.commit() 
 
@@ -1028,6 +1033,10 @@ def roundtrip_orden(orden_id):
     if orden.courier_method == "Manual":
         flash('La orden {} no puede pasarse a "Retiro + Entrega" porque no el Método no es "A Coordinar"'.format(orden.order_number))
     else:
+        if orden.courier_method == "Domicilio" and orden.metodo_envio_guia != None:
+            flash('La orden {} ya tiene una GUIA creada y no puede pasarse a "Retiro + Entrega"'.format(orden.order_number))
+            return redirect(url_for('main.ver_ordenes', estado='all', subestado='all'))
+
         if orden.courier_coordinar_roundtrip == True:
             flash('La orden {} ya estaba como "Retiro + Entrega"'.format(orden.order_number))
         else:
@@ -1075,6 +1084,11 @@ def orden(orden_id):
         db.session.commit()
 
     ##### alerta etiqueta (envio=envio)    
+    print(empresa)
+    print("--")
+    print(session['current_empresa'])
+    print("--")
+   
     return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer, empresa=empresa, empresa_name=session['current_empresa'], envio=envio)
 
 
@@ -1160,6 +1174,27 @@ def webhook():
     else:
         #abort(400)
         return "Error al actualizar estado del pedido", 400
+
+
+@bp.route('/uninstall', methods=['POST'])
+def uninstall():
+    if request.method == 'POST':
+        data = request.json
+        tienda = Company.query.filter_by(store_id=data['store_id']).first_or_404()
+        
+        send_email('DESINSTALACION', 
+                sender=current_app.config['ADMINS'][0],  
+                recipients=[current_app.config['ADMINS'][0]],
+                reply_to = current_app.config['ADMINS'][0],
+                text_body=render_template('email/uninstall.txt', tienda=tienda),
+                html_body=render_template('email/uninstall.html', tienda=tienda), 
+                attachments=None, 
+                sync=False)
+        print(data['store_id'])
+        print(data['event'])
+       
+    return '', 200
+
 
 
 @bp.route('/pedidos', methods=['POST'])

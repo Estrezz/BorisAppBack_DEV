@@ -62,8 +62,8 @@ def devolver_stock_tiendanube(empresa, prod_id, variant, cantidad):
         flash('Hubo un problema en la devolución No se pudo devolver el stock. Error {} - {}'.format(order.status_code, order.content))
         flash('{} - {}'.format(url, json.dumps(stock)))
         return 'Failed'
-
-    flash("Se regreso el stock staisfactoriamente a la variante{}".format(str(variant))) #### stock FALLA
+    if int(cantidad) > 0:
+        flash("Se regresó el stock statisfactoriamente a la variante {}".format(str(variant))) #### stock FALLA
     return 'Success'
 
 
