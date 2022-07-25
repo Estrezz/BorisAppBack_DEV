@@ -66,6 +66,9 @@
     
         $(document).ready( function () {
             $.noConflict();
+            // to sort dates
+            $.fn.dataTable.moment( "DD/MM/YYYY" );
+
             $('#ordenes').DataTable({
 
                 language: {
