@@ -18,7 +18,7 @@ with app.app_context():
         x.encuesta = False
         x.habilitado = True
 
-        x.orden_iniciada_asunto = 'Tu orden ha sido iniciada'
+        x.orden_solicitada_asunto = 'Tu orden ha sido iniciada'
         x.orden_confirmada_asunto = 'Tu orden ha sido confirmada'
         x.orden_rechazada_asunto = 'Tu orden ha sido rechazada'
         x.orden_aprobada_asunto = 'Tu orden ha sido aprobada'
