@@ -820,7 +820,7 @@
 
                               <div class="form-group">
                                 <label for="asunto_solicitado">Asunto para Mail de Solicitud</label> 
-                                <input type="text" class="form-control form-control-sm" name="asunto_solicitado" id="asunto_solicitado" value="{{empresa.orden_solicitada_asunto or ''}}">
+                                <input type="text" class="form-control form-control-sm" name="asunto_solicitado" id="asunto_solicitado" value="{{empresa.orden_solicitada_asunto or ''}}">{{ empresa.orden_solicitada_asunto or ''}}
                               </div>
 
                               <div class="form-group">
