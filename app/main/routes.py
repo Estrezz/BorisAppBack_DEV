@@ -903,12 +903,16 @@ def gestion_lineas_salientes(orden_id):
             lineas = Order_detail.query.filter(Order_detail.order_line_number.in_(ordenes)).all()
             for l in lineas:
                 #### si la diferencia es negativa, la pone en 0 ######
-                if float(request.form.get("saliente_diferencia_precio"+str(l.prod_id))) < 0:
+
+                #### cambio por error en ultima version ####
+                # if float(request.form.get("saliente_diferencia_precio"+str(l.prod_id))) < 0:
+                if float(request.form.get("saliente_diferencia_precio"+str(l.order_line_number))) < 0:
                     diferencia = 0
                 else:
-                    diferencia = request.form.get("saliente_diferencia_precio"+str(l.prod_id))
+                    diferencia = request.form.get("saliente_diferencia_precio"+str(l.order_line_number))
                 l.accion_cambiar_por_diferencia = diferencia   
-            db.session.commit()    
+            db.session.commit()  
+
             ####### genera nueva ordenen tiendanube ###################
             if unaEmpresa.platform == 'tiendanube':
                 generacion_envio = generar_envio_tiendanube(orden, lineas, unCliente, unaEmpresa)
