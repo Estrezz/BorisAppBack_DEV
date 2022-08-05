@@ -7,7 +7,13 @@ def send_password_reset_email(user):
     send_email('[Boris] Reset Your Password',
                sender=current_app.config['ADMINS'][0],
                recipients=[user.email],
+               reply_to = current_app.config['ADMINS'][0],
                text_body=render_template('email/reset_password.txt',
                                          user=user, token=token),
                html_body=render_template('email/reset_password.html',
                                          user=user, token=token))
+
+
+ 
+                #attachments=None, 
+                #sync=False)

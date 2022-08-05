@@ -15,7 +15,6 @@ with app.app_context():
             continue
         print ('Comenzando '+str(x.store_id)+' '+x.store_name)
 
-       
         x.encuesta = False
         x.habilitado = True
 

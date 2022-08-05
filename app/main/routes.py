@@ -496,6 +496,11 @@ def add_envio():
         nuevo_metodo_envio_correo_sucursal = request.form.get('nuevo_metodo_envio_correo_sucursal')
         nuevo_instrucciones = request.form.get('nuevo_instrucciones')
 
+        #### validar largo boton y descripcion boton #######################################
+        #### Si titulo_boton es mayor a 150
+        #### Si nuevo_descripcion_boton es mayor a 350
+        ##### Validar textos mails ########################################################
+
         unMetodo = CONF_metodos_envios(
                     store = current_user.store,
                     habilitado = True,
