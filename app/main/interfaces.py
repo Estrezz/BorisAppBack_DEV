@@ -7,6 +7,7 @@ from app import db
 from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log, categories_filter, CONF_motivos, CONF_boris, CONF_metodos_envios, correos, CONF_correo, metodos_envios
 #from app.main.moova import toready_moova
 from app.main.fastmail import crea_envio_fastmail, cotiza_envio_fastmail, ver_etiqueta_fastmail
+from app.main.crab import crea_envio_crab, cotiza_envio_crab, ver_etiqueta_crab
 from app.main.tiendanube import buscar_producto_tiendanube,  genera_credito_tiendanube, devolver_stock_tiendanube
 from app.email import send_email
 from flask import session, flash, current_app,render_template
@@ -821,10 +822,16 @@ def buscar_descripcion_correo(store, correo):
 
 def cotiza_envio_correo(data, datos_correo, servicio):
     if data['correo']['correo_id'] == 'FAST':
-        precio = cotiza_envio_fastmail(data, datos_correo, servicio.correo_servicio)
+        precio = cotiza_envio_fastmail(data, datos_correo, servicio)
         return str(precio)
+
+    if data['correo']['correo_id'] == 'CRAB':
+        precio = cotiza_envio_crab(data, datos_correo, servicio)
+        return str(precio)
+
     if data['correo']['correo_id'] == 'OCA':
         return '0'
+        
     else: 
         return 'Failed'
 
@@ -853,6 +860,9 @@ def genera_envio(correo_id, metodo_envio, orden, customer, orden_linea):
     if correo_id.correo_id == 'FAST':
         guia = crea_envio_fastmail( correo_id, metodo_envio, orden, customer, orden_linea)
         return guia
+    if correo_id.correo_id == 'CRAB':
+        guia = crea_envio_crab( correo_id, metodo_envio, orden, customer, orden_linea)
+        return guia
     else:
         return "No se encontro el correo_id"
 
@@ -860,6 +870,9 @@ def genera_envio(correo_id, metodo_envio, orden, customer, orden_linea):
 def ver_etiqueta(correo_id, guia):
     if correo_id == 'FAST':
         etiqueta = ver_etiqueta_fastmail(guia)
+        return etiqueta
+    if correo_id == 'CRAB':
+        etiqueta = ver_etiqueta_crab(guia)
         return etiqueta
     else:
         return "No se encontro la etiqueta para esa guia"

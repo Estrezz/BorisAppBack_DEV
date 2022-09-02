@@ -498,8 +498,15 @@ def add_envio():
 
         #### validar largo boton y descripcion boton #######################################
         #### Si titulo_boton es mayor a 150
+        if len(nuevo_titulo_boton) > 150:
+            flash ("No se guardó la configuración. El texto del boton no puede sobrepasar los 150 caracteres")
+            return redirect(url_for('main.edit_enviosinfo'))
         #### Si nuevo_descripcion_boton es mayor a 350
-        ##### Validar textos mails ########################################################
+        if len(nuevo_descripcion_boton) > 350:
+            flash ("No se guardó la configuración. El texto de la descripcion no puede sobrepasar los 350 caracteres")
+            return redirect(url_for('main.edit_enviosinfo'))
+        ##### Fin validación ########################################################
+        
 
         unMetodo = CONF_metodos_envios(
                     store = current_user.store,
@@ -569,6 +576,21 @@ def editar_envio(id):
             unMetodo.correo_servicio = request.form.get('metodo_envio_correo_servicio')
             unMetodo.correo_sucursal = request.form.get('metodo_envio_correo_sucursal')
             unMetodo.instrucciones_entrega = request.form.get('instrucciones')
+            if request.form.get('roundtrip') == "roundtrip_si":
+                unMetodo.roundtrip = True
+            else:
+                unMetodo.roundtrip = False
+
+            #### validar largo boton y descripcion boton #######################################
+            #### Si titulo_boton es mayor a 150
+            if len(unMetodo.titulo_boton) > 150:
+                flash ("No se guardó la configuración. El texto del boton no puede sobrepasar los 150 caracteres")
+                return redirect(url_for('main.edit_enviosinfo'))
+            #### Si nuevo_descripcion_boton es mayor a 350
+            if len(unMetodo.descripcion_boton) > 350:
+                flash ("No se guardó la configuración. El texto de la descripcion no puede sobrepasar los 350 caracteres")
+                return redirect(url_for('main.edit_enviosinfo'))
+            ##### Fin validación ########################################################
 
         if accion == "eliminar":
             db.session.delete(unMetodo)
@@ -714,7 +736,7 @@ def edit_mailsbackinfo():
             orden_finalizada_asunto = request.form.get('asunto_finalizado')
 
             #### Controla si el largo del texto ingresado es mayor a 500
-            print(type(aprobado_note))
+            # print(type(aprobado_note))
             if len(aprobado_note) > 500 or len(rechazado_note) > 500 or len(cupon_generado_note) > 500 or len(finalizado_note) > 500:
                 flash('El texto ingresado es demasiado largo. El máximo permitido son 500 caracteres')
                 return redirect(url_for('main.company', empresa_id=current_user.store ))
@@ -1093,10 +1115,10 @@ def orden(orden_id):
         db.session.commit()
 
     ##### alerta etiqueta (envio=envio)    
-    print(empresa)
-    print("--")
-    print(session['current_empresa'])
-    print("--")
+    # print(empresa)
+    # print("--")
+    # print(session['current_empresa'])
+    # print("--")
    
     return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer, empresa=empresa, empresa_name=session['current_empresa'], envio=envio)
 
@@ -1199,8 +1221,8 @@ def uninstall():
                 html_body=render_template('email/uninstall.html', tienda=tienda), 
                 attachments=None, 
                 sync=False)
-        print(data['store_id'])
-        print(data['event'])
+        # print(data['store_id'])
+        # print(data['event'])
        
     return '', 200
 
@@ -1221,7 +1243,11 @@ def recibir_pedidos():
                 cantidad = 'misma'
             else: 
                 cantidad = 'diferente'
-            
+                #### Si la cantidad es diferente 
+                #### return "Agrega / quita artículos", 409
+        
+            ### Comprobar si quiere cambiar el metodo de envio ####
+
             #### compruebo si son iguales (prodcutos / acciones ##########
             iguales = 'Si'
             accion = 'igual'
@@ -1448,6 +1474,7 @@ def cotiza_envio():
     servicio =  CONF_metodos_envios.query.filter_by(store=data['correo']['store_id'], metodo_envio_id=data['correo']['metodo_envio']).first() 
    
     precio = cotiza_envio_correo(data, datos_correo, servicio)
+    
     if precio != 'Failed':
         return precio, 200
     else:

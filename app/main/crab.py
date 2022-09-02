@@ -1,33 +1,34 @@
 import requests
 import json
 
-from flask import flash, render_template, send_file
+from flask import flash, render_template
 from app.email import send_email
 from flask_login import current_user
-from app.models import CONF_correo, Company, correos
+from app.models import CONF_correo, Codigos_postales, Company, correos
 
 
 ###################################################
-# Cotiza envio en FASTMAIL
+# Cotiza envio en CRAB
 ###################################################
-def cotiza_envio_fastmail(data, datos_correo, correo_servicio):
-    
-    ######### Valida que este dentro del area de cobertura 
-    ##### Para CABA y GBA el codigo debe ser menor a 1900
-    if int(data['to']['postalCode']):
-        if int(data['to']['postalCode']) > 1900:
-            return 'Failed'
+def cotiza_envio_crab(data, datos_correo, correo_servicio):
+    ###########################################################################
+    #### Si tienen salientes es un cambio si No devolucion
+    ##########################################################################
 
-    id_servicio = "LI"
-    url = "https://epresislv.fastmail.com.ar/api/v2/cotizador.json"
+    id_servicio = codigo_servicio_crab(data['correo']['salientes'], correo_servicio.roundtrip, data['from']['postalCode'])
+    # print ('ID SERVICIO :'+str(id_servicio))
+    if id_servicio == "Sin Cobertura":
+         return 'Failed'
     
+    url = "https://crab.epresis.com/api/v2/cotizador.json"
+        
     headers = {
      'Content-Type': 'application/json'
     }
 
     solicitud_tmp = {
         "api_token": datos_correo.cliente_apikey,
-        "codigo_servicio": id_servicio, # "LI" codigo de servicio de FASTMAIL para logistica Inversa
+        "codigo_servicio": id_servicio, # "110 - Devoluciones / 118 - Cambios" codigo de servicio de CRAB para logistica Inversa
         "cp_origen": data['from']['postalCode'],
         "cp_destino": data['to']['postalCode'],
         #"destino": "AMBA",
@@ -59,7 +60,6 @@ def cotiza_envio_fastmail(data, datos_correo, correo_servicio):
     payload = json.dumps(solicitud_tmp)
     
     solicitud = requests.request("POST", url, headers=headers, data=payload)
-    
     if solicitud.status_code != 200:
         return 'Failed'
     else:
@@ -69,23 +69,31 @@ def cotiza_envio_fastmail(data, datos_correo, correo_servicio):
 
 
 ###################################################
-# Crea un nuevo envio en FASTMAIL
+# Crea un nuevo envio en CRAB
 ###################################################
-def crea_envio_fastmail(correo, metodo_envio, orden, customer, orden_linea):
-    url = "https://epresislv.fastmail.com.ar/api/v2/guias.json"
+def crea_envio_crab(correo, metodo_envio, orden, customer, orden_linea):
+
+    correo_servicio = codigo_servicio_crab(orden.salientes, orden.courier_coordinar_roundtrip, orden.customer_zipcode)
+    if correo_servicio == "Sin Cobertura":
+         return 'Failed'
+
+    url = "https://crab.epresis.com/api/v2/guias.json"
+
     headers = {
      'Content-Type': 'application/json'
     }
 
     if orden.courier_coordinar_roundtrip == True and orden.salientes == 'Si':
-        observaciones= "Retiro + Entrega"
+        observaciones = "Retiro + Entrega"
+    #    correo_servicio = "118"
     else: 
-        observaciones= "Retiro"
+        observaciones = "Retiro"
+    #    correo_servicio = "110"
 
     solicitud_tmp = {
         "api_token": correo.cliente_apikey, # viene de envios
         "codigo_sucursal": metodo_envio.correo_sucursal, # viene de CONF_metodo_envio
-        "codigo_servicio": metodo_envio.correo_servicio, # "LI" viene de CONF_metodo_envio
+        "codigo_servicio": correo_servicio, # "LI" viene de CONF_metodo_envio
         "remito": orden.order_number,
         "isInversa": True,
         "observaciones": observaciones,
@@ -141,12 +149,12 @@ def crea_envio_fastmail(correo, metodo_envio, orden, customer, orden_linea):
         return "Failed"
     else:
         solicitud = solicitud.json()
-        enviar_etiqueta_fastmail(correo, solicitud, customer, orden, metodo_envio, observaciones)
+        enviar_etiqueta_crab(correo, solicitud, customer, orden, metodo_envio, observaciones)
         return solicitud
 
 
 
-def enviar_etiqueta_fastmail(correo, solicitud, customer, orden, metodo_envio, observaciones):
+def enviar_etiqueta_crab(correo, solicitud, customer, orden, metodo_envio, observaciones):
     ####################################################################
     # las etiquetas se envia:
     # a FASTMAIL + CLIENTE si solo es RETIRO
@@ -158,11 +166,11 @@ def enviar_etiqueta_fastmail(correo, solicitud, customer, orden, metodo_envio, o
         mailto = [company.admin_email]
     
     if observaciones == "Retiro":
-        correo_descripcion = correos.query.get('FAST').correo_mail
+        correo_descripcion = correos.query.get('CRAB').correo_mail
         #mailto = 'ssuarez@fastmail.com.ar'
         mailto = [correo_descripcion,customer.email]
     
-    url = "https://epresislv.fastmail.com.ar/api/v2/print_etiquetas.json"
+    url = "https://crab.epresis.com/api/v2/print_etiquetas.json"
 
     headers = {
      'Content-Type': 'application/json'
@@ -195,11 +203,11 @@ def enviar_etiqueta_fastmail(correo, solicitud, customer, orden, metodo_envio, o
                                         sync=False)
 
 
-def ver_etiqueta_fastmail(guia):
-    correo_tmp = 'FAST'+str(current_user.store)
+def ver_etiqueta_crab(guia):
+    correo_tmp = 'CRAB'+str(current_user.store)
     correo = CONF_correo.query.get(correo_tmp)
     
-    url = "https://epresislv.fastmail.com.ar/api/v2/print_etiquetas.json"
+    url = "https://crab.epresis.com/api/v2/print_etiquetas.json"
 
     headers = {
      'Content-Type': 'application/json'
@@ -214,3 +222,58 @@ def ver_etiqueta_fastmail(guia):
     label_tmp = requests.request("POST", url, headers=headers, data=payload)
    
     return label_tmp
+
+def codigo_servicio_crab(salientes, roundtrip, postalcode):
+    #### CAMBIO ##### revisar para el interior hay que generar 2 ordenes
+    cordon_tmp = Codigos_postales.query.get(postalcode)
+    if not cordon_tmp:
+        return "Sin Cobertura"
+   
+    cordon = cordon_tmp.cordon
+    
+    if salientes == 'Si' and roundtrip == True: 
+        
+        if cordon == "AMBA":
+            return 118
+
+        #if CORDON 3: a
+        #119
+
+        #if INTERIOR 1
+        #120
+
+        #If INTERIOR 2
+        #121
+
+        #if PATAGONIA 1
+        #122
+
+        #if PATAGONIA 2
+        #123
+
+        #if TIERRA DEL FUEGO:
+        #124
+
+        return "A cotizar"
+    if salientes == 'No' or roundtrip == False:
+       
+        if cordon == "AMBA":
+            return 110
+
+        # if CORDON 3	
+        #     111
+        #if INTERIOR 1	
+        # 112
+        #if INTERIOR 2	
+        # 114
+        #if PATAGONIA 1	
+        # 115
+        #if PATAGONIA 2	
+        # 116
+        #if TIERRA DEL FUEGO	
+        # 117
+
+
+        return 110
+
+    return 100

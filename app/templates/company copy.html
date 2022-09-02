@@ -748,68 +748,61 @@
 
                                 </div>
                                 
-                                <div class="row">
-                                  <div class="col-sm-6">
-                                    <fieldset class="form-group">
-                                      <div class="row">
-                                        <legend class="col-form-label col-sm-4 pt-0">Costo del envío</legend>
-                                        <div class="col-sm-8">
-                                          <div class="form-check">
-                                            {% if (e.costo_envio == 'Customer') or (e.costo_envio == None) %}
-                                              <input class="form-check-input" type="radio" name="shipping" id="shipping_customer" value="Customer" checked>
-                                            {% else %}
-                                              <input class="form-check-input" type="radio" name="shipping" id="shipping_customer" value="Customer">
-                                            {% endif %}
-                                            <label class="form-check-label" for="shipping_customer">
-                                              A cargo del Cliente 
-                                            </label>
-                                          </div>
-                                          <div class="form-check">
-                                            {% if e.costo_envio == 'Merchant' %}
-                                              <input class="form-check-input" type="radio" name="shipping" id="shipping_company" value="Merchant" checked>
-                                            {% else %}
-                                              <input class="form-check-input" type="radio" name="shipping" id="shipping_company" value="Merchant">
-                                            {% endif %}
-                                            <label class="form-check-label" for="shipping_company">
-                                              A cargo del Merchant
-                                            </label>
-                                          </div> 
-                                        </div>
+                                <fieldset class="form-group">
+                                  <div class="row">
+                                    <legend class="col-form-label col-sm-2 pt-0">Costo del envío</legend>
+                                    <div class="col-sm-10">
+                                      <div class="form-check">
+                                        {% if (e.costo_envio == 'Customer') or (e.costo_envio == None) %}
+                                          <input class="form-check-input" type="radio" name="shipping" id="shipping_customer" value="Customer" checked>
+                                        {% else %}
+                                          <input class="form-check-input" type="radio" name="shipping" id="shipping_customer" value="Customer">
+                                        {% endif %}
+                                        <label class="form-check-label" for="shipping_customer">
+                                          A cargo del Cliente 
+                                        </label>
                                       </div>
-                                    </fieldset>
+                                      <div class="form-check">
+                                        {% if e.costo_envio == 'Merchant' %}
+                                          <input class="form-check-input" type="radio" name="shipping" id="shipping_company" value="Merchant" checked>
+                                        {% else %}
+                                          <input class="form-check-input" type="radio" name="shipping" id="shipping_company" value="Merchant">
+                                        {% endif %}
+                                        <label class="form-check-label" for="shipping_company">
+                                          A cargo del Merchant
+                                        </label>
+                                      </div> 
+                                    </div>
                                   </div>
-
-                                  <div class="col-sm-6">
-                                  <!-- Agregado para conocer si se cotiza cvon Retiro + Entrega -->
-                                    <fieldset class="form-group">
-                                      <div class="row">
-                                        <legend class="col-form-label col-sm-6 pt-0">Cotiza con Retiro + Entrega</legend>
-                                        <div class="col-sm-6">
-                                          <div class="form-check"> 
-                                            {% if (e.roundtrip == false ) or (e.roundtrip == None) %}
-                                              <input class="form-check-input" type="radio" name="roundtrip" id="roundtrip_no" value="roundtrip_no" checked>
-                                            {% else %}
-                                              <input class="form-check-input" type="radio" name="roundtrip" id="roundtrip_no" value="roundtrip_no">
-                                            {% endif %}
-                                            <label class="form-check-label" for="roundtrip_no">
-                                              No 
-                                            </label>
-                                          </div>
-                                          <div class="form-check">
-                                            {% if e.roundtrip == True %}
-                                              <input class="form-check-input" type="radio" name="roundtrip" id="roundtrip_si" value="roundtrip_si" checked>
-                                            {% else %}
-                                              <input class="form-check-input" type="radio" name="roundtrip" id="roundtrip_si" value="roundtrip_si">
-                                            {% endif %}
-                                            <label class="form-check-label" for="roundtrip_si">
-                                              Si
-                                            </label>
-                                          </div> 
-                                        </div>
+                                </fieldset>
+                                <!-- Agregado para conocer si se cotiza cvon Retiro + Entrega -->
+                                <fieldset class="form-group">
+                                  <div class="row">
+                                    <legend class="col-form-label col-sm-2 pt-0">Cotiza con Retiro + Entrega ?</legend>
+                                    <div class="col-sm-10">
+                                      <div class="form-check">
+                                        {% if (e.costo_envio == 'Customer') or (e.costo_envio == None) %}
+                                          <input class="form-check-input" type="radio" name="shipping" id="shipping_customer" value="Customer" checked>
+                                        {% else %}
+                                          <input class="form-check-input" type="radio" name="shipping" id="shipping_customer" value="Customer">
+                                        {% endif %}
+                                        <label class="form-check-label" for="shipping_customer">
+                                          Si 
+                                        </label>
                                       </div>
-                                    </fieldset>
+                                      <div class="form-check">
+                                        {% if e.costo_envio == 'Merchant' %}
+                                          <input class="form-check-input" type="radio" name="shipping" id="shipping_company" value="Merchant" checked>
+                                        {% else %}
+                                          <input class="form-check-input" type="radio" name="shipping" id="shipping_company" value="Merchant">
+                                        {% endif %}
+                                        <label class="form-check-label" for="shipping_company">
+                                          No
+                                        </label>
+                                      </div> 
+                                    </div>
                                   </div>
-                               </div>
+                                </fieldset>
 
                               {% endif %}
                               <strong class = "text-info">Instrucciones para el Envío:</strong><br>
