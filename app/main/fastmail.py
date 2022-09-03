@@ -72,6 +72,8 @@ def cotiza_envio_fastmail(data, datos_correo, correo_servicio):
 # Crea un nuevo envio en FASTMAIL
 ###################################################
 def crea_envio_fastmail(correo, metodo_envio, orden, customer, orden_linea):
+
+    id_servicio = "LI" ### Codigo para logistica Inversa FASTMAIL
     url = "https://epresislv.fastmail.com.ar/api/v2/guias.json"
     headers = {
      'Content-Type': 'application/json'
@@ -85,7 +87,7 @@ def crea_envio_fastmail(correo, metodo_envio, orden, customer, orden_linea):
     solicitud_tmp = {
         "api_token": correo.cliente_apikey, # viene de envios
         "codigo_sucursal": metodo_envio.correo_sucursal, # viene de CONF_metodo_envio
-        "codigo_servicio": metodo_envio.correo_servicio, # "LI" viene de CONF_metodo_envio
+        "codigo_servicio": id_servicio, # "LI" viene de CONF_metodo_envio
         "remito": orden.order_number,
         "isInversa": True,
         "observaciones": observaciones,
