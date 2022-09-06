@@ -1259,9 +1259,9 @@ def recibir_pedidos():
             encontro = 0
             for p in pedido['producto']:
                 for l in lineas:
-                    #print (str(l.prod_id) , str(p['id']), str(l.variant), str(p['variant']))
+                    print (str(l.variant) , str(p['variant']), str(l.accion_cambiar_por), str(p['accion_cambiar_por']))
                     #if l.prod_id == p['id']:
-                    if l.prod_id == p['id'] and l.variant == p['variant']:
+                    if l.variant == p['variant'] and l.accion_cambiar_por == p['accion_cambiar_por']:
                         if l.accion == p['accion']:
                             encontro = 1
                             break
