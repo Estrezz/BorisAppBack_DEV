@@ -1237,18 +1237,16 @@ def recibir_pedidos():
         if Order_header.query.filter_by(order_id_anterior=pedido['orden']).first():
             orden = Order_header.query.filter_by(order_id_anterior=pedido['orden']).first()
             lineas = Order_detail.query.filter_by(order=orden.id).all()
-
-            ### Comprobar si quiere cambiar el metodo de envio ####    
-            if orden.courier_method != pedido['correo']['correo_metodo_envio']:
-                return "Cambia metodo", 409
-
+            
             ### comprueba cantidad de articulos ###
             if len(lineas) == len(pedido['producto']):
                 cantidad = 'misma'
             else: 
                 cantidad = 'diferente'
-                return "Agrega / quita artículos", 409
+                #### Si la cantidad es diferente 
+                #### return "Agrega / quita artículos", 409
         
+            ### Comprobar si quiere cambiar el metodo de envio ####
 
             #### compruebo si son iguales (prodcutos / acciones ##########
             iguales = 'Si'
@@ -1256,27 +1254,20 @@ def recibir_pedidos():
             #### cambio comprobacion
             total = len(lineas)
             contador = 0
-            encontro = 0
             for p in pedido['producto']:
                 for l in lineas:
-                    #print (str(l.prod_id) , str(p['id']), str(l.variant), str(p['variant']))
-                    #if l.prod_id == p['id']:
-                    if l.prod_id == p['id'] and l.variant == p['variant']:
+                    if l.prod_id == p['id']:
                         if l.accion == p['accion']:
-                            encontro = 1
                             break
                         else:
                             accion = 'distinta'
                             break
                     else:
-                        contador += 1                       
+                        contador += 1
                         if contador > total:
                             iguales = 'No'
                         else:
                             continue
-                if encontro == 0:
-                    iguales = 'No'
-
 
             if (cantidad == 'misma' and iguales == 'Si' and accion == 'igual'):
                 return "Solicitud duplicada", 409
@@ -1284,7 +1275,8 @@ def recibir_pedidos():
                 return "Cambio de accion", 409
             if (cantidad == 'misma' and iguales == 'No'):
                 return "Cambio de producto", 409
-
+            if cantidad == 'diferente':
+                return "Agrega / quita artículos", 409
             return str('cantidad '+ cantidad + 'iguales '+ iguales + 'accion ' + accion), 409
 
         nuevo_pedido = crear_pedido(pedido)
