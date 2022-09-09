@@ -20,7 +20,7 @@ with app.app_context():
         header = ['Email', 'Name', 'Date', 'Brand']
         writer.writerow(header)
         for x in companies:
-            if x.encuesta == True:
+            if x.encuesta != True:
                 #print(x.store_name+' No esta')
                 continue
 

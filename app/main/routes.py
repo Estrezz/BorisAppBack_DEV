@@ -833,7 +833,9 @@ def search():
 def gestion_lineas_entrantes(orden_id):
     if request.method == "POST":
         lineas = request.form.getlist('order_line')
+     
         for l in lineas: 
+            #flash (" {} - {} ".format(orden_id, l))
             variant = request.form.get("variant"+str(l))
             accion = request.form.get("accion"+str(l))
             accion_cantidad = request.form.get("accion_cantidad"+str(l))
@@ -1259,7 +1261,7 @@ def recibir_pedidos():
             encontro = 0
             for p in pedido['producto']:
                 for l in lineas:
-                    print (str(l.variant) , str(p['variant']), str(l.accion_cambiar_por), str(p['accion_cambiar_por']))
+                    #print (str(l.variant) , str(p['variant']), str(l.accion_cambiar_por), str(p['accion_cambiar_por']))
                     #if l.prod_id == p['id']:
                     if l.variant == p['variant'] and l.accion_cambiar_por == p['accion_cambiar_por']:
                         if l.accion == p['accion']:
