@@ -187,6 +187,11 @@ def enviar_etiqueta_crab(correo, solicitud, customer, orden, metodo_envio, obser
         flash('no se pudo generar la etiqueta')
     else:
         label = label_tmp.content
+         # Build PDF from HTML 
+        # pdf = pdfkit.from_string(out, options=options)
+    
+        # Download the PDF
+        # return Response(pdf, mimetype="application/pdf")
     
     flash('Se generó la orden {} . Se envia la etiqueta por correo a {}'.format(solicitud['guia'], mailto))
 

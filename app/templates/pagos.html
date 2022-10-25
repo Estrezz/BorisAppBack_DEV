@@ -1,0 +1,305 @@
+{% extends "base.html" %}
+
+
+{% block app_content %}
+
+
+    <div class='container'>
+        <input type="hidden" id="total_devoluciones" name="total_devoluciones" value="{{ total_devoluciones }}">
+        <input type="hidden" id="total_cambios" name="total_cambios" value="{{ total_cambios }}">
+        <input type="hidden" id="total_cupones" name="total_cupones" value="{{ total_cupones }}">
+        
+        {% if empresa.pagos == true and orden.reembolsado != true %}
+            <!-- Encabezado conNro de Orden-->
+            <div class="row">
+                <div class = "page-header"> <h4> Reembolsos / Saldos - Orden #{{orden.order_number}}</h4> </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-md-6">
+                    <!------------------ Muestra Devoluciones -------------------------->
+                    {% if  devoluciones|length > 0 %}
+                        <div class = "text-info"> 
+                            <h5> Devoluciones </h5>
+                        </div>
+
+                        <ul class="list-group">
+                            {% for i in devoluciones%}
+                            <li class="list-group-item d-flex justify-content-between">
+                                <div>
+                                <h6 class="my-0"> {{i['cantidad']}} &nbsp; {{i['producto']}} 
+                                ( {{ "${:,.0f}".format(i['monto']) }})</h6> 
+                                </div>
+                                <span class="text-muted">{{ "${:,.0f}".format(i['monto']) }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+
+                    <br>
+
+                    <!------------------ Muestra Cambios  -------------------------->
+                    {% if  cambios|length > 0 %}
+                        <div class = "text-info"> 
+                            <h5> Cambios </h5>
+                        </div>
+                        
+                        <ul class="list-group">
+                            {% for c in cambios%}
+                            <li class="list-group-item d-flex justify-content-between">
+                                <div>
+                                    <h6 class="my-0">{{c['cantidad']}} &nbsp; {{c['producto']}} ({{ "${:,.0f}".format(c['monto']) }})&nbsp; </h6>
+                                    <small class="text-muted"> X &nbsp; {{c['cambio_por']}} ( {{ "${:,.0f}".format(c['precio_cambio'])}})</small> 
+                                </div>    
+                                <span class="text-muted">{{ "${:,.0f}".format(c['diferencia']) }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+
+                    <br>
+
+                    <!------------------ Muestra Cupones  -------------------------->
+                    {% if  cupones|length > 0 %}
+                        <div class = "text-info"> 
+                            <h5> Cupones </h5>
+                        </div>
+                        
+                        <ul class="list-group">
+                            {% for c in cupones%}
+                            <li class="list-group-item d-flex justify-content-between">
+                                <div>
+                                    <h6 class="my-0">{{c['cantidad']}} &nbsp; {{c['producto']}} ({{ "${:,.0f}".format(c['monto']) }})&nbsp; </h6>
+                                    <small class="text-muted"> X &nbsp; {{c['cambio_por']}}</small> 
+                                </div>    
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                            
+                    <br>
+                
+                </div>
+                <div class="col-md-6">
+                    <!-- Calculo de valor a pagar/devolver -->
+                     <br>
+                    <form id="form_envio" class = 'card p-3 bg-white ml-2 mb-2' action="{{ url_for('main.reembolso', orden_id = orden.id) }}" method="POST"> 
+                        
+                        <div class = "text-info"> 
+                            <h5> Reembolso / Saldo </h5>
+                        </div>
+                        {% set link_orden = empresa.store_url+'/admin/orders/'+orden.order_id_anterior|string %}
+                        <p> 
+                            Recorda siempre controlar los descuentos efectuados en la orden original 
+                            <a href={{link_orden}} target="_blank" rel="noreferrer noopener"> Click Acá </a>
+                        </p>
+                        <br>
+
+                        {% if  devoluciones|length > 0 %}
+                            <div class="input-group input-group-sm mb-2 float-right">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="totalDevoluciones">Items a devolver ({{devoluciones|length}} items) </span>
+                                </div>
+                                <input type="text" id="total_devoluciones_form" name="total_devoluciones_form" class="form-control text-right" value="{{ '${:,.0f}'.format(total_devoluciones) }}" disabled>
+                            </div>
+                        {% endif %}
+
+                        {% if  cambios|length > 0 %}
+                            <div class="input-group input-group-sm mb-2 float-right">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="totalCambios">Items a cambiar ({{cambios|length}} items) </span>
+                                </div>
+                                <input type="text" id="total_cambios_form" name="total_cambios_form" class="form-control text-right" value="{{ '${:,.0f}'.format(total_cambios) }}" disabled>
+                            </div>
+                        {% endif %}
+
+                        {% if  cupones|length > 0 %}
+                            {% for c in cupones %}
+                                <input type="hidden" id="lista_cupon" name="lista_cupon" value="{{ c['linea'] }}">
+                            {% endfor %}
+                            <div class="input-group input-group-sm mb-2 float-right">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="totalCupones">Cupones ({{cupones|length}} items) </span>
+                                </div>
+                                <input type="text" id="total_cupones_form" name="total_cupones_form" class="form-control text-right" value="{{ '${:,.0f}'.format(total_cupones) }}" disabled>
+                            </div>
+                        {% endif %}
+                        
+                        <!------------------ Calcula el precio del envio (si tiene trae el precio) --------------------->
+                        {% if orden.courier_precio|int != 0  %}
+                            {% set precio_envio = orden.courier_precio %}
+                        {% else %}
+                            {% set precio_envio = 0 %}
+                        {% endif %}
+                        
+                    
+                        <div class="input-group input-group-sm mb-2 float-right">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="costoEnvio">Costo del Envío $</span>
+                            </div>
+                            <input type="text" id="costo_envio" name="costo_envio" class="form-control text-right"  value="{{precio_envio}}" placeholder="Ingrese Costo de Envio">
+                        </div>
+                    
+
+                        <!------------------------- Calcula el SALDO ------------------------->
+                        {% if total_devoluciones + total_cambios + total_cupones > -1 %}
+                            {% set calculo_total_reembolso = total_devoluciones + total_cambios + total_cupones - (orden.courier_precio|int) %}
+                        {% else %}
+                            {% set calculo_total_reembolso = total_devoluciones + total_cambios + total_cupones + (orden.courier_precio|int) %}
+                        {% endif %}
+
+                        <!------------------------- Setea "A cobrar" /  "A devolver" ------------------------->
+                        {% if calculo_total_reembolso > -1 %}
+                            {% set texto_total_reembolso = "A Devolver" %}
+                        {% else %}
+                            {% set texto_total_reembolso = "A Cobrar" %}
+                        {% endif %}
+
+                        <div class="input-group input-group-sm mb-2 float-right">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="totalReembolso">Total Reembolso $&nbsp;({{texto_total_reembolso}}) </span>
+                            </div>
+                            <input type="text" id="total_reembolso" name="total_reembolso" class="form-control text-right"  value="{{ '${:,.0f}'.format(calculo_total_reembolso) }}">
+                        </div>
+                        <br>
+                        
+                        <div id="botones_reembolso"">
+                            <div class="row d-flex justify-content-between p-3">
+                                <button class="btn-sm btn-success" type="submit" name="boton" value="reembolso_cupon">Reembolso<br> Cupon</button> &nbsp;
+                                <button class="btn-sm btn-info" type="submit" name="boton" value="reembolso_manual">Reembolso <br>Manual</button>
+                            </div>
+                        </div>
+
+                        
+                        <!-- Descuentos orden original -->
+                        <div>
+                            {% if orden.gastos_gateway != 0 or orden.gastos_cupon != 0 or orden.gastos_promocion != 0 %} 
+                                <br>
+                                <hr>
+                                <h6>Descuentos orden orginal</h6>
+                                {% if orden.gastos_gateway != 0 %} 
+                                <div class="input-group input-group-sm mb-2 float-right">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" id="descFormaPago">Desc. Forma de Pago $</span>
+                                    </div>
+                                    <input type="text" id="descuentos_forma_pago" name="descuentos_forma_pago" class="form-control text-right" aria-describedby="descFormaPago" value="{{orden.gastos_gateway}}" disabled>
+                                </div>
+                                <br>
+                                {% endif %}
+                    
+                                {% if orden.gastos_cupon != 0 %}
+                                    <div class="input-group input-group-sm mb-2 float-right">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="descCupon">Cupón $</span>
+                                        </div>
+                                        <input type="text" id="descuentos_cupon" name="descuentos_cupon" class="form-control text-right" aria-describedby="descCupon" value="{{orden.gastos_cupon}}" disabled>
+                                    </div>
+                                    <br>
+                                {% endif %}
+                    
+                                {% if orden.gastos_promocion != 0 %}
+                                    <div class="input-group input-group-sm mb-2 float-right">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="gastos_promo">Desc. Promo $</span>
+                                        </div>
+                                        <input type="text" id="descuentos_promo" name="descuentos_promo" class="form-control text-right" aria-describedby="gastos_promo" value="{{orden.gastos_promocion}}" disabled>
+                                    </div>
+                                    <br>
+                                {% endif %} 
+                            {% endif %}   
+                        </div>
+                        <!-- Descuentos orden original -->
+
+                    </form>
+                </div>
+                <br>
+
+            </div> <!-- end row -->
+        {% endif %}
+    </div> <!-- end container -->
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script>
+       
+       $('#botones_reembolso').hide();
+
+       $('#total_reembolso').keypress(function(e) {
+            if (e.keyCode == '13') {
+                e.preventDefault();
+                if ($('#total_reembolso').val() > 0) {
+                    $('#botones_reembolso').show()
+                } else {
+                    $('#botones_reembolso').hide()
+                }};
+                $('#costo_envio').focus()
+        });
+
+        $(function () {      
+            var total_devoluciones = parseFloat($('#total_devoluciones').val());
+            var total_cambios = parseFloat($('#total_cambios').val());
+            var total_cupones = parseFloat($('#total_cupones').val());
+            var costo_courier = $('#costo_courier').val();
+            var costo_envio = $('#costo_envio').val();
+
+            if ($('#costo_courier').val() > 0) {
+                var envio = $('#costo_courier').val()
+            } else {
+                var envio = $('#costo_envio').val()
+            };
+
+            if ((total_devoluciones + total_cambios + total_cupones) > -1){
+                total_reembolso = total_devoluciones + total_cambios + total_cupones - envio 
+            } else {
+                total_reembolso = total_devoluciones + total_cambios + total_cupones + envio 
+            };
+            
+            if (total_reembolso > 0) {
+                $('#botones_reembolso').show()
+            };
+
+        });
+
+
+        $('#costo_envio').on('change', function() {
+            var total_devoluciones = parseFloat($('#total_devoluciones').val());
+            var total_cambios = parseFloat($('#total_cambios').val());
+            var total_cupones = parseFloat($('#total_cupones').val());
+            var costo_envio =  parseFloat($('#costo_envio').val());
+
+            if (costo_envio > 0) {
+                total_reembolso = (total_devoluciones + total_cambios + total_cupones) - costo_envio
+            } else {
+                total_reembolso = (total_devoluciones + total_cambios + total_cupones) + costo_envio;
+            };
+
+            if(total_reembolso > -1){
+                var texto_total_reembolso = "A Devolver"
+            } else {
+                var texto_total_reembolso = "A Cobrar"
+            };
+            
+            $('#total_reembolso').val(parseFloat(total_reembolso));
+            $('#totalReembolso').html('Total Reembolso $ (' + texto_total_reembolso +')');
+            
+
+            if (total_reembolso > 0) {
+                $('#botones_reembolso').show()
+            } else {
+                $('#botones_reembolso').hide()
+            }
+        });
+
+
+        $('#costo_envio').keypress(function(e) {
+            if (e.keyCode == '13') {
+                e.preventDefault();}
+                $('#total_reembolso').focus()
+        });
+        
+
+    </script>
+
+{% endblock %}

@@ -108,7 +108,13 @@
                                 <input type="text" class="form-control form-control-sm" name="store_phone" id="store_phone" value="{{empresa.store_phone or ''}}" placeholder="Teléfono Tienda">
                               </div>
                             </div>
-                            <div class="form-group row">
+
+                            <!------------------- Datos de Configuracion del Merchant---------------------------->
+                            <hr>
+                            <div class = "text-info"> 
+                              <h5> Configuracion del Merchant  </h5>
+                            </div>
+                            <div class="form-group row mt-2">
                               <div class="form-check col-auto">
                                 {% if empresa.stock_vuelve_config == true %}
                                   <input class="form-check-input ml-2" type="checkbox" name ="stock_vuelve_config" id="stock_vuelve_config" checked>
@@ -120,8 +126,22 @@
                                 </label>
                               </div>
                             </div>
+
+                            <div class="form-group row">
+                              <div class="form-check col-auto">
+                                {% if empresa.pagos == true %}
+                                  <input class="form-check-input ml-2" type="checkbox" name ="reembolso_config" id="reembolso_config" checked>
+                                {% else %}
+                                  <input class="form-check-input ml-2" type="checkbox" name ="reembolso_config" id="reembolso_config" >
+                                {% endif %}
+                                <label class="form-check-label ml-4" for="reembolso_config">
+                                  Reembolsos y saldos por cupón ? 
+                                </label>
+                              </div>
+                            </div>
+
                           </small>
-                      
+                          <hr>
                           <!---------------- Datos Tienda - Solo lectura -------------------------------->
                           <div class="alert alert-secondary mt-3"> 
                             <p> <small>
@@ -132,7 +152,7 @@
                             </small></p> 
                           </div>
                           <hr>
-                          <br>
+                          
 
                           <!---------------- Datos del contacto -------------------------------->
                           <div class = "text-info "> 
