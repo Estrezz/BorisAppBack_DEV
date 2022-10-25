@@ -623,7 +623,7 @@
                         {% endif %}
 
                         {% if empresa.pagos == true and (orden.reembolsado == false or orden.reembolsado == None) and orden.status_resumen != 'Cerrado'%}
-                        <strong class="mb-2">Reembolsos / Saldos </strong><br>
+                        <strong>Reembolsos / Saldos </strong><br>
                             <form id="pagos" action="{{ url_for('main.pagos', orden_id = orden.id) }}" method="POST"> 
                                 <label for="pagos_status">Estado :</label>
                                 <strong>{{estado_reembolsado}}</strong><br>

@@ -17,7 +17,6 @@ def buscar_datos_variantes_tiendanube(prod_id, variant, empresa):
         'Authentication': empresa.platform_token_type+' '+empresa.platform_access_token
     }
     variante = requests.request("GET", url, headers=headers, data=payload).json()
-    #flash('variante antes antes {} tipo {}'.format(variante, type(variante)))
     return variante
 
 
