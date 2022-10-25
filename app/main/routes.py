@@ -63,6 +63,7 @@ def edit_profile():
     return render_template('edit_profile.html', title='Editar perfil',
                            form=form,  empresa_name=session['current_empresa'])
 
+
 ############################################################################################
 # CONFIGURACION  PERFIL DE LA TIENDA
 ############################################################################################
