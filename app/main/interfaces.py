@@ -180,7 +180,8 @@ def traducir_estado(estado):
             "RECHAZADO":['Rechazado', 'Rechazado', 'Tu orden fue rechazada'],
             "CERRADO":['Cerrado', 'Cerrado', 'Tu orden fue finalizada'],
             "CANCELADO":['Cancelado', 'Cancelado', 'La orden fue cancelada'],
-            "MODIFICACION":['Modificado', 'Modificado', 'Tu orden fue modificada']
+            "MODIFICACION":['Modificado', 'Modificado', 'Tu orden fue modificada'],
+            "REEMBOLSADO":['Reembolsado', 'Reembolsado', 'Se generó el reembolso']
         }
     return switcher.get(estado,"Aprobado")
 

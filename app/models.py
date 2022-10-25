@@ -70,6 +70,8 @@ class Company(db.Model):
 
     encuesta = db.Column(db.Boolean)
     habilitado = db.Column(db.Boolean)
+    pagos = db.Column(db.Boolean)
+    
     start_date = db.Column(db.DateTime, default=datetime.utcnow)
     demo_store = db.Column(db.Boolean)
     rubro_tienda = db.Column(db.String(64))
@@ -142,6 +144,7 @@ class Order_header(db.Model):
     metodo_envio_guia = db.Column(db.String(64), index=True)
     etiqueta_generada = db.Column(db.Boolean)
     courier_precio = db.Column(db.String(20))
+    reembolsado = db.Column(db.Boolean)
     #### quitar
     # courier_coordinar_empresa es reemplazado por metodo_envio_correo
     # courier_coordinar_guia es reemplazado por metodo_envio_guia
@@ -257,7 +260,7 @@ class  CONF_boris(db.Model):
     cambio_otra_cosa = db.Column(db.Boolean)
     cambio_cupon = db.Column(db.Boolean)
     observaciones = db.Column(db.Boolean)
-    cambio_opcion = db.Column(db.String(150))
+    cambio_opcion = db.Column(db.String(200))
     cambio_opcion_cupon = db.Column(db.String(150))
     cambio_opcion_otra_cosa = db.Column(db.String(150))
     portal_empresa = db.Column(db.String(150))

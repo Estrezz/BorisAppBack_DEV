@@ -614,7 +614,36 @@
                             {{orden.customer_locality}}&nbsp({{orden.customer_zipcode}})<br>
                             {{orden.customer_city}} &nbsp - &nbsp{{orden.customer_province}} <br>
                             <hr>
+                        
+                        <!-- Pagos --> 
+                        {% if orden.reembolsado == true %}
+                            {% set estado_reembolsado = "Reembolsado" %}
+                        {% else %}
+                            {% set estado_reembolsado = "Sin Reembolso" %}
+                        {% endif %}
 
+                        {% if empresa.pagos == true and (orden.reembolsado == false or orden.reembolsado == None) and orden.status_resumen != 'Cerrado'%}
+                        <strong class="mb-2">Reembolsos / Saldos </strong><br>
+                            <form id="pagos" action="{{ url_for('main.pagos', orden_id = orden.id) }}" method="POST"> 
+                                <label for="pagos_status">Estado :</label>
+                                <strong>{{estado_reembolsado}}</strong><br>
+                                <button  class="btn btn-outline-primary btn-sm mt-2 float-right" type="submit"> Reembolsos / Saldos </button>
+                            </form>
+                            <br>
+                            <br>
+                            <hr>
+                        {% endif %}
+
+                        {% if empresa.pagos == true and orden.reembolsado == true %}
+                            <strong>Reembolsos / Saldos </strong><br>
+                            <label for="pagos_status">Estado :</label>
+                            <strong>{{estado_reembolsado}}</strong><br>
+                            <br>
+                            <hr>
+                        {% endif %}
+
+                        <!-- Fin Pagos --> 
+                        
                         <!-- Notas --> 
                             <form id="Nota" action="{{ url_for('main.orden', orden_id = orden.id) }}" method="POST"> 
                                 <label for="nota">Notas:</label>
