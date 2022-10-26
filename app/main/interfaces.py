@@ -167,7 +167,7 @@ def buscar_producto(prod_id, empresa):
 def traducir_estado(estado):
     switcher={
             'DRAFT':['Solicitado','Solicitado','Inicio de la Gestion'],
-            'READY':['Listo para retiro','En Transito', 'Solicitud aprobada'],
+            'READY':['Listo para retiro','En Transito', 'Solicitud confirmada'],
             'CONFIRMED':['Confirmado','En Transito', 'No'],
             'PICKEDUP':['Recogido','En Transito', 'Se recogió la orden'],
             'INTRANSIT':['En camino','En Transito','No'],
@@ -199,6 +199,16 @@ def toReady(orden, company):
             orden_tmp.sub_status = traducir_estado('READY')[0]
             orden_tmp.status_resumen = traducir_estado('READY')[1]
             orden_tmp.date_lastupdate = datetime.utcnow()
+             #### Loguea Accion de Confirmar ####
+            unaTransaccion = Transaction_log(
+                sub_status = traducir_estado('READY')[0],
+                status_client = traducir_estado('READY')[2],
+                order_id = orden.id,
+                user_id = current_user.id,
+                username = current_user.username
+            )
+            db.session.add(unaTransaccion)
+
             db.session.commit()
             return "Success"
         else:
@@ -211,6 +221,17 @@ def toReady(orden, company):
         orden_tmp.status_resumen = traducir_estado('READY')[1]
         #orden_tmp.last_update_date = str(datetime.utcnow)
         orden_tmp.date_lastupdate = datetime.utcnow()
+        
+        #### Loguea Accion de Confirmar ####
+        unaTransaccion = Transaction_log(
+            sub_status = traducir_estado('READY')[0],
+            status_client = traducir_estado('READY')[2],
+            order_id = orden.id,
+            user_id = current_user.id,
+            username = current_user.username
+        )
+        db.session.add(unaTransaccion)
+
         db.session.commit()
 
         metodo_envio_tmp = CONF_metodos_envios.query.get((company.store_id, envio.metodo_envio_id))

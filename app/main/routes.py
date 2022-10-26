@@ -1023,7 +1023,26 @@ def ver_ordenes(estado, subestado):
         else: 
             ordenes = db.session.query(Order_header).filter((Order_header.store == current_user.store)).filter((Order_header.status == estado)).filter((Order_header.status_resumen == subestado))
 
-    return render_template('ordenes.html', title='Ordenes', ordenes=ordenes, estado=estado, subestado=subestado,  resumen=resumen, empresa_name=session['current_empresa'])
+
+    #############################################
+    # Arma array de Ordenes para incluir 
+    # nombre de Cliente y pasarlo a la tabla
+    ##############################################
+
+    ordenes_tmp = []
+    for o in ordenes:
+        customer_name = Customer.query.get(o.customer_id).name
+        ordenes_tmp.append({"id":o.id,
+            "order_number": o.order_number,
+            "date_creation": o.date_creation, 
+            "date_lastupdate": o.date_lastupdate, 
+            "courier_method":o.courier_method,
+            "metodo_envio_guia":o.metodo_envio_guia, 
+            "status_resumen":o.status_resumen, 
+            "customer_name":customer_name,
+            "status": o.status })
+
+    return render_template('ordenes.html', title='Ordenes', ordenes=ordenes_tmp, estado=estado, subestado=subestado,  resumen=resumen, empresa_name=session['current_empresa'])
 
 
 @bp.route('/orden/mantenimiento/eliminar/<orden_id>', methods=['GET', 'POST'])

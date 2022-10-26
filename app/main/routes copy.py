@@ -63,6 +63,7 @@ def edit_profile():
     return render_template('edit_profile.html', title='Editar perfil',
                            form=form,  empresa_name=session['current_empresa'])
 
+
 ############################################################################################
 # CONFIGURACION  PERFIL DE LA TIENDA
 ############################################################################################
@@ -126,6 +127,7 @@ def edit_storeinfo():
             store_idfiscal = request.form.get('idfiscal')
             store_phone = request.form.get('store_phone')
             stock_vuelve_config = request.form.get('stock_vuelve_config')
+            reembolso_config = request.form.get('reembolso_config')
             contact_name = request.form.get('contact_name')
             contact_email = request.form.get('contact_email')
             contact_phone = request.form.get('contact_phone')
@@ -143,10 +145,17 @@ def edit_storeinfo():
             empresa.admin_email = admin_email
             empresa.store_idfiscal = store_idfiscal
             empresa.store_phone = store_phone
+
             if stock_vuelve_config == 'on':
                 empresa.stock_vuelve_config = True
             else:
                 empresa.stock_vuelve_config = False
+
+            if reembolso_config == 'on':
+                empresa.pagos = True
+            else:
+                empresa.pagos = False
+            
             empresa.contact_name = contact_name
             empresa.contact_email = contact_email
             empresa.contact_phone = contact_phone
@@ -833,7 +842,9 @@ def search():
 def gestion_lineas_entrantes(orden_id):
     if request.method == "POST":
         lineas = request.form.getlist('order_line')
+     
         for l in lineas: 
+            #flash (" {} - {} ".format(orden_id, l))
             variant = request.form.get("variant"+str(l))
             accion = request.form.get("accion"+str(l))
             accion_cantidad = request.form.get("accion_cantidad"+str(l))
@@ -1023,6 +1034,8 @@ def menu_eliminar_orden(orden_id):
     return render_template('eliminar_orden.html', orden=orden, lineas=lineas, customer=orden.buyer, empresa_name=session['current_empresa'])
 
 
+
+
 @bp.route('/orden/eliminar/<orden_id>', methods=['GET', 'POST'])
 @login_required
 def eliminar_orden(orden_id):
@@ -1122,6 +1135,127 @@ def orden(orden_id):
    
     return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer, empresa=empresa, empresa_name=session['current_empresa'], envio=envio)
 
+
+@bp.route('/orden/pagos/<orden_id>', methods=['GET', 'POST'])
+@login_required
+def pagos(orden_id):
+    #####################################################################
+    # Agregar en Base de Datos: 
+    # - Company: "Gestiona Reembolsos" (s/n)
+    # - Reembolsado: para identificar si se hizo o no el reembolso
+    # Ver si hace falta agregar un estado  "Reembolsado" antes de finalizar
+    # Loguear transaccion
+    # Es muy lento - Dificil como se marcan las promos 
+    # Que pasa si no se encuentra un arituclo
+    #####################################################################
+    orden = Order_header.query.filter_by(id=orden_id).first()
+    orden_linea = Order_detail.query.filter_by(order=orden_id).all()
+    empresa = Company.query.get(orden.store)
+ 
+    devoluciones = []
+    cambios = []
+    cupones = []
+    total_devoluciones = 0
+    total_cambios = 0
+    total_cupones = 0
+    articulo_no_encontrado = 0
+
+    for l in orden_linea:
+        if l.accion == 'devolver':
+            devoluciones.append({'producto':l.name,'cantidad':l.accion_cantidad,'monto': l.monto_a_devolver})
+            total_devoluciones = total_devoluciones + l.monto_a_devolver
+            
+        if l.accion == 'cambiar':
+            if l.promo_precio_final != 0 :
+                precio = l.promo_precio_final * l.accion_cantidad
+            else:
+                precio = l.precio * l.accion_cantidad
+
+            ### Si el cambio es por un cupon 
+            if l.accion_cambiar_por_desc == "Cupón":
+                if l.gestionado != 'Cambiado' and l.gestionado != 'Gestionado':
+                    cupones.append({'producto':l.name,'cantidad':l.accion_cantidad,'monto': precio, 'cambio_por':l.accion_cambiar_por_desc, 'precio_cambio': 0, 'linea': l.order_line_number })
+                    total_cupones = total_cambios + precio
+
+            ##### Si el cambio NO es por un cupon
+            else:
+                variante = buscar_datos_variantes_tiendanube(l.accion_cambiar_por_prod_id, l.accion_cambiar_por, empresa)
+                if "code" in variante:
+                    if variante['code'] == 404:
+                        #flash('no se econtro un articulo')
+                        cambios.append({'producto':l.name,'cantidad':l.accion_cantidad,'monto': precio, 'cambio_por':l.accion_cambiar_por_desc, 'precio_cambio': 'No se econtro el ar´ticulo', 'diferencia': 0 })
+                else: 
+                    if "promotional_price" not in variante:
+                        #flash('NO se encontro promotional_price')
+                        precio_cambio = float(variante['price']) * l.accion_cantidad
+                    else: 
+                        if variante['promotional_price']:
+                            precio_cambio = float(variante['promotional_price']) * l.accion_cantidad
+                        else: 
+                            precio_cambio = float(variante['price']) * l.accion_cantidad
+                    
+                    diferencia = precio - precio_cambio
+                    total_cambios = total_cambios + diferencia
+                    cambios.append({'producto':l.name,'cantidad':l.accion_cantidad,'monto': precio, 'cambio_por':l.accion_cambiar_por_desc, 'precio_cambio': precio_cambio, 'diferencia':diferencia })
+                
+    return render_template('pagos.html', orden=orden, orden_linea=orden_linea, empresa=empresa, empresa_name=session['current_empresa'], total_devoluciones=total_devoluciones, total_cambios=total_cambios, total_cupones=total_cupones, cupones=cupones, devoluciones=devoluciones, cambios=cambios)
+
+
+@bp.route('/orden/reembolso/<orden_id>', methods=['GET', 'POST'])
+@login_required
+def reembolso(orden_id):
+    orden = Order_header.query.filter_by(id=orden_id).first()
+    orden_linea = Order_detail.query.filter_by(order=orden_id).all()
+    empresa = Company.query.get(orden.store)
+    envio = metodos_envios.query.get(orden.courier_method)
+
+    if request.method == "POST":
+        accion = request.form.get('boton')
+        ### recupera las lineas de la orden que tienen cupones sin gestionar
+        lista_cupones = request.form.getlist('lista_cupon')
+        
+        ######## Si se decidió reembolsar en cupón ###################
+        if accion == "reembolso_cupon":
+            unCliente = orden.buyer
+            total_reembolso = request.form.get("total_reembolso")
+
+            #### Elimina el simbolo de $ y el . como separador ########
+            clean = re.sub(r'[^0-9]+', '', str(total_reembolso))
+            value = float(clean)
+            
+            ####### genera el cupon ####################
+            credito = genera_credito(empresa, value, unCliente, orden)
+            envio_nuevo_metodo = 'Se genera reembolso en cupon gral: '+credito+' por '+ total_reembolso
+            flash('Se generó un cupon por: {}'.format(total_reembolso))
+
+            if credito == 'Failed':
+                return redirect(url_for('main.orden', orden_id=orden_id))
+        
+            if len(lista_cupones) > 0: 
+                for l in lista_cupones:
+                    linea = Order_detail.query.get(l)
+                    linea.nuevo_envio = envio_nuevo_metodo
+                    linea.fecha_gestionado = datetime.utcnow()
+                    loguear_transaccion('CAMBIADO', str(linea.name)+' reembolso en cupon gral ', orden_id, current_user.id, current_user.username)
+                    if linea.gestionado == 'Devuelto':
+                        linea.gestionado = 'Si'
+                    else:
+                        linea.gestionado = traducir_estado('CAMBIADO')[1]
+
+                    db.session.commit()
+                    finalizar_orden(orden_id)
+            
+            loguear_transaccion('REEMBOLSADO', envio_nuevo_metodo, orden_id, current_user.id, current_user.username)
+
+
+        if accion == "reembolso_manual":
+            flash('Se reembolsa manualmente')
+            loguear_transaccion('REEMBOLSADO', ' Reembolso manual ', orden_id, current_user.id, current_user.username)
+
+        orden.reembolsado = True
+        db.session.commit()
+
+    return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer, empresa=empresa, empresa_name=session['current_empresa'], envio=envio)
 
 @bp.route('/orden/gestion/<orden_id>', methods=['GET', 'POST'])
 @login_required
@@ -1237,16 +1371,18 @@ def recibir_pedidos():
         if Order_header.query.filter_by(order_id_anterior=pedido['orden']).first():
             orden = Order_header.query.filter_by(order_id_anterior=pedido['orden']).first()
             lineas = Order_detail.query.filter_by(order=orden.id).all()
-            
+
+            ### Comprobar si quiere cambiar el metodo de envio ####    
+            if orden.courier_method != pedido['correo']['correo_metodo_envio']:
+                return "Cambia metodo", 409
+
             ### comprueba cantidad de articulos ###
             if len(lineas) == len(pedido['producto']):
                 cantidad = 'misma'
             else: 
                 cantidad = 'diferente'
-                #### Si la cantidad es diferente 
-                #### return "Agrega / quita artículos", 409
+                return "Agrega / quita artículos", 409
         
-            ### Comprobar si quiere cambiar el metodo de envio ####
 
             #### compruebo si son iguales (prodcutos / acciones ##########
             iguales = 'Si'
@@ -1254,20 +1390,27 @@ def recibir_pedidos():
             #### cambio comprobacion
             total = len(lineas)
             contador = 0
+            encontro = 0
             for p in pedido['producto']:
                 for l in lineas:
-                    if l.prod_id == p['id']:
+                    #print (str(l.variant) , str(p['variant']), str(l.accion_cambiar_por), str(p['accion_cambiar_por']))
+                    #if l.prod_id == p['id']:
+                    if l.variant == p['variant'] and l.accion_cambiar_por == p['accion_cambiar_por']:
                         if l.accion == p['accion']:
+                            encontro = 1
                             break
                         else:
                             accion = 'distinta'
                             break
                     else:
-                        contador += 1
+                        contador += 1                       
                         if contador > total:
                             iguales = 'No'
                         else:
                             continue
+                if encontro == 0:
+                    iguales = 'No'
+
 
             if (cantidad == 'misma' and iguales == 'Si' and accion == 'igual'):
                 return "Solicitud duplicada", 409
@@ -1275,8 +1418,7 @@ def recibir_pedidos():
                 return "Cambio de accion", 409
             if (cantidad == 'misma' and iguales == 'No'):
                 return "Cambio de producto", 409
-            if cantidad == 'diferente':
-                return "Agrega / quita artículos", 409
+
             return str('cantidad '+ cantidad + 'iguales '+ iguales + 'accion ' + accion), 409
 
         nuevo_pedido = crear_pedido(pedido)
