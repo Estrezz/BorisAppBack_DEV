@@ -70,6 +70,8 @@ class Company(db.Model):
 
     encuesta = db.Column(db.Boolean)
     habilitado = db.Column(db.Boolean)
+    pagos = db.Column(db.Boolean)
+    
     start_date = db.Column(db.DateTime, default=datetime.utcnow)
     demo_store = db.Column(db.Boolean)
     rubro_tienda = db.Column(db.String(64))
@@ -105,7 +107,8 @@ class User(UserMixin, db.Model):
         return jwt.encode(
             {'reset_password': self.id, 'exp': time() + expires_in},
             current_app.config['SECRET_KEY'],
-            algorithm='HS256').decode('utf-8')
+            # algorithm='HS256').decode('utf-8')
+            algorithm='HS256')
 
     @staticmethod
     def verify_reset_password_token(token):
@@ -141,6 +144,7 @@ class Order_header(db.Model):
     metodo_envio_guia = db.Column(db.String(64), index=True)
     etiqueta_generada = db.Column(db.Boolean)
     courier_precio = db.Column(db.String(20))
+    reembolsado = db.Column(db.Boolean)
     #### quitar
     # courier_coordinar_empresa es reemplazado por metodo_envio_correo
     # courier_coordinar_guia es reemplazado por metodo_envio_guia
@@ -256,7 +260,7 @@ class  CONF_boris(db.Model):
     cambio_otra_cosa = db.Column(db.Boolean)
     cambio_cupon = db.Column(db.Boolean)
     observaciones = db.Column(db.Boolean)
-    cambio_opcion = db.Column(db.String(150))
+    cambio_opcion = db.Column(db.String(200))
     cambio_opcion_cupon = db.Column(db.String(150))
     cambio_opcion_otra_cosa = db.Column(db.String(150))
     portal_empresa = db.Column(db.String(150))
@@ -312,7 +316,9 @@ class CONF_metodos_envios(db.Model):
     correo_servicio = db.Column(db.String(50))
     correo_sucursal = db.Column(db.String(50))
     costo_envio = db.Column(db.String(15))
-    instrucciones_entrega = db.Column(db.Text) 
+    instrucciones_entrega = db.Column(db.Text)
+    #### agregado para saber si cotizar con Retiro + Entrega
+    roundtrip = db.Column(db.Boolean)
     ### quitar
     icon = db.Column(db.String(50))
     # origen_valido = provincia (ver si es tabla aparte)
@@ -332,3 +338,16 @@ class  CONF_envios(db.Model):
 
     def __repr__(self):
         return '<Envio {} {} >'.format(self.store, self.metodo_envio, self.habilitado)
+
+
+class Codigos_postales(db.Model):
+    cp = db.Column(db.String(4), primary_key=True)
+    partido	= db.Column(db.String(40))
+    localidad = db.Column(db.String(40))
+    barrio = db.Column(db.String(40))
+    cordon = db.Column(db.String(40))
+    provincia = db.Column(db.String(40))
+
+    def __repr__(self):
+        return '<Codigo {} {}>'.format(self.cp, self.provincia)
+    

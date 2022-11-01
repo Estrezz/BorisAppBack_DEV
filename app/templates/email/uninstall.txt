@@ -1,0 +1,6 @@
+<h3 style="text-align:left"> 
+    <br> Se ha desinstalado la tienda {{ tienda.store_name }}! 
+ </h3>
+     
+     
+     

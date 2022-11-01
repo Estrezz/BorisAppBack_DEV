@@ -7,6 +7,7 @@ from app import db
 from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log, categories_filter, CONF_motivos, CONF_boris, CONF_metodos_envios, correos, CONF_correo, metodos_envios
 #from app.main.moova import toready_moova
 from app.main.fastmail import crea_envio_fastmail, cotiza_envio_fastmail, ver_etiqueta_fastmail
+from app.main.crab import crea_envio_crab, cotiza_envio_crab, ver_etiqueta_crab
 from app.main.tiendanube import buscar_producto_tiendanube,  genera_credito_tiendanube, devolver_stock_tiendanube
 from app.email import send_email
 from flask import session, flash, current_app,render_template
@@ -166,7 +167,7 @@ def buscar_producto(prod_id, empresa):
 def traducir_estado(estado):
     switcher={
             'DRAFT':['Solicitado','Solicitado','Inicio de la Gestion'],
-            'READY':['Listo para retiro','En Transito', 'Solicitud aprobada'],
+            'READY':['Listo para retiro','En Transito', 'Solicitud confirmada'],
             'CONFIRMED':['Confirmado','En Transito', 'No'],
             'PICKEDUP':['Recogido','En Transito', 'Se recogió la orden'],
             'INTRANSIT':['En camino','En Transito','No'],
@@ -179,7 +180,8 @@ def traducir_estado(estado):
             "RECHAZADO":['Rechazado', 'Rechazado', 'Tu orden fue rechazada'],
             "CERRADO":['Cerrado', 'Cerrado', 'Tu orden fue finalizada'],
             "CANCELADO":['Cancelado', 'Cancelado', 'La orden fue cancelada'],
-            "MODIFICACION":['Modificado', 'Modificado', 'Tu orden fue modificada']
+            "MODIFICACION":['Modificado', 'Modificado', 'Tu orden fue modificada'],
+            "REEMBOLSADO":['Reembolsado', 'Reembolsado', 'Se generó el reembolso']
         }
     return switcher.get(estado,"Aprobado")
 
@@ -197,6 +199,16 @@ def toReady(orden, company):
             orden_tmp.sub_status = traducir_estado('READY')[0]
             orden_tmp.status_resumen = traducir_estado('READY')[1]
             orden_tmp.date_lastupdate = datetime.utcnow()
+             #### Loguea Accion de Confirmar ####
+            unaTransaccion = Transaction_log(
+                sub_status = traducir_estado('READY')[0],
+                status_client = traducir_estado('READY')[2],
+                order_id = orden.id,
+                user_id = current_user.id,
+                username = current_user.username
+            )
+            db.session.add(unaTransaccion)
+
             db.session.commit()
             return "Success"
         else:
@@ -209,6 +221,17 @@ def toReady(orden, company):
         orden_tmp.status_resumen = traducir_estado('READY')[1]
         #orden_tmp.last_update_date = str(datetime.utcnow)
         orden_tmp.date_lastupdate = datetime.utcnow()
+        
+        #### Loguea Accion de Confirmar ####
+        unaTransaccion = Transaction_log(
+            sub_status = traducir_estado('READY')[0],
+            status_client = traducir_estado('READY')[2],
+            order_id = orden.id,
+            user_id = current_user.id,
+            username = current_user.username
+        )
+        db.session.add(unaTransaccion)
+
         db.session.commit()
 
         metodo_envio_tmp = CONF_metodos_envios.query.get((company.store_id, envio.metodo_envio_id))
@@ -573,7 +596,7 @@ def actualizar_stock(lineas, empresa, accion):
             stock = devolver_stock_tiendanube(empresa, linea.accion_cambiar_por_prod_id, linea.accion_cambiar_por, cantidad_tmp)
             if stock == 'Failed':
                 flash('No se pudo actualizar el stock para el articulo {} '.format(linea.accion_cambiar_por_desc))
-            ### Aca edberia registrar en un log las actualizaciones de stock registradas
+            ### Aca deberia registrar en un log las actualizaciones de stock registradas
     return 'Success'
         
 
@@ -821,10 +844,16 @@ def buscar_descripcion_correo(store, correo):
 
 def cotiza_envio_correo(data, datos_correo, servicio):
     if data['correo']['correo_id'] == 'FAST':
-        precio = cotiza_envio_fastmail(data, datos_correo, servicio.correo_servicio)
+        precio = cotiza_envio_fastmail(data, datos_correo, servicio)
         return str(precio)
+
+    if data['correo']['correo_id'] == 'CRAB':
+        precio = cotiza_envio_crab(data, datos_correo, servicio)
+        return str(precio)
+
     if data['correo']['correo_id'] == 'OCA':
         return '0'
+        
     else: 
         return 'Failed'
 
@@ -853,6 +882,9 @@ def genera_envio(correo_id, metodo_envio, orden, customer, orden_linea):
     if correo_id.correo_id == 'FAST':
         guia = crea_envio_fastmail( correo_id, metodo_envio, orden, customer, orden_linea)
         return guia
+    if correo_id.correo_id == 'CRAB':
+        guia = crea_envio_crab( correo_id, metodo_envio, orden, customer, orden_linea)
+        return guia
     else:
         return "No se encontro el correo_id"
 
@@ -860,6 +892,9 @@ def genera_envio(correo_id, metodo_envio, orden, customer, orden_linea):
 def ver_etiqueta(correo_id, guia):
     if correo_id == 'FAST':
         etiqueta = ver_etiqueta_fastmail(guia)
+        return etiqueta
+    if correo_id == 'CRAB':
+        etiqueta = ver_etiqueta_crab(guia)
         return etiqueta
     else:
         return "No se encontro la etiqueta para esa guia"
