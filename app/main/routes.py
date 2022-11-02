@@ -1728,6 +1728,8 @@ def data():
         if col_index is None:
             break
         col_name = request.args.get(f'columns[{col_index}][data]')
+        if col_name == "customer_name":
+            col_name = 'id'
         #if col_name not in ['name', 'age', 'email']:
         #    col_name = 'name'
         descending = request.args.get(f'order[{i}][dir]') == 'desc'
