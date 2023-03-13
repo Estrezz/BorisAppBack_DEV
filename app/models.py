@@ -145,11 +145,12 @@ class Order_header(db.Model):
     etiqueta_generada = db.Column(db.Boolean)
     courier_precio = db.Column(db.String(20))
     reembolsado = db.Column(db.Boolean)
+    reembolso_metodo = db.Column(db.String(20))
     #### quitar
     # courier_coordinar_empresa es reemplazado por metodo_envio_correo
     # courier_coordinar_guia es reemplazado por metodo_envio_guia
     courier_coordinar_empresa = db.Column(db.String(120))
-    courier_coordinar_guia = db.Column(db.String(64))
+    courier_coordinar_guia = db.Column(db.String(250))
     #########
     courier_coordinar_roundtrip = db.Column(db.Boolean)
     nuevo_envio =  db.Column(db.String(100))
@@ -159,9 +160,9 @@ class Order_header(db.Model):
     sub_status = db.Column(db.String(25))
     status_resumen = db.Column(db.String(25))
     reject_reason = db.Column(db.String(350))
-    customer_address = db.Column(db.String(180))
-    customer_number = db.Column(db.String(35))
-    customer_floor = db.Column(db.String(64))
+    customer_address = db.Column(db.String(250))
+    customer_number = db.Column(db.String(50))
+    customer_floor = db.Column(db.String(250))
     customer_zipcode = db.Column(db.String(8))
     customer_locality = db.Column(db.String(250))
     customer_city = db.Column(db.String(64))

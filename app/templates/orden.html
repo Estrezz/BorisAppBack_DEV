@@ -138,7 +138,12 @@
                                 <div class="row">
                                 <!-- Descripcion + datos articulos salientes -->
                                     <div class="col-xs-6 col-sm-6 col-md-8 col-lg-8">
-                                        <strong> {{ i['accion_cambiar_por_desc'] }} </strong> <br>
+                                        <strong> {{ i['accion_cambiar_por_desc'] }} </strong>  
+                                            {% if i['accion_cantidad'] > 1 %}
+                                            
+                                                (x {{i['accion_cantidad']}} Unidades) <br> 
+                                            
+                                            {% endif %}
                                             {% if i['prod_id'] == i['accion_cambiar_por_prod_id'] %}
                                             <span class="badge badge-pill badge-success mr-2"> Cambio x Variante </span><br>
                                             {% else %}
@@ -622,8 +627,8 @@
                             {% set estado_reembolsado = "Sin Reembolso" %}
                         {% endif %}
 
-                        {% if empresa.pagos == true and (orden.reembolsado == false or orden.reembolsado == None) and orden.status_resumen != 'Cerrado'%}
-                        <strong>Reembolsos / Saldos </strong><br>
+                        {% if empresa.pagos == true and (orden.reembolsado == false or orden.reembolsado == None) and (orden.status_resumen != 'Cerrado' and orden.status_resumen != 'Cancelado' and orden.status_resumen != 'Rechazado')%}
+                        <h5>Reembolsos / Saldos</h5>
                             <form id="pagos" action="{{ url_for('main.pagos', orden_id = orden.id) }}" method="POST"> 
                                 <label for="pagos_status">Estado :</label>
                                 <strong>{{estado_reembolsado}}</strong><br>
@@ -635,10 +640,24 @@
                         {% endif %}
 
                         {% if empresa.pagos == true and orden.reembolsado == true %}
-                            <strong>Reembolsos / Saldos </strong><br>
-                            <label for="pagos_status">Estado :</label>
-                            <strong>{{estado_reembolsado}}</strong><br>
+                            <h5>Reembolsos / Saldos </h5>
+                            
+                            Estado: <strong>{{estado_reembolsado}}</strong>
                             <br>
+                            Método :<strong>{{orden.reembolso_metodo or ''}}</strong><br>
+                            <br>
+                            
+                            <hr>
+                        {% endif %}
+
+                        {% if empresa.pagos == true and (orden.reembolsado == false or orden.reembolsado == None) and (orden.status_resumen == 'Cerrado' or orden.status_resumen == 'Cancelado' or orden.status_resumen == 'Rechazado')%}
+                            <h5>Reembolsos / Saldos </h5>
+                                
+                            Estado: <strong>{{estado_reembolsado}}</strong>
+                            <br>
+                            Método :<strong>{{orden.reembolso_metodo or ''}}</strong><br>
+                            <br>
+                            
                             <hr>
                         {% endif %}
 

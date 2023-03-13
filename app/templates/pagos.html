@@ -159,11 +159,14 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text" id="totalReembolso">Total Reembolso $&nbsp;({{texto_total_reembolso}}) </span>
                             </div>
+                            <!--
                             <input type="text" id="total_reembolso" name="total_reembolso" class="form-control text-right"  value="{{ '${:,.0f}'.format(calculo_total_reembolso) }}">
+                            -->
+                            <input type="text" id="total_reembolso" name="total_reembolso" class="form-control text-right"  value="{{ calculo_total_reembolso }}">
                         </div>
                         <br>
                         
-                        <div id="botones_reembolso"">
+                        <div id="botones_reembolso">
                             <div class="row d-flex justify-content-between p-3">
                                 <button class="btn-sm btn-success" type="submit" name="boton" value="reembolso_cupon">Reembolso<br> Cupon</button> &nbsp;
                                 <button class="btn-sm btn-info" type="submit" name="boton" value="reembolso_manual">Reembolso <br>Manual</button>

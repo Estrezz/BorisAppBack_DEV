@@ -1009,21 +1009,27 @@ def gestion_lineas_cupones(orden_id):
 @login_required
 def ver_ordenes(estado, subestado):
     resumen = resumen_ordenes(current_user.store) 
-    ## page = request.args.get('page', 1, type=int)
-    ## next_url = None
-    ## prev_url = None
+  
     company = Company.query.get(current_user.store)
     if company.habilitado == False:
          flash("Existe un problema adminsitrativo con su Tienda. Por favor ponerse en contacto con nosotros a la siguiente dirección de mail: admin@borisreturns.com. De lo contrario se deshabilitara su cuenta en los próximos dias.")
-    if estado == 'all':
-        ordenes =  Order_header.query.filter_by(store=current_user.store).all()
-    else :
-        if subestado == 'all':
-            ordenes = db.session.query(Order_header).filter((Order_header.store == current_user.store)).filter((Order_header.status == estado))
-        else: 
-            ordenes = db.session.query(Order_header).filter((Order_header.store == current_user.store)).filter((Order_header.status == estado)).filter((Order_header.status_resumen == subestado))
 
-    return render_template('ordenes.html', title='Ordenes', ordenes=ordenes, estado=estado, subestado=subestado,  resumen=resumen, empresa_name=session['current_empresa'])
+    #if estado == 'all':
+    #    ordenes =  Order_header.query.filter_by(store=current_user.store).all()
+    #else :
+    #    if subestado == 'all':
+    #        ordenes = db.session.query(Order_header).filter((Order_header.store == current_user.store)).filter((Order_header.status == estado))
+    #    else: 
+    #        ordenes = db.session.query(Order_header).filter((Order_header.store == current_user.store)).filter((Order_header.status == estado)).filter((Order_header.status_resumen == subestado))
+
+
+    #############################################
+    # Arma array de Ordenes para incluir 
+    # nombre de Cliente y pasarlo a la tabla
+    ##############################################
+
+    
+    return render_template('ordenes.html', title='Ordenes',  estado=estado, subestado=subestado,  resumen=resumen, empresa_name=session['current_empresa'])
 
 
 @bp.route('/orden/mantenimiento/eliminar/<orden_id>', methods=['GET', 'POST'])
@@ -1139,15 +1145,7 @@ def orden(orden_id):
 @bp.route('/orden/pagos/<orden_id>', methods=['GET', 'POST'])
 @login_required
 def pagos(orden_id):
-    #####################################################################
-    # Agregar en Base de Datos: 
-    # - Company: "Gestiona Reembolsos" (s/n)
-    # - Reembolsado: para identificar si se hizo o no el reembolso
-    # Ver si hace falta agregar un estado  "Reembolsado" antes de finalizar
-    # Loguear transaccion
-    # Es muy lento - Dificil como se marcan las promos 
-    # Que pasa si no se encuentra un arituclo
-    #####################################################################
+  
     orden = Order_header.query.filter_by(id=orden_id).first()
     orden_linea = Order_detail.query.filter_by(order=orden_id).all()
     empresa = Company.query.get(orden.store)
@@ -1244,14 +1242,17 @@ def reembolso(orden_id):
 
                     db.session.commit()
                     finalizar_orden(orden_id)
-            
+            # Loguear metodo de Reembolos        
+            reembolso_metodo = "Cupon"
             loguear_transaccion('REEMBOLSADO', envio_nuevo_metodo, orden_id, current_user.id, current_user.username)
 
 
         if accion == "reembolso_manual":
             flash('Se reembolsa manualmente')
+            reembolso_metodo = "Manual"
             loguear_transaccion('REEMBOLSADO', ' Reembolso manual ', orden_id, current_user.id, current_user.username)
 
+        orden.reembolso_metodo = reembolso_metodo
         orden.reembolsado = True
         db.session.commit()
 
@@ -1644,9 +1645,126 @@ def buscar_metodo_envio():
         carrier = 'No'
     return carrier
 
+######################################################################
+# Generates Data for Datatables
+######################################################################
+@bp.route('/api/data')
+def data():
+
+    estado = request.args.get('estado')
+    subestado = request.args.get('subestado')
+    
+    # Query the db
+    #### Si no se filtro ningun estado para las ordenes
+    if estado == 'all':
+        query = db.session.query(
+            Order_header.id, 
+            Order_header.order_number, 
+            Order_header.date_creation, 
+            Order_header.date_lastupdate, 
+            Order_header.courier_method, 
+            Order_header.metodo_envio_guia, 
+            Order_header.status_resumen,
+            Order_header.status,
+            Customer.name).join(Customer, Customer.id == Order_header.customer_id, 
+                isouter=True).filter(
+                Order_header.store == current_user.store
+                )       
+    else :
+        if subestado == 'all':
+            query = db.session.query(
+            Order_header.id, 
+            Order_header.order_number, 
+            Order_header.date_creation, 
+            Order_header.date_lastupdate, 
+            Order_header.courier_method, 
+            Order_header.metodo_envio_guia, 
+            Order_header.status_resumen,
+            Order_header.status,
+            Customer.name).join(Customer, Customer.id == Order_header.customer_id, 
+                isouter=True).filter(
+                Order_header.store == current_user.store
+                ).filter((Order_header.status == estado))
+        else: 
+            query = db.session.query(
+            Order_header.id, 
+            Order_header.order_number, 
+            Order_header.date_creation, 
+            Order_header.date_lastupdate, 
+            Order_header.courier_method, 
+            Order_header.metodo_envio_guia, 
+            Order_header.status_resumen,
+            Order_header.status,
+            Customer.name).join(Customer, Customer.id == Order_header.customer_id, 
+                isouter=True).filter(
+                Order_header.store == current_user.store
+                ).filter((Order_header.status == estado)).filter((Order_header.status_resumen == subestado))
+        
+    # search filter
+    search = request.args.get('search[value]')
+    if search:
+        query = query.filter(db.and_(
+            Order_header.store == current_user.store,
+            db.or_(
+                Order_header.order_number.ilike(f'%{search}%'),
+                Order_header.status_resumen.ilike(f'%{search}%'),
+                Order_header.courier_method.ilike(f'%{search}%'),
+                Customer.name.ilike(f'%{search}%')
+                )
+            ))
+
+    total_filtered = query.count()    
+
+    # sorting
+    order = []
+    i = 0
+    while True:
+        col_index = request.args.get(f'order[{i}][column]')
+        if col_index is None:
+            break
+        col_name = request.args.get(f'columns[{col_index}][data]')
+        if col_name == "customer_name":
+            col_name = 'id'
+        #if col_name not in ['name', 'age', 'email']:
+        #    col_name = 'name'
+        descending = request.args.get(f'order[{i}][dir]') == 'desc'
+        col = getattr(Order_header, col_name)
+        if descending:
+            col = col.desc()
+        order.append(col)
+        i += 1
+    if order:
+        query = query.order_by(*order)
 
 
+    results = query.count()
 
+    # pagination
+    start = request.args.get('start', type=int)
+    length = request.args.get('length', type=int)    
+    query = query.offset(start).limit(length)
+
+    # Create dict & response  
+    ordenes_data = []
+    for o in query :
+        orden = {
+            "id":o.id,
+            "order_number": o.order_number,
+            "date_creation": o.date_creation, 
+            "date_lastupdate": o.date_lastupdate, 
+            "courier_method":o.courier_method,
+            "metodo_envio_guia":o.metodo_envio_guia, 
+            "status_resumen":o.status_resumen, 
+            "customer_name":o.name,
+            "status": o.status }
+        ordenes_data.append(orden)
+   
+    return {
+        'data': ordenes_data,
+        'recordsFiltered': total_filtered,
+        'recordsTotal': results,
+        'draw': request.args.get('draw', type=int),
+    }
 
 
 #################################################################################

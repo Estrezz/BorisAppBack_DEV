@@ -185,16 +185,14 @@ def enviar_etiqueta_crab(correo, solicitud, customer, orden, metodo_envio, obser
     label_tmp = requests.request("POST", url, headers=headers, data=payload)
     if label_tmp.status_code !=200:
         flash('no se pudo generar la etiqueta')
+        flash ("codigo: {} - Error: {}".format(label_tmp.status_code, label_tmp.content))
+        return
     else:
         label = label_tmp.content
-         # Build PDF from HTML 
-        # pdf = pdfkit.from_string(out, options=options)
-    
-        # Download the PDF
-        # return Response(pdf, mimetype="application/pdf")
+       
     
     flash('Se generó la orden {} . Se envia la etiqueta por correo a {}'.format(solicitud['guia'], mailto))
-
+    
     send_email('se ha generado una etiqueta para la solicitud '+str(orden.order_number), 
         sender=(company.communication_email_name, company.communication_email),
         recipients=mailto, 
@@ -260,6 +258,7 @@ def codigo_servicio_crab(salientes, roundtrip, postalcode):
         #124
 
         return "A cotizar"
+        
     if salientes == 'No' or roundtrip == False:
        
         if cordon == "AMBA":
@@ -278,6 +277,5 @@ def codigo_servicio_crab(salientes, roundtrip, postalcode):
         #if TIERRA DEL FUEGO	
         # 117
 
-        return 110
+        return "A cotizar"
 
-    return 100

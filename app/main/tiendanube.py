@@ -1,11 +1,12 @@
 import requests
 import json
-import os
-import shutil
+## import os
+## import shutil
 import re
 from datetime import datetime
 from app import db
-from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log
+## from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log
+from app.models import User, Company
 from flask_login import current_user
 from flask import flash, current_app
 
@@ -62,7 +63,7 @@ def devolver_stock_tiendanube(empresa, prod_id, variant, cantidad):
         flash('{} - {}'.format(url, json.dumps(stock)))
         return 'Failed'
     if int(cantidad) > 0:
-        flash("Se regresó el stock statisfactoriamente a la variante {}".format(str(variant))) #### stock FALLA
+        flash("Se devolvió satisfactoriamente el stock a la variante {}".format(str(variant))) #### stock FALLA
     return 'Success'
 
 
@@ -85,7 +86,9 @@ def generar_envio_tiendanube(orden, lineas, unCliente, unaEmpresa):
         "status": "open",
         #"gateway": "not-provided",
         "payment_status": "pending",
-        'total':orden.nuevo_envio_total,
+        # Se crea la orden en 0
+        # 'total':orden.nuevo_envio_total,
+        'total':0,
         "products": [],
         "inventory_behaviour" : "claim",
         "customer": {
@@ -109,7 +112,9 @@ def generar_envio_tiendanube(orden, lineas, unCliente, unaEmpresa):
         "shipping_pickup_type": tipoenvio,
         "shipping": "not-provided",
         "shipping_option": "No informado",
-        "shipping_cost_customer": orden.nuevo_envio_costo,
+        # Se crea la orden en 0
+        # "shipping_cost_customer": orden.nuevo_envio_costo,
+        "shipping_cost_customer": 0,
         "send_confirmation_email" : False,
         "send_fulfillment_email" : False
         }
@@ -119,7 +124,9 @@ def generar_envio_tiendanube(orden, lineas, unCliente, unaEmpresa):
         productos_tmp.append ({
         "variant_id":i.accion_cambiar_por,
         "quantity": i.accion_cantidad,
-        "price": i.accion_cambiar_por_diferencia
+        # Se crea la orden en 0
+        # "price": i.accion_cambiar_por_diferencia
+        "price": 0
         })
     orden_tmp['products'] = productos_tmp
 
@@ -190,9 +197,19 @@ def autorizar_tiendanube(codigo):
                 correo_cost = 'customer',
                 start_date = datetime.utcnow(),
                 demo_store = 0,
-                plan_boris = 'Plan_A',
+                plan_boris = 'Plan_C',
                 rubro_tienda = tipo_empresa,
-                correo_test = True
+                correo_test = True,
+                ### Agregado BORISNEW
+                encuesta = False,
+                habilitado = True,
+                orden_solicitada_asunto = 'Tu orden ha sido iniciada',
+                orden_confirmada_asunto = 'Tu orden ha sido confirmada',
+                orden_rechazada_asunto = 'Tu orden ha sido rechazada',
+                orden_aprobada_asunto = 'Tu orden ha sido aprobada',
+                cupon_generado_asunto = 'Hemos generado tu cupón',
+                orden_finalizada_asunto = 'El procesamiento de tu orden ha finalizado'
+                #### Fin agregado
             )
             db.session.add(unaEmpresa)
             inicializa_tiendanube(unaEmpresa, 'nueva')
@@ -231,16 +248,7 @@ def inicializa_tiendanube(empresa, tipo) :
     "event" : "onload",
     "where" : "store"
     }
-    script_2= {
-    "src": "https://frontprod.borisreturns.com/static/boris_politica_devolucion.js",
-    "event" : "onload",
-    "where" : "store"
-    }
-    script_3= {
-    "src": "https://frontprod.borisreturns.com/static/boris.js",
-    "event" : "onload",
-    "where" : "store"
-    }
+
     script_4= {
     "src": "https://frontprod.borisreturns.com/static/general.js",
     "event" : "onload",
