@@ -19,7 +19,12 @@ instance/
 #logs y otros
 logs/
 app.db
+<<<<<<< HEAD
 boris.env
 app/templates/email/1447373/
 app/templates/email/1631829/
 migrations/
+=======
+
+
+>>>>>>> e4c8843ea1bffee3cf361cb6cc2eb432d0198a6e
