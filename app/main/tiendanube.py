@@ -200,7 +200,6 @@ def autorizar_tiendanube(codigo):
                 plan_boris = 'Plan_C',
                 rubro_tienda = tipo_empresa,
                 correo_test = True,
-                ### Agregado BORISNEW
                 encuesta = False,
                 habilitado = True,
                 orden_solicitada_asunto = 'Tu orden ha sido iniciada',
@@ -208,8 +207,13 @@ def autorizar_tiendanube(codigo):
                 orden_rechazada_asunto = 'Tu orden ha sido rechazada',
                 orden_aprobada_asunto = 'Tu orden ha sido aprobada',
                 cupon_generado_asunto = 'Hemos generado tu cupón',
-                orden_finalizada_asunto = 'El procesamiento de tu orden ha finalizado'
-                #### Fin agregado
+                orden_finalizada_asunto = 'El procesamiento de tu orden ha finalizado',
+                orden_solicitada_habilitado = True,
+                orden_confirmada_habilitado = True,
+                orden_rechazada_habilitado = True,
+                orden_aprobada_habilitado = True,
+                cupon_generado_habilitado = True,
+                orden_finalizada_habilitado = True,
             )
             db.session.add(unaEmpresa)
             inicializa_tiendanube(unaEmpresa, 'nueva')

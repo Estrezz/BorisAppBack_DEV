@@ -627,7 +627,7 @@
                             {% set estado_reembolsado = "Sin Reembolso" %}
                         {% endif %}
 
-                        {% if empresa.pagos == true and (orden.reembolsado == false or orden.reembolsado == None) and (orden.status_resumen != 'Cerrado' and orden.status_resumen != 'Cancelado' and orden.status_resumen != 'Rechazado')%}
+                        {% if empresa.pagos == true and (orden.reembolsado == false or orden.reembolsado == None) and (orden.status_resumen != 'Cerrado' and orden.status_resumen != 'Cancelado' and orden.status_resumen != 'Rechazado' and orden.status_resumen != 'Solicitado')%}
                         <h5>Reembolsos / Saldos</h5>
                             <form id="pagos" action="{{ url_for('main.pagos', orden_id = orden.id) }}" method="POST"> 
                                 <label for="pagos_status">Estado :</label>
@@ -650,7 +650,7 @@
                             <hr>
                         {% endif %}
 
-                        {% if empresa.pagos == true and (orden.reembolsado == false or orden.reembolsado == None) and (orden.status_resumen == 'Cerrado' or orden.status_resumen == 'Cancelado' or orden.status_resumen == 'Rechazado')%}
+                        {% if empresa.pagos == true and (orden.reembolsado == false or orden.reembolsado == None) and (orden.status_resumen == 'Cerrado' or orden.status_resumen == 'Cancelado' or orden.status_resumen == 'Rechazado' or orden.status_resumen == 'Solicitado')%}
                             <h5>Reembolsos / Saldos </h5>
                                 
                             Estado: <strong>{{estado_reembolsado}}</strong>

@@ -70,29 +70,46 @@ def edit_profile():
 @bp.route('/company/<empresa_id>')
 @login_required
 def company(empresa_id):
+
     empresa = Company.query.filter_by(store_id=empresa_id).first_or_404()
-    if CONF_boris.query.filter_by(store=empresa_id).first():
-        configuracion = CONF_boris.query.filter_by(store=empresa_id).first_or_404()
-    else: 
-        (flash('No se encuentran los datos de Configuracion - ponerse en contacto con soporte@borisreturns.com'))
+
+    ###### REEMPLAZO 1 #################################################################
+    configuracion = CONF_boris.query.filter_by(store=empresa_id).first()
+    if configuracion is None:
+        flash('No se encuentran los datos de Configuracion - ponerse en contacto con soporte@borisreturns.com')
         return redirect(url_for('main.ver_ordenes', estado='all', subestado='all'))
+     
+    ################### QUITAR POR REEMPLAZO 1 #########################################
+    #if CONF_boris.query.filter_by(store=empresa_id).first():
+    #    configuracion = CONF_boris.query.filter_by(store=empresa_id).first_or_404()
+    #else: 
+    #    (flash('No se encuentran los datos de Configuracion - ponerse en contacto con soporte@borisreturns.com'))
+    #    return redirect(url_for('main.ver_ordenes', estado='all', subestado='all'))
+    ############### FIN QUITAR #########################################################
+
     envios = CONF_metodos_envios.query.filter_by(store=current_user.store).all()
     motivos = CONF_motivos.query.filter_by(store=current_user.store).all()
     correos_activos = CONF_correo.query.filter_by(store=current_user.store, habilitado=True).all()
-   
+    
     correos_usados = []
     for c in correos_activos:
         if c.habilitado == True:
             correos_usados.append(c.correo_id)
     lista_correos = correos.query.filter(~correos.correo_id.in_(correos_usados)).all()
     
-    metodos_usados = []
-    for e in envios:
-        metodos_usados.append(e.metodo_envio_id)
+    ################# Reemplazo 3 #####################################################
+    metodos_usados = [e.metodo_envio_id for e in envios]
+    ############## Quitar por reemplazo 3 #####################################
+    #metodos_usados = []
+    #for e in envios:
+    #    metodos_usados.append(e.metodo_envio_id)
     lista_metodos = metodos_envios.query.filter(~metodos_envios.metodo_envio_id.in_(metodos_usados)).all()
 
-    return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, correos_activos=correos_activos, lista_correos=lista_correos, lista_metodos=lista_metodos, motivos=motivos, pestaña='tienda', empresa_name=session['current_empresa'])
-
+    ################# Reemplazo 4 #####################################################
+    return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, correos_activos=correos_activos, lista_correos=lista_correos, lista_metodos=lista_metodos, motivos=motivos, pestaña='tienda', empresa_name=session.get('current_empresa'))
+    ########## quitar por reemplazo 4
+    #return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, correos_activos=correos_activos, lista_correos=lista_correos, lista_metodos=lista_metodos, motivos=motivos, pestaña='tienda', empresa_name=session['current_empresa'])
+    ##################################################3
 
 ## Actualiza datos de la Tienda #######################################
 @bp.route('/edit_storeinfo', methods=['GET', 'POST'])
@@ -109,9 +126,12 @@ def edit_storeinfo():
             correos_usados.append(c.correo_id)
     lista_correos = correos.query.filter(~correos.correo_id.in_(correos_usados)).all()
 
-    metodos_usados = []
-    for e in envios:
-        metodos_usados.append(e.metodo_envio_id)
+    ################# Reemplazo 3 #####################################################
+    metodos_usados = [e.metodo_envio_id for e in envios]
+    ############## Quitar por reemplazo 3 #####################################
+    #metodos_usados = []
+    #for e in envios:
+    #    metodos_usados.append(e.metodo_envio_id)
     lista_metodos = metodos_envios.query.filter(~metodos_envios.metodo_envio_id.in_(metodos_usados)).all()
 
     if request.method == "POST":
@@ -126,8 +146,6 @@ def edit_storeinfo():
             admin_email = request.form.get('admin_email')
             store_idfiscal = request.form.get('idfiscal')
             store_phone = request.form.get('store_phone')
-            stock_vuelve_config = request.form.get('stock_vuelve_config')
-            reembolso_config = request.form.get('reembolso_config')
             contact_name = request.form.get('contact_name')
             contact_email = request.form.get('contact_email')
             contact_phone = request.form.get('contact_phone')
@@ -145,17 +163,8 @@ def edit_storeinfo():
             empresa.admin_email = admin_email
             empresa.store_idfiscal = store_idfiscal
             empresa.store_phone = store_phone
-
-            if stock_vuelve_config == 'on':
-                empresa.stock_vuelve_config = True
-            else:
-                empresa.stock_vuelve_config = False
-
-            if reembolso_config == 'on':
-                empresa.pagos = True
-            else:
-                empresa.pagos = False
-            
+            empresa.stock_vuelve_config = request.form.get('stock_vuelve_config') == 'on'
+            empresa.pagos = request.form.get('reembolso_config') == 'on'           
             empresa.contact_name = contact_name
             empresa.contact_email = contact_email
             empresa.contact_phone = contact_phone
@@ -191,9 +200,12 @@ def edit_carrierinfo():
             correos_usados.append(c.correo_id)
     lista_correos = correos.query.filter(~correos.correo_id.in_(correos_usados)).all()
 
-    metodos_usados = []
-    for e in envios:
-        metodos_usados.append(e.metodo_envio_id)
+    ################# Reemplazo 3 #####################################################
+    metodos_usados = [e.metodo_envio_id for e in envios]
+    ############## Quitar por reemplazo 3 #####################################
+    #metodos_usados = []
+    #for e in envios:
+    #    metodos_usados.append(e.metodo_envio_id)
     lista_metodos = metodos_envios.query.filter(~metodos_envios.metodo_envio_id.in_(metodos_usados)).all()
         
     return render_template('company.html', empresa=empresa, configuracion=configuracion, envios=envios, correos_activos=correos_activos, lista_correos=lista_correos,lista_metodos=lista_metodos,  motivos=motivos, pestaña='carrier', empresa_name=session['current_empresa'])
@@ -744,26 +756,47 @@ def edit_mailsbackinfo():
             finalizado_note = request.form.get('finalizado_note')
             orden_finalizada_asunto = request.form.get('asunto_finalizado')
 
+            ### habilitar mails de salida #
+            ### Si esta en ON pone TRUE sino FALSE
+            orden_confirmada_habilitado = request.form.get('habilitar_mail_confirmado') == 'on'
+            orden_aprobada_habilitado = request.form.get('habilitar_mail_aprobado') == 'on'
+            orden_rechazada_habilitado = request.form.get('habilitar_mail_rechazado') == 'on'
+            cupon_generado_habilitado = request.form.get('habilitar_mail_cupon_generado') == 'on'
+            orden_finalizada_habilitado = request.form.get('habilitar_mail_finalizado') == 'on'
+            ####
+           
+            # Set the maximum allowed length
+            max_len = 500
+
+            # Check if any note has a length greater than the maximum allowed
+            if any(len(note) > max_len for note in [aprobado_note, rechazado_note, cupon_generado_note, finalizado_note]):
+                flash(f'El texto ingresado es demasiado largo. El máximo permitido son {max_len} caracteres')
+                return redirect(url_for('main.company', empresa_id=current_user.store))
             #### Controla si el largo del texto ingresado es mayor a 500
-            # print(type(aprobado_note))
-            if len(aprobado_note) > 500 or len(rechazado_note) > 500 or len(cupon_generado_note) > 500 or len(finalizado_note) > 500:
-                flash('El texto ingresado es demasiado largo. El máximo permitido son 500 caracteres')
-                return redirect(url_for('main.company', empresa_id=current_user.store ))
+            
+            #if len(aprobado_note) > 500 or len(rechazado_note) > 500 or len(cupon_generado_note) > 500 or len(finalizado_note) > 500:
+            #    flash('El texto ingresado es demasiado largo. El máximo permitido son 500 caracteres')
+            #    return redirect(url_for('main.company', empresa_id=current_user.store ))
 
             empresa.communication_email = communication_email
             empresa.communication_email_name = communication_email_name
             empresa.envio_manual_note = envio_manual_note
             empresa.orden_confirmada_asunto = orden_confirmada_asunto
+            empresa.orden_confirmada_habilitado= orden_confirmada_habilitado
             empresa.envio_coordinar_note = envio_coordinar_note
             empresa.envio_correo_note = envio_correo_note
             empresa.aprobado_note = aprobado_note
             empresa.orden_aprobada_asunto = orden_aprobada_asunto
+            empresa.orden_aprobada_habilitado = orden_aprobada_habilitado
             empresa.rechazado_note = rechazado_note
             empresa.orden_rechazada_asunto = orden_rechazada_asunto
+            empresa.orden_rechazada_habilitado = orden_rechazada_habilitado
             empresa.cupon_generado_note = cupon_generado_note
             empresa.cupon_generado_asunto = cupon_generado_asunto
+            empresa.cupon_generado_habilitado = cupon_generado_habilitado
             empresa.finalizado_note = finalizado_note
             empresa.orden_finalizada_asunto = orden_finalizada_asunto
+            empresa.orden_finalizada_habilitado = orden_finalizada_habilitado
 
             db.session.commit() 
 
@@ -1270,10 +1303,14 @@ def gestionar_ordenes(orden_id):
         if request.form.get('metodo_envio_correo') or request.form.get('metodo_envio_guia') or request.form.get('coordinar_roundtrip'):
             orden.metodo_envio_correo = request.form['metodo_envio_correo']
             orden.metodo_envio_guia = request.form.get('metodo_envio_guia')
-            if request.form.get('coordinar_roundtrip') == "on":
-                orden.courier_coordinar_roundtrip = True
-            else:
-                orden.courier_coordinar_roundtrip = False
+
+            orden.courier_coordinar_roundtrip = request.form.get('coordinar_roundtrip') == "on"
+            ###### quitar ###########################################3
+            # #if request.form.get('coordinar_roundtrip') == "on":
+            # #    orden.courier_coordinar_roundtrip = True
+            # #else:
+            # #    orden.courier_coordinar_roundtrip = False
+            ##############################################################
         else: 
             orden.courier_coordinar_roundtrip = False
         db.session.commit()

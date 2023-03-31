@@ -235,16 +235,17 @@ def toReady(orden, company):
         db.session.commit()
 
         metodo_envio_tmp = CONF_metodos_envios.query.get((company.store_id, envio.metodo_envio_id))
-        send_email(company.orden_confirmada_asunto, 
-                sender=(company.communication_email_name, company.communication_email),
-                recipients=[customer.email], 
-                reply_to = company.admin_email,
-                text_body=render_template('email/pedido_confirmado.txt',
-                                         company=company, customer=customer, order=orden, envio=metodo_envio_tmp),
-                html_body=render_template('email/pedido_confirmado.html',
-                                         company=company, customer=customer, order=orden, envio=metodo_envio_tmp), 
-                attachments=None, 
-                sync=False)
+        if company.orden_confirmada_habilitado == True :
+            send_email(company.orden_confirmada_asunto, 
+                    sender=(company.communication_email_name, company.communication_email),
+                    recipients=[customer.email], 
+                    reply_to = company.admin_email,
+                    text_body=render_template('email/pedido_confirmado.txt',
+                                            company=company, customer=customer, order=orden, envio=metodo_envio_tmp),
+                    html_body=render_template('email/pedido_confirmado.html',
+                                            company=company, customer=customer, order=orden, envio=metodo_envio_tmp), 
+                    attachments=None, 
+                    sync=False)
         return "Success"
 
 
@@ -285,16 +286,17 @@ def toApproved(orden_id):
         )
     db.session.add(unaTransaccion)
     db.session.commit()
-    send_email(company.orden_aprobada_asunto, 
-                sender=(company.communication_email_name, company.communication_email),
-                recipients=[customer.email], 
-                reply_to = company.admin_email,
-                text_body=render_template('email/pedido_aprobado.txt',
-                                         company=company, customer=customer, order=orden, envio=orden.courier_method),
-                html_body=render_template('email/pedido_aprobado.html',
-                                         company=company, customer=customer, order=orden, envio=orden.courier_method), 
-                attachments=None, 
-                sync=False)
+    if company.orden_aprobada_habilitado == True :
+        send_email(company.orden_aprobada_asunto, 
+                    sender=(company.communication_email_name, company.communication_email),
+                    recipients=[customer.email], 
+                    reply_to = company.admin_email,
+                    text_body=render_template('email/pedido_aprobado.txt',
+                                            company=company, customer=customer, order=orden, envio=orden.courier_method),
+                    html_body=render_template('email/pedido_aprobado.html',
+                                            company=company, customer=customer, order=orden, envio=orden.courier_method), 
+                    attachments=None, 
+                    sync=False)
 
 
 def toReject(orden_id, motivo):
@@ -317,16 +319,17 @@ def toReject(orden_id, motivo):
         )
     db.session.add(unaTransaccion)
     db.session.commit()
-    send_email(company.orden_rechazada_asunto, 
-                sender=(company.communication_email_name, company.communication_email),
-                recipients=[customer.email], 
-                reply_to = company.admin_email,
-                text_body=render_template('email/pedido_rechazado.txt',
-                                         company=company, customer=customer, order=orden, envio=orden.courier_method),
-                html_body=render_template('email/pedido_rechazado.html',
-                                         company=company, customer=customer, order=orden, envio=orden.courier_method), 
-                attachments=None, 
-                sync=False)
+    if company.orden_rechazada_habilitado == True :
+        send_email(company.orden_rechazada_asunto, 
+                    sender=(company.communication_email_name, company.communication_email),
+                    recipients=[customer.email], 
+                    reply_to = company.admin_email,
+                    text_body=render_template('email/pedido_rechazado.txt',
+                                            company=company, customer=customer, order=orden, envio=orden.courier_method),
+                    html_body=render_template('email/pedido_rechazado.html',
+                                            company=company, customer=customer, order=orden, envio=orden.courier_method), 
+                    attachments=None, 
+                    sync=False)
 
 
 def toCancel(orden_id):
@@ -378,16 +381,17 @@ def genera_credito(empresa, monto, cliente, orden):
     if empresa.platform == 'tiendanube':
         cupon = genera_credito_tiendanube(empresa, importe, codigo)
         if cupon != 'Failed':
-            send_email(empresa.cupon_generado_asunto, 
-                    sender=(empresa.communication_email_name, empresa.communication_email),
-                    recipients=[cliente.email], 
-                    reply_to = empresa.admin_email,
-                    text_body=render_template('email/cupon_generado.txt',
-                                            company=empresa, customer=cliente, order=orden, cupon=cupon, monto=importe),
-                    html_body=render_template('email/cupon_generado.html',
-                                            company=empresa, customer=cliente, order=orden, cupon=cupon, monto=importe), 
-                    attachments=None, 
-                    sync=False)
+            if empresa.cupon_generado_habilitado == True :
+                send_email(empresa.cupon_generado_asunto, 
+                        sender=(empresa.communication_email_name, empresa.communication_email),
+                        recipients=[cliente.email], 
+                        reply_to = empresa.admin_email,
+                        text_body=render_template('email/cupon_generado.txt',
+                                                company=empresa, customer=cliente, order=orden, cupon=cupon, monto=importe),
+                        html_body=render_template('email/cupon_generado.html',
+                                                company=empresa, customer=cliente, order=orden, cupon=cupon, monto=importe), 
+                        attachments=None, 
+                        sync=False)
             send_email('BORIS ha generado un Cupon', 
                 sender=(empresa.communication_email_name, empresa.communication_email),
                     recipients=[empresa.admin_email],
@@ -633,16 +637,17 @@ def finalizar_orden(orden_id):
         #flash('Mail {} para {} - orden {} , orden linea {}'.format(current_app.config['ADMINS'][0], customer.email, orden, orden_linea))
         company = Company.query.get(current_user.store)
 
-        send_email(company.orden_finalizada_asunto, 
-            sender=(company.communication_email_name, company.communication_email),
-            recipients=[customer.email],
-            reply_to = company.admin_email,
-            text_body=render_template('email/pedido_finalizado.txt',
-                                    company=company, customer=customer, order=orden, linea=orden_linea),
-            html_body=render_template('email/pedido_finalizado.html',
-                                    company=company, customer=customer, order=orden, linea=orden_linea), 
-            attachments=None, 
-            sync=False)
+        if company.orden_finalizada_habilitado == True :
+            send_email(company.orden_finalizada_asunto, 
+                sender=(company.communication_email_name, company.communication_email),
+                recipients=[customer.email],
+                reply_to = company.admin_email,
+                text_body=render_template('email/pedido_finalizado.txt',
+                                        company=company, customer=customer, order=orden, linea=orden_linea),
+                html_body=render_template('email/pedido_finalizado.html',
+                                        company=company, customer=customer, order=orden, linea=orden_linea), 
+                attachments=None, 
+                sync=False)
     return 'Success'
 
 

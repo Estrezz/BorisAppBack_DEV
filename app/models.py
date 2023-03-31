@@ -59,6 +59,7 @@ class Company(db.Model):
     confirma_domicilio_note = db.Column(db.String(500))
     #### confirma_retiro_note se utilizaba para Moova
     confirma_retiro_note = db.Column(db.String(500))
+    
     ### Asuntos para mails
     orden_solicitada_asunto = db.Column(db.String(120))
     orden_iniciada_asunto = db.Column(db.String(120))
@@ -67,6 +68,15 @@ class Company(db.Model):
     orden_aprobada_asunto = db.Column(db.String(120))
     cupon_generado_asunto = db.Column(db.String(120))
     orden_finalizada_asunto = db.Column(db.String(120))
+
+    ### Habilita o no el envío de mails en cada caso
+    orden_solicitada_habilitado = db.Column(db.Boolean)
+    orden_iniciada_habilitado = db.Column(db.Boolean)
+    orden_confirmada_habilitado = db.Column(db.Boolean)
+    orden_rechazada_habilitado = db.Column(db.Boolean)
+    orden_aprobada_habilitado = db.Column(db.Boolean)
+    cupon_generado_habilitado = db.Column(db.Boolean)
+    orden_finalizada_habilitado = db.Column(db.Boolean)
 
     encuesta = db.Column(db.Boolean)
     habilitado = db.Column(db.Boolean)

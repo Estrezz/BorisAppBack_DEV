@@ -960,11 +960,27 @@
                                   Dependiendo del método de envío elegido por el cliente va a añadir al cuerpo del mail el texto que se haya definido en las 
                                   instrucciones del método de envío correspondiente.<br>
                                 </p>
-                                                           
+
+                              <!-- Habilita envio de mail de Confirmacion -->
                               <div class="form-group">
-                                  <label for="asunto_confirmado">Asunto para Mail de Confirmación</label> 
-                                  <input type="text" class="form-control form-control-sm" name="asunto_confirmado" id="asunto_confirmado" value="{{empresa.orden_confirmada_asunto}}">
+                                <label class="form-check-label" for="habilitar_mail_confirmado">
+                                  Habilitar mail Confirmación
+                                </label>
+                                {% if empresa. orden_confirmada_habilitado == true %}
+                                  <input class="form-check-input ml-2" type="checkbox" name="habilitar_mail_confirmado" id="habilitar_mail_confirmado" checked>
+                                {% else %}
+                                  <input class="form-check-input ml-2" type="checkbox" name="habilitar_mail_confirmado" id="habilitar_mail_confirmado">
+                                {% endif %}
                               </div>
+                              <!-- Fin Habilita envio de mail de Confirmacion -->
+
+                              <div class="form-group">
+                                <label for="asunto_confirmado">Asunto para Mail de Confirmación</label> 
+                                <input type="text" class="form-control form-control-sm" name="asunto_confirmado" id="asunto_confirmado" value="{{empresa.orden_confirmada_asunto}}">
+                              </div>
+
+                             
+                              
                               <!-- 
                               <div class="form-group">
                                   <label for="envio_manual_note">Nota para envios Manuales:</label> 
@@ -985,6 +1001,20 @@
                                 <h5>Mail APROBACION: </h5>
                               </div>
                               <p>Este mail se envía, luego de recibir los productos y aprobar la orden. <br> </p>
+
+                              <!-- Habilita envio de mail de Aprobacion -->
+                              <div class="form-group">
+                                <label class="form-check-label" for="habilitar_mail_aprobado">
+                                  Habilitar mail Aprobación
+                                </label>
+                                {% if empresa.orden_aprobada_habilitado == true %}
+                                  <input class="form-check-input ml-2" type="checkbox" name="habilitar_mail_aprobado" id="habilitar_mail_aprobado" checked>
+                                {% else %}
+                                  <input class="form-check-input ml-2" type="checkbox" name="habilitar_mail_aprobado" id="habilitar_mail_aprobado">
+                                {% endif %}
+                              </div>
+                              <!-- Fin Habilita envio de mail de Aprobacion -->
+
                               <div class="form-group">
                                 <label for="asunto_aprobado">Asunto para mail de aprobación</label> 
                                 <input type="text" class="form-control form-control-sm" name="asunto_aprobado" id="asunto_aprobado" value="{{empresa.orden_aprobada_asunto}}">
@@ -999,6 +1029,20 @@
                                 <h5>Mail RECHAZO: </h5>
                               </div>
                               <p>Este mail se envía al rechazar una orden. <br> </p>
+                              
+                              <!-- Habilita envio de mail de Rechazo -->
+                              <div class="form-group">
+                                <label class="form-check-label" for="habilitar_mail_rechazado">
+                                  Habilitar mail Rechazo
+                                </label>
+                                {% if empresa.orden_rechazada_habilitado == true %}
+                                  <input class="form-check-input ml-2" type="checkbox" name="habilitar_mail_rechazado" id="habilitar_mail_rechazado" checked>
+                                {% else %}
+                                  <input class="form-check-input ml-2" type="checkbox" name="habilitar_mail_rechazado" id="habilitar_mail_rechazado">
+                                {% endif %}
+                              </div>
+                              <!-- Fin Habilita envio de mail de Rechazo -->
+
                               <div class="form-group">
                                 <label for="asunto_rechazado">Asunto para solicitudes rechazadas</label> 
                                 <input type="text" class="form-control form-control-sm" name="asunto_rechazado" id="asunto_rechazado" value="{{empresa.orden_rechazada_asunto}}">
@@ -1013,6 +1057,20 @@
                                 <h5> Mail GENERACIÓN CUPÓN: </h5>
                               </div> 
                               <p>Este mail se envía al generar un cupón de crédito. <br> </p>
+                              
+                              <!-- Habilita envio de mail de Generación de Cupón -->
+                              <div class="form-group">
+                                <label class="form-check-label" for="habilitar_mail_cupon_generado">
+                                  Habilitar mail Cupón
+                                </label>
+                                {% if empresa.cupon_generado_habilitado == true %}
+                                  <input class="form-check-input ml-2" type="checkbox" name="habilitar_mail_cupon_generado" id="habilitar_mail__cupon_generado" checked>
+                                {% else %}
+                                  <input class="form-check-input ml-2" type="checkbox" name="habilitar_mail_cupon_generado" id="habilitar_mail__cupon_generado">
+                                {% endif %}
+                              </div>
+                              <!-- Fin Habilita envio de mail de Generación de Cupón -->
+
                               <div class="form-group">
                                 <label for="asunto_cupon">Asunto al generar un cupón</label> 
                                 <input type="text" class="form-control form-control-sm" name="asunto_cupon" id="asunto_cupon" value="{{empresa.cupon_generado_asunto}}">
@@ -1028,6 +1086,20 @@
                                 <h5> Mail FINALIZACION: </h5>
                               </div>
                               <p>Este mail se envía al finalizar la gestión de una orden, en el momento en que se cierra la misma. <br> </p>
+
+                               <!-- Habilita envio de mail de Finalizazión -->
+                               <div class="form-group">
+                                <label class="form-check-label" for="habilitar_mail_finalizado">
+                                  Habilitar mail Finalización
+                                </label>
+                                {% if empresa.orden_finalizada_habilitado == true %}
+                                  <input class="form-check-input ml-2" type="checkbox" name="habilitar_mail_finalizado" id="habilitar_mail_finalizado" checked>
+                                {% else %}
+                                  <input class="form-check-input ml-2" type="checkbox" name="habilitar_mail_finalizado" id="habilitar_mail_finalizado">
+                                {% endif %}
+                              </div>
+                              <!-- Fin Habilita envio de mail de Generación de Finalización -->
+
                               <div class="form-group">
                                 <label for="asunto_finalizado">Asunto para solicitudes finzalidas</label> 
                                 <input type="text" class="form-control form-control-sm" name="asunto_finalizado" id="asunto_finalizado" value="{{empresa.orden_finalizada_asunto}}">
