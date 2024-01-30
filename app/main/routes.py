@@ -766,7 +766,7 @@ def edit_mailsbackinfo():
             ####
            
             # Set the maximum allowed length
-            max_len = 500
+            max_len = 2000
 
             # Check if any note has a length greater than the maximum allowed
             if any(len(note) > max_len for note in [aprobado_note, rechazado_note, cupon_generado_note, finalizado_note]):
@@ -1251,8 +1251,10 @@ def reembolso(orden_id):
             total_reembolso = request.form.get("total_reembolso")
 
             #### Elimina el simbolo de $ y el . como separador ########
-            clean = re.sub(r'[^0-9]+', '', str(total_reembolso))
-            value = float(clean)
+            #.clean = re.sub(r'[^0-9]+', '', str(total_reembolso))
+            #value = float(clean)
+            value = float(total_reembolso)
+            #flash("total_reembolso {} -- value {}".format(total_reembolso, value))
             
             ####### genera el cupon ####################
             credito = genera_credito(empresa, value, unCliente, orden)
@@ -1505,7 +1507,19 @@ def autorizar(plataforma):
                 html_body=render_template('email/bienvenido.html', codigo='OK', usuario=usuario, store=autorizacion), 
                 attachments=None, 
                 sync=False)
+                
+        send_email('Nueva Instalacion en BORIS', 
+                sender=current_app.config['ADMINS'][0],  
+                recipients=[current_app.config['ADMINS'][0]],
+                reply_to = current_app.config['ADMINS'][0],
+                text_body=render_template('email/bienvenido_admin.txt', codigo='OK', usuario=usuario, store=autorizacion),
+                html_body=render_template('email/bienvenido_admin.html', codigo='OK', usuario=usuario, store=autorizacion), 
+                attachments=None, 
+                sync=False)
+
         return render_template('autorizado.html', codigo='OK', usuario=usuario, store=autorizacion)
+        
+        
         #else:
         #    return render_template('autorizado.html', codigo='error_al_actualizar', store=actualizado )         
     else:
@@ -1845,6 +1859,30 @@ def prueba_script():
     flash('SCRIPTS {}'.format(response))
     return redirect(url_for('main.user', username=current_user.username))
 
+###### quitar despues de prueba ##############
+@bp.route('/prueba_mail', methods=['GET', 'POST'])
+@login_required
+def prueba_mail():
+    company = Company.query.filter_by(store_id=1447373).first()
+    orden = Order_header.query.filter_by(id=4).first()
+    customer = Customer.query.get(orden.customer_id)
+    metodo_envio_tmp = CONF_metodos_envios.query.get((1447373, "Domicilio"))
+
+    send_email(company.orden_confirmada_asunto, 
+                    sender=(company.communication_email_name, company.communication_email),
+                    recipients=[customer.email], 
+                    reply_to = company.admin_email,
+                    text_body=render_template('email/pedido_confirmado.txt',
+                                            company=company, customer=customer, order=orden, envio=metodo_envio_tmp),
+                    html_body=render_template('email/pedido_confirmado.html',
+                                            company=company, customer=customer, order=orden, envio=metodo_envio_tmp), 
+                    attachments=None, 
+                    sync=False)
+    print(orden)
+    print("----")
+    print(metodo_envio_tmp)
+    return "OK"
+###################
 
 @bp.route('/cargar_pedidos', methods=['GET', 'POST'])
 @login_required
@@ -1852,6 +1890,9 @@ def upload_pedidos():
     cargar_pedidos()
     ordenes =  Order_header.query.filter_by(store=current_user.store).all()
     return render_template('ordenes.html', title='Ordenes', ordenes=ordenes, empresa_name=session['current_empresa'])
+
+
+
 
 
 @bp.route('/cargar_empresa', methods=['GET', 'POST'])

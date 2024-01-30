@@ -376,6 +376,9 @@ def toCerrado(orden_id):
 
 def genera_credito(empresa, monto, cliente, orden):
     importe = float(monto)
+    #### Prueba Cupon ####
+    #flash ("GENRA CREDITO Importe {} -- monto original {}".format(importe, monto))
+    ####
     codigo_tmp = genera_codigo(8)
     codigo = str(orden.order_number)+codigo_tmp+str(orden.id)
     if empresa.platform == 'tiendanube':

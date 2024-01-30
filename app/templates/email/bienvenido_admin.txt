@@ -1,0 +1,9 @@
+Bienvenido  {{ store.store_name }}! 
+
+Tienda: {{ store.store_name }} 
+Email: {{store.admin_email}}
+URL: {{store.store_url}}
+Plan: {{store.store_plan}}
+Portal :<a href="http://frontprod.borisreturns.com/buscar?empresa={{store.store_id}}" target="_blank" >http://frontprod.borisreturns.com/buscar?empresa={{store.store_id}}</a> 
+Usuario y contraseña : {{usuario}} 
+        

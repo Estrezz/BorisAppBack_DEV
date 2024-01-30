@@ -161,22 +161,33 @@ def enviar_etiqueta_fastmail(correo, solicitud, customer, orden, metodo_envio, o
     
     if observaciones == "Retiro":
         correo_descripcion = correos.query.get('FAST').correo_mail
-        #mailto = 'ssuarez@fastmail.com.ar'
         mailto = [correo_descripcion,customer.email]
     
-    url = "https://epresislv.fastmail.com.ar/api/v2/print_etiquetas.json"
+    ##### URL anterior para FASTMAIL #####################
+    #url = "https://epresislv.fastmail.com.ar/api/v2/print_etiquetas.json"
+    url = "https://epresislv.fastmail.com.ar/api/v2/print-etiquetas-custom"
 
     headers = {
      'Content-Type': 'application/json'
     }
 
+    #data = {
+    #    "api_token": correo.cliente_apikey,
+    #    "ids": solicitud['guia']
+    #}
     data = {
         "api_token": correo.cliente_apikey,
-        "ids": solicitud['guia']
+        "tipo": "fixed",
+        "is_remito": False,
+	    "nombre": "REPORTE_FM_PDF",
+	    #"ides": "["+str(solicitud)['guia']+"]"
+        "ides": f"[{solicitud['guia']}]"
     }
     
-    payload = json.dumps(data)
-    label_tmp = requests.request("POST", url, headers=headers, data=payload)
+    #payload = json.dumps(data)
+    #label_tmp = requests.request("POST", url, headers=headers, data=payload)
+    label_tmp = requests.request("POST", url, headers=headers, json=data)
+
     if label_tmp.status_code !=200:
         flash('no se pudo generar la etiqueta')
     else:
@@ -200,8 +211,8 @@ def enviar_etiqueta_fastmail(correo, solicitud, customer, orden, metodo_envio, o
 def ver_etiqueta_fastmail(guia):
     correo_tmp = 'FAST'+str(current_user.store)
     correo = CONF_correo.query.get(correo_tmp)
-    
-    url = "https://epresislv.fastmail.com.ar/api/v2/print_etiquetas.json"
+ 
+    url = "https://epresislv.fastmail.com.ar/api/v2/print-etiquetas-custom"
 
     headers = {
      'Content-Type': 'application/json'
@@ -209,10 +220,14 @@ def ver_etiqueta_fastmail(guia):
 
     data = {
         "api_token": correo.cliente_apikey,
-        "ids": guia
+        "tipo": "fixed",
+        "is_remito": False,
+	    "nombre": "REPORTE_FM_PDF",
+	    "ides": "["+guia+"]"
     }
     
-    payload = json.dumps(data)
-    label_tmp = requests.request("POST", url, headers=headers, data=payload)
+    #payload = json.dumps(data)
+    #label_tmp = requests.request("POST", url, headers=headers, data=payload)
+    label_tmp = requests.request("POST", url, headers=headers, json=data)
    
     return label_tmp

@@ -1,6 +1,7 @@
-<div class='container-fluid'>
-    <img  class="center-block img-responsive" src='http:{{company.param_logo}}'> 
+<div class='container-fluid' style="max-width: 400px; margin: 0 auto; text-align: center;">
+    <img class="center-block" src="http:{{company.param_logo}}" style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
 </div>
+
 <br>
 <h3 style="text-align:left"> 
     Hola {{ customer.name }}! <br>
@@ -12,7 +13,7 @@
     {% for i in linea %}
         {% if i.accion == 'devolver' %}
             <li>
-                Se ha procedido a la devolución de  {{ "${:,.2f}".format(i.monto_devuelto) }} por la devolución de {{i.name}}<br>
+                Se ha procedido a la devolución del importe de {{i.name}}<br>
                 Recordá que la devolución se realiza por el mismo método que utilizaste para realizar el pago.<br>
                 En caso de pago con tarjeta, dependiendo de la fecha de cierre, 
                 el importe podría aparacer en el siguiente período <br>

@@ -129,7 +129,7 @@
                     {% set ns.saliente_activo=false %}
 
                     {% for i in orden_linea %}
-                        {% if (i['accion'] == 'cambiar' and i['accion_cambiar_por'] != 1 ) %}
+                        {% if (i['accion'] == 'cambiar' and i['accion_cambiar_por'] != "1" ) %}
                         {% set ns.saliente_tmp = true %}
                         <input class="saliente" type="hidden" id="prod_id_saliente" name="prod_id_saliente" value="{{ i['prod_id'] }}" data-variante="{{ i['accion_cambiar_por']}}" data-prod_id="{{ i['prod_id'] }}" data-cambiar_por_prod_id="{{ i['accion_cambiar_por_prod_id'] }}" data-line_saliente="{{ i['order_line_number'] }}">
                         <input type="hidden" id="order_line_saliente" name="order_line_saliente" value="{{ i['order_line_number'] }}">
@@ -387,7 +387,7 @@
 
                 <form id="cupones" action="{{ url_for('main.gestion_lineas_cupones', orden_id=orden.id) }}" method="POST"> 
                     {% for i in orden_linea %}
-                        {% if (i['accion'] == 'cambiar' and i['accion_cambiar_por'] == 1 ) %}
+                        {% if (i['accion'] == 'cambiar' and i['accion_cambiar_por'] == "1" ) %}
                         {% set ns.cupontmp = true %}
                         <input class="cupomes" type="hidden" id="prod_id_cupon" name="prod_id_cupon" value="{{ i['prod_id'] }}" data-variante="{{ i['accion_cambiar_por']}}" data-prod_id="{{ i['prod_id'] }}" data-cambiar_por_prod_id="{{ i['accion_cambiar_por_prod_id'] }}">
                         <input type="hidden" id="order_line_cupon" name="order_line_cupon" value="{{ i['order_line_number'] }}">

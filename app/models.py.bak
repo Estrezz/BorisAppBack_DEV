@@ -202,14 +202,14 @@ class Customer(db.Model):
 
 
 class Order_detail(db.Model):
-    order_line_number = db.Column(db.String(150), primary_key=True)
+    order_line_number = db.Column(db.String(30), primary_key=True)
     line_number = db.Column(db.Integer)
-    prod_id = db.Column(db.String(64))
-    name = db.Column(db.String(200))
-    variant = db.Column(db.String(64))
+    prod_id = db.Column(db.Integer)
+    name = db.Column(db.String(120))
+    variant = db.Column(db.Integer)
     accion = db.Column(db.String(10))
-    accion_cambiar_por = db.Column(db.String(64))
-    accion_cambiar_por_prod_id = db.Column(db.String(64))
+    accion_cambiar_por = db.Column(db.Integer)
+    accion_cambiar_por_prod_id = db.Column(db.Integer)
     accion_cambiar_por_desc = db.Column(db.String(120))
     accion_cantidad = db.Column(db.Integer)
     motivo = db.Column(db.String(50))

@@ -3,20 +3,20 @@ Hola {{ customer.name }}!
 
 
 {% if envio == 'Manual' %}
-        Por favor segui las siguientes intstrucciones para hacernos llegar tu pedido:
+        Por favor seguí las siguientes instrucciones para hacernos llegar tu pedido:
             1 - Embala tu producto cuidadosamente 
             2 - Envialo por tu método de correo preferido o acercalo a una de nuestras sucursales
             {{company.envio_manual_note | safe}}
 {% endif %}
 
 {% if envio == 'Coordinar' %}
-        Por favor segui las siguientes intstrucciones para continuar con el cambio / devolución::
+        Por favor seguí las siguientes instrucciones para continuar con el cambio / devolución::
             1 - Embala tu producto correctamente
             {{company.envio_coordinar_note | safe}}
 {% endif %}
 
 {% if envio == 'Moova' %}
-    Por favor segui las siguientes intstrucciones para hacernos llegar tu pedido:
+    Por favor seguí las siguientes instrucciones para hacernos llegar tu pedido:
         1 - Embala tu producto cuidadosamente 
         2 - imprimi y pega la etiqueta que encontraras en: {{label}} 
         3 - Un Moover pasará por tu domicilio para retirar el pedido 

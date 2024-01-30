@@ -1,5 +1,5 @@
-<div class='container-fluid'>
-    <img  class="center-block img-responsive" src='http:{{company.param_logo}}'> 
+<div class='container-fluid' style="max-width: 400px; margin: 0 auto; text-align: center;">
+    <img class="center-block" src="http:{{company.param_logo}}" style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
 </div>
 <br>
 <h3 style="text-align:left"> 
@@ -10,7 +10,7 @@
 {% if envio.metodo_envio_id == 'Manual' %}
     <p>   
         <br>
-        Por favor seguí las siguientes intstrucciones para hacernos llegar tus productos:<br>
+        Por favor seguí las siguientes instrucciones para hacernos llegar tus productos:<br>
             <br>
             {{envio.instrucciones_entrega | safe}}
     </p>
@@ -21,6 +21,14 @@
         <br>
         Por favor seguí las siguientes instrucciones para continuar con el cambio / devolución:<br>
             {{envio.instrucciones_entrega | safe}}
+    </p>
+{% endif %}
+
+{% if envio.metodo_envio_id == 'Domicilio' %}
+    <p>   
+        <br>
+        Por favor seguí las siguientes instrucciones para continuar con el cambio / devolución:<br>
+            {{envio.instrucciones_entrega | safe}}<br>
     </p>
 {% endif %}
 
