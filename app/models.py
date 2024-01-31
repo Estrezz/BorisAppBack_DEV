@@ -286,8 +286,10 @@ class  CONF_boris(db.Model):
 class metodos_envios(db.Model):
     metodo_envio_id = db.Column(db.String(20), primary_key=True)
     metodo_envio_descripcion = db.Column(db.String(200))
-    carrier = db.Column(db.Boolean)
-    direccion_obligatoria = db.Column(db.Boolean)
+    carrier = db.Column(db.Boolean) # Necesita un correo?
+    sucursales = db.Column(db.Boolean) # Necesita elegir una sucursal ?
+    direccion_obligatoria = db.Column(db.Boolean) # Exige poner al usuario una direccion?
+    ### ver si es necesario tambien agregar opcion roundtrip
     icon = db.Column(db.String(50))
 
     def __repr__(self):
@@ -361,4 +363,19 @@ class Codigos_postales(db.Model):
 
     def __repr__(self):
         return '<Codigo {} {}>'.format(self.cp, self.provincia)
-    
+
+class  Sucursales(db.Model):
+    sucursal_id = db.Column(db.String(200), primary_key=True)
+    store = db.Column(db.String(64), db.ForeignKey('company.store_id'))
+    metodo_envio_id = db.Column(db.String(20), db.ForeignKey('metodos_envios.metodo_envio_id'))
+    sucursal_name = db.Column(db.String(350))
+    sucursal_address = db.Column(db.String(350))
+    sucursal_localidad = db.Column(db.String(250))
+    sucursal_ciudad = db.Column(db.String(64))
+    sucursal_provincia = db.Column(db.String(64))
+    sucursal_pais = db.Column(db.String(64))
+    sucursal_observaciones = db.Column(db.String(350))
+
+    def __repr__(self):
+        return '<Sucursal {} {} {} {} >'.format(self.sucursal_id, self.sucursal_name, self.store, self.metodo_envio_id)
+
