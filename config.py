@@ -21,7 +21,7 @@ class Config(object):
     FILES_PEDIDOS_URL = os.environ.get('FILES_PEDIDOS_URL')
     ### no se porque no lo toma
     #SERVER_ROLE = os.environ.get('SERVER_ROLE')
-    SERVER_ROLE = os.environ.get('SERVER_USE')
+    SERVER_ROLE = os.environ.get('SERVER_ROLE')
 
     CLIENT_ID_TN=os.environ.get('CLIENT_ID_TN')
     CLIENT_SECRET_TN=os.environ.get('CLIENT_SECRET_TN')
