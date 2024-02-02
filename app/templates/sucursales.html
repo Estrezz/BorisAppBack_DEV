@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block app_content %}
+    <h4><strong>Sucursales</strong></h4>
+
+    <div class="row">
+        <div class="card-body">
+            <div class = "page-header text-info font-weight-bold"> 
+              <h4> Sucursales </h4>
+            </div>
+            <br>
+            <div class="card">
+              <div class="card-body">
+                <small>
+                <!-- Formulario para agregar sucursales -->
+                <div class = "text-info"> 
+                  <h5> Agregar una sucursal: </h5>
+                </div>
+                <form id="sucursal_add" action="{{ url_for('main.add_sucursal') }}" method="POST"> 
+                  <div class="form-row align-items-center">
+                    <div class="form-group col-md-8">
+                        <label for="nueva_sucursal">Sucursal</label> 
+                        <input type="text" class="form-control form-control-sm" name="nueva_sucursal" id="nueva_sucursal" >
+                    </div>
+                    
+                    <div class="form-group col-md-2"> 
+                      <br>
+                      <button name="agregar" type="submit" class="btn btn-primary btn-sm mt-2" value="agregar"> Agregar </button>
+                    </div>
+                  </div>
+                </form>
+                <!-- FIN Formulario para agregar motivos -->
+
+                <hr>
+                <div class = "text-info"> 
+                  <h5> Sucursales </h5>
+                </div>
+                
+                
+                {% for s in sucursales %}
+                <form id="sucursal_info" action="{{ url_for('main.editar_sucursal', id=s.sucursal_id) }}" method="POST"> 
+                  <input type="hidden" id="sucursales" name="sucursales" value="{{ s.sucursal_id }}">
+                  <div class="form-row align-items-center">
+                      <div class="form-group col-md-6">
+                        <label for="sucursal">Sucursal</label> 
+                        <input type="text" class="form-control form-control-sm" name="sucursal" id="sucursal" value="{{s.sucursal_name}}">
+                      </div>
+                      <div class="form-group col-md-2">                          
+                        <label for="sucursal_direccion">Direccion</label> 
+                        <input type="text" class="form-control form-control-sm" name="sucursal_direccion" id="sucursal_direccion" value="{{s.sucursal_direccion}}">                                                   
+                      </div>
+
+                      <div class="form-group col-md-4">
+                        <br>
+                        <button name="boton" type="submit" class="btn btn-outline-info btn-sm mt-2" value="update"> Actualizar </button>
+                        <button name="boton" type="submit" class="btn btn-sm btn-outline-danger mt-2 ml-4" value="eliminar"> Eliminar </button>
+                      </div>
+                      
+                    </div>
+                  </form>
+                  {% endfor %}
+
+                  </small>
+                </div>
+              </div>
+          </div>
+    </div>
+    
+    
+{% endblock %}

@@ -7,7 +7,7 @@ from app import db
 from app.email import send_email
 from app.main.forms import EditProfileForm
 from app.main.tiendanube import generar_envio_tiendanube, autorizar_tiendanube, buscar_codigo_categoria_tiendanube, buscar_datos_variantes_tiendanube
-from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log, categories_filter, CONF_boris, CONF_metodos_envios, CONF_motivos, CONF_correo, metodos_envios, correos
+from app.models import User, Company, Order_header, Customer, Order_detail, Transaction_log, categories_filter, CONF_boris, CONF_metodos_envios, CONF_motivos, CONF_correo, metodos_envios, correos, Sucursales
 from app.main.interfaces import crear_pedido, cargar_pedidos, resumen_ordenes, toReady, toReceived, toApproved, toReject, toCancel, toCerrado, traducir_estado, buscar_producto, genera_credito, actualiza_empresa, actualiza_empresa_categorias, actualiza_empresa_JSON, loguear_transaccion, finalizar_orden, devolver_linea, actualizar_stock, devolver_datos_boton, incializa_configuracion, validar_imagen, enviar_imagen, cotiza_envio_correo, crea_envio_correo, ver_etiqueta, registrar_log
 import json
 import re
@@ -624,32 +624,33 @@ def editar_envio(id):
         metodos=[]
         status = 'Success'
         for m in metodos_tmp:
-            metodo_master = metodos_envios.query.get(m.metodo_envio_id)
+            if m.habilitado == True:
+                metodo_master = metodos_envios.query.get(m.metodo_envio_id)
+                
+                #flash(' Correo ID en Form:'.format( request.form.get('metodo_envio_correo')))
+                if m.correo_id is None:
+                    correo_id_tmp = ""
+                    costo_envio_tmp = "Merchant"
+                    #flash('el correo es NONE poen espacio')
+                else: 
+                    correo_id_tmp = m.correo_id
+                    costo_envio_tmp = m.costo_envio
+                    #flash('el correo NO es NONE')
+                ######################################################################
 
-            
-            #flash(' Correo ID en Form:'.format( request.form.get('metodo_envio_correo')))
-            if m.correo_id is None:
-                correo_id_tmp = ""
-                costo_envio_tmp = "Merchant"
-                #flash('el correo es NONE poen espacio')
-            else: 
-                correo_id_tmp = m.correo_id
-                costo_envio_tmp = m.costo_envio
-                #flash('el correo NO es NONE')
-            ######################################################################
-
-            unMetodo_tmp = {"metodo_envio_id" : m.metodo_envio_id,
-                            "icon": metodo_master.icon,
-                            "boton_titulo": m.titulo_boton,
-                            "boton_descripcion": m.descripcion_boton,
-                            "direccion_obligatoria": metodo_master.direccion_obligatoria,
-                            "carrier":metodo_master.carrier,
-                            "correo_id": correo_id_tmp,
-                            "costo_envio": costo_envio_tmp}
-            metodos.append(unMetodo_tmp)
-            status = actualiza_empresa_JSON(empresa, 'envio', metodos, 'otros')
-            if status == 'Failed':
-                status = 'Failed'
+                unMetodo_tmp = {"metodo_envio_id" : m.metodo_envio_id,
+                                "icon": metodo_master.icon,
+                                "boton_titulo": m.titulo_boton,
+                                "boton_descripcion": m.descripcion_boton,
+                                "direccion_obligatoria": metodo_master.direccion_obligatoria,
+                                "sucursales": metodo_master.sucursales,
+                                "carrier":metodo_master.carrier,
+                                "correo_id": correo_id_tmp,
+                                "costo_envio": costo_envio_tmp}
+                metodos.append(unMetodo_tmp)
+                status = actualiza_empresa_JSON(empresa, 'envio', metodos, 'otros')
+                if status == 'Failed':
+                    status = 'Failed'
 
         if status != 'Failed':
             flash('Los datos se actualizaron correctamente')
@@ -804,8 +805,6 @@ def edit_mailsbackinfo():
         
  
 
-
-
 @bp.route('/categorias_filtro', methods=['GET', 'POST'])
 @login_required
 def filtrar_categorias():
@@ -858,6 +857,54 @@ def filtrar_categorias():
     categorias_filtradas = categories_filter.query.filter_by(store=current_user.store).all()
     return render_template('category.html', categorias=categorias, categorias_filtradas=categorias_filtradas, title='Categorias', empresa_name=session['current_empresa'])
 
+################################# Sucursales
+@bp.route('/sucursales', methods=['GET', 'POST'])
+@login_required
+def sucursales():
+    empresa = Company.query.filter_by(store_id=current_user.store).first()
+    sucursales = Sucursales.query.filter_by(store=current_user.store, metodo_envio_id="Locales").all()
+
+    return render_template('sucursales.html', sucursales=sucursales, title='Sucursales', empresa_name=session['current_empresa'])
+
+
+@bp.route('/add_sucursal', methods=['GET', 'POST'])
+@login_required
+def add_sucursal():
+    nueva_sucursal = request.form.get('nueva_sucursal')
+    sucursal_id = str(current_user.store)+"-"+"Locales-"+nueva_sucursal
+    
+    
+    unaSucursal = Sucursales(
+            store = current_user.store,
+            metodo_envio_id="Locales",
+            sucursal_id=sucursal_id,
+            sucursal_name=nueva_sucursal,
+            sucursal_direccion = "direccion 1234"
+        )
+    
+    db.session.add(unaSucursal)
+    db.session.commit()
+    return redirect(url_for('main.sucursales'))
+
+@bp.route('/editar_sucursal/<id>', methods=['GET', 'POST'])
+@login_required
+def editar_sucursal(id):
+
+    if request.method == "POST":
+        unaSucursal = Sucursales.query.filter_by(sucursal_id=id).first() 
+        accion = request.form.get('boton')
+
+        if accion == "update":
+            unaSucursal.sucursal_name = request.form.get('sucursal')
+            unaSucursal.sucursal_direccion = request.form.get('sucursal_direccion')
+
+        if accion == "eliminar":
+            db.session.delete(unaSucursal)
+
+        db.session.commit()
+
+    return redirect(url_for('main.sucursales'))
+################################## ENd sucursales
 
 @bp.route('/search')  
 def search():
@@ -1832,6 +1879,34 @@ def data():
         'recordsTotal': results,
         'draw': request.args.get('draw', type=int),
     }
+
+
+######################################################################
+# Envia Sucursales 
+# http://127.0.0.1:5000/api/sucursales/listar?tienda=1447373&metodo_envio=Locales
+######################################################################
+@bp.route('/api/sucursales/listar', methods=['GET'])
+def listar_sucursales():
+
+    tienda = request.args.get('tienda')
+    metodo_envio = request.args.get('metodo_envio')
+    sucursales = Sucursales.query.filter_by(store=tienda, metodo_envio_id=metodo_envio).all()
+
+    sucursales_list = []
+    for sucursal in sucursales:
+        sucursales_list.append({
+            'sucursal_id': sucursal.sucursal_id,
+            'sucursal_name': sucursal.sucursal_name,
+            'sucursal_direccion': sucursal.sucursal_direccion,
+            'sucursal_localidad': sucursal.sucursal_localidad,
+            'sucursal_provincia': sucursal.sucursal_provincia,
+            'sucursal_observaciones': sucursal.sucursal_observaciones
+        })
+
+
+
+    # Use jsonify to convert the list to JSON format and return as a response
+    return json.dumps(sucursales_list), 200
 
 
 #################################################################################

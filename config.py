@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
 
-
 class Config(object):
     """ Clas para configurar app """
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
@@ -20,7 +19,9 @@ class Config(object):
     ADMINS = ['soporte@borisreturns.com']
     POSTS_PER_PAGE = int(os.environ.get('POST_PER_PAGE') or 20)
     FILES_PEDIDOS_URL = os.environ.get('FILES_PEDIDOS_URL')
-    SERVER_ROLE = os.environ.get('SERVER_ROLE')
+    ### no se porque no lo toma
+    #SERVER_ROLE = os.environ.get('SERVER_ROLE')
+    SERVER_ROLE = os.environ.get('SERVER_USE')
 
     CLIENT_ID_TN=os.environ.get('CLIENT_ID_TN')
     CLIENT_SECRET_TN=os.environ.get('CLIENT_SECRET_TN')
