@@ -188,6 +188,7 @@ def traducir_estado(estado):
 
 
 def toReady(orden, company):
+    
     customer = Customer.query.get(orden.customer_id)
     envio = metodos_envios.query.get(orden.courier_method)
     
@@ -835,6 +836,8 @@ def buscar_descripcion_correo(store, correo):
     #correo_tmp = CONF_metodos_envios.query.get((store, correo)).correo_id
     #if not correo_tmp:
     #    return ""
+    if not correo:
+        correo=""
     correo_tmp = correo+str(store)
     correo_id = CONF_correo.query.get(correo_tmp)
 

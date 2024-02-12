@@ -152,7 +152,8 @@ class Order_header(db.Model):
     courier_method = db.Column(db.String(64))
     metodo_envio_correo = db.Column(db.String(64))
     metodo_envio_guia = db.Column(db.String(64), index=True)
-    metodo_envio_sucursal = db.Column(db.String(200))
+    metodo_envio_sucursal_id = db.Column(db.String(200))
+    metodo_envio_sucursal_name = db.Column(db.String(350))
     etiqueta_generada = db.Column(db.Boolean)
     courier_precio = db.Column(db.String(20))
     reembolsado = db.Column(db.Boolean)
@@ -375,6 +376,7 @@ class  Sucursales(db.Model):
     sucursal_ciudad = db.Column(db.String(64))
     sucursal_provincia = db.Column(db.String(64))
     sucursal_pais = db.Column(db.String(64))
+    sucursal_email = db.Column(db.String(120))
     sucursal_observaciones = db.Column(db.String(350))
 
     def __repr__(self):

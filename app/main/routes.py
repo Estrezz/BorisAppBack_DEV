@@ -1350,20 +1350,17 @@ def gestionar_ordenes(orden_id):
     
     if accion == 'toReady':
         if request.form.get('metodo_envio_correo') or request.form.get('metodo_envio_guia') or request.form.get('coordinar_roundtrip'):
-            orden.metodo_envio_correo = request.form['metodo_envio_correo']
-            orden.metodo_envio_guia = request.form.get('metodo_envio_guia')
+            orden.metodo_envio_correo = request.form.get('metodo_envio_correo', '')
+            # orden.metodo_envio_correo = request.form['metodo_envio_correo'] 
+            orden.metodo_envio_guia = request.form.get('metodo_envio_guia', '')
+            #orden.metodo_envio_guia = request.form.get('metodo_envio_guia') 
 
             orden.courier_coordinar_roundtrip = request.form.get('coordinar_roundtrip') == "on"
-            ###### quitar ###########################################3
-            # #if request.form.get('coordinar_roundtrip') == "on":
-            # #    orden.courier_coordinar_roundtrip = True
-            # #else:
-            # #    orden.courier_coordinar_roundtrip = False
-            ##############################################################
         else: 
             orden.courier_coordinar_roundtrip = False
+
         db.session.commit()
-            
+        print("commit")    
         toReady(orden, current_user.empleado)
     else: 
         if accion == 'toReceived':

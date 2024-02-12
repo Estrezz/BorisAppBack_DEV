@@ -315,8 +315,7 @@
                             </small> 
 
                             <!-- modal -->
-                            <!-- LOCALES -->
-                            {% if (orden.courier_method == 'Coordinar' or orden.courier_method == 'Domicilio' ) %}
+                            {% if orden.courier_method != 'Manual' %}
                             <button type="button" class="btn btn-info btn-sm float-right mt-2 mb-2" data-toggle="modal" data-target="#coordinar_datos" >Datos del Envío coordinado </button>
 
                             <div class="modal fade" id="coordinar_datos" tabindex="-1" role="dialog" aria-hidden="true">
@@ -491,9 +490,7 @@
 
                         
                         <!-- Si no fue confirmado y el metodo de Envio elegido es COORDINAR  --> 
-                        <!-- LOCALES -->
-                        {% if (orden.courier_method == 'Coordinar' or orden.courier_method == 'Domicilio' or orden.courier_method == 'Locales') %}
-                        
+                        {% if orden.courier_method != 'Manual' %}
                             <label for="submit-form" tabindex="0" class="btn btn-primary" title='Pasa el pedido a LISTO PARA RETIRO'> Confirmar </label>
                         <!-- Si no fue confirmado y el metodo de Envio elegido MANUAL  --> 
                         {% else %}
@@ -565,19 +562,13 @@
                         <!-- Info Envio -->
                             <h5>Método de Envío: {{orden.courier_method}}</h5>
                             
-                            <!-- LOCALES -->
-                            {% if (orden.courier_method == 'Coordinar' or orden.courier_method == 'Domicilio' or orden.courier_method == 'Locales') %}
+                            {% if orden.courier_method != 'Manual' %}
                                 {% if orden.sub_status == 'Solicitado' %}
-                                    {% if orden.courier_method == 'Locales'  %}
-                                        Sucursal: {{orden.metodo_envio_sucursal_name}} <br>
-                                    {% endif %}
                                     <form id="coordinar_form" action="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReady' ) }}" method="POST"> 
-                                        {% if (orden.courier_method == 'Coordinar' or orden.courier_method == 'Domicilio') %}
                                         <div class="form-group">
                                             <input type="text" class="form-control form-control-sm" id="metodo_envio_correo" name="metodo_envio_correo" value="{{orden.metodo_envio_correo}}" placeholder="correo">
                                             <input type="text" class="form-control form-control-sm" id="metodo_envio_guia" name="metodo_envio_guia" value="{{orden.metodo_envio_guia}}" placeholder="Guia">
                                         </div>
-                                        {% endif %}
                                         <div class="form-group">
                                             <div class="form-check">   
                                                 <input class="form-check-input" type="checkbox" id="coordinar_roundtrip" name="coordinar_roundtrip">
@@ -587,21 +578,15 @@
                                         <input type="submit" id="submit-form" class="d-none" />
                                     </form>
                                 {% else %}
-                                    {% if (orden.courier_method == 'Coordinar' or orden.courier_method == 'Domicilio') %}
-                                        Correo: {{orden.metodo_envio_correo}} <br>
-                                        Guia: {{orden.metodo_envio_guia}}
-                                  
+                                    Correo: {{orden.metodo_envio_correo}} <br>
+                                    Guia: {{orden.metodo_envio_guia}} 
 
-                                        {% if orden.etiqueta_generada == True %}
-                                            <form id="Etiqueta" action="{{ url_for('main.etiqueta', orden_id = orden.id) }}" method="POST"  style="display: inline;"> 
-                                                <button  class="btn btn-link btn-sm " type="submit"> Ver Guia </button>
-                                            </form>
-                                        {% endif %}
-                                        <br>
+                                    {% if orden.etiqueta_generada == True %}
+                                        <form id="Etiqueta" action="{{ url_for('main.etiqueta', orden_id = orden.id) }}" method="POST"  style="display: inline;"> 
+                                            <button  class="btn btn-link btn-sm " type="submit"> Ver Guia </button>
+                                        </form>
                                     {% endif %}
-                                    {% if orden.courier_method == 'Locales'  %}
-                                        Sucursal: {{orden.metodo_envio_sucursal_name}} <br>
-                                    {% endif %}
+                                    <br>
 
                                     Retiro + entrega:
                                     {% if orden.courier_coordinar_roundtrip == True %}
@@ -616,8 +601,13 @@
                                     Costo del Envío: {{orden.courier_precio}} $ (+IVA)<br>
                                 {% endif %}
 
+                            {% endif %}        
+                            {% if orden.courier_method == 'Moova' %}
+                                Guia: {{ orden.courier_order_id }} <br>
+                                {% if orden.status_resumen == 'Solicitado' %}
+                                    Costo del Envío: {{orden.courier_precio}}<br>
+                                {% endif %}
                             {% endif %}
-                            
                             <hr>
 
                         <!-- Info Cliente -->
