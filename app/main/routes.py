@@ -1421,7 +1421,6 @@ def webhook():
         db.session.commit()
         return '', 200
     else:
-        #abort(400)
         return "Error al actualizar estado del pedido", 400
 
 
@@ -1477,8 +1476,6 @@ def recibir_pedidos():
             encontro = 0
             for p in pedido['producto']:
                 for l in lineas:
-                    #print (str(l.variant) , str(p['variant']), str(l.accion_cambiar_por), str(p['accion_cambiar_por']))
-                    #if l.prod_id == p['id']:
                     if l.variant == p['variant'] and l.accion_cambiar_por == p['accion_cambiar_por']:
                         if l.accion == p['accion']:
                             encontro = 1
