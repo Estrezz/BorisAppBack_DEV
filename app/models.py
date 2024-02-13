@@ -376,6 +376,7 @@ class  Sucursales(db.Model):
     sucursal_ciudad = db.Column(db.String(64))
     sucursal_provincia = db.Column(db.String(64))
     sucursal_pais = db.Column(db.String(64))
+    sucursal_zipcode = db.Column(db.String(20))
     sucursal_email = db.Column(db.String(120))
     sucursal_observaciones = db.Column(db.String(350))
 

@@ -10,61 +10,150 @@
               <h4> Sucursales </h4>
             </div>
             <br>
+
             <div class="card">
               <div class="card-body">
                 <small>
                 <!-- Formulario para agregar sucursales -->
-                <div class = "text-info"> 
-                  <h5> Agregar una sucursal: </h5>
-                </div>
-                <form id="sucursal_add" action="{{ url_for('main.add_sucursal') }}" method="POST"> 
-                  <div class="form-row align-items-center">
-                    <div class="form-group col-md-8">
-                        <label for="nueva_sucursal">Sucursal</label> 
-                        <input type="text" class="form-control form-control-sm" name="nueva_sucursal" id="nueva_sucursal" >
+                  <div class = "text-info"> 
+                    <h5> Agregar una sucursal: </h5>
+                  </div>
+
+                  <form id="sucursal_add" action="{{ url_for('main.add_sucursal') }}" method="POST"> 
+                    <div class="form-row align-items-center">
+                      <div class="form-group col-md-12">
+                          <div class="form-row">
+                            <div class="form-group col-md-8">
+                              <label for="nueva_sucursal">Sucursal</label> 
+                              <input type="text" class="form-control form-control-sm" name="nueva_sucursal" id="nueva_sucursal" maxlength="350">
+                            </div>
+                          </div>
+                          
+                          <div class="form-row">
+                            <div class="form-group col-md-8">
+                              <label for="nueva_sucursal_direccion">Dirección</label> 
+                              <input type="text" class="form-control form-control-sm" name="nueva_sucursal_direccion" id="nueva_sucursal_direccion" maxlength="350">
+                            </div>
+                            <div class="form-group col-md-4">
+                              <label for="nueva_sucursal_localidad">Localidad</label>
+                              <input type="text" class="form-control form-control-sm" name="nueva_sucursal_localidad" id="nueva_sucursal_localidad" maxlength="250">
+                            </div>
+                          </div>
+
+                          <div class="form-row">
+                            <div class="form-group col-md-4">
+                              <label for="nueva_sucursal_ciudad">Ciudad</label> 
+                              <input type="text" class="form-control form-control-sm" name="nueva_sucursal_ciudad" id="nueva_sucursal_ciudad" maxlength="64">
+                            </div>
+                            <div class="form-group col-md-4">
+                              <label for="nueva_sucursal_provincia">Provincia</label>
+                              <input type="text" class="form-control form-control-sm" name="nueva_sucursal_provincia" id="nueva_sucursal_provincia" maxlength="64">
+                            </div>
+                            <div class="form-group col-md-2">
+                              <label for="nueva_sucursal_zipcode">Cod.Postal</label>
+                              <input type="text" class="form-control form-control-sm" name="nueva_sucursal_zipcode" id="nueva_sucursal_zipcode" maxlength="20">
+                            </div>
+                            <div class="form-group col-md-2">
+                              <label for="nueva_sucursal_pais">Pais</label>
+                              <input type="text" class="form-control form-control-sm" name="nueva_sucursal_pais" id="nueva_sucursal_pais" maxlength="64">
+                            </div>
+                          </div>
+
+                          <div class="form-row">
+                            <div class="form-group col-md-4">
+                              <label for="nueva_sucursal_email">Email Sucursal</label>
+                              <input type="email" class="form-control form-control-sm" name="nueva_sucursal_email" id="nueva_sucursal_email" maxlength="120">
+                            </div>
+                          </div>
+                          <div class="form-row">
+                            <div class="form-group col-md-12">
+                              <label for="nueva_sucursal_observaciones">Observaciones</label>
+                              <input type="text" class="form-control form-control-sm" name="nueva_sucursal_observaciones" id="nueva_sucursal_observaciones" maxlength="350">
+                            </div>
+                          </div>
+                      </div>
+                    </div>
+
+                    <div class="form-group col-md-4"> 
+                        <button name="agregar" type="submit" class="btn btn-primary btn-sm mt-2" value="agregar"> Agregar </button>
                     </div>
                     
-                    <div class="form-group col-md-2"> 
-                      <br>
-                      <button name="agregar" type="submit" class="btn btn-primary btn-sm mt-2" value="agregar"> Agregar </button>
-                    </div>
-                  </div>
-                </form>
-                <!-- FIN Formulario para agregar motivos -->
+                  </form>
+                  <!-- FIN Formulario para agregar sucursales -->
 
-                <hr>
-                <div class = "text-info"> 
-                  <h5> Sucursales </h5>
-                </div>
-                
+                  <hr>
+
+                  <div class = "text-info"> 
+                    <h5> Sucursales </h5>
+                  </div>
                 
                 {% for s in sucursales %}
+                <strong>{{s.sucursal_name}}</strong>
+
                 <form id="sucursal_info" action="{{ url_for('main.editar_sucursal', id=s.sucursal_id) }}" method="POST"> 
                   <input type="hidden" id="sucursales" name="sucursales" value="{{ s.sucursal_id }}">
+
                   <div class="form-row align-items-center">
-                      <div class="form-group col-md-6">
-                        <label for="sucursal">Sucursal</label> 
-                        <input type="text" class="form-control form-control-sm" name="sucursal" id="sucursal" value="{{s.sucursal_name}}">
+                      <div class="form-group col-md-4">
+                          <label for="sucursal">Sucursal</label> 
+                          <input type="text" class="form-control form-control-sm" name="sucursal" id="sucursal" value="{{s.sucursal_name or ''}}">
+                      </div>
+                      <div class="form-group col-md-8">
+                          <label for="sucursal_observaciones">Observaciones</label> 
+                          <input type="text" class="form-control form-control-sm" name="sucursal_observaciones" id="sucursal_observaciones" value="{{s.sucursal_observaciones or ''}}">
+                      </div>
+                  </div>
+
+                  <div class="form-row align-items-center">
+                      <div class="form-group col-md-2">                          
+                          <label for="sucursal_direccion">Direccion</label> 
+                          <input type="text" class="form-control form-control-sm" name="sucursal_direccion" id="sucursal_direccion" value="{{s.sucursal_direccion or ''}}">                                                   
+                      </div>
+                       <div class="form-group col-md-2">                          
+                          <label for="sucursal_localidad">Localidad</label> 
+                          <input type="text" class="form-control form-control-sm" name="sucursal_localidad" id="sucursal_localidad" value="{{s.sucursal_localidad or ''}}">                                                   
                       </div>
                       <div class="form-group col-md-2">                          
-                        <label for="sucursal_direccion">Direccion</label> 
-                        <input type="text" class="form-control form-control-sm" name="sucursal_direccion" id="sucursal_direccion" value="{{s.sucursal_direccion}}">                                                   
+                          <label for="sucursal_ciudad">Ciudad</label> 
+                          <input type="text" class="form-control form-control-sm" name="sucursal_ciudad" id="sucursal_ciudad" value="{{s.sucursal_ciudad or ''}}">                                                   
                       </div>
+                      <div class="form-group col-md-2">
+                          <label for="sucursal_provincia">Provincia</label> 
+                          <input type="text" class="form-control form-control-sm" name="sucursal_provincia" id="sucursal_provincia" value="{{s.sucursal_provincia or ''}}">
+                      </div>
+                      <div class="form-group col-md-2">                          
+                          <label for="sucursal_zipcode">Cod.Postal</label> 
+                          <input type="text" class="form-control form-control-sm" name="sucursal_zipcode" id="sucursal_zipcode" value="{{s.sucursal_zipcode or ''}}">                                                   
+                      </div>
+                      <div class="form-group col-md-2">                          
+                          <label for="sucursal_pais">Pais</label> 
+                          <input type="text" class="form-control form-control-sm" name="sucursal_pais" id="sucursal_pais" value="{{s.sucursal_pais or ''}}">                                                   
+                      </div>
+                  </div>
 
-                      <div class="form-group col-md-4">
-                        <br>
-                        <button name="boton" type="submit" class="btn btn-outline-info btn-sm mt-2" value="update"> Actualizar </button>
-                        <button name="boton" type="submit" class="btn btn-sm btn-outline-danger mt-2 ml-4" value="eliminar"> Eliminar </button>
-                      </div>
-                      
+                  <div class="form-row align-items-center">  
+                        <div class="form-group col-md-4">                          
+                          <label for="sucursal_email">Email</label> 
+                          <input type="text" class="form-control form-control-sm" name="sucursal_email" id="sucursal_email" value="{{s.sucursal_email or ''}}">                                                   
+                        </div>
+                  </div>
+
+                  <div class="form-row ">
+                    <div class="form-group col-md-9">
                     </div>
-                  </form>
-                  {% endfor %}
+                    <div class="form-group col-md-3">
+                        <button name="boton" type="submit" class="btn btn-outline-info btn-sm mt-2" value="update"> Actualizar </button>
+                        <button name="boton" type="submit" class="btn btn-sm btn-outline-danger mt-2 ml-4" value="eliminar"> Eliminar </button>    
+                    </div>
+                  </div>
+                  <hr>
+                </form>
+                {% endfor %}
 
-                  </small>
-                </div>
-              </div>
+              </small>
+            </div>
           </div>
+        </div>
     </div>
     
     

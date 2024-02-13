@@ -870,21 +870,40 @@ def sucursales():
 @bp.route('/add_sucursal', methods=['GET', 'POST'])
 @login_required
 def add_sucursal():
-    nueva_sucursal = request.form.get('nueva_sucursal')
-    sucursal_id = str(current_user.store)+"-"+"Locales-"+nueva_sucursal
-    
-    
+  
+    form_data = request.form
+    nueva_sucursal = form_data.get('nueva_sucursal')
+    nueva_sucursal_direccion = form_data.get('nueva_sucursal_direccion')
+    nueva_sucursal_localidad = form_data.get('nueva_sucursal_localidad')
+    nueva_sucursal_ciudad = form_data.get('nueva_sucursal_ciudad')
+    nueva_sucursal_provincia = form_data.get('nueva_sucursal_provincia')
+    nueva_sucursal_pais = form_data.get('nueva_sucursal_pais') or 'AR'
+    nueva_sucursal_zipcode = form_data.get('nueva_sucursal_zipcode')
+    nueva_sucursal_email = form_data.get('nueva_sucursal_email')
+    nueva_sucursal_observaciones = form_data.get('nueva_sucursal_observaciones')
+
+    sucursal_id = f"{current_user.store}-Locales-{nueva_sucursal}"
+
     unaSucursal = Sucursales(
             store = current_user.store,
             metodo_envio_id="Locales",
             sucursal_id=sucursal_id,
             sucursal_name=nueva_sucursal,
-            sucursal_direccion = "direccion 1234"
+            sucursal_direccion = nueva_sucursal_direccion,
+            sucursal_localidad = nueva_sucursal_localidad,
+            sucursal_ciudad = nueva_sucursal_ciudad,
+            sucursal_provincia = nueva_sucursal_provincia,
+            sucursal_pais = nueva_sucursal_pais,
+            sucursal_zipcode = nueva_sucursal_zipcode,
+            sucursal_email = nueva_sucursal_email,
+            sucursal_observaciones = nueva_sucursal_observaciones
         )
     
     db.session.add(unaSucursal)
     db.session.commit()
+
     return redirect(url_for('main.sucursales'))
+    
 
 @bp.route('/editar_sucursal/<id>', methods=['GET', 'POST'])
 @login_required
@@ -895,8 +914,16 @@ def editar_sucursal(id):
         accion = request.form.get('boton')
 
         if accion == "update":
-            unaSucursal.sucursal_name = request.form.get('sucursal')
-            unaSucursal.sucursal_direccion = request.form.get('sucursal_direccion')
+            form_data = request.form
+            unaSucursal.sucursal_name = form_data.get('sucursal')
+            unaSucursal.sucursal_direccion = form_data.get('sucursal_direccion')
+            unaSucursal.sucursal_localidad = form_data.get('sucursal_localidad')
+            unaSucursal.sucursal_ciudad = form_data.get('sucursal_ciudad')
+            unaSucursal.sucursal_provincia = form_data.get('sucursal_provincia')
+            unaSucursal.sucursal_pais = form_data.get('sucursal_pais')
+            unaSucursal.sucursal_zipcode = form_data.get('sucursal_zipcode')
+            unaSucursal.sucursal_email = form_data.get('sucursal_email')
+            unaSucursal.sucursal_observaciones = form_data.get('sucursal_observaciones')
 
         if accion == "eliminar":
             db.session.delete(unaSucursal)
