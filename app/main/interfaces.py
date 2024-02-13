@@ -4,7 +4,7 @@ import string
 import random
 import imghdr
 from app import db
-from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log, categories_filter, CONF_motivos, CONF_boris, CONF_metodos_envios, correos, CONF_correo, metodos_envios
+from app.models import User, Company, Customer, Order_header, Order_detail, Transaction_log, categories_filter, CONF_motivos, CONF_boris, CONF_metodos_envios, correos, CONF_correo, metodos_envios, Sucursales
 #from app.main.moova import toready_moova
 from app.main.fastmail import crea_envio_fastmail, cotiza_envio_fastmail, ver_etiqueta_fastmail
 from app.main.crab import crea_envio_crab, cotiza_envio_crab, ver_etiqueta_crab
@@ -32,7 +32,17 @@ def cargar_pedidos():
 def crear_pedido(pedido):
     unaEmpresa = Company.query.get(pedido['company']['store_id'])
     descripcion_correo = buscar_descripcion_correo(pedido['company']['store_id'], pedido['correo']['correo_id'])
+
     
+    if pedido['correo']['metodo_envio_sucursal']:
+        sucursal_id = pedido['correo']['metodo_envio_sucursal']
+        sucursal_name = Sucursales.query.get(sucursal_id)
+        sucursal_name = sucursal_tmp.sucursal_name
+    else:
+        sucursal_id == ""
+        sucursal_name = ""
+    
+    ### Revisar, si el cliente existe trae los datos existentes y no guarda la nueva direccion o los nuevos datos
     if Customer.query.get(pedido['cliente']['id']):
         unCliente = Customer.query.get(pedido['cliente']['id'])
     else: 
@@ -60,8 +70,9 @@ def crear_pedido(pedido):
         payment_card = pedido['orden_tarjeta_de_pago'],
         courier_method= pedido['correo']['correo_metodo_envio'],
         metodo_envio_correo = descripcion_correo,
-        ### Esto cambio con la integracion de los correos en correo_id viene el ID del correo y no la guia
         metodo_envio_guia = "", 
+        metodo_envio_sucursal_id = sucursal_id,
+        metodo_envio_sucursal_name = sucursal_name,
         etiqueta_generada = False,
         courier_precio = pedido['correo']['correo_precio'],
         status = 'Shipping',
@@ -78,12 +89,9 @@ def crear_pedido(pedido):
         buyer = unCliente,
         pertenece = unaEmpresa
     )   
-    #print('carga precio {}'.format(pedido['correo']['correo_precio']))
-    #print('precio cargado {}'.format(unaOrden.courier_precio))
-
+   
     indice = 1
     for x in pedido['producto']: 
-        # flash('monto {} tipo {}'.format(x['monto_a_devolver'], type(x['monto_a_devolver'])))
         
         unProducto = Order_detail(
             order_line_number = str(pedido['orden']) + str(indice),
@@ -110,7 +118,6 @@ def crear_pedido(pedido):
             gestionado = 'Iniciado',
             productos = unaOrden
             )
-        # flash('Producto {} - monto: {}'.format(unProducto, unProducto.monto_a_devolver))
         db.session.add(unProducto)
         indice += indice
     db.session.commit() 
