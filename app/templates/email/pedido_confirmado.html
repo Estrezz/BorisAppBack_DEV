@@ -32,6 +32,14 @@
     </p>
 {% endif %}
 
+{% if envio.metodo_envio_id == 'Locales' %}
+    <p>   
+        <br>
+        Por favor seguí las siguientes instrucciones para continuar con el cambio / devolución:<br>
+            {{envio.instrucciones_entrega | safe}}<br>
+    </p>
+{% endif %}
+
 
 <br>
     <hr>

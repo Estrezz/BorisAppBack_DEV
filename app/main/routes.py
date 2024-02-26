@@ -692,6 +692,7 @@ def edit_mailsportalinfo():
             confirma_manual_note = request.form.get('confirma_manual_note')
             confirma_coordinar_note = request.form.get('confirma_coordinar_note')
             confirma_domicilio_note = request.form.get('confirma_domicilio_note')
+            confirma_locales_note = request.form.get('confirma_locales_note')
             orden_solicitada_asunto = request.form.get('asunto_solicitado')
 
             if empresa.orden_solicitada_asunto != orden_solicitada_asunto:
@@ -709,6 +710,11 @@ def edit_mailsportalinfo():
             if empresa.confirma_domicilio_note != confirma_domicilio_note:
                 empresa.confirma_domicilio_note = confirma_domicilio_note
                 actualiza_empresa_JSON(empresa, 'confirma_domicilio_note', confirma_domicilio_note, 'textos')
+            
+            if empresa.confirma_locales_note != confirma_locales_note:
+                print("locales")
+                empresa.confirma_locales_note = confirma_locales_note
+                actualiza_empresa_JSON(empresa, 'confirma_locales_note', confirma_locales_note, 'textos')
     
             db.session.commit() 
 

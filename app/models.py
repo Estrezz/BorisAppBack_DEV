@@ -57,6 +57,7 @@ class Company(db.Model):
     confirma_manual_note = db.Column(db.String(2000))
     confirma_coordinar_note = db.Column(db.String(2000))
     confirma_domicilio_note = db.Column(db.String(2000))
+    confirma_locales_note = db.Column(db.String(2000))
     #### confirma_retiro_note se utilizaba para Moova
     confirma_retiro_note = db.Column(db.String(2000))
     

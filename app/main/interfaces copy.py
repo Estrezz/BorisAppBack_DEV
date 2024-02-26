@@ -34,13 +34,13 @@ def crear_pedido(pedido):
     descripcion_correo = buscar_descripcion_correo(pedido['company']['store_id'], pedido['correo']['correo_id'])
 
     
+    # Informacion de Sucursal (si el metodo de envío es Locales)
+    sucursal_id = ""
+    sucursal_name = ""
     if pedido['correo']['correo_metodo_envio'] == 'Locales':
         sucursal_id = pedido['correo']['metodo_envio_sucursal']
         sucursal_tmp = Sucursales.query.get(sucursal_id)
         sucursal_name = sucursal_tmp.sucursal_name
-    else:
-        sucursal_id == ""
-        sucursal_name = ""
     
     ### Revisar, si el cliente existe trae los datos existentes y no guarda la nueva direccion o los nuevos datos
     if Customer.query.get(pedido['cliente']['id']):
