@@ -712,7 +712,6 @@ def edit_mailsportalinfo():
                 actualiza_empresa_JSON(empresa, 'confirma_domicilio_note', confirma_domicilio_note, 'textos')
             
             if empresa.confirma_locales_note != confirma_locales_note:
-                print("locales")
                 empresa.confirma_locales_note = confirma_locales_note
                 actualiza_empresa_JSON(empresa, 'confirma_locales_note', confirma_locales_note, 'textos')
     
@@ -1373,6 +1372,7 @@ def reembolso(orden_id):
 
     return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer, empresa=empresa, empresa_name=session['current_empresa'], envio=envio)
 
+
 @bp.route('/orden/gestion/<orden_id>', methods=['GET', 'POST'])
 @login_required
 def gestionar_ordenes(orden_id):
@@ -1770,6 +1770,20 @@ def buscar_metodo_envio():
         carrier = 'No'
     return carrier
 
+
+## Verifica si la tienda tiene el Metodo Locales Habilitado
+@bp.route('/metodo_locales_habilitado', methods=['POST'])
+def metodo_locales_habilitado():
+    store_id = request.form.get('store_id')
+    metodo = CONF_metodos_envios.query.get((store_id, "Locales"))
+    
+    if metodo:
+        habilitado = 'Si'
+    else:
+        habilitado = 'No'
+    return habilitado
+
+
 ######################################################################
 # Generates Data for Datatables
 ######################################################################
@@ -1909,8 +1923,7 @@ def data():
 
 
 ######################################################################
-# Envia Sucursales 
-# http://127.0.0.1:5000/api/sucursales/listar?tienda=1447373&metodo_envio=Locales
+# Devuelve Sucursales 
 ######################################################################
 @bp.route('/api/sucursales/listar', methods=['GET'])
 def listar_sucursales():
@@ -1935,6 +1948,37 @@ def listar_sucursales():
     # Use jsonify to convert the list to JSON format and return as a response
     return json.dumps(sucursales_list), 200
 
+##############################################################################
+# Envia mail a locales si el metodo de envío es LOCALES
+##############################################################################
+@bp.route('/mail_locales', methods=['POST'])
+def mail_locales():
+    orden_id = request.form.get('orden')
+    orden = Order_header.query.get(orden_id)
+    sucursal = Sucursales.query.get(orden.metodo_envio_sucursal_id)
+
+    if sucursal.sucursal_email is None:
+        return "No esta configurada la direccion de mail para ese local", 500
+
+    else: 
+        orden_linea = Order_detail.query.filter_by(order=orden_id).all()
+        customer = Customer.query.get(orden.customer_id)
+        company = Company.query.get(current_user.store)
+        
+        # recipients=[sucursal.sucursal_email], 
+        send_email(company.orden_maillocales_asunto, 
+                        sender=(company.communication_email_name, company.communication_email),
+                        recipients=[sucursal.sucursal_email], 
+                        reply_to = company.admin_email,
+                        text_body=render_template('email/gestion_local.txt',
+                                                company=company,  customer=customer, order=orden, linea=orden_linea),
+                        html_body=render_template('email/gestion_local.html',
+                                                company=company,  customer=customer, order=orden, linea=orden_linea), 
+                        attachments=None, 
+                        sync=False)
+
+    return "Success", 200
+    
 
 #################################################################################
 ####### Tareasde Mantenimiento /Mantenimiento ###################################
@@ -1980,9 +2024,7 @@ def prueba_mail():
                                             company=company, customer=customer, order=orden, envio=metodo_envio_tmp), 
                     attachments=None, 
                     sync=False)
-    print(orden)
-    print("----")
-    print(metodo_envio_tmp)
+
     return "OK"
 ###################
 

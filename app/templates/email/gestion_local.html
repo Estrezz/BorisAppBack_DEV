@@ -1,0 +1,27 @@
+<h3 style="text-align:left"> Orden a gestionar en el Local </h3>
+    
+    Un cliente ha seleccionado gestionar su solicitud en el local.
+    <br>
+    <br>
+    <strong> Datos del cliente: </strong> <br> 
+        Cliente: {{customer.name}}<br>
+        Mail: {{customer.email}} <br>
+        Telefono: {{customer.phone}} <br>
+    <br>
+    </strong> Datos de la transaccion: </strong><br>
+        Orden: {{order.order_number}} <br>
+        {% for i in linea %}
+            {% if i.accion == 'cambiar' %}
+                Cambio: {{i.name}} X {{i.accion_cambiar_por_desc}} <br>
+            {% endif %}
+            {% if i.accion == 'devolver' %}
+                Devolución: {{i.name}} <br>
+            {% endif %}
+        {% endfor %}
+
+        <br>
+        {{company.maillocales_note | safe}}
+
+        
+
+

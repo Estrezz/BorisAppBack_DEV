@@ -47,6 +47,8 @@ class Company(db.Model):
     shipping_province = db.Column(db.String(64))
     shipping_country = db.Column(db.String(64))
     shipping_info = db.Column(db.String(120))
+
+    ### Notas personalizadas para mails
     aprobado_note = db.Column(db.String(2000))
     rechazado_note = db.Column(db.String(2000))
     envio_manual_note = db.Column(db.String(2000))
@@ -54,10 +56,14 @@ class Company(db.Model):
     envio_correo_note = db.Column(db.String(2000))
     cupon_generado_note = db.Column(db.String(2000))
     finalizado_note = db.Column(db.String(2000))
+    maillocales_note = db.Column(db.String(2000))
+
+    # Notas para metodos de envio
     confirma_manual_note = db.Column(db.String(2000))
     confirma_coordinar_note = db.Column(db.String(2000))
     confirma_domicilio_note = db.Column(db.String(2000))
     confirma_locales_note = db.Column(db.String(2000))
+    
     #### confirma_retiro_note se utilizaba para Moova
     confirma_retiro_note = db.Column(db.String(2000))
     
@@ -69,6 +75,7 @@ class Company(db.Model):
     orden_aprobada_asunto = db.Column(db.String(120))
     cupon_generado_asunto = db.Column(db.String(120))
     orden_finalizada_asunto = db.Column(db.String(120))
+    orden_maillocales_asunto = db.Column(db.String(120))
 
     ### Habilita o no el envío de mails en cada caso
     orden_solicitada_habilitado = db.Column(db.Boolean)

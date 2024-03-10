@@ -5,6 +5,7 @@
         <h3>Configurar Perfil</h3>
         <div class='row'>
           <div class="col-6">
+          <input type="hidden" id="store_id" name="store_id" value="{{ empresa.store_id }}">
           <h4><strong> {{ empresa.store_name }} </strong> <br></h4>
           </div>
           <div class="col-6">
@@ -1114,6 +1115,24 @@
                                 <label for="finalizado_note">Nota para el final del procesamiento:</label> 
                                 <textarea class="form-control form-control-sm" name="finalizado_note" id="finalizado_note" >{{ empresa.finalizado_note or '' }}</textarea> 
                               </div> 
+                              <hr>
+
+                              <!-- Mail para Locales (solo si el metodo locales esta activo)-->
+                              <div id="bloque_locales">
+                                  <div class = "text-info mt-2"> 
+                                    <h5> Mail LOCALES: </h5>
+                                  </div>
+                                  <p>Este mail se envía a los locales para informar que un cliente realizará un cambio. <br> </p>
+
+                                  <div class="form-group">
+                                    <label for="asunto_locales">Asunto para Locales</label> 
+                                    <input type="text" class="form-control form-control-sm" name="asunto_locales" id="asunto_locales" value="{{empresa.orden_maillocales_asunto}}">
+                                  </div>  
+                                  <div class="form-group">
+                                    <label for="maillocales_note">Nota para Locales:</label> 
+                                    <textarea class="form-control form-control-sm" name="maillocales_note" id="maillocales_note" >{{ empresa.maillocales_note or '' }}</textarea> 
+                                  </div> 
+                              </div>
                             </small>
 
                             <button name="boton" type="submit" class="btn btn-primary mt-2" value="guardar"> Guardar Cambios </button>
@@ -1124,9 +1143,6 @@
 
                     </div>
                   </div> 
-
-
-                  
 
               </div>
             </div>
@@ -1142,6 +1158,12 @@
     {{ super() }}
     <script>
       $('#bloque_correo').hide(); 
+      $('#bloque_locales').hide(); 
+
+      $(document).ready(function() {
+            metodo_locales_habilitado( $("#store_id").val());
+        });
+
 
       $('#nuevo_metodo_envio').change(function () { 
           buscar_metodo_envio($(this).val());
@@ -1160,7 +1182,23 @@
                 alert('No existe el Método de Envío');
             })   
         }
-      
+
+
+        function metodo_locales_habilitado(store_id) {  
+          $.post('/metodo_locales_habilitado', {
+              store_id: store_id
+          })
+          .done(function(response) {
+              if (response === 'Si') {
+                  $('#bloque_locales').show(); 
+              } else {
+                  $('#bloque_locales').hide(); 
+              }
+          })
+          .fail(function(xhr, status, error) {
+              console.error('Error al cargar el método de envío de locales:', error);
+          });
+      }
    
 
     </script>

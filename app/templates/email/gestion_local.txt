@@ -1,0 +1,18 @@
+<h3 style="text-align:left"> Orden a gestionar en el Local </h3>
+    
+    El cliente: {{ customer.name }} ha seleccionado gestionar su solicitud en el local.
+
+    Datos de la transaccion
+        Orden: {{order.order_number}}
+        {% for i in linea %}
+            {% if i.accion == 'cambiar' %}
+                Cambio: {{i.name}} X {{i.accion_cambiar_por_desc}}
+            {% endif %}
+            {% if i.accion == 'devolver' %}
+                Devolución: {{i.name}}
+            {% endif %}
+        {% endfor %}
+
+        
+
+

@@ -8,7 +8,6 @@
 
         <div class="row">
             <div class = "page-header"> <h4> Orden #{{orden.order_number}}</h4> </div>
-            <input type="hidden" id="order_id" name="order_id" value="{{orden.id}}">
         </div>
         
         <div class="row">
@@ -316,7 +315,7 @@
                             </small> 
 
                             <!-- modal -->
-                            
+                            <!-- LOCALES -->
                             {% if (orden.courier_method == 'Coordinar' or orden.courier_method == 'Domicilio' ) %}
                             <button type="button" class="btn btn-info btn-sm float-right mt-2 mb-2" data-toggle="modal" data-target="#coordinar_datos" >Datos del Envío coordinado </button>
 
@@ -590,9 +589,7 @@
                                 {% else %}
                                     {% if (orden.courier_method == 'Coordinar' or orden.courier_method == 'Domicilio') %}
                                         Correo: {{orden.metodo_envio_correo}} <br>
-                                        Guia Retiro: {{orden.metodo_envio_guia}} <br>
-                                        <!-- SOLO SI ES UN CAMBIO Quiza si guia Entrega Existe
-                                        Guia Entrega: <br>-->
+                                        Guia: {{orden.metodo_envio_guia}}
                                   
 
                                         {% if orden.etiqueta_generada == True %}
@@ -604,9 +601,6 @@
                                     {% endif %}
                                     {% if orden.courier_method == 'Locales'  %}
                                         Sucursal: {{orden.metodo_envio_sucursal_name}} <br>
-                                        Mail a Local: <strong> No enviado </strong> <br>
-                                        <button class="btn btn-outline-primary btn-sm mt-2 float-right" onclick="mailLocal()">Enviar Mail a Local</button>
-                                        <br>
                                     {% endif %}
 
                                     Retiro + entrega:
@@ -874,23 +868,7 @@
             
         });
 
-        function mailLocal() {
-            $.post('/mail_locales', {
-                orden: $('#order_id').val()
-            }).done(function(response) {
-                data = JSON.parse(response);
-                alert(data);
-                alert("el mail se envío correctamente")
-
-            }).fail(function(xhr, status, error){
-                if (xhr.status === 500) {
-                   alert('No se pudo enviar el mail: ' + xhr.responseText);
-                } else {
-                    alert('No se pudo enviar el mail: ' + error);
-                }
-            })   
         
-        }
         
 
     </script>
