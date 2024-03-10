@@ -4,6 +4,7 @@ from time import time
 from flask import current_app
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import Text
 import jwt
 from app import db, login
 
@@ -56,7 +57,7 @@ class Company(db.Model):
     envio_correo_note = db.Column(db.String(2000))
     cupon_generado_note = db.Column(db.String(2000))
     finalizado_note = db.Column(db.String(2000))
-    maillocales_note = db.Column(db.String(2000))
+    maillocales_note = db.Column(Text)
 
     # Notas para metodos de envio
     confirma_manual_note = db.Column(db.String(2000))
