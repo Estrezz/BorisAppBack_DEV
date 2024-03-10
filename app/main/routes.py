@@ -761,6 +761,8 @@ def edit_mailsbackinfo():
             cupon_generado_asunto = request.form.get('asunto_cupon')
             finalizado_note = request.form.get('finalizado_note')
             orden_finalizada_asunto = request.form.get('asunto_finalizado')
+            maillocales_note = request.form.get('maillocales_note')
+            orden_maillocales_asunto = request.form.get('asunto_locales')
 
             ### habilitar mails de salida #
             ### Si esta en ON pone TRUE sino FALSE
@@ -803,6 +805,8 @@ def edit_mailsbackinfo():
             empresa.finalizado_note = finalizado_note
             empresa.orden_finalizada_asunto = orden_finalizada_asunto
             empresa.orden_finalizada_habilitado = orden_finalizada_habilitado
+            empresa.maillocales_note = maillocales_note
+            empresa.orden_maillocales_asunto = orden_maillocales_asunto
 
             db.session.commit() 
 
