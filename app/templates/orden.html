@@ -604,7 +604,15 @@
                                     {% endif %}
                                     {% if orden.courier_method == 'Locales'  %}
                                         Sucursal: {{orden.metodo_envio_sucursal_name}} <br>
-                                        Mail a Local: <strong> No enviado </strong> <br>
+                                        
+                                        Mail a Local: <strong id="mail_local_status">
+                                            {% if orden.metodo_envio_mail_locales_enviado == True %}
+                                                Enviado
+                                            {% else %}
+                                                No Enviado
+                                            {% endif %}
+                                            
+                                        </strong> <br>
                                         <button class="btn btn-outline-primary btn-sm mt-2 float-right" onclick="mailLocal()">Enviar Mail a Local</button>
                                         <br>
                                     {% endif %}
@@ -878,10 +886,9 @@
             $.post('/mail_locales', {
                 orden: $('#order_id').val()
             }).done(function(response) {
-                data = JSON.parse(response);
-                alert(data);
-                alert("el mail se envío correctamente")
-
+                //data = JSON.parse(response);
+                $('#mail_local_status').text("Enviado");
+                
             }).fail(function(xhr, status, error){
                 if (xhr.status === 500) {
                    alert('No se pudo enviar el mail: ' + xhr.responseText);

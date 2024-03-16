@@ -1981,6 +1981,9 @@ def mail_locales():
                         attachments=None, 
                         sync=False)
 
+        orden.metodo_envio_mail_locales_enviado = True
+        db.session.commit()
+
     return "Success", 200
     
 

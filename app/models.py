@@ -163,6 +163,7 @@ class Order_header(db.Model):
     metodo_envio_guia = db.Column(db.String(64), index=True)
     metodo_envio_sucursal_id = db.Column(db.String(200))
     metodo_envio_sucursal_name = db.Column(db.String(350))
+    metodo_envio_mail_locales_enviado = db.Column(db.Boolean)
     etiqueta_generada = db.Column(db.Boolean)
     courier_precio = db.Column(db.String(20))
     reembolsado = db.Column(db.Boolean)

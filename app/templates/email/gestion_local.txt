@@ -1,4 +1,4 @@
-<h3 style="text-align:left"> Orden a gestionar en el Local </h3>
+Orden a gestionar en el Local
     
     El cliente: {{ customer.name }} ha seleccionado gestionar su solicitud en el local.
 
