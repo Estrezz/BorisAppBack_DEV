@@ -158,9 +158,12 @@ class Order_header(db.Model):
     gastos_promocion = db.Column(db.Float)
     payment_method = db.Column(db.String(35))
     payment_card = db.Column(db.String(35))
+
+    ### Metodo de Envio + Correo
     courier_method = db.Column(db.String(64))
     metodo_envio_correo = db.Column(db.String(64))
-    metodo_envio_guia = db.Column(db.String(64), index=True)
+    metodo_envio_guia = db.Column(db.String(64), index=True) ### Guia para el retiro
+    metodo_envio_guia_entrega = db.Column(db.String(64)) ### En caso de que fuera necesario una guia adicional para la entrega
     metodo_envio_sucursal_id = db.Column(db.String(200))
     metodo_envio_sucursal_name = db.Column(db.String(350))
     metodo_envio_mail_locales_enviado = db.Column(db.Boolean)
@@ -178,6 +181,7 @@ class Order_header(db.Model):
     nuevo_envio =  db.Column(db.String(100))
     nuevo_envio_costo =  db.Column(db.Float, default=0)
     nuevo_envio_total =  db.Column(db.Float, default=0)
+
     status = db.Column(db.String(25))
     sub_status = db.Column(db.String(25))
     status_resumen = db.Column(db.String(25))

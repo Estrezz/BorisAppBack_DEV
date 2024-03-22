@@ -981,74 +981,114 @@ def gestion_lineas_entrantes(orden_id):
 
 
 ##### Gestiona las lineas salientes de las solicitudes
-@bp.route('/gestion_lineas_saliente/<orden_id>', methods=['POST'])
+@bp.route('/gestion_lineas_saliente/<orden_id>',methods=['GET', 'POST'])  
 def gestion_lineas_salientes(orden_id):
-    with db.session.no_autoflush:
+    if request.method == "POST":
         empresa = Company.query.get(current_user.store)
-        orden = Order_header.query.get(orden_id)
+        ordenes = request.form.getlist('order_line_saliente')
         nuevaorden = request.form.get("nuevaorden")
-        
-        if nuevaorden is None:
-            flash('Debe especificar un método de creación para la nueva Orden')
-            return redirect(url_for('main.orden', orden_id=orden_id))
-        
-        orden.nuevo_envio = nuevaorden
         envio_nueva_orden = request.form.get("envio_nueva_orden")
-        total_nueva_orden = float(request.form.get("total_nueva_orden", 0))
+        total_nueva_orden = request.form.get("total_nueva_orden")
+
+        orden = Order_header.query.get(orden_id)
+        #unCliente = orden.buyer
+        #unaEmpresa = orden.pertenece
+        
+        # agrego datos de la nueva orden (forma de envio, costo de envio y total a cobrar)
+        orden.nuevo_envio = nuevaorden
         orden.nuevo_envio_costo = envio_nueva_orden
-        orden.nuevo_envio_total = max(total_nueva_orden, 0)
+        if float(total_nueva_orden) < 0:
+            monto_total = 0
+        else: 
+            orden.nuevo_envio_total = total_nueva_orden
         orden.metodo_envio_correo = request.form.get("empresa_coordinada")
+        # orden.metodo_envio_guia = request.form.get("guia_coordinada")
+        # Añadir guia entrega
         orden.metodo_envio_guia_entrega = request.form.get("guia_coordinada")
+        
 
-        envio_nuevo_metodo = ''
+        if nuevaorden == None:
+             flash('Debe especificar un método de creación para la nueva Orden')
+             return redirect(url_for('main.orden', orden_id=orden_id))
 
-        if nuevaorden in ['manual', 'manual_stock']:
+        ######## Nueva orden MANUAL ###################################################
+        if  nuevaorden == 'manual': 
             envio_nuevo_metodo = 'Se envía manualmente'
-            envio = metodos_envios.query.get(orden.courier_method)
-            if envio.carrier and orden.salientes == 'Si':
+            ##### genera envio si el metodo de envio tiene Carrier ###
+            ##### chequear que pasa si el get esta en 0
+            envio = metodos_envios.query.get(orden.courier_method)  
+            if envio.carrier and orden.salientes == 'Si' :
                 customer = Customer.query.get(orden.customer_id)
-                envio_creado = crea_envio_correo(empresa, customer, orden, envio)
+                envio_creado = crea_envio_correo(empresa,customer,orden,envio) 
                 if envio_creado == 'Failed':
                     flash('se produjo un error al intentar generar el envio en la empresa de Correo')
 
-        if nuevaorden == 'manual_stock' and empresa.stock_vuelve_config:
-            actualizar_stock(request.form.getlist('order_line_saliente'), empresa, 'saliente')
-        elif nuevaorden == 'manual_stock':
-            send_email('Se ha generado una orden manual en BORIS ',
-                       sender=(empresa.communication_email_name, empresa.communication_email),
-                       recipients=[empresa.admin_email],
-                       reply_to=empresa.communication_email,
-                       text_body=render_template('email/gestion_stock.txt',
-                                                 order=orden, envio=envio_nueva_orden, total=total_nueva_orden),
-                       html_body=render_template('email/gestion_stock.html',
-                                                 order=orden, envio=envio_nueva_orden, total=total_nueva_orden),
-                       attachments=None,
-                       sync=False)
+        ######## Nueva orden MANUAL - Dando de baja Stock #############################
+        if  nuevaorden == 'manual_stock': 
+            envio_nuevo_metodo = 'Se envía manualmente - se descuenta stock'
+            ##### genera envio si el metodo de envio tiene Carrier ###
+            envio = metodos_envios.query.get(orden.courier_method)  
+            if envio.carrier and orden.salientes == 'Si' :
+                customer = Customer.query.get(orden.customer_id)
+                envio_creado = crea_envio_correo(empresa,customer,orden,envio) 
+                if envio_creado == 'Failed':
+                    flash('se produjo un error al intentar generar el envio en la empresa de Correo')
 
-        if nuevaorden == 'tienda':
+            if empresa.stock_vuelve_config == True:
+                actualizar_stock(ordenes, empresa ,'saliente')
+            else:
+                send_email('Se ha generado una orden manual en BORIS ', 
+                    sender=(empresa.communication_email_name, empresa.communication_email),
+                    #sender=empresa.communication_email,
+                    recipients=[empresa.admin_email], 
+                    reply_to = empresa.communication_email,
+                    text_body=render_template('email/gestion_stock.txt',
+                                            order=orden, envio=envio_nueva_orden, total=total_nueva_orden),
+                    html_body=render_template('email/gestion_stock.html',
+                                            order=orden, envio=envio_nueva_orden, total=total_nueva_orden),
+                    attachments=None, 
+                    sync=False)
+
+
+        ######## Nueva orden en Tienda #############################  
+        if  nuevaorden == 'tienda': 
             envio_nuevo_metodo = 'Se envía mediante nueva orden en Tienda'
-            lineas = Order_detail.query.filter(Order_detail.order_line_number.in_(request.form.getlist('order_line_saliente'))).all()
+            
+            unCliente = orden.buyer
+            unaEmpresa = orden.pertenece
+            lineas = Order_detail.query.filter(Order_detail.order_line_number.in_(ordenes)).all()
             for l in lineas:
-                diferencia = max(float(request.form.get("saliente_diferencia_precio" + str(l.order_line_number), 0)), 0)
-                l.accion_cambiar_por_diferencia = diferencia
-            db.session.commit()
+                #### si la diferencia es negativa, la pone en 0 ######
 
-            if orden.pertenece.platform == 'tiendanube':
-                generacion_envio = generar_envio_tiendanube(orden, lineas, orden.buyer, orden.pertenece)
+                #### cambio por error en ultima version ####
+                # if float(request.form.get("saliente_diferencia_precio"+str(l.prod_id))) < 0:
+                if float(request.form.get("saliente_diferencia_precio"+str(l.order_line_number))) < 0:
+                    diferencia = 0
+                else:
+                    diferencia = request.form.get("saliente_diferencia_precio"+str(l.order_line_number))
+                l.accion_cambiar_por_diferencia = diferencia   
+            db.session.commit()  
+
+            ####### genera nueva ordenen tiendanube ###################
+            if unaEmpresa.platform == 'tiendanube':
+                generacion_envio = generar_envio_tiendanube(orden, lineas, unCliente, unaEmpresa)
                 if generacion_envio == 'Failed':
                     return redirect(url_for('main.orden', orden_id=orden_id))
 
-        for o in request.form.getlist('order_line_saliente'):
-            linea = Order_detail.query.get(o)
+        # gestiono las lineas de la orden
+        for o in ordenes:
+            linea = Order_detail.query.get(str(o))
             linea.fecha_gestionado = datetime.utcnow()
-            loguear_transaccion('CAMBIADO', f"{linea.accion_cambiar_por_desc} {envio_nuevo_metodo}", orden_id, current_user.id, current_user.username)
-            linea.gestionado = 'Si' if linea.gestionado == 'Devuelto' else traducir_estado('CAMBIADO')[1]
-
+            loguear_transaccion('CAMBIADO', str(linea.accion_cambiar_por_desc)+' '+envio_nuevo_metodo, orden_id, current_user.id, current_user.username)
+            if linea.gestionado == 'Devuelto':
+                linea.gestionado = 'Si'
+            else:
+                linea.gestionado = traducir_estado('CAMBIADO')[1]
+            
         finalizar_orden(orden_id)
         db.session.commit()
-
+        
     return redirect(url_for('main.orden', orden_id=orden_id))
-
 
 
 ##### Gestiona las lineas salientes de las solicitudes
@@ -1106,8 +1146,8 @@ def ver_ordenes(estado, subestado):
     # nombre de Cliente y pasarlo a la tabla
     ##############################################
 
-    return render_template('ordenes.html', title='Ordenes', estado=estado, subestado=subestado, resumen=resumen, empresa_name=session.get('current_empresa'))
-    #return render_template('ordenes.html', title='Ordenes',  estado=estado, subestado=subestado,  resumen=resumen, empresa_name=session['current_empresa'])
+    
+    return render_template('ordenes.html', title='Ordenes',  estado=estado, subestado=subestado,  resumen=resumen, empresa_name=session['current_empresa'])
 
 
 @bp.route('/orden/mantenimiento/eliminar/<orden_id>', methods=['GET', 'POST'])
@@ -1204,12 +1244,19 @@ def orden(orden_id):
     orden = Order_header.query.filter_by(id=orden_id).first()
     orden_linea = Order_detail.query.filter_by(order=orden_id).all()
     empresa = Company.query.get(orden.store)
+    ##### alerta etiqueta
     envio = metodos_envios.query.get(orden.courier_method)
 
     if request.form.get('nota'):
         orden.note = request.form.get('nota')
         db.session.commit()
 
+    ##### alerta etiqueta (envio=envio)    
+    # print(empresa)
+    # print("--")
+    # print(session['current_empresa'])
+    # print("--")
+   
     return render_template('orden.html', orden=orden, orden_linea=orden_linea, customer=orden.buyer, empresa=empresa, empresa_name=session['current_empresa'], envio=envio)
 
 
@@ -1251,6 +1298,7 @@ def pagos(orden_id):
                 variante = buscar_datos_variantes_tiendanube(l.accion_cambiar_por_prod_id, l.accion_cambiar_por, empresa)
                 if "code" in variante:
                     if variante['code'] == 404:
+                        #flash('no se econtro un articulo')
                         cambios.append({'producto':l.name,'cantidad':l.accion_cantidad,'monto': precio, 'cambio_por':l.accion_cambiar_por_desc, 'precio_cambio': 'No se econtro el ar´ticulo', 'diferencia': 0 })
                 else: 
                     if "promotional_price" not in variante:
@@ -1286,7 +1334,12 @@ def reembolso(orden_id):
         if accion == "reembolso_cupon":
             unCliente = orden.buyer
             total_reembolso = request.form.get("total_reembolso")
+
+            #### Elimina el simbolo de $ y el . como separador ########
+            #.clean = re.sub(r'[^0-9]+', '', str(total_reembolso))
+            #value = float(clean)
             value = float(total_reembolso)
+            #flash("total_reembolso {} -- value {}".format(total_reembolso, value))
             
             ####### genera el cupon ####################
             credito = genera_credito(empresa, value, unCliente, orden)

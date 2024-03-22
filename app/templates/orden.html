@@ -335,7 +335,7 @@
                                             </div>
                                             <div class="form-group">
                                                 <label for="guia_coordinada" class="col-form-label">Guia:</label>
-                                                <input type="text" class="form-control" id="guia_coordinada" name="guia_coordinada" value="{{orden.metodo_envio_guia}}">
+                                                <input type="text" class="form-control" id="guia_coordinada" name="guia_coordinada" value="{{orden.metodo_envio_guia_entrega}}">
                                             </div>
                                             
                                             <p><button id="modalButton" type="submit" class="btn btn-info btn-sm float-right mt-2 mb-2">Guardar</button></p>
@@ -423,13 +423,17 @@
                                                         {% set valor_cupon_default = i.precio %}
                                                     {% endif %}
 
+
+                                                    <input type="text" id="cupon{{ i['prod_id'] }}" name="cupon{{ i['prod_id'] }}" class="form-control cupones" value="{{i['precio']}}" disabled>
+                                                    <!--
                                                     {% if (i.gestionado == 'Iniciado' or i.gestionado == 'Devuelto' ) %}
-                                                        <!-- setea la variable ns.cupon_activa para indicar que hay cupones pendientes de gestion-->
+                                                        <!-- setea la variable ns.cupon_activa para indicar que hay cupones pendientes de gestion
                                                         {% set ns.cupon_activo = true %}
                                                         <input type="text" id="cupon{{ i['prod_id'] }}" name="cupon{{ i['prod_id'] }}" class="form-control cupones" value="{{valor_cupon_default}}">
                                                     {% else %}
                                                         <input type="text" id="cupon{{ i['prod_id'] }}" name="cupon{{ i['prod_id'] }}" class="form-control cupones" value="{{i['precio']}}" disabled>
                                                     {% endif %}
+                                                        -->
                                                 {% else %}
                                                 <input type="text" id="cupon{{ i['prod_id'] }}" name="cupon{{ i['prod_id'] }}" class="form-control cupones" value="{{i['precio']}}" disabled>
                                                 {% endif %}
@@ -566,7 +570,6 @@
                         <!-- Info Envio -->
                             <h5>Método de Envío: {{orden.courier_method}}</h5>
                             
-                            <!-- LOCALES -->
                             {% if (orden.courier_method == 'Coordinar' or orden.courier_method == 'Domicilio' or orden.courier_method == 'Locales') %}
                                 {% if orden.sub_status == 'Solicitado' %}
                                     {% if orden.courier_method == 'Locales'  %}
@@ -575,8 +578,11 @@
                                     <form id="coordinar_form" action="{{ url_for('main.gestionar_ordenes', orden_id = orden.id, accion_orden = 'toReady' ) }}" method="POST"> 
                                         {% if (orden.courier_method == 'Coordinar' or orden.courier_method == 'Domicilio') %}
                                         <div class="form-group">
-                                            <input type="text" class="form-control form-control-sm" id="metodo_envio_correo" name="metodo_envio_correo" value="{{orden.metodo_envio_correo}}" placeholder="correo">
-                                            <input type="text" class="form-control form-control-sm" id="metodo_envio_guia" name="metodo_envio_guia" value="{{orden.metodo_envio_guia}}" placeholder="Guia">
+                                            <input type="text" class="form-control form-control-sm" id="metodo_envio_correo" name="metodo_envio_correo" value="{{orden.metodo_envio_correo or ''}}" placeholder="correo">
+                                            <input type="text" class="form-control form-control-sm" id="metodo_envio_guia" name="metodo_envio_guia" value="{{orden.metodo_envio_guia or ''}}" placeholder="Guia">
+                                            {% if orden.salientes== 'Si' %}
+                                                <input type="text" class="form-control form-control-sm" id="metodo_envio_guia_entrega" name="metodo_envio_guia_entrega" value="{{orden.metodo_envio_guia_entrega or ''}}" placeholder="Guia Entrega">
+                                            {% endif %}
                                         </div>
                                         {% endif %}
                                         <div class="form-group">
@@ -591,9 +597,9 @@
                                     {% if (orden.courier_method == 'Coordinar' or orden.courier_method == 'Domicilio') %}
                                         Correo: {{orden.metodo_envio_correo}} <br>
                                         Guia Retiro: {{orden.metodo_envio_guia}} <br>
-                                        <!-- SOLO SI ES UN CAMBIO Quiza si guia Entrega Existe
-                                        Guia Entrega: <br>-->
-                                  
+                                        <!-- SOLO SI ES UN CAMBIO Quiza si guia Entrega Existe -->
+                                        Guia Entrega:  {{orden.metodo_envio_guia_entrega}} <br>
+                                        
 
                                         {% if orden.etiqueta_generada == True %}
                                             <form id="Etiqueta" action="{{ url_for('main.etiqueta', orden_id = orden.id) }}" method="POST"  style="display: inline;"> 

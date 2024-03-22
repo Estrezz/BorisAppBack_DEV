@@ -4,7 +4,7 @@
 {% block app_content %}
 
 <div class='container'> 
-    <ul  class="nav nav-pills nav-fill" >
+    <ul id="menuOrdenes" class="nav nav-pills nav-fill" >
         <li  class="nav-item" role="presentation" ><a {% if subestado == 'all' %} class='nav-link active' {% else %} class='nav-link' {% endif %} href="{{ url_for('main.ver_ordenes', estado='all', subestado='all') }}">Activas</a></li>
         <li  class="nav-item" role="presentation" ><a {% if subestado == 'Solicitado' %} class='nav-link active' {% else %} class='nav-link' {% endif %} href="{{ url_for('main.ver_ordenes', estado='Shipping', subestado='Solicitado') }}">Solicitadas <span class="badge badge-secondary">{{resumen.solicitadas}}</span></a></li>
         <li  class="nav-item" role="presentation" ><a {% if subestado == 'En Transito' %}class='nav-link active' {% else %} class='nav-link' {% endif %} href="{{ url_for('main.ver_ordenes', estado='Shipping', subestado='En Transito')  }}">En Tránsito <span class="badge badge-secondary">{{resumen.entransito}}</span> </a></li>
