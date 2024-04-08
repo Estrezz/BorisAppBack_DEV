@@ -121,7 +121,7 @@ def crea_envio_fastmail(correo, metodo_envio, orden, customer, orden_linea):
         items_envio.append (   
         {
             "bultos": i.accion_cantidad,
-            "peso": i.peso,
+            "peso": 0.2 if i.peso is None or i.peso == 0 else i.peso,
             "descripcion": i.name,
             "dimensiones": {
                 "alto": i.alto,
@@ -144,7 +144,14 @@ def crea_envio_fastmail(correo, metodo_envio, orden, customer, orden_linea):
     else:
         solicitud = solicitud.json()
         enviar_etiqueta_fastmail(correo, solicitud, customer, orden, metodo_envio, observaciones)
-        return solicitud
+
+        #Añadido por integracion MOCIS
+        guia_entrega = { 
+            "guia": "",
+            "importe": ""
+        }
+
+        return solicitud, guia_entrega
 
 
 
@@ -152,40 +159,31 @@ def enviar_etiqueta_fastmail(correo, solicitud, customer, orden, metodo_envio, o
     ####################################################################
     # las etiquetas se envia:
     # a FASTMAIL + CLIENTE si solo es RETIRO
-    # al MERCHANT si es Retiro + Entrega
+    # a FASTMAIL + MERCHANT si es Retiro + Entrega
     ####################################################################
     company = Company.query.filter_by(store_id=current_user.store).first()
+    correo_descripcion = correos.query.get('FAST').correo_mail
 
     if observaciones == "Retiro + Entrega":
-        mailto = [company.admin_email]
+        mailto = [correo_descripcion, company.admin_email]
     
     if observaciones == "Retiro":
-        correo_descripcion = correos.query.get('FAST').correo_mail
         mailto = [correo_descripcion,customer.email]
     
-    ##### URL anterior para FASTMAIL #####################
-    #url = "https://epresislv.fastmail.com.ar/api/v2/print_etiquetas.json"
     url = "https://epresislv.fastmail.com.ar/api/v2/print-etiquetas-custom"
 
     headers = {
      'Content-Type': 'application/json'
     }
 
-    #data = {
-    #    "api_token": correo.cliente_apikey,
-    #    "ids": solicitud['guia']
-    #}
     data = {
         "api_token": correo.cliente_apikey,
         "tipo": "fixed",
         "is_remito": False,
 	    "nombre": "REPORTE_FM_PDF",
-	    #"ides": "["+str(solicitud)['guia']+"]"
         "ides": f"[{solicitud['guia']}]"
     }
     
-    #payload = json.dumps(data)
-    #label_tmp = requests.request("POST", url, headers=headers, data=payload)
     label_tmp = requests.request("POST", url, headers=headers, json=data)
 
     if label_tmp.status_code !=200:

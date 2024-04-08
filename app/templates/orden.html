@@ -596,16 +596,27 @@
                                 {% else %}
                                     {% if (orden.courier_method == 'Coordinar' or orden.courier_method == 'Domicilio') %}
                                         Correo: {{orden.metodo_envio_correo}} <br>
-                                        Guia Retiro: {{orden.metodo_envio_guia}} <br>
-                                        <!-- SOLO SI ES UN CAMBIO Quiza si guia Entrega Existe -->
-                                        Guia Entrega:  {{orden.metodo_envio_guia_entrega}} <br>
-                                        
+                                        <!-- Datos de la Guia para retiro -->
+                                        <div style="display: inline-block;">
+                                            Guia Retiro: {{orden.metodo_envio_guia}} 
+                                            
+                                            {% if orden.etiqueta_generada == True %}
+                                                <form id="Etiqueta" action="{{ url_for('main.etiqueta', orden_id = orden.id, tipo = "retiro") }}" method="POST"  style="display: inline;"> 
+                                                    <button class="btn btn-link btn-sm" type="submit" style="vertical-align: top; margin-top: -6px;">Ver Guia</button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
+                                        <br>
 
-                                        {% if orden.etiqueta_generada == True %}
-                                            <form id="Etiqueta" action="{{ url_for('main.etiqueta', orden_id = orden.id) }}" method="POST"  style="display: inline;"> 
-                                                <button  class="btn btn-link btn-sm " type="submit"> Ver Guia </button>
-                                            </form>
-                                        {% endif %}
+                                        <!-- SOLO SI ES UN CAMBIO Quiza si guia Entrega Existe -->
+                                        <div style="display: inline-block;">
+                                            Guia Entrega:  {{orden.metodo_envio_guia_entrega}} 
+                                            {% if orden.etiqueta_generada_entrega == True %}
+                                                <form id="Etiqueta" action="{{ url_for('main.etiqueta', orden_id = orden.id, tipo = "entrega") }}" method="POST"  style="display: inline;"> 
+                                                    <button class="btn btn-link btn-sm" type="submit" style="vertical-align: top; margin-top: -6px;">Ver Guia</button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
                                         <br>
                                     {% endif %}
                                     {% if orden.courier_method == 'Locales'  %}
@@ -634,6 +645,9 @@
 
                                 {% if orden.courier_precio|int != 0  %}
                                     Costo del Envío: {{orden.courier_precio}} $ (+IVA)<br>
+                                {% endif %}
+                                {% if orden.courier_precio_entrega|int != 0  %}
+                                    Costo de la Entrega: {{orden.courier_precio_entrega}} $ (+IVA)<br>
                                 {% endif %}
 
                             {% endif %}

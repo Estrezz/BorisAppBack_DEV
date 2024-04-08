@@ -8,9 +8,10 @@ from app.models import User, Company, Customer, Order_header, Order_detail, Tran
 #from app.main.moova import toready_moova
 from app.main.fastmail import crea_envio_fastmail, cotiza_envio_fastmail, ver_etiqueta_fastmail
 from app.main.crab import crea_envio_crab, cotiza_envio_crab, ver_etiqueta_crab
+from app.main.correos.mocis import cotiza_envio_mocis, crea_envio_mocis, ver_etiqueta_mocis
 from app.main.tiendanube import buscar_producto_tiendanube,  genera_credito_tiendanube, devolver_stock_tiendanube
 from app.email import send_email
-from flask import session, flash, current_app,render_template
+from flask import session, flash, current_app,render_template, jsonify, Response
 from flask_login import current_user
 from datetime import datetime
 import os
@@ -38,9 +39,11 @@ def crear_pedido(pedido):
     sucursal_id = ""
     sucursal_name = ""
     if pedido['correo']['correo_metodo_envio'] == 'Locales':
+        print (pedido['orden'])
         sucursal_id = pedido['correo']['metodo_envio_sucursal']
-        sucursal_tmp = Sucursales.query.get(sucursal_id)
-        sucursal_name = sucursal_tmp.sucursal_name
+        sucursal_name = pedido['correo']['metodo_envio_sucursal_name']
+        #sucursal_tmp = Sucursales.query.get(sucursal_id)
+        #sucursal_name = sucursal_tmp.sucursal_name
     
     # Informacion del Cliente
     ### Revisar, si el cliente existe trae los datos existentes 
@@ -842,15 +845,11 @@ def enviar_imagen(file, filename):
 
 
 def buscar_descripcion_correo(store, correo):
-    #correo_tmp = CONF_metodos_envios.query.get((store, correo)).correo_id
-    #if not correo_tmp:
-    #    return ""
     if not correo:
         correo=""
     correo_tmp = correo+str(store)
     correo_id = CONF_correo.query.get(correo_tmp)
 
-    #print(correo_tmp, correo_id)
     if not correo_id:
         return ""
     else: 
@@ -873,6 +872,10 @@ def cotiza_envio_correo(data, datos_correo, servicio):
 
     if data['correo']['correo_id'] == 'OCA':
         return '0'
+    
+    if data['correo']['correo_id'] == 'MOCIS':
+        precio = cotiza_envio_mocis(data, datos_correo)
+        return str(precio)
         
     else: 
         return 'Failed'
@@ -882,7 +885,9 @@ def crea_envio_correo(company,customer,orden,envio):
     orden_linea = Order_detail.query.filter_by(order=orden.id).all()
     metodo_envio_tmp = CONF_metodos_envios.query.get((company.store_id, envio.metodo_envio_id))
     correo_id = CONF_correo.query.get(metodo_envio_tmp.correo_id+str(company.store_id))
-    guia = genera_envio(correo_id, metodo_envio_tmp, orden, customer, orden_linea)
+
+    ### si hay un envio separado para la entrega devulve el numero en entrega, sino devuelve entrega['guia'] y entrega['importe'] vacios
+    guia, entrega = genera_envio(correo_id, metodo_envio_tmp, orden, customer, orden_linea)
     
     if guia != 'Failed':
         orden.metodo_envio_guia = guia['guia']
@@ -892,32 +897,66 @@ def crea_envio_correo(company,customer,orden,envio):
             if guia['importe'] != float(orden.courier_precio):
                 flash('Hubo una diferencia entre el precio cotizado y el precio real Real:{}({}) - Cotizado:{}({})'.format(guia['importe'], type(guia['importe']), float(orden.courier_precio), type(orden.courier_precio)))
                 orden.courier_precio = guia['importe']
+        #### Si existe una guia separada para la entrega guarda la info
+        #### falta poner precio
+        if entrega != 'Failed' and entrega['guia'] != "":
+            orden.metodo_envio_guia_entrega = entrega['guia']
+            orden.etiqueta_generada_entrega = True
+            orden.courier_precio_entrega = entrega['importe']
+
         db.session.commit()
         return "Success"
     else:
         return "Failed"
 
 
-def genera_envio(correo_id, metodo_envio, orden, customer, orden_linea):
+""" def genera_envio(correo_id, metodo_envio, orden, customer, orden_linea):
     if correo_id.correo_id == 'FAST':
         guia = crea_envio_fastmail( correo_id, metodo_envio, orden, customer, orden_linea)
         return guia
     if correo_id.correo_id == 'CRAB':
         guia = crea_envio_crab( correo_id, metodo_envio, orden, customer, orden_linea)
         return guia
+    if correo_id.correo_id == 'MOCIS':
+        guia = crea_envio_mocis( correo_id, metodo_envio, orden, customer, orden_linea)
+        return guia
     else:
-        return "No se encontro el correo_id"
+        return "No se encontro el correo_id" """
+
+
+def genera_envio(correo_id, metodo_envio, orden, customer, orden_linea):
+    courier = {
+        'FAST': crea_envio_fastmail,
+        'CRAB': crea_envio_crab,
+        'MOCIS': crea_envio_mocis
+    }
+
+    courier = courier.get(correo_id.correo_id)
+
+    if courier:
+        guia = courier(correo_id, metodo_envio, orden, customer, orden_linea)
+        if guia == 'Failed':
+            return 'Failed', 'Failed'
+        return guia
+    else:
+        return "No se encontro ese Codigo de Correo"
 
 
 def ver_etiqueta(correo_id, guia):
-    if correo_id == 'FAST':
-        etiqueta = ver_etiqueta_fastmail(guia)
-        return etiqueta
-    if correo_id == 'CRAB':
-        etiqueta = ver_etiqueta_crab(guia)
-        return etiqueta
+    courier = {
+        'FAST': ver_etiqueta_fastmail,
+        'CRAB': ver_etiqueta_crab,
+        'MOCIS': ver_etiqueta_mocis
+    }
+    
+    courier = courier.get(correo_id)
+    
+    if courier:
+        return courier(guia)
     else:
         return "No se encontro la etiqueta para esa guia"
+
+
 
 
 def registrar_log(fecha, plataforma, tienda, orden_id, orden_nro, accion, estado_ant, subestado_ant, comentario):

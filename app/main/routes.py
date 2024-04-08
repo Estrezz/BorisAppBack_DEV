@@ -1009,7 +1009,9 @@ def gestion_lineas_salientes(orden_id):
                 customer = Customer.query.get(orden.customer_id)
                 envio_creado = crea_envio_correo(empresa, customer, orden, envio)
                 if envio_creado == 'Failed':
-                    flash('se produjo un error al intentar generar el envio en la empresa de Correo')
+                    #flash('se produjo un error al intentar generar el envio en la empresa de Correo')
+                    ### Volver y no seguir con el proceso 
+                    return redirect(url_for('main.orden', orden_id=orden_id))
 
         if nuevaorden == 'manual_stock' and empresa.stock_vuelve_config:
             actualizar_stock(request.form.getlist('order_line_saliente'), empresa, 'saliente')
@@ -1346,7 +1348,6 @@ def gestionar_ordenes(orden_id):
             orden.courier_coordinar_roundtrip = False
 
         db.session.commit()
-        print("commit")    
         toReady(orden, current_user.empleado)
     else: 
         if accion == 'toReceived':
@@ -1691,9 +1692,16 @@ def buscar_datos_variantes():
 @bp.route('/cotiza_envio', methods=['POST'])
 def cotiza_envio():
     data = request.json
-    datos_correo = CONF_correo.query.filter_by(store=data['correo']['store_id'], correo_id=data['correo']['correo_id']).first()
-    servicio =  CONF_metodos_envios.query.filter_by(store=data['correo']['store_id'], metodo_envio_id=data['correo']['metodo_envio']).first() 
-   
+    store_id = data['correo']['store_id']
+    correo_id = data['correo']['correo_id']
+    metodo_envio_id = data['correo']['metodo_envio']
+
+    datos_correo = CONF_correo.query.filter_by(store=store_id, correo_id=correo_id).first()
+    servicio = CONF_metodos_envios.query.filter_by(store=store_id, metodo_envio_id=metodo_envio_id).first()
+
+    if servicio is None:
+        servicio = ""
+
     precio = cotiza_envio_correo(data, datos_correo, servicio)
     
     if precio != 'Failed':
@@ -1703,14 +1711,28 @@ def cotiza_envio():
 
 
 
-@bp.route('/etiqueta/<orden_id>', methods=['GET', 'POST'])
+@bp.route('/etiqueta/<orden_id>/<tipo>', methods=['GET', 'POST'])
 @login_required
-def etiqueta(orden_id):
-    orden = Order_header.query.filter_by(id=orden_id).first()
-    metodo = CONF_metodos_envios.query.filter_by(store=orden.store, metodo_envio_id=orden.courier_method).first() 
-    etiqueta = ver_etiqueta(metodo.correo_id, orden.metodo_envio_guia )
+def etiqueta(orden_id, tipo):
 
-    return etiqueta.content, etiqueta.status_code, etiqueta.headers.items()
+    guia = ""
+    
+    orden = Order_header.query.get(orden_id)
+    metodo = CONF_metodos_envios.query.filter_by(store=orden.store, metodo_envio_id=orden.courier_method).first() 
+
+
+    if tipo == "retiro":
+        guia = orden.metodo_envio_guia
+    if tipo == "entrega":
+        guia = orden.metodo_envio_guia_entrega
+
+    etiqueta = ver_etiqueta(metodo.correo_id, guia )    
+
+    #return etiqueta.content, etiqueta.status_code, etiqueta.headers.items()
+    if metodo.correo_id == 'MOCIS':
+        return etiqueta.data, etiqueta.status, etiqueta.headers
+    else:
+        return etiqueta.content, etiqueta.status_code, etiqueta.headers.items()
     
 
 @bp.route('/buscar_metodo_envio', methods=['POST'])

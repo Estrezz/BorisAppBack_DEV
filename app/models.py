@@ -164,11 +164,15 @@ class Order_header(db.Model):
     metodo_envio_correo = db.Column(db.String(64))
     metodo_envio_guia = db.Column(db.String(64), index=True) ### Guia para el retiro
     metodo_envio_guia_entrega = db.Column(db.String(64)) ### En caso de que fuera necesario una guia adicional para la entrega
+    etiqueta_generada = db.Column(db.Boolean)
+    etiqueta_generada_entrega = db.Column(db.Boolean) ### En Caso de que se necesite guia para la entrega
+    courier_precio = db.Column(db.String(20))
+    courier_precio_entrega = db.Column(db.String(20)) ### Preio de la guia de entrega
+
     metodo_envio_sucursal_id = db.Column(db.String(200))
     metodo_envio_sucursal_name = db.Column(db.String(350))
     metodo_envio_mail_locales_enviado = db.Column(db.Boolean)
-    etiqueta_generada = db.Column(db.Boolean)
-    courier_precio = db.Column(db.String(20))
+    
     reembolsado = db.Column(db.Boolean)
     reembolso_metodo = db.Column(db.String(20))
     #### quitar
@@ -325,6 +329,7 @@ class CONF_correo(db.Model):
     store = db.Column(db.String(64), db.ForeignKey('company.store_id'))
     correo_id = db.Column(db.String(15), db.ForeignKey('correos.correo_id'))
     cliente_apikey = db.Column(db.String(100))
+    cliente_apisecret = db.Column(db.String(100))
     cliente_id = db.Column(db.String(50))
     user = db.Column(db.String(50))
     passw = db.Column(db.String(50))
