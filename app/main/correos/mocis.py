@@ -18,6 +18,7 @@ def cotiza_envio_mocis(data, datos_correo):
     }
 
     solicitud_tmp = { "postal_code": data['from']['postalCode'] }
+    ### para cotizar un inversa enviar "service" con el valor 4. 
 
     payload = json.dumps(solicitud_tmp)
     
